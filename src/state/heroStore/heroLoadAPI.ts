@@ -16,8 +16,8 @@ import { restoreFromPercentOrFallback } from "./restoreResourceFromPercent";
 import { getRateLimitRemainingMs, useHeroStore } from "../heroStore";
 import {
   applyBattleLoadoutFromHeroJson,
-  battleLoadoutStaleForHero,
   clearLoadout,
+  filterBuffsForHeroProfession,
   filterSkillsListForHeroProfession,
   loadLoadout,
   professionOrLoadoutMismatchForBattle,
@@ -940,17 +940,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       : Array.isArray((fixedHero as any).heroJson?.heroBuffs)
         ? (fixedHero as any).heroJson.heroBuffs
         : [];
-    // Професія змінилась (адмінка) або панель бою містить скіли, яких немає у вивчених — інакше лишаються старі бафи/слоти без professionForLoadout у battle JSON
-    const profMismatchBattle =
-      !!(fixedHero.name && fixedHero.profession && (savedBattle as any)?.professionForLoadout) &&
-      String((savedBattle as any).professionForLoadout).trim() !== String(fixedHero.profession).trim();
+    // Зміна професії (локаль vs API), чужі скіли на панелі / у слотах — інакше старі бафи й панель лишаються від попереднього класу
     const profMismatchLocal =
       !!(localBelongsToCharacter && hydratedLocalHero?.profession && fixedHero.profession) &&
       String(hydratedLocalHero!.profession).trim() !== String(fixedHero.profession).trim();
-    const staleBar =
-      battleLoadoutStaleForHero(fixedHero as Hero, savedBattle?.loadoutSlots) ||
-      battleLoadoutStaleForHero(fixedHero as Hero, loadLoadout(fixedHero.name));
-    const professionChanged = !!(profMismatchBattle || profMismatchLocal || staleBar);
+    const professionChanged = !!(
+      profMismatchLocal ||
+      professionOrLoadoutMismatchForBattle(fixedHero.name, fixedHero as Hero, savedBattle)
+    );
     const heroJsonBuffs = professionChanged ? [] : heroJsonBuffsRaw;
     const savedBattleBuffs = professionChanged ? [] : (savedBattle?.heroBuffs || []);
     
@@ -971,8 +968,8 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       if (!cur || (cur.expiresAt ?? 0) < exp) bestByKey.set(key, b);
     }
     const uniqueBuffs = Array.from(bestByKey.values());
-    
-    const savedBuffs = cleanupBuffs(uniqueBuffs, now);
+    const uniqueBuffsForProfession = filterBuffsForHeroProfession(heroForRecalc as Hero, uniqueBuffs);
+    const savedBuffs = cleanupBuffs(uniqueBuffsForProfession, now);
     const recalculated = recalculateAllStats(heroForRecalc, []);
 
     const baseMax = {
@@ -1146,12 +1143,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     (heroWithRecalculatedStats as any).heroJson = {
       ...loadedHeroJson,
       ...(preferLocalAlive || finalHp > 0 || isAliveAfterLoad ? { isDead: false, deadAt: 0 } : {}),
-      heroBuffs:
-        isDead && !isAliveAfterLoad
-          ? []
-          : professionChanged
-            ? finalBuffs
-            : (loadedHeroJson.heroBuffs ?? finalBuffs),
+      heroBuffs: isDead && !isAliveAfterLoad ? [] : finalBuffs,
     };
 
     if (localBelongsToCharacter && hydratedLocalHero) {

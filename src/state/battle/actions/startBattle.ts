@@ -7,6 +7,7 @@ import {
   loadLoadout,
   clearLoadout,
   getHeroLearnedSkillNumericIds,
+  filterBuffsForHeroProfession,
   professionOrLoadoutMismatchForBattle,
 } from "../loadout";
 import { loadBattle, persistBattle } from "../persist";
@@ -50,7 +51,8 @@ export const createStartBattle =
     const mergedBuffsUnique = mergedBuffsRaw.filter((buff, i, arr) =>
       arr.findIndex((b) => (b.id && buff.id && b.id === buff.id) || (!b.id && !buff.id && b.name === buff.name)) === i
     );
-    const savedBuffs = cleanupBuffs(mergedBuffsUnique, now);
+    const mergedBuffsForProfession = filterBuffsForHeroProfession(hero, mergedBuffsUnique);
+    const savedBuffs = cleanupBuffs(mergedBuffsForProfession, now);
     const prevState = get();
     
     // ❗ ВАЖЛИВО: Використовуємо cooldowns з saved (localStorage) або з prevState (поточний store)

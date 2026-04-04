@@ -6,7 +6,12 @@
 import { useHeroStore } from "../heroStore";
 import { useBattleStore } from "./store";
 import { loadBattle, persistBattle, BATTLE_VERSION } from "./persist";
-import { loadLoadout, clearLoadout, professionOrLoadoutMismatchForBattle } from "./loadout";
+import {
+  clearLoadout,
+  filterBuffsForHeroProfession,
+  loadLoadout,
+  professionOrLoadoutMismatchForBattle,
+} from "./loadout";
 import { initialState } from "./initialState";
 import type { BattleState } from "./types";
 
@@ -52,9 +57,10 @@ export function hydrateBattleStoreFromStorage(): void {
         heroName
       );
     } else {
-      heroBuffsToRestore = restoredSummon
+      const rawBuffs = restoredSummon
         ? (saved.heroBuffs ?? [])
         : (saved.heroBuffs ?? []).filter((b: any) => b.id !== 1262 && b.id !== 1332);
+      heroBuffsToRestore = filterBuffsForHeroProfession(hero, rawBuffs);
       loadoutSlotsToRestore = saved.loadoutSlots ?? initialState.loadoutSlots;
     }
 

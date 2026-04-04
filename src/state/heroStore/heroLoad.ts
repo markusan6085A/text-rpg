@@ -11,9 +11,10 @@ import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { fixHeroProfession } from "../../utils/fixProfession";
 import { loadBattle } from "../battle/persist";
 import {
-  battleLoadoutStaleForHero,
+  filterBuffsForHeroProfession,
   filterSkillsListForHeroProfession,
   loadLoadout,
+  professionOrLoadoutMismatchForBattle,
   seedBattleLoadoutFromHeroJsonIfNeeded,
 } from "../battle/loadout";
 import { seedWarehouseFromHeroJsonIfStorageEmpty } from "../warehouse/warehousePersistence";
@@ -282,13 +283,11 @@ export function loadHero(): Hero | null {
       : Array.isArray((fixedHero as any).heroJson?.heroBuffs)
         ? (fixedHero as any).heroJson.heroBuffs
         : [];
-    const profMismatchBattle =
-      !!(fixedHero.name && fixedHero.profession && (savedBattle as any)?.professionForLoadout) &&
-      String((savedBattle as any).professionForLoadout).trim() !== String(fixedHero.profession).trim();
-    const staleBar =
-      battleLoadoutStaleForHero(fixedHero, savedBattle?.loadoutSlots) ||
-      battleLoadoutStaleForHero(fixedHero, loadLoadout(fixedHero.name));
-    const professionChanged = !!(profMismatchBattle || staleBar);
+    const professionChanged = professionOrLoadoutMismatchForBattle(
+      fixedHero.name,
+      fixedHero,
+      savedBattle
+    );
     const heroJsonBuffs = professionChanged ? [] : heroJsonBuffsRaw;
     const savedBattleBuffs = professionChanged ? [] : (savedBattle?.heroBuffs || []);
     const allBuffsRaw = [...heroJsonBuffs, ...savedBattleBuffs];
@@ -300,7 +299,10 @@ export function loadHero(): Hero | null {
       const exp = b.expiresAt ?? 0;
       if (!cur || (cur.expiresAt ?? 0) < exp) bestByKey.set(key, b);
     }
-    const savedBuffs = cleanupBuffs(Array.from(bestByKey.values()), now);
+    const savedBuffs = cleanupBuffs(
+      filterBuffsForHeroProfession(fixedHero, Array.from(bestByKey.values())),
+      now
+    );
     const recalculated = recalculateAllStats(fixedHero, []);
     
     // ❗ ВАЖЛИВО: recalculated.resources.maxHp містить БАЗОВЕ значення БЕЗ бафів

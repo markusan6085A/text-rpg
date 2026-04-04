@@ -8,7 +8,7 @@ import {
 import type { Hero } from "../../types/Hero";
 
 /** Додаткові скіли, дозволені всім професіям (узгоджено з getSkillDef). */
-const EXTRA_SKILL_IDS_ALL_PROFESSIONS = new Set([130, 429, 401]);
+export const EXTRA_SKILL_IDS_ALL_PROFESSIONS = new Set([130, 429, 401]);
 import { getJSON, removeItem, setJSON } from "../persistence";
 import { loadBattle, persistBattle } from "./persist";
 
@@ -68,12 +68,17 @@ export function sanitizeBattleLoadoutSlots(
   const learned = new Set(
     (Array.isArray(hero.skills) ? hero.skills : []).map((s: any) => Number(s?.id)).filter((x) => !Number.isNaN(x))
   );
+  const pid =
+    normalizeProfessionId(hero.profession ?? null) ||
+    normalizeProfessionId(getDefaultProfessionForKlass(String(hero.klass ?? ""), hero.race) || "") ||
+    null;
   const out = slots.map((slot) => {
     if (slot === null || slot === undefined) return null;
     if (typeof slot === "string") return slot;
     const n = Number(slot);
     if (n === BASE_ATTACK_ID) return BASE_ATTACK_ID;
     if (!learned.has(n)) return null;
+    if (pid && !EXTRA_SKILL_IDS_ALL_PROFESSIONS.has(n) && !isSkillInProfession(n, pid)) return null;
     const def = getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, n);
     if (!def) return null;
     if (def.category === "passive") return null;
@@ -125,6 +130,45 @@ export function battleLoadoutStaleForHero(
 
 const profNorm = (p: unknown) => String(p ?? "").trim();
 
+/** У слотах є числовий скіл, який не належить поточній професії (навіть якщо він помилково залишився у hero.skills після merge). */
+function slotsContainSkillForeignToProfession(
+  hero: Hero,
+  slots: (number | string | null)[] | null | undefined
+): boolean {
+  if (!hero?.profession || !Array.isArray(slots)) return false;
+  const pid =
+    normalizeProfessionId(hero.profession) ||
+    normalizeProfessionId(getDefaultProfessionForKlass(String(hero.klass ?? ""), hero.race) || "") ||
+    null;
+  if (!pid) return false;
+  return slots.some((s) => {
+    if (typeof s !== "number" || !Number.isFinite(s) || s === BASE_ATTACK_ID) return false;
+    if (EXTRA_SKILL_IDS_ALL_PROFESSIONS.has(s)) return false;
+    return !isSkillInProfession(s, pid);
+  });
+}
+
+/**
+ * Прибирає бафи/тогли, прив’язані до скілів іншої професії (numeric buff.id = skill id).
+ * Не чіпає mob_skill, buffer, gm_bless_scroll та записи без числового id.
+ */
+export function filterBuffsForHeroProfession(hero: Hero | null | undefined, buffs: any[] | null | undefined): any[] {
+  if (!hero?.profession || !Array.isArray(buffs) || buffs.length === 0) return buffs ? [...buffs] : [];
+  const pid =
+    normalizeProfessionId(hero.profession) ||
+    normalizeProfessionId(getDefaultProfessionForKlass(String(hero.klass ?? ""), hero.race) || "") ||
+    null;
+  if (!pid) return [...buffs];
+  return buffs.filter((b) => {
+    const src = b?.source;
+    if (src === "mob_skill" || src === "buffer" || src === "gm_bless_scroll") return true;
+    const sid = b?.id;
+    if (typeof sid !== "number" || !Number.isFinite(sid) || sid === 0) return true;
+    if (EXTRA_SKILL_IDS_ALL_PROFESSIONS.has(sid)) return true;
+    return isSkillInProfession(sid, pid);
+  });
+}
+
 /** Розсинхрон панелі/бафів після зміни професії або коли панель містить уже невивчені скіли. */
 export function professionOrLoadoutMismatchForBattle(
   heroName: string | null | undefined,
@@ -138,7 +182,9 @@ export function professionOrLoadoutMismatchForBattle(
   const profMismatch = !!savedProf && savedProf !== hp;
   const staleSaved = battleLoadoutStaleForHero(hero, saved?.loadoutSlots);
   const staleLocal = battleLoadoutStaleForHero(hero, loadLoadout(heroName));
-  return profMismatch || staleSaved || staleLocal;
+  const foreignSaved = slotsContainSkillForeignToProfession(hero, saved?.loadoutSlots);
+  const foreignLocal = slotsContainSkillForeignToProfession(hero, loadLoadout(heroName));
+  return profMismatch || staleSaved || staleLocal || foreignSaved || foreignLocal;
 }
 
 /**

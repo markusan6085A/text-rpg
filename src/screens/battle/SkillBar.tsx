@@ -2,7 +2,18 @@ import React from "react";
 import { useBattleStore } from "../../state/battle/store";
 import { isChargeBarItem } from "../../state/battle/actions/useSkill/shotHelpers";
 import { useHeroStore } from "../../state/heroStore";
-import { MAX_SLOTS, getSkillDefForBattle, skillDefIsToggle } from "../../state/battle/loadout";
+import {
+  MAX_SLOTS,
+  EXTRA_SKILL_IDS_ALL_PROFESSIONS,
+  getSkillDefForBattle,
+  skillDefIsToggle,
+} from "../../state/battle/loadout";
+import {
+  getDefaultProfessionForKlass,
+  getSkillDefForProfession,
+  isSkillInProfession,
+  normalizeProfessionId,
+} from "../../data/skills";
 import { itemsDBWithStarter } from "../../data/items/itemsDB";
 import { useCityUiVariant } from "../../utils/cityUiVariant";
 import { calcAutoAttackInterval } from "../../utils/combatSpeed";
@@ -26,11 +37,27 @@ function useLearnedActive(): LearnedSkill[] {
   const hero = useHeroStore((s) => s.hero);
   if (!hero) return [];
   const learned = Array.isArray(hero.skills) ? hero.skills : [];
+  const pid =
+    normalizeProfessionId(hero.profession ?? null) ||
+    normalizeProfessionId(getDefaultProfessionForKlass(String(hero.klass ?? ""), hero.race) || "") ||
+    null;
 
   const actives =
     learned
       .map((ls: any) => {
-        const def = getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, Number(ls.id));
+        const sid = Number(ls.id);
+        if (!Number.isFinite(sid)) return null;
+        if (
+          pid &&
+          !EXTRA_SKILL_IDS_ALL_PROFESSIONS.has(sid) &&
+          !isSkillInProfession(sid, pid)
+        ) {
+          return null;
+        }
+        const def = getSkillDefForProfession(
+          (pid ?? normalizeProfessionId(hero.profession ?? null)) || null,
+          sid
+        );
         if (!def) return null;
         if (def.category === "passive") return null;
         const levels = Array.isArray(def.levels) ? def.levels : [];

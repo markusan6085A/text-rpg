@@ -8,7 +8,13 @@ alwaysApply: true
 **Ключовий файл:** `src/state/heroStore/heroLoadAPI.ts`  
 Пов’язано з таблицею merge у `hero-currency-merge-and-storage.mdc` — **не суперечити** цьому правилу без явного OK користувача на зміну поведінки.
 
-## 1) Скіли після адмін-зміни класу / скидання
+## 1) Скіли, панель бою, бафи після зміни класу
+
+**Проблема:** `getSkillDefForProfession` у деяких місцях відкотився до глобального `skillsDB`, тож на панелі показувались чужі активні скіли; `professionForLoadout` інколи відсутній у battle JSON — стара гілка не вважала це зміною класу; у `heroJson` після GET знову підставлялись сирі `heroBuffs` з API без фільтра.
+
+**У коді:** `professionOrLoadoutMismatchForBattle` також ловить **чужі skill id у loadout** (`slotsContainSkillForeignToProfession`); `filterBuffsForHeroProfession` ріже бафи з числовим `id` скіла, який не в `isSkillInProfession`; панель у `SkillBar` фільтрує вивчені перед відображенням; після merge в loadHero/loadHeroFromAPI/startBattle/hydrate — узгоджено застосовується фільтр; `heroJson.heroBuffs` після load з API = обчислені `finalBuffs`, не сирий snapshot.
+
+## 1b) Скіли після адмін-зміни класу / скидання (merge)
 
 **Проблема, яку ловили:** у localStorage лишаються **старі** `skills` іншої професії; якщо змерджити їх з API через union / max-level, у «Вивчених» знову з’являються чужі скіли.
 
