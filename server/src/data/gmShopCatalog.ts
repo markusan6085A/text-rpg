@@ -34,12 +34,12 @@ const GM_BLESSED_CHARGE_IDS = [
 ];
 
 const GM_BLESS_SOUL_SCROLL_IDS = [
-  "gm_bless_soul_might", "gm_bless_soul_haste", "gm_bless_soul_focus",
-  "gm_bless_soul_death_whisper", "gm_bless_soul_guidance", "gm_bless_soul_vampiric_rage",
-  "gm_bless_soul_empower", "gm_bless_soul_acumen", "gm_bless_soul_wild_magic",
-  "gm_bless_soul_concentration", "gm_bless_soul_shield", "gm_bless_soul_magic_barrier",
-  "gm_bless_soul_wind_walk", "gm_bless_soul_agility", "gm_bless_soul_blessed_body",
-  "gm_bless_soul_blessed_soul", "gm_bless_soul_regeneration", "gm_bless_soul_clarity",
+  "gm_bless_scroll_might", "gm_bless_scroll_haste", "gm_bless_scroll_focus",
+  "gm_bless_scroll_death_whisper", "gm_bless_scroll_guidance", "gm_bless_scroll_vampiric_rage",
+  "gm_bless_scroll_empower", "gm_bless_scroll_acumen", "gm_bless_scroll_wild_magic",
+  "gm_bless_scroll_concentration", "gm_bless_scroll_shield", "gm_bless_scroll_magic_barrier",
+  "gm_bless_scroll_wind_walk", "gm_bless_scroll_agility", "gm_bless_scroll_blessed_body",
+  "gm_bless_scroll_blessed_soul", "gm_bless_scroll_regeneration", "gm_bless_scroll_clarity",
 ];
 
 /** Map itemId → { unitPrice, currency } */

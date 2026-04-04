@@ -1618,7 +1618,12 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
     // Add item to inventory using client-provided metadata for item display fields
     const itemMeta = body.itemMeta as Record<string, any> | undefined;
-    const existingIdx = inventory.findIndex((i: any) => i && i.id === itemId);
+    // Normalize shop_ prefix when finding existing stack (client may store with or without prefix)
+    const normalizeId = (id: string) => String(id ?? "").replace(/^shop_/i, "").toLowerCase();
+    const normalizedItemId = normalizeId(itemId);
+    const existingIdx = inventory.findIndex(
+      (i: any) => i && normalizeId(String(i.id ?? "")) === normalizedItemId
+    );
     if (existingIdx >= 0) {
       inventory[existingIdx] = {
         ...inventory[existingIdx],

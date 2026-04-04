@@ -254,7 +254,7 @@ function isStackableItem(it: any): boolean {
 function mergeInventoriesUnion(
   localInv: any[],
   serverInv: any[],
-  opts?: { preferLocalStackCounts?: boolean; excludeEquippedKeys?: Set<string> }
+  opts?: { preferLocalStackCounts?: boolean; excludeEquippedKeys?: Set<string>; serverWinsForDecrement?: boolean }
 ): any[] {
   /** GM-шоп і клієнт: shop_<id> та канонічний id — один стак (інакше GET змерджує 1000 з API + 990 локально → знову 1000). */
   const mergeKeyBaseId = (i: any) => {
@@ -335,6 +335,10 @@ function mergeInventoriesUnion(
     ) {
       // Сервер ще з старим count, а локально вже списали / прибрали рядок (lc=0, інші слоти інвентаря є).
       total = lc;
+    } else if (opts?.serverWinsForDecrement && isStackableItem(bestItem) && lc > sc) {
+      // Сервер новіший (ahead by revision) і має МЕНШЕ або 0: інший пристрій витратив/видалив предмет.
+      // Наприклад: ПК застосував скрол (server=0), телефон ще має в локалці (local=1) → беремо серверний 0.
+      total = sc;
     } else {
       total = Math.max(lc, sc);
     }
@@ -1425,7 +1429,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
 
         const mergedInv = serverJustCleared
           ? mergeInventoriesUnion([], serverInv, { preferLocalStackCounts: false })
-          : mergeInventoriesUnion(localInv, serverInv, { preferLocalStackCounts: preferLocalStackableCounts });
+          : mergeInventoriesUnion(localInv, serverInv, {
+              preferLocalStackCounts: preferLocalStackableCounts,
+              // Коли сервер новіший (інший пристрій зробив зміни): брати серверний count якщо локальний більший.
+              // Так вжитий на ПК скрол/заряд зникне і на телефоні, а не повернеться через max().
+              serverWinsForDecrement: serverAheadByRevision,
+            });
 
         const localOv = Array.isArray((localSnapshot as any).overflowChest)
           ? (localSnapshot as any).overflowChest
@@ -1437,6 +1446,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           ? []
           : mergeInventoriesUnion(localOv, serverOv, {
               preferLocalStackCounts: preferLocalStackableCounts,
+              serverWinsForDecrement: serverAheadByRevision,
             });
         const localTvt = Math.max(
           Number(
