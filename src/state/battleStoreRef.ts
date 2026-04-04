@@ -6,6 +6,8 @@ import type { BattleState } from "./battle/types";
  */
 export const battleStoreRef: {
   getState: () => BattleState | null;
+  setState: ((partial: Partial<BattleState>) => void) | null;
 } = {
   getState: () => null,
+  setState: null,
 };

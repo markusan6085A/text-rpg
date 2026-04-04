@@ -15,3 +15,4 @@ export const useBattleStore = create<BattleState>((set, get, api) => ({
 }));
 
 battleStoreRef.getState = () => useBattleStore.getState();
+battleStoreRef.setState = (partial) => useBattleStore.setState(partial);

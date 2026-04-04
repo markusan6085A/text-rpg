@@ -21,6 +21,8 @@ import { postPartyKillShare, postWorldMobKill } from "../../utils/api";
 import { applyWorldMobKillLocal } from "../worldMobHpStore";
 import { buildPartyMemberVictoryLogLines } from "./helpers/victoryLootLogLines";
 import { battleFinishAPI } from "../../utils/api/battleFinishAPI";
+import { battleStoreRef } from "../battleStoreRef";
+import { itemsDB } from "../../data/items/itemsDB";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -451,6 +453,28 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
 
         if (Object.keys(patch).length > 0) {
           useHeroStore.getState().updateHero(patch);
+        }
+
+        // Оновлюємо лог бою серверними дропами (щоб те, що показує гравцю = те, що реально в інвентарі)
+        // Запускається завжди (навіть при порожньому дропі), щоб прибрати клієнтські «гessed» рядки
+        if (Array.isArray(serverDrops?.items)) {
+          const serverDropLines: string[] = serverDrops.items.map((item: { id: string; count: number; name?: string; kind?: string }) => {
+            const displayName = item.name || itemsDB[item.id]?.name || item.id;
+            const count = item.count ?? 1;
+            const kind = String(item.kind ?? "").toLowerCase();
+            const prefix = kind === "quest" ? "Квест" : kind === "spoil" ? "Спойл" : "Дроп";
+            return `${prefix}: ${displayName} x${count}`;
+          });
+          const currentLog = battleStoreRef.getState()?.log ?? [];
+          // Видаляємо рядки з клієнтськими "guessed" дропами, замінюємо серверними
+          const filteredLog = currentLog.filter(
+            (line) =>
+              !line.startsWith("Дроп:") &&
+              !line.startsWith("Спойл:") &&
+              !line.startsWith("Квест:")
+          );
+          const newLog = [...serverDropLines, ...filteredLog];
+          battleStoreRef.setState?.({ log: newLog });
         }
       }
     } catch {
