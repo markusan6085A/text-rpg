@@ -1305,7 +1305,19 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const mobId = String(body.mobId ?? "");
     const zoneId = body.zoneId ? String(body.zoneId) : undefined;
 
-    let serverDropResult = { items: [] as any[], adena: 0, messages: [] as string[] };
+    let serverDropResult: {
+      items: any[];
+      adena: number;
+      messages: string[];
+      questProgressUpdates: Array<{ questId: string; itemId: string; count: number }>;
+      zaricheEquip?: any;
+    } = {
+      items: [],
+      adena: 0,
+      messages: [],
+      questProgressUpdates: [],
+      zaricheEquip: undefined,
+    };
     if (mobId) {
       try {
         serverDropResult = calculateServerDrops(
@@ -1317,10 +1329,14 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             premiumUntil: Number(heroJson.premiumUntil ?? 0),
             profession: String(heroJson.klass ?? heroJson.profession ?? ""),
             inventorySize: Array.isArray(heroJson.inventory) ? heroJson.inventory.length : 0,
+            activeQuests: Array.isArray(heroJson.activeQuests) ? heroJson.activeQuests : [],
+            inventory: Array.isArray(heroJson.inventory) ? heroJson.inventory : [],
+            equipment: (heroJson.equipment as Record<string, string | null>) ?? {},
+            equipmentEnchantLevels: (heroJson.equipmentEnchantLevels as Record<string, number>) ?? {},
           }
         );
       } catch {
-        // If drop calculation fails, continue without drops (non-fatal)
+        // Drop calculation failure is non-fatal; continue without drops
       }
     }
 
@@ -1335,8 +1351,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (body.newMp != null) newHeroJson.mp = Number(body.newMp);
     if (body.newCp != null) newHeroJson.cp = Number(body.newCp);
 
-    // Adena = current DB adena + client earnedAdena (validated by cap above)
-    // Note: serverDropResult.adena is 0 (items-only; adena handled client-side with cap validation)
+    // Adena: current DB adena + client earnedAdena (validated by cap)
     newHeroJson.adena = Number(heroJson.adena ?? 0) + earnedAdena;
 
     // Patch allowed non-critical fields (quest progress, kill counters, etc.)
@@ -1354,25 +1369,58 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }
     }
 
-    // ── Add server drops + quest drops to inventory ────────────────────────
+    // ── Apply zariche auto-equip ───────────────────────────────────────────
+    if (serverDropResult.zaricheEquip) {
+      const ze = serverDropResult.zaricheEquip;
+      newHeroJson.equipment = ze.equipment;
+      newHeroJson.equipmentEnchantLevels = ze.equipmentEnchantLevels;
+      newHeroJson.zaricheEquippedUntil = ze.zaricheEquippedUntil;
+    }
+
+    // ── Apply server-calculated quest progress updates ────────────────────
+    if (serverDropResult.questProgressUpdates.length > 0) {
+      const baseActiveQuests: any[] = Array.isArray(newHeroJson.activeQuests)
+        ? newHeroJson.activeQuests
+        : [];
+      const updatedActiveQuests = baseActiveQuests.map((aq: any) => {
+        const updates = serverDropResult.questProgressUpdates.filter(
+          (u) => u.questId === aq.questId
+        );
+        if (updates.length === 0) return aq;
+        const newProgress = { ...(aq.progress ?? {}) };
+        for (const u of updates) {
+          newProgress[u.itemId] = (newProgress[u.itemId] ?? 0) + u.count;
+        }
+        return { ...aq, progress: newProgress };
+      });
+      newHeroJson.activeQuests = updatedActiveQuests;
+    }
+
+    // ── Add server drops to inventory ─────────────────────────────────────
     const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
-    const overflowChest: any[] = Array.isArray(heroJson.overflowChest) ? [...heroJson.overflowChest] : [];
+    const overflowChest: any[] = Array.isArray(heroJson.overflowChest)
+      ? [...heroJson.overflowChest]
+      : [];
     const MAX_INVENTORY = 200;
 
-    const allDropsToAdd = [
-      ...serverDropResult.items,
-      ...(Array.isArray(body.questDrops) ? body.questDrops : []),
+    // If zariche dropped, returned old weapon goes to inventory first
+    const zaricheReturnedWeapon = serverDropResult.zaricheEquip?.returnedWeapon;
+    const allDropsToAdd: any[] = [
+      ...(zaricheReturnedWeapon ? [zaricheReturnedWeapon] : []),
+      ...serverDropResult.items.filter((i: any) => i.id !== "zariche"), // zariche handled via equip
+      ...(Array.isArray(body.questDrops) ? body.questDrops : []),       // legacy client fallback
     ];
 
-    for (const drop of allDropsToAdd) {
-      if (!drop.id) continue;
+    function addDropToInventory(drop: any): void {
+      if (!drop.id) return;
       const itemId = String(drop.id).trim();
       const count = Math.max(1, Math.floor(Number(drop.count ?? 1)));
-      if (!itemId) continue;
+      if (!itemId) return;
 
-      const isStackable = ["consumable", "resource", "quest"].includes(
-        String(drop.kind ?? drop.slot ?? "").toLowerCase()
-      ) || count > 1;
+      const isStackable =
+        ["consumable", "resource", "quest"].includes(
+          String(drop.kind ?? drop.slot ?? "").toLowerCase()
+        ) || count > 1;
 
       const existingIdx = isStackable
         ? inventory.findIndex((i: any) => i && i.id === itemId && !(i?.meta?.hasLSPassive))
@@ -1396,6 +1444,10 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           overflowChest.push({ ...drop, id: itemId, count });
         }
       }
+    }
+
+    for (const drop of allDropsToAdd) {
+      addDropToInventory(drop);
     }
 
     newHeroJson.inventory = inventory;
@@ -1425,7 +1477,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         newLevel: body.newLevel ?? null,
         serverDrops: serverDropResult.items.length,
         serverDropAdena: serverDropResult.adena,
-        questDrops: body.questDrops?.length ?? 0,
+        questDrops: serverDropResult.questProgressUpdates.length,
+        zaricheEquipped: !!serverDropResult.zaricheEquip,
       },
       clientIp: getClientIp(req),
     });
@@ -1437,6 +1490,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         items: serverDropResult.items,
         adena: serverDropResult.adena,
         messages: serverDropResult.messages,
+        questProgressUpdates: serverDropResult.questProgressUpdates,
+        zaricheEquipped: !!serverDropResult.zaricheEquip,
+        zaricheEquippedUntil: serverDropResult.zaricheEquip?.zaricheEquippedUntil,
       },
     });
   });

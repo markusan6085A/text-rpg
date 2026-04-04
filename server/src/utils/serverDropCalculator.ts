@@ -1,16 +1,19 @@
 /**
  * server/src/utils/serverDropCalculator.ts
  *
- * Серверна авторитетна логіка дропу після вбивства моба.
- * Відповідає за: roll drops/spoil, adena, Floran-профіль,
- * Seven Seals медалі (5% пн-сб), Zariche (1%).
- * Квестові дропи поки лишаються на клієнті (фаза 2).
+ * Server-authoritative drop logic after mob kill:
+ * - L2/tiered/Floran item drops & spoils
+ * - Treasure box, Seven Seals medals
+ * - Zariche (1% chance) + auto-equip
+ * - Quest drops (based on hero's activeQuests)
  */
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const mobDropRegistry: Record<string, any> = require("../data/drops/mobDropRegistry.generated.json");
 import { applyTieredLootToMob, type ServerDropEntry } from "../data/drops/serverTieredLoot";
 import { getFloranMobDropProfile, type DropProfile } from "../data/drops/floranMobDrops";
+import { SERVER_QUEST_DROPS } from "../data/questDropData";
+import { serverMobMatchesQuestDropName, serverGetEffectiveQuestDropNeed } from "./questDropHelpers";
 
 // ---------- types ----------
 
@@ -23,10 +26,29 @@ export interface DroppedItem {
   icon?: string;
 }
 
+export interface QuestProgressUpdate {
+  questId: string;
+  itemId: string;
+  count: number;
+}
+
+export interface ZaricheEquipUpdate {
+  /** Updated equipment map (weapon slot set to "zariche") */
+  equipment: Record<string, string | null>;
+  /** Updated enchant levels (weapon slot cleared) */
+  equipmentEnchantLevels: Record<string, number>;
+  /** If an old weapon was displaced, it goes back to inventory */
+  returnedWeapon?: { id: string; kind: string; slot: string; count: number };
+  /** Zariche equipped-until timestamp */
+  zaricheEquippedUntil: number;
+}
+
 export interface DropCalculationResult {
   items: DroppedItem[];
   adena: number;
   messages: string[];
+  questProgressUpdates: QuestProgressUpdate[];
+  zaricheEquip?: ZaricheEquipUpdate;
 }
 
 // ---------- registry lookup ----------
@@ -47,12 +69,10 @@ type MobRegistryEntry = {
 
 function lookupMob(mobId: string, zoneId?: string): MobRegistryEntry | null {
   const reg = mobDropRegistry as Record<string, MobRegistryEntry>;
-  // Try exact key mobId::zoneId
   if (zoneId) {
     const exact = reg[`${mobId}::${zoneId}`];
     if (exact) return exact;
   }
-  // Fallback: first entry for this mobId
   const fallback = Object.values(reg).find((e) => e.id === mobId);
   return fallback ?? null;
 }
@@ -75,18 +95,100 @@ function rollQty(min: number, max: number): number {
 }
 
 function isSevenSealsFarmActive(): boolean {
-  // Mon(1)–Sat(6) Warsaw time, rough UTC+2 estimate
   const now = new Date();
-  const warsawOffset = 2; // rough estimate (ignores DST for simplicity)
-  const warsawHour = (now.getUTCHours() + warsawOffset) % 24;
+  const warsawOffset = 2;
   const warsawDay = new Date(now.getTime() + warsawOffset * 3600 * 1000).getUTCDay();
-  void warsawHour;
-  return warsawDay >= 1 && warsawDay <= 6; // Mon–Sat
+  return warsawDay >= 1 && warsawDay <= 6;
 }
 
 function getPremiumMultiplier(premiumUntil: number): number {
   if (premiumUntil && premiumUntil > Date.now()) return 2;
   return 1;
+}
+
+function addItem(list: DroppedItem[], id: string, count: number, name?: string, kind?: string, slot?: string): void {
+  if (!id || count <= 0) return;
+  const existing = list.find((i) => i.id === id);
+  if (existing) {
+    existing.count += count;
+  } else {
+    list.push({ id, count, ...(name ? { name } : {}), ...(kind ? { kind } : {}), ...(slot ? { slot } : {}) });
+  }
+}
+
+// ---------- quest drops ----------
+
+function calculateQuestDrops(
+  mobName: string,
+  zoneId: string | undefined,
+  activeQuests: Array<{ questId: string; progress?: Record<string, number>; rolledQuestDropNeeds?: Record<string, number> }>,
+  inventory: Array<{ id: string; count?: number }>
+): { items: DroppedItem[]; updates: QuestProgressUpdate[] } {
+  const items: DroppedItem[] = [];
+  const updates: QuestProgressUpdate[] = [];
+
+  for (const activeQuest of activeQuests) {
+    const questDropRows = SERVER_QUEST_DROPS.filter((row) => row.questId === activeQuest.questId);
+    if (questDropRows.length === 0) continue;
+
+    for (const row of questDropRows) {
+      if (!serverMobMatchesQuestDropName(mobName, row.mobName)) continue;
+
+      if (row.dropZoneIdPrefix && (!zoneId || !String(zoneId).startsWith(row.dropZoneIdPrefix))) {
+        continue;
+      }
+
+      const need = serverGetEffectiveQuestDropNeed(row.requiredCount, row.itemId, activeQuest);
+
+      // Current count in inventory
+      const invItem = inventory.find((i) => i.id === row.itemId);
+      const currentCount = invItem?.count ?? 0;
+
+      // Current quest progress (from activeQuest.progress)
+      const progressCount = activeQuest.progress?.[row.itemId] ?? 0;
+      const effective = Math.max(currentCount, progressCount);
+
+      if (effective >= need) continue; // Already collected enough
+
+      // 100% chance to drop one quest item
+      items.push({ id: row.itemId, count: 1, kind: row.kind ?? "quest", slot: row.slot ?? "quest" });
+      updates.push({ questId: activeQuest.questId, itemId: row.itemId, count: 1 });
+    }
+  }
+
+  return { items, updates };
+}
+
+// ---------- zariche auto-equip ----------
+
+function calculateZaricheEquip(
+  heroEquipment: Record<string, string | null> | undefined,
+  heroEnchantLevels: Record<string, number> | undefined
+): ZaricheEquipUpdate {
+  const equipment: Record<string, string | null> = { ...(heroEquipment ?? {}) };
+  const enchantLevels: Record<string, number> = { ...(heroEnchantLevels ?? {}) };
+
+  const oldWeaponId = equipment.weapon ?? null;
+
+  // Equip zariche in weapon slot
+  equipment.weapon = "zariche";
+  // Two-handed weapon clears shield
+  equipment.shield = null;
+
+  // Clear enchant for weapon slot (zariche starts at +0)
+  delete enchantLevels.weapon;
+
+  let returnedWeapon: ZaricheEquipUpdate["returnedWeapon"];
+  if (oldWeaponId && oldWeaponId !== "zariche") {
+    returnedWeapon = { id: oldWeaponId, kind: "weapon", slot: "weapon", count: 1 };
+  }
+
+  return {
+    equipment,
+    equipmentEnchantLevels: enchantLevels,
+    returnedWeapon,
+    zaricheEquippedUntil: Date.now() + 60 * 60 * 1000,
+  };
 }
 
 // ---------- main calculator ----------
@@ -100,30 +202,33 @@ export function calculateServerDrops(
     premiumUntil?: number;
     profession?: string;
     inventorySize?: number;
+    activeQuests?: Array<{ questId: string; progress?: Record<string, number>; rolledQuestDropNeeds?: Record<string, number> }>;
+    inventory?: Array<{ id: string; count?: number }>;
+    equipment?: Record<string, string | null>;
+    equipmentEnchantLevels?: Record<string, number>;
   }
 ): DropCalculationResult {
   const items: DroppedItem[] = [];
   const messages: string[] = [];
+  const questProgressUpdates: QuestProgressUpdate[] = [];
   let adena = 0;
+  let zaricheEquip: ZaricheEquipUpdate | undefined;
 
   const mob = lookupMob(mobId, zoneId);
   if (!mob) {
-    return { items, adena, messages };
+    return { items, adena, messages, questProgressUpdates };
   }
 
-  const premiumMult = getPremiumMultiplier(mob.level <= heroContext.level + 10
-    ? (heroContext.premiumUntil ?? 0)
-    : 0);
-
-  // Note: adena is handled client-side (with server cap in battle-finish).
-  // Server only calculates ITEM drops (resources, consumables, specials).
+  const premiumMult = getPremiumMultiplier(
+    mob.level <= heroContext.level + 10 ? (heroContext.premiumUntil ?? 0) : 0
+  );
 
   // ── Floran drop ───────────────────────────────────────────────
   if (mob.isFloran) {
     const profile: DropProfile | undefined = getFloranMobDropProfile(mob.level, mob.name);
     if (profile) {
       for (const item of profile.items) {
-        if (item.itemId === "adena") continue; // client handles adena
+        if (item.itemId === "adena") continue;
         if (Math.random() >= item.chance) continue;
         const count = rollQty(item.min, item.max);
         const scaled = ["soulshot", "spiritshot", "healing_potion", "elixir"].some((k) =>
@@ -135,37 +240,27 @@ export function calculateServerDrops(
         messages.push(`Floran drop: ${item.itemId} x${scaled}`);
       }
     }
-    // Floran mobs also roll zone resource drops below
   }
 
   // ── L2 tiered & zone drops ─────────────────────────────────────
   let effectiveDrops: ServerDropEntry[] = mob.drops ?? [];
   let effectiveSpoil: ServerDropEntry[] = mob.spoil ?? [];
 
-  // If drops are empty (l2dop_* mob), recalculate tiered loot
   if (effectiveDrops.length === 0 && /^l2dop_\d/.test(mob.id) && zoneId) {
     const tiered = applyTieredLootToMob(mob.id, mob.level, zoneId);
     effectiveDrops = tiered.drops;
     effectiveSpoil = tiered.spoil;
   }
 
-  // Separate l2-xml drops (chancePerMillion) from classic drops
   const l2Lines = effectiveDrops.filter((d) => (d.chancePerMillion ?? 0) > 0);
   const classicLines = effectiveDrops.filter((d) => !(d.chancePerMillion ?? 0));
 
   const applyLine = (drop: ServerDropEntry) => {
     if (!rollEntry(drop)) return;
     let count = rollQty(drop.min ?? 1, drop.max ?? 1);
-
-    if (drop.id === "adena" || drop.kind === "adena") {
-      // adena handled client-side — skip
-      return;
-    }
-
-    // Apply premium for resources/consumables
+    if (drop.id === "adena" || drop.kind === "adena") return; // client handles adena
     const isResource = drop.kind === "resource" || String(drop.id).startsWith("l2item_");
     if (isResource) count = Math.round(count * premiumMult);
-
     addItem(items, drop.id, count, drop.displayName);
     messages.push(`Drop: ${drop.id} x${count}`);
   };
@@ -204,26 +299,28 @@ export function calculateServerDrops(
     messages.push("Drop: seven_seals_medal x1");
   }
 
-  // ── Zariche (1% from any mob) ─────────────────────────────────
-  if (Math.random() < 0.01) {
-    addItem(items, "zariche", 1);
-    messages.push("ZARICHE DROPPED!");
+  // ── Zariche (1% from any mob, not already equipped) ───────────
+  const zaricheAlreadyEquipped = heroContext.equipment?.weapon === "zariche";
+  if (!zaricheAlreadyEquipped && Math.random() < 0.01) {
+    zaricheEquip = calculateZaricheEquip(heroContext.equipment, heroContext.equipmentEnchantLevels);
+    messages.push("ZARICHE DROPPED! Auto-equipped.");
   }
 
-  return { items, adena, messages };
-}
-
-function addItem(
-  list: DroppedItem[],
-  id: string,
-  count: number,
-  name?: string
-): void {
-  if (!id || count <= 0) return;
-  const existing = list.find((i) => i.id === id);
-  if (existing) {
-    existing.count += count;
-  } else {
-    list.push({ id, count, ...(name ? { name } : {}) });
+  // ── Quest drops ───────────────────────────────────────────────
+  const activeQuests = heroContext.activeQuests ?? [];
+  if (activeQuests.length > 0 && mob.name) {
+    const questResult = calculateQuestDrops(
+      mob.name,
+      zoneId,
+      activeQuests,
+      heroContext.inventory ?? []
+    );
+    for (const qi of questResult.items) {
+      addItem(items, qi.id, qi.count, undefined, qi.kind, qi.slot);
+      messages.push(`Quest drop: ${qi.id} x${qi.count}`);
+    }
+    questProgressUpdates.push(...questResult.updates);
   }
+
+  return { items, adena, messages, questProgressUpdates, zaricheEquip };
 }

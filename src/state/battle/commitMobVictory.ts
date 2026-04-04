@@ -318,12 +318,40 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         },
       });
 
-      if (finishResult?.ok && finishResult.heroJson?.heroRevision) {
-        // Update heroRevision so next loadHeroFromAPI uses server's authoritative inventory
-        useHeroStore.getState().updateServerState(
-          { heroRevision: finishResult.heroJson.heroRevision, updatedAt: Date.now() },
-          {}
-        );
+      if (finishResult?.ok && finishResult.heroJson) {
+        // Update heroRevision (so future loadHeroFromAPI reflects this save)
+        if (finishResult.heroJson.heroRevision) {
+          useHeroStore.getState().updateServerState(
+            { heroRevision: finishResult.heroJson.heroRevision, updatedAt: Date.now() },
+            {}
+          );
+        }
+
+        // Apply server-authoritative inventory + equipment (zariche, quest items persist after F5)
+        const serverHj = finishResult.heroJson;
+        const serverDrops = finishResult.serverDrops;
+        const patch: Partial<import("../../types/Hero").Hero> = {};
+
+        if (Array.isArray(serverHj.inventory)) {
+          patch.inventory = serverHj.inventory;
+        }
+        if (Array.isArray(serverHj.overflowChest)) {
+          patch.overflowChest = serverHj.overflowChest;
+        }
+        if (Array.isArray(serverHj.activeQuests)) {
+          patch.activeQuests = serverHj.activeQuests;
+        }
+        if (serverDrops?.zaricheEquipped && serverHj.equipment) {
+          patch.equipment = serverHj.equipment;
+          patch.equipmentEnchantLevels = serverHj.equipmentEnchantLevels;
+          if (serverDrops.zaricheEquippedUntil) {
+            (patch as any).zaricheEquippedUntil = serverDrops.zaricheEquippedUntil;
+          }
+        }
+
+        if (Object.keys(patch).length > 0) {
+          useHeroStore.getState().updateHero(patch);
+        }
       }
     } catch {
       // Failure is OK — state already in localStorage via updateHero

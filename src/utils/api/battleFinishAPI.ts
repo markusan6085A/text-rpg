@@ -9,6 +9,9 @@ export interface BattleFinishResult {
     items: Array<{ id: string; count: number; name?: string }>;
     adena: number;
     messages: string[];
+    questProgressUpdates?: Array<{ questId: string; itemId: string; count: number }>;
+    zaricheEquipped?: boolean;
+    zaricheEquippedUntil?: number;
   };
 }
 

@@ -8,7 +8,6 @@ import { QUESTS } from "../../../data/quests";
 import { getEffectiveQuestDropNeed } from "../../../utils/quests/questDropEffectiveNeed";
 import { mobMatchesQuestDropName } from "../../../utils/quests/questDropMobMatch";
 import { mergeActiveQuestsForUi } from "../../../utils/quests/mergeActiveQuestsForUi";
-import { equipItemLogic } from "../../heroStore/heroInventory";
 import { getInventoryMax } from "../../heroStore";
 import { addItemsWithOverflow } from "../../heroStore/inventoryOverflow";
 import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
@@ -537,56 +536,12 @@ export function processMobDrops(
     });
   });
 
-  // ❗ ОБРОБКА ЗАРИЧА - 1% шанс випадання з будь-якого моба
-  let zaricheEquipped = false;
-  let zaricheEquippedUntil: number | undefined = undefined;
-  let newEquipment: Record<string, string | null> | undefined = undefined;
-  let newEquipmentEnchantLevels: Record<string, number> | undefined = undefined;
-  
-  // Перевіряємо, чи Зарич вже одягнутий (не можна одягнути другий раз)
-  const zaricheAlreadyEquipped = hero.equipment?.weapon === "zariche";
-  
-  if (!zaricheAlreadyEquipped && Math.random() < 0.01) {
-    // Зарич випав! (1% шанс)
-    const zaricheDef = itemsDB["zariche"];
-    if (zaricheDef) {
-      // Створюємо предмет Зарича
-      const zaricheItem: HeroInventoryItem = {
-        id: zaricheDef.id,
-        name: zaricheDef.name,
-        type: zaricheDef.kind,
-        slot: zaricheDef.slot,
-        icon: zaricheDef.icon,
-        description: zaricheDef.description,
-        stats: zaricheDef.stats,
-        count: 1,
-        grade: zaricheDef.grade,
-      };
-
-      // Екіп потребує, щоб Зарич був у інвентарі; newInventory вже може містити дроп цього kill
-      const heroForEquip: Hero = {
-        ...hero,
-        inventory: newInventory.map((row) => ({ ...row })),
-      };
-      const zaricheInInv: HeroInventoryItem = { ...zaricheItem };
-      const heroWithZaricheInInv: Hero = {
-        ...heroForEquip,
-        inventory: [...heroForEquip.inventory, zaricheInInv],
-      };
-      const heroWithZariche = equipItemLogic(heroWithZaricheInInv, zaricheInInv);
-
-      newInventory.splice(0, newInventory.length, ...(heroWithZariche.inventory ?? []));
-
-      newEquipment = heroWithZariche.equipment;
-      newEquipmentEnchantLevels = heroWithZariche.equipmentEnchantLevels;
-
-      // Встановлюємо таймер на 1 годину (3600000 мс)
-      zaricheEquippedUntil = Date.now() + 60 * 60 * 1000;
-      zaricheEquipped = true;
-
-      dropMessages.push(`🎉 ЗАРИЧ ВИПАВ! Автоматично одягнуто на 1 годину!`);
-    }
-  }
+  // ❗ Зарич — обробляється сервером у /battle-finish (auto-equip + 1% roll).
+  // Клієнт НЕ робить roll; стан zariche приходить у відповіді battleFinishAPI.
+  const zaricheEquipped = false;
+  const zaricheEquippedUntil: number | undefined = undefined;
+  const newEquipment: Record<string, string | null> | undefined = undefined;
+  const newEquipmentEnchantLevels: Record<string, number> | undefined = undefined;
 
   // Медальки 7 Печатей: 5% шанс, понеділок–субота (Europe/Warsaw); неділя — без дропу
   if (isSevenSealsFarmWindowActive() && Math.random() < 0.05) {
