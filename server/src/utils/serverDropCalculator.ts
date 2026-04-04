@@ -289,13 +289,13 @@ export function calculateServerDrops(
   // ── Treasure box (±3 levels) ──────────────────────────────────
   const levelDiff = Math.abs(mob.level - heroContext.level);
   if (levelDiff <= 3 && Math.random() < 0.10) {
-    addItem(items, "treasure_box", 1);
+    addItem(items, "treasure_box", 1, undefined, "quest");
     messages.push("Drop: treasure_box x1");
   }
 
   // ── Seven Seals medal (5%, Mon–Sat) ───────────────────────────
   if (isSevenSealsFarmActive() && Math.random() < 0.05) {
-    addItem(items, "seven_seals_medal", 1);
+    addItem(items, "seven_seals_medal", 1, undefined, "quest");
     messages.push("Drop: seven_seals_medal x1");
   }
 

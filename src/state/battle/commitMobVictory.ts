@@ -369,7 +369,9 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
             const id = String(item.id).trim().toLowerCase();
             const kind = String(item.kind ?? "").toLowerCase();
             const slot = String(item.slot ?? "").toLowerCase();
-            const stackable = !(item?.meta?.hasLSPassive) && !EQUIP_K.has(kind) && !EQUIP_K.has(slot) && item.enchantLevel == null;
+            // enchantLevel == null виключено: 0 == null є false в JS, тому медалі/ресурси з enchantLevel:0
+            // (старі записи) не стакались. Для non-equipment EQUIP_K вже виключає зброю/броню — enchantLevel не потрібен.
+            const stackable = !(item?.meta?.hasLSPassive) && !EQUIP_K.has(kind) && !EQUIP_K.has(slot);
             if (!stackable) { deduped.push(item); continue; }
             const existing = dedupMap.get(id);
             if (existing !== undefined) {
