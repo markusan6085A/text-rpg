@@ -33,7 +33,8 @@ export function applyPassiveStoneStatsToCombat(
     if (s.mCrit) result.mCrit += (s.mCrit as number) * 10;
     if (s.focus) result.castSpeed += Math.round(result.castSpeed * ((s.focus as number) / 100)); // -5% перезарядка
     if (s.acumen) result.castSpeed += Math.round(result.castSpeed * ((s.acumen as number) / 100)); // +5% швидкість касту
-    if (s.lifeSteal) result.hpRegen += (s.lifeSteal as number) * 2;
+    /** Реальна кража від нанесеного урону (baseAttack / attackSkill), не реген — як у описі каменя */
+    if (s.lifeSteal) result.vampirism = (result.vampirism ?? 0) + (s.lifeSteal as number);
     if (s.guidance) result.mpRegen += (s.guidance as number) * 2;
     if (s.empower) {
       result.pAtk = Math.round(result.pAtk * (1 + (s.empower as number) / 100));

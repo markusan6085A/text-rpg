@@ -14,7 +14,7 @@ export interface BufferBuffDefinition {
   description: string;
 }
 
-// Бафи статуї (11 бафів з іконками)
+// Бафи статуї (пакет як у PP: Might, Shield, … + Vampiric Rage)
 export const BUFFER_BUFFS: BufferBuffDefinition[] = [
   {
     id: 10001,
@@ -106,6 +106,15 @@ export const BUFFER_BUFFS: BufferBuffDefinition[] = [
     stackType: "guidance",
     effects: [{ stat: "accuracy", mode: "flat", value: 4 }],
     description: "Увеличивает точность на 4",
+  },
+  /** Як Vampiric Rage Elder max (9%): кража HP від фіз. урону ближнього бою — див. baseAttack (vampirismMelee, без лука). */
+  {
+    id: 10011,
+    name: "Vampiric Rage",
+    icon: "/skills/skill1268.gif",
+    stackType: "vampRage",
+    effects: [{ stat: "vampirismMelee", mode: "flat", value: 9 }],
+    description: "Поглощает 9% урона ближнего боя как HP (лук не получает)",
   },
 ];
 
