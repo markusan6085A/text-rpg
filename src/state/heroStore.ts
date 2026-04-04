@@ -17,6 +17,7 @@ import { equipItemLogic, unequipItemLogic } from "./heroStore/heroInventory";
 import { itemsDB } from "../data/items/itemsDB";
 import { showToast } from "./toastStore";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
+import { isStackableHeroItem } from "./heroStore/inventoryOverflow";
 
 export const INVENTORY_MAX_ITEMS = 100;
 export const INVENTORY_ABSOLUTE_MAX = 500;
@@ -686,9 +687,8 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       return;
     }
 
-    // Визначаємо, чи предмет може стакатися (тільки consumable, resource, quest; stackable: false = ніколи)
-    const stackableSlots = ["consumable", "resource", "quest"];
-    const canStack = itemDef.stackable !== false && stackableSlots.includes(itemDef.slot);
+    // Визначаємо, чи предмет може стакатися — використовуємо канонічний isStackableHeroItem
+    const canStack = isStackableHeroItem(itemDef as any);
 
     const newInventory = [...(hero.inventory || [])];
     // Не стакати з камнями з ЛС (зелені) — тільки з звичайними

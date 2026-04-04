@@ -70,10 +70,14 @@ export function unequipItemLogic(hero: Hero, slot: string): Hero {
   const grade = def.grade || autoDetectGrade(itemId);
   const armorType = def.armorType || (def.kind === "armor" || def.kind === "helmet" || def.kind === "boots" || def.kind === "gloves" ? autoDetectArmorType(itemId) : undefined);
 
+  // Використовуємо itemId зі слоту (а не def.id), щоб зберегти оригінальний id
+  // (наприклад "shop_atuba_hammer" замість "atuba_hammer")
+  const returnedItemId = itemId;
+
   // Додаємо предмет в інвентар тільки один раз
   if (!isTwoHandedWeaponInBothSlots && !isTwoPartTorso) {
     newInventory.push({
-      id: def.id,
+      id: returnedItemId,
       name: def.name,
       slot: def.slot,
       kind: def.kind,
@@ -88,7 +92,7 @@ export function unequipItemLogic(hero: Hero, slot: string): Hero {
   } else if (isTwoHandedWeaponInBothSlots || isTwoPartTorso) {
     // Додаємо тільки один раз, якщо це дворучна зброя або торс з 2 частин
     newInventory.push({
-      id: def.id,
+      id: returnedItemId,
       name: def.name,
       slot: def.slot,
       kind: def.kind,

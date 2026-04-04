@@ -1536,7 +1536,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     // Дедублікація: злиття фрагментованих стакових записів (кілька рядків з однаковим id та count=1)
     // що виникли до введення стакування. Виконується після кожного battle-finish.
     function deduplicateStackableInventory(inv: any[]): any[] {
-      const EQUIP_K = new Set(["equipment","weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"]);
+      // "equipment" — загальний kind з drop-таблиць; має бути тут поряд з конкретними слотами
+      const EQUIP_K = new Set(["equipment","weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak","lhand","rhand","lrhand"]);
       const result: any[] = [];
       const seenIdx = new Map<string, number>(); // id -> index in result
       for (const item of inv) {
@@ -1651,10 +1652,26 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (!character) return reply.code(404).send({ error: "character not found" });
 
     const heroJson: any = (character.heroJson as any) || {};
+
+    // Серверна очистка: видалити з inventory ВСІ рядки, id яких є в equipment
+    // (щоб не залишилося "тіней" від shop_ prefix розбіжностей або race conditions)
+    const normEquipId = (s: any) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
+    const equippedNormIds = new Set(
+      Object.values(body.equipment ?? {})
+        .filter(Boolean)
+        .map((v: any) => normEquipId(String(v)))
+    );
+    const cleanedInventory = (body.inventory ?? []).filter((item: any) => {
+      if (!item?.id) return true;
+      const normId = normEquipId(String(item.id));
+      // Якщо item є в одягненому equipment — прибрати з інвентаря
+      return !equippedNormIds.has(normId);
+    });
+
     const newHeroJson: any = {
       ...heroJson,
       equipment: body.equipment,
-      inventory: body.inventory,
+      inventory: cleanedInventory,
       equipmentEnchantLevels: body.equipmentEnchantLevels ?? heroJson.equipmentEnchantLevels ?? {},
     };
 
@@ -1869,8 +1886,10 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         !EQUIP_KINDS_PU.has(String(item.kind ?? "").toLowerCase()) &&
         !EQUIP_KINDS_PU.has(String(item.slot ?? "").toLowerCase());
 
+      // Нормалізуємо shop_ prefix для findIndex (щоб shop_xxx та xxx знаходили один стак)
+      const normPickupId = (s: string) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
       const existingIdx = isStackable
-        ? inventory.findIndex((i: any) => i && i.id === itemId && !(i?.meta?.hasLSPassive))
+        ? inventory.findIndex((i: any) => i && normPickupId(String(i.id ?? "")) === normPickupId(itemId) && !(i?.meta?.hasLSPassive))
         : -1;
 
       if (existingIdx >= 0 && isStackable) {
@@ -1884,7 +1903,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         addedItems.push(itemId);
       } else {
         // Inventory full → overflow
-        const ovIdx = overflowItems.findIndex((i: any) => i && i.id === itemId);
+        const ovIdx = overflowItems.findIndex((i: any) => i && normPickupId(String(i.id ?? "")) === normPickupId(itemId));
         if (ovIdx >= 0) {
           overflowItems[ovIdx] = {
             ...overflowItems[ovIdx],

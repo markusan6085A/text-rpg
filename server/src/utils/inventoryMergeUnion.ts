@@ -3,19 +3,22 @@
  * без залежності від клієнтського itemsDB (гебристика як у loadHeroFromAPI fallback).
  */
 
+// Канонічний список kind/slot значень які НЕ стакуються (=equipment).
+// Усе інше стакується за замовчуванням (blocklist підхід).
+const EQUIP_KINDS_UNION = new Set([
+  "equipment","weapon","armor","helmet","boots","gloves","shield",
+  "necklace","ring","earring","jewelry","belt","cloak","lhand","rhand","lrhand",
+]);
+
 function isStackableItem(it: any): boolean {
   if (it?.meta?.hasLSPassive) return false;
-  const typeId = String(it?.id ?? it?.itemId ?? "");
-  const slot = String(it?.slot ?? "");
-  const stackableSlots = ["consumable", "resource", "quest"];
-  return (
-    stackableSlots.includes(slot) ||
-    typeId.includes("shot") ||
-    typeId.includes("potion") ||
-    it?.type === "consumable" ||
-    it?.type === "resource" ||
-    it?.type === "quest"
-  );
+  if (it?.stackable === false) return false;
+  const kind = String(it?.kind ?? it?.type ?? "").toLowerCase();
+  const slot = String(it?.slot ?? "").toLowerCase();
+  // Якщо kind або slot явно зі списку equipment — не стакуємо
+  if (EQUIP_KINDS_UNION.has(kind) || EQUIP_KINDS_UNION.has(slot)) return false;
+  // Усе інше (consumable, resource, quest, scroll, potion, shot, medal тощо) — стакується
+  return true;
 }
 
 function itemKey(i: any): string {

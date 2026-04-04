@@ -180,13 +180,20 @@ export function mergeFishingExtraIntoInventory(
     };
 
     if (stackable) {
-      const idx = invOut.findIndex((i: any) => (i?.id ?? i?.itemId) === toAdd.id);
+      const normFishId = (s: string) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
+      const idx = invOut.findIndex((i: any) => normFishId(String(i?.id ?? i?.itemId ?? "")) === normFishId(toAdd.id));
       if (idx >= 0) {
         invOut[idx] = { ...invOut[idx], count: (Number(invOut[idx].count) ?? 1) + count };
       } else if (invOut.length < maxNormal) {
         invOut.push({ ...itemObj });
       } else {
-        chest.push({ ...itemObj });
+        // Намагаємося стакувати в overflow chest, а не просто push
+        const chestIdx = chest.findIndex((i: any) => normFishId(String(i?.id ?? i?.itemId ?? "")) === normFishId(toAdd.id));
+        if (chestIdx >= 0) {
+          chest[chestIdx] = { ...chest[chestIdx], count: (Number(chest[chestIdx].count) ?? 1) + count };
+        } else {
+          chest.push({ ...itemObj });
+        }
       }
     } else {
       for (let i = 0; i < count; i++) {
