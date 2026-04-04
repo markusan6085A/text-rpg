@@ -216,8 +216,9 @@ function isStackableItem(it: any): boolean {
 }
 
 /** Об'єднує інвентарі local + server — ніколи не губити предмети. Зброя/броня — кожен окремо (count:1).
- * @param opts.preferLocalStackCounts — для стаків, де є і локально і на сервері: брати count з **локалки**, а не max.
- * Інакше витрата скролів/расходників відкочується після F5, поки PUT ще не оновив БД (max(1,2)=2).
+ * @param opts.preferLocalStackCounts — локальний snapshot **новіший** за сервер: (1) стаки з однаковим ключем — count з локалки, не max;
+ * (2) для нестакабельних предметів ключ містить enchantLevel: серверний рядок з тим самим id, але іншою заточкою, відкидаємо,
+ * інакше після F5 лишаються і +5 (з API), і +6 (локально) — ніби заточка «відкотилась».
  */
 function mergeInventoriesUnion(
   localInv: any[],
@@ -240,8 +241,24 @@ function mergeInventoriesUnion(
   const localCounts = countByKey(localInv);
   const serverCounts = countByKey(serverInv);
   const allKeys = new Set([...localCounts.keys(), ...serverCounts.keys()]);
-  const result: any[] = [];
   const preferLocal = !!opts?.preferLocalStackCounts;
+  if (preferLocal) {
+    const localNonStackableIds = new Set<string>();
+    (localInv || []).forEach((it: any) => {
+      if (!it || (!it.id && !it.itemId)) return;
+      if (!isStackableItem(it)) localNonStackableIds.add(String(it.id ?? it.itemId));
+    });
+    if (localNonStackableIds.size > 0) {
+      for (const key of [...allKeys]) {
+        if (localCounts.has(key)) continue;
+        const srvItem = getBestItem(serverInv, key);
+        if (!srvItem || isStackableItem(srvItem)) continue;
+        const bid = String(srvItem.id ?? srvItem.itemId ?? "");
+        if (bid && localNonStackableIds.has(bid)) allKeys.delete(key);
+      }
+    }
+  }
+  const result: any[] = [];
   allKeys.forEach((key) => {
     const lc = localCounts.get(key) ?? 0;
     const sc = serverCounts.get(key) ?? 0;
@@ -342,7 +359,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       localBelongsToCharacter &&
       localLastSavedAtOuter > 0 &&
       serverUpdatedAt > 0 &&
-      localLastSavedAtOuter > serverUpdatedAt;
+      localLastSavedAtOuter >= serverUpdatedAt;
     
     // 🔥 Єдина логіка: накопичувальні (exp, level, sp, adena, mobsKilled) — "більше" = новіше.
     // Skills — порівнюємо суму рівнів, не кількість (3 скіли рівня 3 краще за 4 скіли рівня 1).
@@ -372,7 +389,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       const localAdena = Number(hydratedLocalHero.adena ?? (hydratedLocalHero as any).heroJson?.adena ?? 0);
       const localLastSavedAt = (hydratedLocalHero as any).lastSavedAt || 0;
       const serverUpdatedAt = character.updatedAt ? new Date(character.updatedAt).getTime() : 0;
-      const localNewerByTimestamp = localLastSavedAt > 0 && serverUpdatedAt > 0 && localLastSavedAt > serverUpdatedAt;
+      const localNewerByTimestamp = localLastSavedAt > 0 && serverUpdatedAt > 0 && localLastSavedAt >= serverUpdatedAt;
 
       // 🔥 КРИТИЧНО: Якщо локально є активні бафи (наприклад зі статуї), а на сервері їх немає/менше — лишаємо локальну версію
       // Інакше після loadHeroFromAPI ми перезаписуємо store серверним героєм і бафи "зникають через секунду"
@@ -1235,6 +1252,20 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           (hydratedHero as any).equipment = localEquip;
           (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, equipment: localEquip };
           console.log('[loadHeroFromAPI] Preferring local equipment (more slots):', localEquipCount, 'vs', serverEquipCount);
+        }
+        // Заточка в слотах: знову підмішуємо локальні рівні, якщо snapshot новіший — після hydrate/localDiff не затирати + на екіпі
+        if (preferLocalStackableCounts) {
+          const le = (localSnapshot as any)?.equipmentEnchantLevels ?? {};
+          if (le && typeof le === "object" && Object.keys(le).length > 0) {
+            const cur = { ...((hydratedHero as any).equipmentEnchantLevels ?? {}) };
+            Object.assign(cur, le);
+            (hydratedHero as any).equipmentEnchantLevels = cur;
+            const hj = (hydratedHero as any).heroJson ?? {};
+            (hydratedHero as any).heroJson = {
+              ...hj,
+              equipmentEnchantLevels: { ...(hj.equipmentEnchantLevels ?? {}), ...le },
+            };
+          }
         }
       }
     }

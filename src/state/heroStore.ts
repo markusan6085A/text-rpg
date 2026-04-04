@@ -458,6 +458,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
                              partial.profession !== undefined ||
                              partial.inventory !== undefined ||
                              partial.equipment !== undefined ||
+                             partial.equipmentEnchantLevels !== undefined ||
                              partial.adena !== undefined ||
                              (partial as any).coinOfLuck !== undefined ||
                              (partial as any).coins_silver !== undefined ||
