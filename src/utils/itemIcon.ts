@@ -19,7 +19,12 @@ export function resourceIdToFilename(id: string): string {
 /** Повертає шлях до іконки (префікс /items якщо потрібно). */
 export function normalizeIconPath(icon: string | undefined): string {
   if (!icon) return "";
-  return icon.startsWith("/") ? icon : `/items/${icon}`;
+  let p = icon.startsWith("/") ? icon : `/items/${icon}`;
+  // Помилка кодування в fishingDropItemMeta: "arrom_╨░" (U+2568 U+2591) замість "arrom_а" як у itemsDB (A-grade)
+  const mojibakeA = `arrom_${String.fromCharCode(0x2568, 0x2591)}`;
+  const cyrA = `arrom_${String.fromCharCode(0x430)}`;
+  if (p.includes(mojibakeA)) p = p.split(mojibakeA).join(cyrA);
+  return p;
 }
 
 export const FALLBACK_ICON = "/items/drops/Weapon_squires_sword_i00_0.jpg";
