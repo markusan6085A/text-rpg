@@ -104,9 +104,8 @@ export function mergeHeroJsonForClientPut(existingHeroJson: any, incomingHeroJso
   const s = mergeSevenSealsBonusPreserve(existingHeroJson, t);
   const result = mergeFishingSessionPreserve(existingHeroJson, s);
 
-  // Multi-device sync: якщо сервер очистив інвентар (inventoryClearedAt), а клієнт надсилає старий
-  // інвентар (не знає про очищення) — відкидаємо client inventory і лишаємо [] з сервера.
-  // Клієнт пізніше зробить GET і отримає inventoryClearedAt → на наступному PUT вже синхронізований.
+  // Multi-device sync: inventoryClearedAt — якщо сервер очистив інвентар пізніше ніж клієнт знає,
+  // відкидаємо client inventory (телефон не знає про очищення з ПК).
   const serverClearedAt = Number(existingHeroJson.inventoryClearedAt ?? 0);
   const clientClearedAt = Number(result.inventoryClearedAt ?? 0);
   if (
@@ -117,6 +116,38 @@ export function mergeHeroJsonForClientPut(existingHeroJson: any, incomingHeroJso
   ) {
     result.inventory = [];
     result.inventoryClearedAt = serverClearedAt;
+  }
+
+  // Multi-device sync: equipmentEnchantLevels — беремо max per slot між сервером і клієнтом.
+  // Це запобігає відкату заточки: ПК заточив зброю +5 → сервер знає +5; телефон надсилає старий PUT
+  // з +0 → без цього мерджу сервер скидає до +0. Max гарантує збереження найвищого рівня.
+  const serverEnch: Record<string, number> = existingHeroJson.equipmentEnchantLevels ?? {};
+  const clientEnch: Record<string, number> = result.equipmentEnchantLevels ?? {};
+  const allEnchSlots = new Set([...Object.keys(serverEnch), ...Object.keys(clientEnch)]);
+  if (allEnchSlots.size > 0) {
+    const mergedEnch: Record<string, number> = {};
+    for (const slot of allEnchSlots) {
+      mergedEnch[slot] = Math.max(
+        Number(serverEnch[slot] ?? 0),
+        Number(clientEnch[slot] ?? 0)
+      );
+    }
+    result.equipmentEnchantLevels = mergedEnch;
+  }
+
+  // Multi-device sync: equipment — сервер виграє для зайнятих слотів, яких немає у клієнта.
+  // Якщо ПК одягнув предмет (PUT → сервер знає), а телефон надсилає PUT без цього слота —
+  // зберігаємо серверний слот, щоб не відкотити екіп.
+  const serverEquip: Record<string, any> = existingHeroJson.equipment ?? {};
+  const clientEquip: Record<string, any> = result.equipment ?? {};
+  if (Object.keys(serverEquip).length > 0) {
+    const mergedEquip: Record<string, any> = { ...clientEquip };
+    for (const slot of Object.keys(serverEquip)) {
+      if (serverEquip[slot] && !mergedEquip[slot]) {
+        mergedEquip[slot] = serverEquip[slot];
+      }
+    }
+    result.equipment = mergedEquip;
   }
 
   return result;

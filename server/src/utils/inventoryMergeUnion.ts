@@ -29,8 +29,14 @@ function countByKey(arr: any[] | undefined | null): Map<string, number> {
   (arr || []).forEach((it: any) => {
     if (!it || (!it.id && !it.itemId)) return;
     const key = itemKey(it);
-    const cnt = Math.max(1, Number(it.count) ?? 1);
-    m.set(key, (m.get(key) ?? 0) + cnt);
+    if (!isStackableItem(it)) {
+      // Non-stackable (зброя/броня/біжутерія): кожен рядок = 1 екземпляр незалежно від count.
+      // Без цього count>1 на одному рядку при max() давав дублювання після PUT merge.
+      m.set(key, (m.get(key) ?? 0) + 1);
+    } else {
+      const cnt = Math.max(1, Number(it.count) ?? 1);
+      m.set(key, (m.get(key) ?? 0) + cnt);
+    }
   });
   return m;
 }

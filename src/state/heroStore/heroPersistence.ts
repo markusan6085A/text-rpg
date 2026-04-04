@@ -660,6 +660,35 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
               { revisionFromAuthoritativeGet: true }
             );
           }
+
+          // Multi-device sync: мерджимо серверні equipmentEnchantLevels у payload (max per slot).
+          // Якщо ПК заточив зброю +5, а цей пристрій ще не знає і надсилає +0 — беремо max(5,0)=5.
+          const serverEnch = hj.equipmentEnchantLevels;
+          if (serverEnch && typeof serverEnch === 'object') {
+            const localEnch: Record<string, number> = (heroJsonToSave as any).equipmentEnchantLevels ?? {};
+            const merged: Record<string, number> = { ...localEnch };
+            for (const slot of Object.keys(serverEnch as Record<string, unknown>)) {
+              merged[slot] = Math.max(
+                Number((serverEnch as any)[slot] ?? 0),
+                Number(localEnch[slot] ?? 0)
+              );
+            }
+            (heroJsonToSave as any).equipmentEnchantLevels = merged;
+          }
+
+          // Multi-device sync: мерджимо серверний equipment (сервер виграє для порожніх слотів клієнта).
+          // Якщо ПК одягнув предмет, а телефон ще не знає і надсилає PUT без цього слота — додаємо.
+          const serverEquip = hj.equipment;
+          if (serverEquip && typeof serverEquip === 'object') {
+            const localEquip: Record<string, any> = (heroJsonToSave as any).equipment ?? {};
+            const merged: Record<string, any> = { ...localEquip };
+            for (const slot of Object.keys(serverEquip as Record<string, unknown>)) {
+              if ((serverEquip as any)[slot] && !merged[slot]) {
+                merged[slot] = (serverEquip as any)[slot];
+              }
+            }
+            (heroJsonToSave as any).equipment = merged;
+          }
         }
       }
     } catch (e) {
