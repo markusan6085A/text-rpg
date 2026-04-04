@@ -24,6 +24,47 @@ import {
   parseSkillIdFromRequestBody,
 } from "../../../learnSkillServer";
 import { calculateServerDrops } from "../../../utils/serverDropCalculator";
+import { EXP_TABLE, MAX_LEVEL } from "../../../expTable";
+
+function getExpToNext(level: number): number {
+  const lvl = Math.max(1, Math.min(MAX_LEVEL, Number(level) || 1));
+  if (lvl >= MAX_LEVEL) return 0;
+  return Math.max(0, Number(EXP_TABLE[lvl] ?? 0) - Number(EXP_TABLE[lvl - 1] ?? 0));
+}
+
+function readExpAsNumber(raw: unknown): number {
+  if (typeof raw === "bigint") return Number(raw);
+  const n = Math.floor(Number(raw));
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
+function pickBestLevelExpPair(
+  dbLevelRaw: unknown,
+  dbExpRaw: unknown,
+  hjLevelRaw: unknown,
+  hjExpRaw: unknown
+): { level: number; exp: number } {
+  const L1 = Math.max(1, Math.min(MAX_LEVEL, Math.floor(Number(dbLevelRaw) || 1)));
+  const E1 = readExpAsNumber(dbExpRaw);
+  const L2 = Math.max(1, Math.min(MAX_LEVEL, Math.floor(Number(hjLevelRaw) || 1)));
+  const E2 = readExpAsNumber(hjExpRaw);
+  if (L2 > L1) return { level: L2, exp: E2 };
+  if (L1 > L2) return { level: L1, exp: E1 };
+  return { level: L1, exp: Math.max(E1, E2) };
+}
+
+function applyLevelUpsInPlace(level: number, exp: number): { level: number; exp: number } {
+  let nextLevel = Math.max(1, Math.min(MAX_LEVEL, level));
+  let nextExp = Math.max(0, Math.floor(exp));
+  while (nextLevel < MAX_LEVEL) {
+    const need = getExpToNext(nextLevel);
+    if (need <= 0 || nextExp < need) break;
+    nextExp -= need;
+    nextLevel += 1;
+  }
+  if (nextLevel >= MAX_LEVEL) nextExp = 0;
+  return { level: nextLevel, exp: Math.max(0, Math.floor(nextExp)) };
+}
 
 export async function characterCrudRoutes(app: FastifyInstance) {
   // POST /characters  (Bearer token)  { name, race, classId, sex }
@@ -1414,8 +1455,6 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       newHp?: number;
       newMp?: number;
       newCp?: number;
-      /** Quest item drops (still computed client-side, added to inventory here) */
-      questDrops?: Array<{ id: string; count: number; name?: string; kind?: string; slot?: string; icon?: string }>;
       heroJsonPatch?: Record<string, any>;
     };
 
@@ -1476,30 +1515,45 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     // ── Build updated heroJson ─────────────────────────────────────────────
     const newHeroJson: any = { ...heroJson };
 
-    // Apply level/exp/sp (client calculated; server trusts with limits)
-    if (body.newLevel != null) newHeroJson.level = Number(body.newLevel);
-    if (body.newExp != null) newHeroJson.exp = Number(body.newExp);
-    if (body.newSp != null) newHeroJson.sp = Number(body.newSp);
-    if (body.newHp != null) newHeroJson.hp = Number(body.newHp);
-    if (body.newMp != null) newHeroJson.mp = Number(body.newMp);
-    if (body.newCp != null) newHeroJson.cp = Number(body.newCp);
+    // Server-authoritative progression: ignore client newLevel/newExp/newSp.
+    const baseline = pickBestLevelExpPair(character.level, character.exp, heroJson.level, heroJson.exp);
+    const afterKill = applyLevelUpsInPlace(baseline.level, baseline.exp + earnedExp);
+    newHeroJson.level = afterKill.level;
+    newHeroJson.exp = afterKill.exp;
+    newHeroJson.sp = Math.max(0, Number(heroJson.sp ?? character.sp ?? 0)) + earnedSp;
 
-    // Adena: current DB adena + client earnedAdena (validated by cap)
-    newHeroJson.adena = Number(heroJson.adena ?? 0) + earnedAdena;
+    // HP/MP/CP are accepted only as clamped resource snapshots.
+    const maxHp = Math.max(1, Number(heroJson.maxHp ?? 1) || 1);
+    const maxMp = Math.max(1, Number(heroJson.maxMp ?? 1) || 1);
+    const maxCp = Math.max(1, Number(heroJson.maxCp ?? 1) || 1);
+    if (body.newHp != null) newHeroJson.hp = Math.max(0, Math.min(maxHp, Math.floor(Number(body.newHp) || 0)));
+    if (body.newMp != null) newHeroJson.mp = Math.max(0, Math.min(maxMp, Math.floor(Number(body.newMp) || 0)));
+    if (body.newCp != null) newHeroJson.cp = Math.max(0, Math.min(maxCp, Math.floor(Number(body.newCp) || 0)));
 
-    // Patch allowed non-critical fields (quest progress, kill counters, etc.)
-    if (body.heroJsonPatch) {
-      for (const [key, value] of Object.entries(body.heroJsonPatch)) {
-        if (
-          key !== "equipment" &&
-          key !== "equipmentEnchantLevels" &&
-          key !== "skills" &&
-          key !== "inventory" &&
-          key !== "overflowChest"
-        ) {
-          newHeroJson[key] = value;
-        }
+    // Adena is server-authoritative: from server drop calculator, not client payload.
+    const serverAdenaReward = Math.max(0, Math.floor(Number(serverDropResult.adena ?? 0)));
+    newHeroJson.adena = Number(heroJson.adena ?? 0) + serverAdenaReward;
+
+    // Patch only a strict allowlist with basic shape guards.
+    if (body.heroJsonPatch && typeof body.heroJsonPatch === "object") {
+      const patch = body.heroJsonPatch as Record<string, any>;
+      if (patch.mobsKilled != null) {
+        const current = Math.max(0, Math.floor(Number(newHeroJson.mobsKilled ?? 0)));
+        const incoming = Math.max(0, Math.floor(Number(patch.mobsKilled)));
+        newHeroJson.mobsKilled = Math.max(current, incoming);
       }
+      if (patch.dailyQuestsProgress && typeof patch.dailyQuestsProgress === "object" && !Array.isArray(patch.dailyQuestsProgress)) {
+        newHeroJson.dailyQuestsProgress = patch.dailyQuestsProgress;
+      }
+      if (Array.isArray(patch.dailyQuestsCompleted)) {
+        newHeroJson.dailyQuestsCompleted = patch.dailyQuestsCompleted.slice(0, 200);
+      }
+      if (typeof patch.lastKillMobId === "string") newHeroJson.lastKillMobId = patch.lastKillMobId.slice(0, 100);
+      if (typeof patch.lastKillMobName === "string") newHeroJson.lastKillMobName = patch.lastKillMobName.slice(0, 200);
+      if (typeof patch.lastKillZoneId === "string") newHeroJson.lastKillZoneId = patch.lastKillZoneId.slice(0, 100);
+      if (typeof patch.lastKillZoneName === "string") newHeroJson.lastKillZoneName = patch.lastKillZoneName.slice(0, 120);
+      if (typeof patch.battleZoneId === "string") newHeroJson.battleZoneId = patch.battleZoneId.slice(0, 100);
+      if (typeof patch.zoneId === "string") newHeroJson.zoneId = patch.zoneId.slice(0, 100);
     }
 
     // ── Apply zariche auto-equip ───────────────────────────────────────────
@@ -1541,7 +1595,6 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const allDropsToAdd: any[] = [
       ...(zaricheReturnedWeapon ? [zaricheReturnedWeapon] : []),
       ...serverDropResult.items.filter((i: any) => i.id !== "zariche"), // zariche handled via equip
-      ...(Array.isArray(body.questDrops) ? body.questDrops : []),       // legacy client fallback
     ];
 
     function addDropToInventory(drop: any): void {
@@ -1658,8 +1711,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         mobId: mobId || null,
         earnedExp,
         earnedSp,
-        earnedAdena,
-        newLevel: body.newLevel ?? null,
+        earnedAdena: serverAdenaReward,
+        newLevel: newHeroJson.level ?? null,
         serverDrops: serverDropResult.items.length,
         serverDropAdena: serverDropResult.adena,
         questDrops: serverDropResult.questProgressUpdates.length,
@@ -1705,6 +1758,76 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (!character) return reply.code(404).send({ error: "character not found" });
 
     const heroJson: any = (character.heroJson as any) || {};
+    const oldInventory: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+    const oldEquipment: Record<string, any> = heroJson.equipment ?? {};
+    const oldEnchantBySlot: Record<string, number> = heroJson.equipmentEnchantLevels ?? {};
+
+    const normId = (v: any) => String(v ?? "").replace(/^shop_/i, "").toLowerCase();
+    const bodyEquipment = body.equipment ?? {};
+    const bodyInventory = Array.isArray(body.inventory) ? body.inventory : [];
+    const bodyEnchantBySlot: Record<string, number> = body.equipmentEnchantLevels ?? {};
+
+    const allowedIds = new Set<string>();
+    const allowedCountById = new Map<string, number>();
+    const maxEnchantById = new Map<string, number>();
+    const incCount = (id: string, delta: number) => {
+      allowedCountById.set(id, Math.max(0, (allowedCountById.get(id) ?? 0) + delta));
+    };
+
+    for (const it of oldInventory) {
+      if (!it?.id) continue;
+      const id = normId(it.id);
+      if (!id) continue;
+      allowedIds.add(id);
+      incCount(id, Math.max(1, Number(it.count ?? 1) || 1));
+      maxEnchantById.set(id, Math.max(maxEnchantById.get(id) ?? 0, Math.max(0, Number(it.enchantLevel ?? 0) || 0)));
+    }
+    for (const [slot, itemId] of Object.entries(oldEquipment)) {
+      if (!itemId) continue;
+      const id = normId(itemId);
+      if (!id) continue;
+      allowedIds.add(id);
+      incCount(id, 1);
+      maxEnchantById.set(id, Math.max(maxEnchantById.get(id) ?? 0, Math.max(0, Number(oldEnchantBySlot[slot] ?? 0) || 0)));
+    }
+
+    for (const itemId of Object.values(bodyEquipment)) {
+      if (!itemId) continue;
+      const id = normId(itemId);
+      if (!allowedIds.has(id)) {
+        return reply.code(400).send({ error: "invalid equipment commit" });
+      }
+    }
+
+    const requestedInvCountById = new Map<string, number>();
+    for (const it of bodyInventory) {
+      if (!it?.id) continue;
+      const id = normId(it.id);
+      const c = Math.max(1, Number(it.count ?? 1) || 1);
+      requestedInvCountById.set(id, (requestedInvCountById.get(id) ?? 0) + c);
+      if (!allowedIds.has(id)) {
+        return reply.code(400).send({ error: "invalid equipment commit" });
+      }
+      const maxEnchant = maxEnchantById.get(id) ?? 0;
+      const requestedEnchant = Math.max(0, Number(it.enchantLevel ?? 0) || 0);
+      if (requestedEnchant > maxEnchant) {
+        return reply.code(400).send({ error: "invalid equipment commit" });
+      }
+    }
+    for (const [id, count] of requestedInvCountById.entries()) {
+      if (count > (allowedCountById.get(id) ?? 0)) {
+        return reply.code(400).send({ error: "invalid equipment commit" });
+      }
+    }
+    for (const [slot, itemId] of Object.entries(bodyEquipment)) {
+      if (!itemId) continue;
+      const id = normId(itemId);
+      const maxEnchant = maxEnchantById.get(id) ?? 0;
+      const requestedEnchant = Math.max(0, Number(bodyEnchantBySlot[slot] ?? 0) || 0);
+      if (requestedEnchant > maxEnchant) {
+        return reply.code(400).send({ error: "invalid equipment commit" });
+      }
+    }
 
     // Серверна очистка: видалити з inventory ВСІ рядки, id яких є в equipment
     // (щоб не залишилося "тіней" від shop_ prefix розбіжностей або race conditions)

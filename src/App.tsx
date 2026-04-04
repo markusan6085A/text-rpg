@@ -262,7 +262,9 @@ function AppInner() {
         const chars = await listCharacters();
         if (!alive) return;
         if (chars.length > 0) {
-          setCharacterId(chars[0].id);
+          const savedCharacterId = String(localStorage.getItem("current_character_id") ?? "").trim();
+          const preferred = (savedCharacterId && chars.find((c: any) => c?.id === savedCharacterId)) || chars[0];
+          setCharacterId(preferred.id);
           const h = await loadHeroFromAPI();
           if (alive && h) {
             setHero(h);

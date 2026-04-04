@@ -193,15 +193,8 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
           classId: true,
           sex: true,
           level: true,
-          exp: true,
-          sp: true,
-          adena: true,
-          aa: true,
-          coinLuck: true,
-          heroJson: true,
-          createdAt: true,
-          updatedAt: true,
           lastActivityAt: true,
+          nickColor: true,
           clanMember: {
             include: {
               clan: {
@@ -219,9 +212,13 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
       if (!char) return reply.code(404).send({ error: "character not found" });
 
       const serialized = {
-        ...char,
+        id: char.id,
+        name: char.name,
+        race: char.race,
+        classId: char.classId,
+        sex: char.sex,
         level: effectiveCharacterLevel(char),
-        exp: Number(char.exp),
+        nickColor: getEffectiveNickColor((char as any).heroJson ?? {}, (char as any).nickColor) || undefined,
         lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
         clan: char.clanMember?.clan || null,
       };
@@ -253,15 +250,8 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
           classId: true,
           sex: true,
           level: true,
-          exp: true,
-          sp: true,
-          adena: true,
-          aa: true,
-          coinLuck: true,
-          heroJson: true,
-          createdAt: true,
-          updatedAt: true,
           lastActivityAt: true,
+          nickColor: true,
           clanMember: {
             include: {
               clan: {
@@ -279,9 +269,13 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
       if (!char) return reply.code(404).send({ error: "character not found" });
 
       const serialized = {
-        ...char,
+        id: char.id,
+        name: char.name,
+        race: char.race,
+        classId: char.classId,
+        sex: char.sex,
         level: effectiveCharacterLevel(char),
-        exp: Number(char.exp),
+        nickColor: getEffectiveNickColor((char as any).heroJson ?? {}, (char as any).nickColor) || undefined,
         lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
         clan: char.clanMember?.clan || null,
       };

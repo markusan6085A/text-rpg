@@ -334,28 +334,14 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         console.warn('[saveHeroToLocalStorage] Failed to fetch serverState before save:', e);
       }
     }
-    let expectedRevision = serverState?.heroRevision ?? (hero as any)?.heroJson?.heroRevision ?? (hero as any)?.heroRevision ?? 0;
-    if (expectedRevision === undefined || expectedRevision === null || (typeof expectedRevision === 'number' && Number.isNaN(expectedRevision))) {
-      console.warn('[saveHeroToLocalStorage] No serverState.heroRevision — skipping PUT, saving to localStorage only');
-      const current = getJSON<string | null>("l2_current_user", null);
-      if (current && hero) {
-        const accounts = getJSON<any[]>("l2_accounts_v2", []);
-        let accIndex = accounts.findIndex((a: any) => a.username === current);
-        if (accIndex === -1) {
-          accounts.push({ username: current, hero: {} });
-          accIndex = accounts.length - 1;
-        }
-        {
-          const heroWithTimestamp = {
-            ...hero,
-            lastSavedAt: Date.now(),
-            heroJson: { ...((hero as any).heroJson || {}), ...buildBackupHeroJson(hero) },
-          };
-          accounts[accIndex].hero = heroWithTimestamp;
-          setJSON("l2_accounts_v2", accounts);
-        }
-      }
-      return;
+    let expectedRevision = Number(
+      serverState?.heroRevision ??
+      (hero as any)?.heroJson?.heroRevision ??
+      (hero as any)?.heroRevision ??
+      0
+    );
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      expectedRevision = 0;
     }
     
     // 🔥 ВАЖЛИВО: mobsKilled має бути в heroJson, а не на верхньому рівні hero

@@ -414,6 +414,30 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         if (live && liveName === charName && Array.isArray(live.inventory)) {
           hydratedLocalHero = {
             ...hydratedLocalHero,
+            level: Math.max(
+              Number((hydratedLocalHero as any)?.level ?? 1) || 1,
+              Number((live as any)?.level ?? 1) || 1
+            ),
+            exp: Math.max(
+              Number((hydratedLocalHero as any)?.exp ?? 0) || 0,
+              Number((live as any)?.exp ?? 0) || 0
+            ),
+            sp: Math.max(
+              Number((hydratedLocalHero as any)?.sp ?? 0) || 0,
+              Number((live as any)?.sp ?? 0) || 0
+            ),
+            adena: Math.max(
+              Number((hydratedLocalHero as any)?.adena ?? 0) || 0,
+              Number((live as any)?.adena ?? 0) || 0
+            ),
+            coinOfLuck: Math.max(
+              Number((hydratedLocalHero as any)?.coinOfLuck ?? 0) || 0,
+              Number((live as any)?.coinOfLuck ?? 0) || 0
+            ),
+            mobsKilled: Math.max(
+              Number((hydratedLocalHero as any)?.mobsKilled ?? 0) || 0,
+              Number((live as any)?.mobsKilled ?? 0) || 0
+            ) as any,
             inventory: live.inventory.map((r: any) => ({ ...r })),
             ...(Array.isArray(live.overflowChest)
               ? { overflowChest: live.overflowChest.map((r: any) => ({ ...r })) }
@@ -1551,16 +1575,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     // Якщо heroJson був порожній і ми створили нового героя - зберігаємо його в базу
     // Але ТІЛЬКИ якщо heroJson дійсно порожній (не має важливих полів)
     const wasEmpty = !heroData || typeof heroData !== 'object' || Object.keys(heroData).length === 0;
-    if (wasEmpty && hydratedHero) {
-      console.log('[loadHeroFromAPI] heroJson was empty, saving new hero to database');
-      // Зберігаємо створеного героя в базу даних (асинхронно, не блокуємо)
-      updateCharacter(character.id, {
-        heroJson: (hydratedHero as any).heroJson,
-      }).then(() => {
-        console.log('[loadHeroFromAPI] Created hero saved to database');
-      }).catch((error) => {
-        console.error('[loadHeroFromAPI] Failed to save created hero to database:', error);
-      });
+    if (wasEmpty) {
+      // Safety: never auto-overwrite server heroJson from client on read path.
+      console.warn('[loadHeroFromAPI] heroJson is empty, skipping auto-write to server');
     } else {
       console.log('[loadHeroFromAPI] heroJson exists, NOT overwriting with new hero');
     }

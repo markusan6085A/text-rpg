@@ -276,22 +276,25 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     void postPartyKillShare(partySharePayload).catch(() => {});
   }
 
+  const heroSnapshotForFinish = useHeroStore.getState().hero;
+  const heroJsonSnapshotForFinish = ((heroSnapshotForFinish as any)?.heroJson || {}) as any;
+
   // Server-authoritative battle finish:
   // 1. battle-finish: server calculates real drops, saves exp/sp/adena/inventory atomically
   // 2. quest drops (client-calculated) are sent to server to be added to inventory
   // 3. On response: apply server's heroJson.inventory to replace optimistic state
   void (async () => {
     try {
-      const updatedHero = useHeroStore.getState().hero;
+      const updatedHero = heroSnapshotForFinish ?? useHeroStore.getState().hero;
       if (!updatedHero) return;
-      const heroJson = (updatedHero as any).heroJson || {};
+      const heroJson = heroJsonSnapshotForFinish;
 
       // No separate pickupItemAPI — server handles item drops in battle-finish.
       // Quest items that need to be in inventory: the server's heroJson.inventory
       // will include them after next loadHeroFromAPI (server merges with client state).
       const questDropItems: Array<{ id: string; count: number; name?: string; kind?: string; slot?: string; icon?: string }> = [];
 
-      const finishResult = await battleFinishAPI({
+      const finishPayload = {
         mobId: String(mob.id ?? ""),
         spoiled: mobSpoiled,
         zoneId: zoneId,
@@ -318,7 +321,20 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
           battleZoneId: heroJson.battleZoneId,
           zoneId: heroJson.zoneId,
         },
-      });
+      };
+      let finishResult: Awaited<ReturnType<typeof battleFinishAPI>> | null = null;
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        try {
+          finishResult = await battleFinishAPI(finishPayload);
+          break;
+        } catch (err) {
+          if (attempt === 0) {
+            await new Promise((resolve) => setTimeout(resolve, 400));
+            continue;
+          }
+          throw err;
+        }
+      }
 
       if (finishResult?.ok && finishResult.heroJson) {
         // Update heroRevision (so future loadHeroFromAPI reflects this save)
@@ -477,8 +493,18 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
           battleStoreRef.setState?.({ log: newLog });
         }
       }
-    } catch {
-      // Failure is OK — state already in localStorage via updateHero
+    } catch (error) {
+      console.error("[commitMobVictory] battle-finish failed, forcing resync", error);
+      const currentLog = battleStoreRef.getState()?.log ?? [];
+      battleStoreRef.setState?.({
+        log: ["Синхронізація бою з сервером не вдалась, оновлюю стан...", ...currentLog],
+      });
+      void import("../heroStore/heroLoadAPI")
+        .then(({ loadHeroFromAPI }) => loadHeroFromAPI())
+        .then((h) => {
+          if (h) useHeroStore.getState().setHero(h);
+        })
+        .catch(() => {});
     }
   })();
 

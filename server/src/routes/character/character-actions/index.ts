@@ -140,10 +140,10 @@ export async function characterActionsRoutes(app: FastifyInstance) {
 
     try {
       const result = await prisma.$transaction(async (tx) => {
-        await tx.$queryRaw`SELECT id FROM "Character" WHERE id = ${targetId} FOR UPDATE`;
+        await tx.$queryRaw`SELECT id FROM "Character" WHERE id = ${targetId} AND "accountId" = ${auth.accountId} FOR UPDATE`;
 
-        const targetChar = await tx.character.findUnique({
-          where: { id: targetId },
+        const targetChar = await tx.character.findFirst({
+          where: { id: targetId, accountId: auth.accountId },
           select: { id: true, level: true, heroJson: true },
         });
         if (!targetChar) throw new Error("target character not found");
@@ -163,7 +163,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         const updatedHeroJson = addVersioning({ ...heroJson, hp: newHp, maxHp }, oldRevision);
 
         await tx.character.update({
-          where: { id: targetId },
+          where: { id: targetChar.id },
           data: { heroJson: updatedHeroJson },
         });
 
@@ -200,10 +200,10 @@ export async function characterActionsRoutes(app: FastifyInstance) {
 
     try {
       const result = await prisma.$transaction(async (tx) => {
-        await tx.$queryRaw`SELECT id FROM "Character" WHERE id = ${targetId} FOR UPDATE`;
+        await tx.$queryRaw`SELECT id FROM "Character" WHERE id = ${targetId} AND "accountId" = ${auth.accountId} FOR UPDATE`;
 
-        const targetChar = await tx.character.findUnique({
-          where: { id: targetId },
+        const targetChar = await tx.character.findFirst({
+          where: { id: targetId, accountId: auth.accountId },
           select: { id: true, heroJson: true },
         });
         if (!targetChar) throw new Error("target character not found");
@@ -285,7 +285,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         const updatedHeroJson = addVersioning({ ...heroJson, heroBuffs: updatedBuffs }, oldRevision);
 
         await tx.character.update({
-          where: { id: targetId },
+          where: { id: targetChar.id },
           data: { heroJson: updatedHeroJson },
         });
 
