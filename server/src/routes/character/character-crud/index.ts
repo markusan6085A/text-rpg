@@ -1533,8 +1533,32 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       addDropToInventory(drop);
     }
 
-    newHeroJson.inventory = inventory;
-    newHeroJson.overflowChest = overflowChest;
+    // Дедублікація: злиття фрагментованих стакових записів (кілька рядків з однаковим id та count=1)
+    // що виникли до введення стакування. Виконується після кожного battle-finish.
+    function deduplicateStackableInventory(inv: any[]): any[] {
+      const EQUIP_K = new Set(["equipment","weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"]);
+      const result: any[] = [];
+      const seenIdx = new Map<string, number>(); // id -> index in result
+      for (const item of inv) {
+        if (!item?.id) { result.push(item); continue; }
+        const id = String(item.id).trim();
+        const kind = String(item.kind ?? "").toLowerCase();
+        const slot = String(item.slot ?? "").toLowerCase();
+        const stackable = !(item?.meta?.hasLSPassive) && !EQUIP_K.has(kind) && !EQUIP_K.has(slot);
+        if (!stackable) { result.push(item); continue; }
+        const existing = seenIdx.get(id);
+        if (existing !== undefined) {
+          result[existing] = { ...result[existing], count: (result[existing].count ?? 1) + (item.count ?? 1) };
+        } else {
+          seenIdx.set(id, result.length);
+          result.push({ ...item });
+        }
+      }
+      return result;
+    }
+
+    newHeroJson.inventory = deduplicateStackableInventory(inventory);
+    newHeroJson.overflowChest = deduplicateStackableInventory(overflowChest);
 
     const oldRevision = Number(heroJson.heroRevision ?? 0);
     const versionedHeroJson = addVersioning(newHeroJson, oldRevision);

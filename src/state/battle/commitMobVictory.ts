@@ -334,9 +334,9 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
 
         if (Array.isArray(serverHj.inventory)) {
           // Merge server inventory with current local inventory:
-          // - For STACKABLE items (consumables, charges, resources): take MIN(server, local)
-          //   so shots consumed during battle are preserved (server doesn't know about mid-battle consumption).
-          // - For NON-STACKABLE items: server wins (drops, quest items added by server).
+          // - For shots/charges consumed mid-battle: take MIN(local, server).
+          // - For everything else: trust server count.
+          const EQUIP_K = new Set(["weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"]);
           const localInvNow = useHeroStore.getState().hero?.inventory ?? [];
           const localById = new Map<string, number>();
           for (const item of localInvNow) {
@@ -344,12 +344,10 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
             const nid = item.id.replace(/^shop_/i, "").toLowerCase();
             localById.set(nid, (localById.get(nid) ?? 0) + ((item.count ?? 1)));
           }
-          patch.inventory = serverHj.inventory.map((srv: any) => {
+          const mapped = serverHj.inventory.map((srv: any) => {
             if (!srv?.id) return srv;
             const nid = srv.id.replace(/^shop_/i, "").toLowerCase();
             const localCount = localById.get(nid);
-            // Only apply min(local, server) for items that CAN be consumed mid-battle
-            // (shots, charges, potions). Resources/quest items/drops — always trust server count.
             const srvKind = String(srv.kind ?? "").toLowerCase();
             const srvSlot = String(srv.slot ?? "").toLowerCase();
             const isConsumedDuringBattle =
@@ -363,6 +361,25 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
             }
             return srv;
           });
+          // Дедублікація на клієнті: злиття фрагментованих записів (кілька рядків count=1 для одного id)
+          const dedupMap = new Map<string, number>(); // id -> index in deduped
+          const deduped: any[] = [];
+          for (const item of mapped) {
+            if (!item?.id) { deduped.push(item); continue; }
+            const id = String(item.id).trim().toLowerCase();
+            const kind = String(item.kind ?? "").toLowerCase();
+            const slot = String(item.slot ?? "").toLowerCase();
+            const stackable = !(item?.meta?.hasLSPassive) && !EQUIP_K.has(kind) && !EQUIP_K.has(slot) && item.enchantLevel == null;
+            if (!stackable) { deduped.push(item); continue; }
+            const existing = dedupMap.get(id);
+            if (existing !== undefined) {
+              deduped[existing] = { ...deduped[existing], count: (deduped[existing].count ?? 1) + (item.count ?? 1) };
+            } else {
+              dedupMap.set(id, deduped.length);
+              deduped.push({ ...item });
+            }
+          }
+          patch.inventory = deduped;
         }
         if (Array.isArray(serverHj.overflowChest)) {
           patch.overflowChest = serverHj.overflowChest;
