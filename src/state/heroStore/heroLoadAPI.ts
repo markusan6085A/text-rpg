@@ -215,8 +215,15 @@ function isStackableItem(it: any): boolean {
     it?.type === "consumable" || it?.type === "resource" || it?.type === "quest";
 }
 
-/** Об'єднує інвентарі local + server — ніколи не губити предмети. Зброя/броня — кожен окремо (count:1). */
-function mergeInventoriesUnion(localInv: any[], serverInv: any[]): any[] {
+/** Об'єднує інвентарі local + server — ніколи не губити предмети. Зброя/броня — кожен окремо (count:1).
+ * @param opts.preferLocalStackCounts — для стаків, де є і локально і на сервері: брати count з **локалки**, а не max.
+ * Інакше витрата скролів/расходників відкочується після F5, поки PUT ще не оновив БД (max(1,2)=2).
+ */
+function mergeInventoriesUnion(
+  localInv: any[],
+  serverInv: any[],
+  opts?: { preferLocalStackCounts?: boolean }
+): any[] {
   const itemKey = (i: any) => `${i?.id ?? i?.itemId ?? ""}_${i?.enchantLevel ?? 0}_${(i as any).meta?.hasLSPassive ? "ls" : ""}`;
   const countByKey = (arr: any[]) => {
     const m = new Map<string, number>();
@@ -234,9 +241,22 @@ function mergeInventoriesUnion(localInv: any[], serverInv: any[]): any[] {
   const serverCounts = countByKey(serverInv);
   const allKeys = new Set([...localCounts.keys(), ...serverCounts.keys()]);
   const result: any[] = [];
+  const preferLocal = !!opts?.preferLocalStackCounts;
   allKeys.forEach((key) => {
-    const total = Math.max(localCounts.get(key) ?? 0, serverCounts.get(key) ?? 0);
+    const lc = localCounts.get(key) ?? 0;
+    const sc = serverCounts.get(key) ?? 0;
     const bestItem = getBestItem(localInv, key) ?? getBestItem(serverInv, key);
+    let total: number;
+    if (
+      preferLocal &&
+      isStackableItem(bestItem) &&
+      lc > 0 &&
+      sc > 0
+    ) {
+      total = lc;
+    } else {
+      total = Math.max(lc, sc);
+    }
     if (!bestItem || total <= 0) return;
     const normalized = { ...bestItem, id: bestItem.id ?? bestItem.itemId };
     if (isStackableItem(bestItem)) {
@@ -317,6 +337,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       localBelongsToCharacter && !preferServerSnapshot ? hydratedLocalHero : null;
     /** Union інвентаря/бафів/енчантів з localStorage — навіть коли preferServerSnapshot (скіли тоді з API). Інакше F5 губить щойні GM-скроли/заточку. */
     const localSnapshot = localBelongsToCharacter ? hydratedLocalHero : null;
+    /** Stack counts: max(local, server) відкочує витрату скролів, поки PUT не оновив heroJson. Якщо локальний snapshot новіший — для стаків довіряємо локалці. */
+    const preferLocalStackableCounts =
+      localBelongsToCharacter &&
+      localLastSavedAtOuter > 0 &&
+      serverUpdatedAt > 0 &&
+      localLastSavedAtOuter > serverUpdatedAt;
     
     // 🔥 Єдина логіка: накопичувальні (exp, level, sp, adena, mobsKilled) — "більше" = новіше.
     // Skills — порівнюємо суму рівнів, не кількість (3 скіли рівня 3 краще за 4 скіли рівня 1).
@@ -508,12 +534,16 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         // 🔥 Union з серверним інвентарем — інакше нагороди лише в БД (TvT tvt_coin тощо) губляться: локалка без цих слотів.
         const localInv = hydratedLocalHero?.inventory ?? [];
         const serverInvPreferred = Array.isArray(heroData?.inventory) ? heroData.inventory : [];
-        const consolidatedInv = mergeInventoriesUnion(localInv, serverInvPreferred);
+        const consolidatedInv = mergeInventoriesUnion(localInv, serverInvPreferred, {
+          preferLocalStackCounts: true,
+        });
         const localOvPref = Array.isArray((hydratedLocalHero as any).overflowChest)
           ? (hydratedLocalHero as any).overflowChest
           : [];
         const serverOvPref = Array.isArray(heroData?.overflowChest) ? heroData.overflowChest : [];
-        const mergedOverflowPreferred = mergeInventoriesUnion(localOvPref, serverOvPref);
+        const mergedOverflowPreferred = mergeInventoriesUnion(localOvPref, serverOvPref, {
+          preferLocalStackCounts: true,
+        });
         const localTvtPref = Math.max(
           Number((hydratedLocalHero as any).heroJson?.tvtCoins ?? (hydratedLocalHero as any).heroJson?.tvt_coins ?? 0),
           0
@@ -805,7 +835,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const serverInv = fixedHero.inventory ?? [];
     const localInv = localSnapshot?.inventory ?? [];
     // 🔥 Union-merge: ніколи не губити предмети (напр. 2 удочки +1000), якщо вони є в local або server
-    const mergedInventory = mergeInventoriesUnion(localInv, serverInv);
+    const mergedInventory = mergeInventoriesUnion(localInv, serverInv, {
+      preferLocalStackCounts: preferLocalStackableCounts,
+    });
 
     const serverEnc =
       (fixedHero as any).equipmentEnchantLevels ?? (heroData as any)?.equipmentEnchantLevels ?? {};
@@ -823,7 +855,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const serverOverflow = Array.isArray((fixedHero as any).overflowChest) ? (fixedHero as any).overflowChest : [];
     const localOverflow = Array.isArray(localSnapshot?.overflowChest) ? localSnapshot.overflowChest : [];
     /** Як інвентар — union, інакше «більший локальний overflow» затирав серверні нагороди (TvT тощо). */
-    const mergedOverflow = mergeInventoriesUnion(localOverflow, serverOverflow);
+    const mergedOverflow = mergeInventoriesUnion(localOverflow, serverOverflow, {
+      preferLocalStackCounts: preferLocalStackableCounts,
+    });
 
     const heroForRecalc: Hero = {
       ...fixedHero,
@@ -1154,10 +1188,14 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         const serverInv = hydratedHero.inventory ?? [];
         const localEquip = localSnapshot.equipment ?? {};
         const serverEquip = hydratedHero.equipment ?? {};
-        const mergedInv = mergeInventoriesUnion(localInv, serverInv);
+        const mergedInv = mergeInventoriesUnion(localInv, serverInv, {
+          preferLocalStackCounts: preferLocalStackableCounts,
+        });
         const localOv = Array.isArray((localSnapshot as any).overflowChest) ? (localSnapshot as any).overflowChest : [];
         const serverOv = Array.isArray((hydratedHero as any).overflowChest) ? (hydratedHero as any).overflowChest : [];
-        const mergedOv = mergeInventoriesUnion(localOv, serverOv);
+        const mergedOv = mergeInventoriesUnion(localOv, serverOv, {
+          preferLocalStackCounts: preferLocalStackableCounts,
+        });
         const localTvt = Math.max(
           Number((localSnapshot as any).heroJson?.tvtCoins ?? (localSnapshot as any).heroJson?.tvt_coins ?? 0),
           0
