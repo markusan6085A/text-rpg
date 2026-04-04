@@ -70,17 +70,15 @@ export const checkSkillCritical = (heroStats: any, activeBuffs: any[]): boolean 
   return roll < critChance;
 };
 
-// L2DOP-стиль: крит ≈ ×2 base + critPower множник
-// Базовий кріт: 2.0x (як у L2)
-// critPower додає бонус: 2.0 + critPower/3000, кап 2.5x
+// Автоатака: той самий масштаб critPower що й скіли (/1000), але трохи нижчий кап — вузький /3000
+// робив Vicious Stance / предмети з critPower майже непомітними на білих ударах.
 export const getCritMultiplier = (critDamage: number | undefined) => {
   const critPower = Math.max(0, critDamage ?? 0);
-  const multiplier = 2.0 + critPower / 3000;
-  return Math.min(2.5, multiplier);
+  const multiplier = 2.0 + critPower / 1000;
+  return Math.min(2.85, multiplier);
 };
 
-// L2DOP-стиль для скілів: ×2 base + critPower, кап 3.0x
-// Скіли мають вищий кап — вони рідше критять але сильніше
+// Скіли: вищий кап за автоатаку (рідші крити по відносній частоті ударів)
 export const getSkillCritMultiplier = (critDamage: number | undefined) => {
   const critPower = Math.max(0, critDamage ?? 0);
   const multiplier = 2.0 + critPower / 1000;
