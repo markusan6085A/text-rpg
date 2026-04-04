@@ -247,11 +247,14 @@ function isStackableItem(it: any): boolean {
  * @param opts.preferLocalStackCounts — локальний snapshot **новіший** за сервер: (1) стаки з однаковим ключем — count з локалки, не max;
  * (2) для нестакабельних предметів ключ містить enchantLevel: серверний рядок з тим самим id, але іншою заточкою, відкидаємо,
  * інакше після F5 лишаються і +5 (з API), і +6 (локально) — ніби заточка «відкотилась».
+ * @param opts.excludeEquippedKeys — Set ключів (id_enchLvl_) предметів, що зараз одягнені в live-store.
+ * Якщо сервер ще не обробив PUT і тримає предмет в inventory — пропускаємо його при merge (інакше предмет
+ * опиняється одночасно в equipment і inventory = дублювання x2).
  */
 function mergeInventoriesUnion(
   localInv: any[],
   serverInv: any[],
-  opts?: { preferLocalStackCounts?: boolean }
+  opts?: { preferLocalStackCounts?: boolean; excludeEquippedKeys?: Set<string> }
 ): any[] {
   /** GM-шоп і клієнт: shop_<id> та канонічний id — один стак (інакше GET змерджує 1000 з API + 990 локально → знову 1000). */
   const mergeKeyBaseId = (i: any) => {
@@ -310,6 +313,16 @@ function mergeInventoriesUnion(
     const lc = localCounts.get(key) ?? 0;
     const sc = serverCounts.get(key) ?? 0;
     const bestItem = getBestItem(localInv, key) ?? getBestItem(serverInv, key);
+    // Non-stackable item present only on server, but already equipped in live-store:
+    // server inventory is stale (PUT not yet processed) — skip to avoid appearing in both
+    // equipment slot AND inventory simultaneously (x2 duplication).
+    if (
+      lc === 0 && sc > 0 &&
+      !isStackableItem(bestItem) &&
+      opts?.excludeEquippedKeys?.has(key)
+    ) {
+      return;
+    }
     let total: number;
     if (preferLocal && isStackableItem(bestItem)) {
       // Локальний snapshot новіший — повний авторитет по count (включно з 0 після витрати останнього з стаку).
@@ -991,10 +1004,33 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
 
     const serverInv = fixedHero.inventory ?? [];
     const localInv = localSnapshot?.inventory ?? [];
+    // Build set of currently-equipped item keys so mergeInventoriesUnion can skip server-stale rows.
+    // Key format matches itemKey inside mergeInventoriesUnion: "${normalizedId}_${enchLvl}_"
+    const equippedKeysForMerge = (() => {
+      try {
+        const liveNow = useHeroStore.getState().hero;
+        const liveNowName = String(liveNow?.name ?? "").trim().toLowerCase();
+        if (!liveNow || liveNowName !== charName) return undefined;
+        const equip = liveNow.equipment ?? {};
+        const enchLvels = liveNow.equipmentEnchantLevels ?? {};
+        const s = new Set<string>();
+        for (const [slot, itemId] of Object.entries(equip)) {
+          if (!itemId) continue;
+          const enchLvl = (enchLvels as any)[slot] ?? 0;
+          // Normalize: strip shop_ prefix (matches mergeKeyBaseId for non-stackables = raw.toLowerCase())
+          const normalizedId = String(itemId).replace(/^shop_/i, "").toLowerCase();
+          s.add(`${normalizedId}_${enchLvl}_`);
+        }
+        return s.size > 0 ? s : undefined;
+      } catch {
+        return undefined;
+      }
+    })();
     const mergedInventory = preferServerSnapshot
       ? cloneInventorySnapshot(serverInv)
       : mergeInventoriesUnion(localInv, serverInv, {
           preferLocalStackCounts: preferLocalStackableCounts,
+          excludeEquippedKeys: equippedKeysForMerge,
         });
 
     const serverEnc =

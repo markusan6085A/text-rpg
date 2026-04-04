@@ -1,0 +1,41 @@
+---
+description: Перевіряти весь ланцюжок помилки перед фіксом
+alwaysApply: true
+---
+
+# Аудит повного ланцюжка перед фіксом
+
+## Правило
+
+Перед тим як виправляти баг — знайди і пройди ВЕСЬ ланцюжок:
+від тригера (UI-клік, апі-відповідь, таймер) до збереження (localStorage, PUT, setHero).
+
+## Як виглядає повний аудит
+
+1. **Тригер** — де починається дія (кнопка, useEffect, realtime подія)?
+2. **Store-функція** — яка функція в Zustand/store викликається?
+3. **Чиста логіка** — яка pure-функція обраховує новий стан?
+4. **Persist** — де і коли результат пишеться в localStorage / надсилається PUT?
+5. **Завантаження** — де читається назад (loadHero, loadHeroFromAPI, setHero)?
+6. **Merge** — яка логіка merge застосовується? Чи є race condition між кроками 4 і 5?
+7. **Аналоги** — чи є схожі функції (equip/unequip, drop/spoil, buy/use) з тією самою проблемою?
+
+## Типовий race condition (не повторювати)
+
+```
+useEffect → loadHeroFromAPI (async старт)
+  ↓ (паралельно)
+UI-клік → equipItem → updateHero → saveToLocalStorage
+  ↓ (потім)
+loadHeroFromAPI фінішує зі STALE гілкою → setHero(stale) → ДУБЛЮВАННЯ / ВІДКАТ
+```
+
+**Рішення:** в `loadHeroFromAPI` перед merge інжектувати LIVE стан зі store
+(`inventory`, `overflowChest`, `equipment`, `equipmentEnchantLevels`).
+
+## Практика для агента
+
+- Не закривати таск після фіксу одного файлу — явно перевірити аналоги.
+- Якщо виправив `equipItem` — одразу перевірити `unequipItem`, `processDrops`, `mergeInventoriesUnion`.
+- Якщо виправив inject для `inventory` — одразу перевірити чи теж потрібен inject для `equipment`.
+- Фікси мають бути під **одну логіку** (не три різних патчі з різними підходами).
