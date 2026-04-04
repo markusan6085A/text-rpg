@@ -10,7 +10,7 @@
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const mobDropRegistry: Record<string, any> = require("../data/drops/mobDropRegistry.generated.json");
-import { applyTieredLootToMob, type ServerDropEntry } from "../data/drops/serverTieredLoot";
+import { applyTieredLootFallback, applyTieredLootToMob, type ServerDropEntry } from "../data/drops/serverTieredLoot";
 import { getFloranMobDropProfile, type DropProfile } from "../data/drops/floranMobDrops";
 import { SERVER_QUEST_DROPS } from "../data/questDropData";
 import { serverMobMatchesQuestDropName, serverGetEffectiveQuestDropNeed } from "./questDropHelpers";
@@ -65,6 +65,7 @@ type MobRegistryEntry = {
   isFloran: boolean;
   isRaidBoss: boolean;
   zoneId: string;
+  dropProfileId?: string;
 };
 
 function lookupMob(mobId: string, zoneId?: string): MobRegistryEntry | null {
@@ -114,6 +115,63 @@ function addItem(list: DroppedItem[], id: string, count: number, name?: string, 
   } else {
     list.push({ id, count, ...(name ? { name } : {}), ...(kind ? { kind } : {}), ...(slot ? { slot } : {}) });
   }
+}
+
+function rbEq(id: string, chance: number): ServerDropEntry {
+  return { id, kind: "equipment", chance, min: 1, max: 1 };
+}
+
+function rbScroll(id: string, chance: number): ServerDropEntry {
+  return { id, kind: "other", chance, min: 1, max: 2 };
+}
+
+/**
+ * Raid-boss fallback loot for profiles that ended up with empty drops in registry.
+ * Keeps old behavior: RBs should always have chance to drop equipment.
+ */
+function buildRaidBossFallbackDrops(level: number): ServerDropEntry[] {
+  if (level < 20) {
+    return [
+      rbEq("shop_weapon_d_knights_sword", 0.10),
+      rbEq("shop_weapon_d_shilen_knife", 0.09),
+      rbEq("reinforced_leather_shirt", 0.08),
+      rbEq("mithril_helmet", 0.08),
+      rbEq("shop_jewelry_d_black_pearl_ring", 0.08),
+      rbScroll("blessed_scroll_enchant_weapon_grade_d", 0.14),
+      rbScroll("blessed_scroll_enchant_armor_grade_d", 0.05),
+    ];
+  }
+  if (level < 40) {
+    return [
+      rbEq("shop_weapon_c_paagrian_sword", 0.10),
+      rbEq("shop_weapon_c_samurai_longsword", 0.10),
+      rbEq("plated_leather", 0.08),
+      rbEq("karmian_tunic", 0.08),
+      rbEq("shop_jewelry_c_ring_of_ages", 0.08),
+      rbScroll("blessed_scroll_enchant_weapon_grade_c", 0.16),
+      rbScroll("blessed_scroll_enchant_armor_grade_c", 0.06),
+    ];
+  }
+  if (level < 70) {
+    return [
+      rbEq("shop_weapon_b_great_sword", 0.09),
+      rbEq("shop_weapon_b_deadman_s_glory", 0.09),
+      rbEq("blue_wolf_breastplate", 0.08),
+      rbEq("doom_tunic", 0.08),
+      rbEq("shop_jewelry_b_sages_ring", 0.08),
+      rbScroll("blessed_scroll_enchant_weapon_grade_b", 0.15),
+      rbScroll("blessed_scroll_enchant_armor_grade_b", 0.06),
+    ];
+  }
+  return [
+    rbEq("shop_weapon_a_dragon_slayer", 0.09),
+    rbEq("shop_weapon_a_carnage_bow", 0.09),
+    rbEq("majestic_robe", 0.085),
+    rbEq("majestic_circlet", 0.085),
+    rbEq("shop_jewelry_a_majestic_ring", 0.08),
+    rbScroll("blessed_scroll_enchant_weapon_grade_a", 0.14),
+    rbScroll("blessed_scroll_enchant_armor_grade_a", 0.055),
+  ];
 }
 
 // ---------- quest drops ----------
@@ -246,10 +304,30 @@ export function calculateServerDrops(
   let effectiveDrops: ServerDropEntry[] = mob.drops ?? [];
   let effectiveSpoil: ServerDropEntry[] = mob.spoil ?? [];
 
-  if (effectiveDrops.length === 0 && /^l2dop_\d/.test(mob.id) && zoneId) {
-    const tiered = applyTieredLootToMob(mob.id, mob.level, zoneId);
+  if (mob.isRaidBoss && effectiveDrops.length === 0) {
+    effectiveDrops = buildRaidBossFallbackDrops(mob.level);
+  } else if (effectiveDrops.length === 0 && zoneId) {
+    const tiered = /^l2dop_\d/.test(mob.id)
+      ? applyTieredLootToMob(mob.id, mob.level, zoneId)
+      : applyTieredLootFallback(mob.id, mob.level, zoneId);
     effectiveDrops = tiered.drops;
     effectiveSpoil = tiered.spoil;
+  }
+
+  // Safety net: every non-RB mob should have resource lines.
+  if (!mob.isRaidBoss) {
+    const hasResourceRows = effectiveDrops.some(
+      (d) => d.kind === "resource" || String(d.id).startsWith("l2item_")
+    );
+    if (!hasResourceRows && zoneId) {
+      const fallback = applyTieredLootFallback(mob.id, mob.level, zoneId).drops;
+      const resourceRows = fallback.filter(
+        (d) => d.kind === "resource" || String(d.id).startsWith("l2item_")
+      );
+      if (resourceRows.length > 0) {
+        effectiveDrops = [...effectiveDrops, ...resourceRows.slice(0, 3)];
+      }
+    }
   }
 
   const l2Lines = effectiveDrops.filter((d) => (d.chancePerMillion ?? 0) > 0);

@@ -135,7 +135,7 @@ function zoneSpoilResourceIds(zoneId: string, mobLevel: number): string[] {
   return out;
 }
 
-function spoilEntriesForMob(
+export function spoilEntriesForMob(
   zoneId: string,
   mobLevel: number,
   seed: string,
@@ -190,5 +190,23 @@ export function applyTieredLootToMob(
     ? spoilEntriesForMob(zoneId, mobLevel, seed, drops)
     : [];
 
+  return { drops, spoil, dropChance: 1 };
+}
+
+/**
+ * Generic tiered fallback for any mob id (not only l2dop_*).
+ * Used when registry rows are missing or unexpectedly empty.
+ */
+export function applyTieredLootFallback(
+  mobId: string,
+  mobLevel: number,
+  zoneId: string,
+  slotIndex = 0
+): { drops: ServerDropEntry[]; spoil: ServerDropEntry[]; dropChance: number } {
+  const seed = `${zoneId}:${slotIndex}:${mobId}`;
+  const drops = buildDropEntries(mobLevel, seed);
+  const spoil = mobGetsSpoil(zoneId, mobId, slotIndex)
+    ? spoilEntriesForMob(zoneId, mobLevel, seed, drops)
+    : [];
   return { drops, spoil, dropChance: 1 };
 }
