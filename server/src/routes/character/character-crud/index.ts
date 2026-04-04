@@ -1259,6 +1259,84 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     return reply.send({ ok: true, success, newEnchantLevel, heroJson: versionedHeroJson });
   });
 
+  // POST /characters/:id/use-buff-scroll — atomic buff scroll application (no client race)
+  app.post("/characters/:id/use-buff-scroll", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as { itemId?: string };
+    const itemId = String(body.itemId ?? "").trim();
+    if (!itemId) return reply.code(400).send({ error: "itemId required" });
+
+    const { GM_BLESS_SCROLL_EFFECTS, GM_BLESS_SCROLL_DURATION_MS } = await import("../../../data/gmBlessScrollBuffs");
+    const buffDef = GM_BLESS_SCROLL_EFFECTS[itemId];
+    if (!buffDef) return reply.code(400).send({ error: "unknown buff scroll" });
+
+    const character = await prisma.character.findFirst({
+      where: { id, accountId: auth.accountId },
+    });
+    if (!character) return reply.code(404).send({ error: "character not found" });
+
+    const heroJson: any = (character.heroJson as any) || {};
+    const inventory: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+
+    // Знаходимо скрол в інвентарі (нормалізуємо shop_ префікс)
+    const normalizeId = (s: string) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
+    const scrollIdx = inventory.findIndex(
+      (i: any) => i && normalizeId(String(i.id ?? "")) === normalizeId(itemId) && (i.count ?? 1) > 0
+    );
+    if (scrollIdx < 0) return reply.code(400).send({ error: "scroll not found in inventory" });
+
+    // Знімаємо 1 скрол
+    const scrollRow = inventory[scrollIdx];
+    const newCount = (scrollRow.count ?? 1) - 1;
+    if (newCount > 0) {
+      inventory[scrollIdx] = { ...scrollRow, count: newCount };
+    } else {
+      inventory.splice(scrollIdx, 1);
+    }
+
+    // Будуємо баф
+    const now = Date.now();
+    const newBuff = {
+      id: buffDef.buffId,
+      name: buffDef.buffName,
+      source: "gm_bless_scroll",
+      buffGroup: "GM_BLESS_SCROLL",
+      effects: buffDef.effects.map((e: any) => ({ ...e })),
+      expiresAt: now + GM_BLESS_SCROLL_DURATION_MS,
+      startedAt: now,
+      durationMs: GM_BLESS_SCROLL_DURATION_MS,
+    };
+
+    // Мерджимо бафи: видаляємо дублікат по id, додаємо новий (оновлює тривалість)
+    const existingBuffs: any[] = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
+    const filtered = existingBuffs.filter(
+      (b: any) => !(typeof b?.id === "number" && b.id === newBuff.id)
+    );
+    const heroBuffs = [newBuff, ...filtered];
+
+    const updatedHeroJson = { ...heroJson, inventory, heroBuffs };
+    const versionedHeroJson = addVersioning(updatedHeroJson);
+
+    await prisma.character.update({
+      where: { id },
+      data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+    });
+
+    enqueuePlayerActivityLog({
+      accountId: auth.accountId,
+      characterId: id,
+      characterName: String(heroJson.name ?? character.name ?? ""),
+      action: "use_buff_scroll",
+      metadata: { itemId, buffName: buffDef.buffName },
+      clientIp: getClientIp(req),
+    });
+
+    return reply.send({ ok: true, heroJson: versionedHeroJson });
+  });
+
   // POST /characters/:id/battle-finish — server-authoritative drop calc + battle result save
   app.post("/characters/:id/battle-finish", async (req, reply) => {
     const auth = getAuth(req);

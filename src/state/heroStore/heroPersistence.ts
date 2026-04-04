@@ -704,6 +704,16 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         (hNow as any)?.heroRevision ??
         expectedRevision
     );
+    // 🔥 КРИТИЧНО: оновлюємо inventory/overflowChest зі СВІЖОГО стану store перед PUT.
+    // Проблема: debouncedSave захоплює snapshot героя в момент виклику. Якщо між цим і виконанням
+    // debounce-у пройшов атомарний запит (/enchant, /equip) і оновив store через applyServerSync —
+    // старий snapshot у debounce має стару inventory (зі скролом). expectedRevision вже оновлено
+    // з store (N+1), тому 409 не буде, і сервер прийме PUT зі СТАРИМ inventory, відкочуючи заточку.
+    // Рішення: завжди брати inventory зі store в момент відправки, не з snapshot debounce-у.
+    if (hNow) {
+      if (Array.isArray(hNow.inventory)) (heroJsonToSave as any).inventory = hNow.inventory;
+      if (Array.isArray(hNow.overflowChest)) (heroJsonToSave as any).overflowChest = hNow.overflowChest;
+    }
 
     const updatePayload: Parameters<typeof updateCharacter>[1] = {
       heroJson: heroJsonToSave,

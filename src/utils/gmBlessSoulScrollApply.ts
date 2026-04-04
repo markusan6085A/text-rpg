@@ -110,42 +110,68 @@ export function mergeGmBlessSoulScrollBuffs(
 }
 
 /**
- * Інвентар / місто: злити бафи з battle save + heroJson.heroBuffs, записати скрол, персист.
+ * Інвентар / місто: атомарний сервер-ендпоінт → applyServerSync.
+ * Повністю сервер-авторитетно: немає race condition між пристроями.
  */
-export function applyGmBlessSoulScrollFromInventory(itemId: string): { ok: boolean; message?: string } {
+export async function applyGmBlessSoulScrollFromInventory(itemId: string): Promise<{ ok: boolean; message?: string }> {
   const store = useHeroStore.getState();
   const hero = store.hero;
   if (!hero?.name) {
     return { ok: false, message: "Немає героя" };
   }
-  const now = Date.now();
-  const saved = loadBattle(hero.name) || {};
-  const hj = ((hero as any).heroJson || {}) as { heroBuffs?: BattleBuff[] };
-  const fromSaved = Array.isArray(saved.heroBuffs) ? saved.heroBuffs : [];
-  const fromJson = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
-  const combined = dedupeBuffsPreferLatestExpires([...fromSaved, ...fromJson], now);
 
-  const r = mergeGmBlessSoulScrollBuffs(hero, itemId, now, combined);
-  if (r.ok === false) {
-    return { ok: false, message: r.message };
+  // Оптимістична перевірка: є скрол в інвентарі?
+  const inv = hero.inventory || [];
+  const invItem = inv.find((i) => i.id === itemId);
+  if (!invItem || (invItem.count ?? 0) <= 0) {
+    return { ok: false, message: "Немає предмета в інвентарі" };
+  }
+  if (!isGmBlessSoulScrollItem(itemId)) {
+    return { ok: false, message: "Невідомий скрол" };
   }
 
-  persistBattle({ ...saved, heroBuffs: r.nextBuffs }, hero.name);
-  useBattleStore.setState({ heroBuffs: r.nextBuffs });
+  try {
+    const { useBuffScrollAPI } = await import("./api/useBuffScrollAPI");
+    const result = await useBuffScrollAPI(itemId);
+    if (!result.ok) return { ok: false, message: "Сервер відхилив використання скрола" };
 
-  const existingJson = ((hero as any).heroJson || {}) as Record<string, unknown>;
-  store.updateHero(
-    {
-      inventory: r.updatedInventory,
-      hp: r.nextHp,
-      mp: r.nextMp,
-      cp: r.nextCp,
-      heroJson: {
-        ...existingJson,
-        heroBuffs: r.nextBuffs,
-      } as any,
-    },
-    { persist: true }
-  );
-  return { ok: true };
+    // Застосовуємо стан з сервера (inventory + heroBuffs) — без PUT
+    const serverHeroJson = result.heroJson;
+    store.applyServerSync(
+      {
+        inventory: serverHeroJson.inventory,
+        heroJson: {
+          ...((hero as any).heroJson || {}),
+          heroBuffs: serverHeroJson.heroBuffs,
+        },
+      },
+      { heroRevision: serverHeroJson.heroRevision, updatedAt: Date.now() }
+    );
+
+    // Синхронізуємо battle store / persist щоб бафи відображались у бою
+    const now = Date.now();
+    const cleanedBuffs = cleanupBuffs(
+      Array.isArray(serverHeroJson.heroBuffs) ? serverHeroJson.heroBuffs : [],
+      now
+    );
+    const saved = loadBattle(hero.name) || {};
+    persistBattle({ ...saved, heroBuffs: cleanedBuffs }, hero.name);
+    useBattleStore.setState({ heroBuffs: cleanedBuffs });
+
+    // HP/MP/CP з бафами
+    const currentHero = store.hero ?? hero;
+    const baseMax = getMaxResources(currentHero as any);
+    const { maxHp, maxMp, maxCp } = computeBuffedMaxResources(baseMax, cleanedBuffs);
+    const nextHp = Math.min(maxHp, currentHero.hp ?? maxHp);
+    const nextMp = Math.min(maxMp, currentHero.mp ?? maxMp);
+    const nextCp = Math.min(maxCp, currentHero.cp ?? maxCp);
+    if (nextHp !== currentHero.hp || nextMp !== currentHero.mp || nextCp !== currentHero.cp) {
+      store.updateHero({ hp: nextHp, mp: nextMp, cp: nextCp }, { skipServer: true });
+    }
+
+    return { ok: true };
+  } catch (err: any) {
+    const msg = err?.body?.error || err?.message || "Помилка сервера";
+    return { ok: false, message: msg };
+  }
 }

@@ -106,15 +106,22 @@ export default function ConsumableItemModal({
     onClose();
   };
 
-  const handleUseBlessScroll = () => {
-    if (!item.id) return;
-    const r = applyGmBlessSoulScrollFromInventory(item.id);
-    if (!r.ok) {
-      showToast(r.message ?? "Не вдалося використати скрол", "error");
-      return;
+  const [usingScroll, setUsingScroll] = useState(false);
+
+  const handleUseBlessScroll = async () => {
+    if (!item.id || usingScroll) return;
+    setUsingScroll(true);
+    try {
+      const r = await applyGmBlessSoulScrollFromInventory(item.id);
+      if (!r.ok) {
+        showToast(r.message ?? "Не вдалося використати скрол", "error");
+        return;
+      }
+      showToast(`Використано: ${itemDef?.name ?? item.id}`, "success");
+      onClose();
+    } finally {
+      setUsingScroll(false);
     }
-    showToast(`Використано: ${itemDef?.name ?? item.id}`, "success");
-    onClose();
   };
 
   return (
@@ -190,9 +197,10 @@ export default function ConsumableItemModal({
               <button
                 type="button"
                 onClick={handleUseBlessScroll}
-                className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-semibold"
+                disabled={usingScroll}
+                className="w-full px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white rounded text-sm font-semibold"
               >
-                Использовать
+                {usingScroll ? "..." : "Использовать"}
               </button>
             </div>
           )}

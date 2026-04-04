@@ -224,9 +224,9 @@ export default function InventoryItemList({
                 {isGmBlessSoulScrollItem(String(itemKey)) && (
                   <button
                     type="button"
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.stopPropagation();
-                      const r = applyGmBlessSoulScrollFromInventory(String(itemKey));
+                      const r = await applyGmBlessSoulScrollFromInventory(String(itemKey));
                       if (!r.ok) {
                         showToast(r.message ?? "Не вдалося використати скрол", "error");
                         return;
