@@ -1057,7 +1057,10 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
 
     const serverOverflow = Array.isArray((fixedHero as any).overflowChest) ? (fixedHero as any).overflowChest : [];
     const localOverflow = Array.isArray(localSnapshot?.overflowChest) ? localSnapshot.overflowChest : [];
-    const mergedOverflow = preferServerSnapshot
+    const mainServerClearedAt = Number((fixedHero as any)?.heroJson?.inventoryClearedAt ?? 0);
+    const mainLocalClearedAt = Number((localSnapshot as any)?.heroJson?.inventoryClearedAt ?? 0);
+    const mainServerCleared = mainServerClearedAt > 0 && mainServerClearedAt > mainLocalClearedAt;
+    const mergedOverflow = (preferServerSnapshot || mainServerCleared)
       ? cloneInventorySnapshot(serverOverflow)
       : mergeInventoriesUnion(localOverflow, serverOverflow, {
           preferLocalStackCounts: preferLocalStackableCounts,
@@ -1382,18 +1385,33 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       if (localSnapshot) {
         const localInv = localSnapshot.inventory ?? [];
         const serverInv = hydratedHero.inventory ?? [];
-        const mergedInv = mergeInventoriesUnion(localInv, serverInv, {
-          preferLocalStackCounts: preferLocalStackableCounts,
-        });
+
+        // If the server cleared inventory more recently than the local snapshot knows,
+        // do NOT merge local items back — use server's empty state.
+        const serverClearedAt = Number(
+          (hydratedHero as any)?.heroJson?.inventoryClearedAt ??
+          (heroData as any)?.heroJson?.inventoryClearedAt ?? 0
+        );
+        const localClearedAt = Number(
+          (localSnapshot as any)?.heroJson?.inventoryClearedAt ?? 0
+        );
+        const serverJustCleared = serverClearedAt > 0 && serverClearedAt > localClearedAt;
+
+        const mergedInv = serverJustCleared
+          ? mergeInventoriesUnion([], serverInv, { preferLocalStackCounts: false })
+          : mergeInventoriesUnion(localInv, serverInv, { preferLocalStackCounts: preferLocalStackableCounts });
+
         const localOv = Array.isArray((localSnapshot as any).overflowChest)
           ? (localSnapshot as any).overflowChest
           : [];
         const serverOv = Array.isArray((hydratedHero as any).overflowChest)
           ? (hydratedHero as any).overflowChest
           : [];
-        const mergedOv = mergeInventoriesUnion(localOv, serverOv, {
-          preferLocalStackCounts: preferLocalStackableCounts,
-        });
+        const mergedOv = serverJustCleared
+          ? []
+          : mergeInventoriesUnion(localOv, serverOv, {
+              preferLocalStackCounts: preferLocalStackableCounts,
+            });
         const localTvt = Math.max(
           Number(
             (localSnapshot as any).heroJson?.tvtCoins ??

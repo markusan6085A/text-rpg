@@ -655,11 +655,21 @@ export default function Inventory() {
                   setWipeLoading(true);
                   try {
                     const updated = await clearInventoryAPI(characterId);
+                    const clearedAt = (updated.heroJson as any)?.inventoryClearedAt ?? Date.now();
                     useHeroStore.getState().updateServerState({
                       heroRevision: (updated.heroJson as any)?.heroRevision ?? 0,
                       updatedAt: Date.now(),
                     });
-                    updateHero({ inventory: [] });
+                    useHeroStore.getState().updateHero((prev: any) => ({
+                      inventory: [],
+                      overflowChest: [],
+                      heroJson: {
+                        ...(prev?.heroJson ?? {}),
+                        inventory: [],
+                        overflowChest: [],
+                        inventoryClearedAt: clearedAt,
+                      },
+                    }));
                     setShowWipeConfirm(false);
                     setSelectedItem(null);
                     setDeleteConfirmItem(null);
