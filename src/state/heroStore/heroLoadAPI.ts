@@ -901,7 +901,11 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
 
     const localDyes = localSnapshot?.activeDyes ?? [];
     const serverDyes = fixedHero.activeDyes ?? [];
-    const mergedActiveDyes = (localDyes.length >= serverDyes.length ? localDyes : serverDyes) as any;
+    const mergedActiveDyes = preferServerSnapshot
+      ? Array.isArray(serverDyes)
+        ? serverDyes.map((d: any) => ({ ...d }))
+        : []
+      : ((localDyes.length >= serverDyes.length ? localDyes : serverDyes) as any);
 
     const serverActiveQuests = Array.isArray((heroData as any)?.activeQuests) ? (heroData as any).activeQuests : [];
     const localActiveQuests = Array.isArray(localSnapshot?.activeQuests) ? localSnapshot.activeQuests : [];

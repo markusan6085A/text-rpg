@@ -28,6 +28,7 @@ alwaysApply: true
 
 - Якщо **`preferServerSnapshot`** — інвентар і overflow брати **лише з API** (`cloneInventorySnapshot` серверного масиву), **без** union з `localStorage`.
 - У **пізньому блоці** після hydrate — **не** робити повторний union інвентаря/overflow, коли **`preferServerSnapshot`** (лише SP merge тощо залишається).
+- **`activeDyes`** (тату у тату-майстра, не слот екіпу): при **`preferServerSnapshot`** брати масив лише з API; інакше лишається правило «довший список» (локаль vs сервер).
 
 ## 3) Екіп і `equipmentEnchantLevels` (ПК vs телефон)
 
