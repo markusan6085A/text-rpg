@@ -764,6 +764,64 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
     }
   }
 
+  // ── Конфлікт weapon ↔ lrhand ─────────────────────────────────────────────
+  // weapon і lrhand — взаємовиключні слоти. Якщо одягаємо у weapon → очищуємо lrhand,
+  // і навпаки. Без цього можна мати одночасно regular weapon і dual weapon.
+  if (slot === "weapon") {
+    const oldLrhandId = hero.equipment?.lrhand;
+    if (oldLrhandId && newEquipment.lrhand) {
+      const lrDef = itemsDBWithStarter[oldLrhandId] || itemsDB[oldLrhandId];
+      const alreadyInInv = newInventory.some((i) => i.id === oldLrhandId);
+      if (lrDef && !alreadyInInv) {
+        const grade = lrDef.grade || autoDetectGrade(oldLrhandId);
+        newInventory.push({
+          id: lrDef.id,
+          name: lrDef.name,
+          slot: lrDef.slot,
+          kind: lrDef.kind,
+          icon: lrDef.icon,
+          description: lrDef.description,
+          stats: lrDef.stats,
+          count: 1,
+          enchantLevel: hero.equipmentEnchantLevels?.lrhand ?? 0,
+          grade,
+        });
+      }
+      newEquipment.lrhand = null;
+      delete newEquipmentEnchantLevels.lrhand;
+    }
+  }
+
+  if (slot === "lrhand") {
+    const oldWeaponId = hero.equipment?.weapon;
+    if (oldWeaponId && newEquipment.weapon && newEquipment.weapon !== item.id) {
+      const wpDef = itemsDBWithStarter[oldWeaponId] || itemsDB[oldWeaponId];
+      const alreadyInInv = newInventory.some((i) => i.id === oldWeaponId);
+      if (wpDef && !alreadyInInv) {
+        const grade = wpDef.grade || autoDetectGrade(oldWeaponId);
+        newInventory.push({
+          id: wpDef.id,
+          name: wpDef.name,
+          slot: wpDef.slot,
+          kind: wpDef.kind,
+          icon: wpDef.icon,
+          description: wpDef.description,
+          stats: wpDef.stats,
+          count: 1,
+          enchantLevel: hero.equipmentEnchantLevels?.weapon ?? 0,
+          grade,
+        });
+      }
+      newEquipment.weapon = null;
+      // Якщо це була дворучна зброя в обох слотах — також очищуємо shield
+      if (hero.equipment?.shield === oldWeaponId) {
+        newEquipment.shield = null;
+        delete newEquipmentEnchantLevels.shield;
+      }
+      delete newEquipmentEnchantLevels.weapon;
+    }
+  }
+
   // LS видалено з зброї — пізніше буде окрема зброя/слот для LS
   return {
     ...hero,
