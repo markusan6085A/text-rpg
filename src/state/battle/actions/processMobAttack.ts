@@ -164,9 +164,12 @@ export const createProcessMobAttack =
     // База — відображуваний pAtk/mAtk цього удару (без 0.8), далі variance та мітигація atk/(atk+def)
     let base = isPhysicalAttack ? Math.max(5, mobPAtk) : Math.max(5, mobMAtk);
 
-    // Для рейд-босів використовуємо AI профіль з множником урону
+    // Рейд-боси зони: AI-фази + глобальний буст (зонні РБ мають відносно «документовані» pAtk у даних).
+    // Канонічні епіки (Queen Ant тощо): pAtk/mAtk у картці вже підігнані — без прихованих ×3 фази ×2.25,
+    // інакше 900 у UI перетворюється на 2k+ реального удару при нормальному pDef гравця.
     const isRaidBoss = (state.mob as any).isRaidBoss === true;
-    if (isRaidBoss) {
+    const isEpicRaidBoss = (state.mob as any).isEpicRaidBoss === true;
+    if (isRaidBoss && !isEpicRaidBoss) {
       const raidBoss = state.mob as any;
       const aiProfileId = raidBoss.aiProfileId;
       if (aiProfileId) {
@@ -307,7 +310,8 @@ export const createProcessMobAttack =
           aggressiveBase *= 4;
         }
         const aggIsRb = (aggressiveMob as any).isRaidBoss === true;
-        if (aggIsRb) {
+        const aggIsEpic = (aggressiveMob as any).isEpicRaidBoss === true;
+        if (aggIsRb && !aggIsEpic) {
           aggressiveBase *= 2.25;
         }
 
