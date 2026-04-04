@@ -5,7 +5,6 @@ import type { Hero, HeroInventoryItem } from "../../types/Hero";
 import { getInventoryMax, OVERFLOW_CHEST_ID } from "../heroStore";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 
-const STACKABLE_SLOTS = new Set(["consumable", "resource", "quest"]);
 
 /** Скільки звичайних слотів (без сундука). Сундук займає останній слот. */
 export function getEffectiveMaxNormal(hero: { inventoryCapacity?: number } | null): number {
@@ -42,15 +41,9 @@ export function isStackableHeroItem(item: HeroInventoryItem): boolean {
     tid === "s_angel_slayer";
   if (isEquipmentPiece) return false;
   if (def?.stackable === false) return false;
-  const slot = String(def?.slot ?? item.slot ?? "");
-  return (
-    STACKABLE_SLOTS.has(slot) ||
-    typeId.includes("shot") ||
-    typeId.includes("potion") ||
-    (item as any).type === "consumable" ||
-    (item as any).type === "resource" ||
-    (item as any).type === "quest"
-  );
+  // Все, що не є екіпом і не позначено stackable:false — стакується за замовчуванням.
+  // (розхідники, ресурси, квестові предмети, медалі, скроли, невідомі дропи)
+  return true;
 }
 
 function canStack(item: HeroInventoryItem): boolean {

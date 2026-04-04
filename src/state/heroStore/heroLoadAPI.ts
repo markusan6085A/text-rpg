@@ -231,16 +231,8 @@ function isStackableItem(it: any): boolean {
     tid === "s_angel_slayer";
   if (isEquipmentPiece) return false;
   if (def?.stackable === false) return false;
-  const slot = def?.slot ?? it?.slot ?? "";
-  const stackableSlots = ["consumable", "resource", "quest"];
-  return (
-    stackableSlots.includes(slot) ||
-    typeId.includes("shot") ||
-    typeId.includes("potion") ||
-    it?.type === "consumable" ||
-    it?.type === "resource" ||
-    it?.type === "quest"
-  );
+  // Все, що не є екіпом і не позначено stackable:false — стакується за замовчуванням.
+  return true;
 }
 
 /** Об'єднує інвентарі local + server — ніколи не губити предмети. Зброя/броня — кожен окремо (count:1).

@@ -348,8 +348,9 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
             if (!srv?.id) return srv;
             const nid = srv.id.replace(/^shop_/i, "").toLowerCase();
             const localCount = localById.get(nid);
-            // Only merge (min) for stackable consumables/resources — not equipment/quest items
-            const isStackable = srv.slot === "consumable" || srv.slot === "resource" || srv.type === "consumable" || srv.type === "resource";
+            // Only merge (min) for stackable items (shots/charges consumed mid-battle) — not equipment.
+            const EQUIP_K = new Set(["weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"]);
+            const isStackable = !(srv as any).meta?.hasLSPassive && !EQUIP_K.has(String(srv.kind ?? "").toLowerCase()) && !EQUIP_K.has(String(srv.slot ?? "").toLowerCase());
             if (isStackable && localCount != null && localCount < (srv.count ?? 1)) {
               return { ...srv, count: localCount };
             }

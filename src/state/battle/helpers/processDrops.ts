@@ -9,7 +9,7 @@ import { getEffectiveQuestDropNeed } from "../../../utils/quests/questDropEffect
 import { mobMatchesQuestDropName } from "../../../utils/quests/questDropMobMatch";
 import { mergeActiveQuestsForUi } from "../../../utils/quests/mergeActiveQuestsForUi";
 import { getInventoryMax } from "../../heroStore";
-import { addItemsWithOverflow } from "../../heroStore/inventoryOverflow";
+import { addItemsWithOverflow, isStackableHeroItem } from "../../heroStore/inventoryOverflow";
 import { getPremiumMultiplier } from "../../../utils/premium/isPremiumActive";
 import { reportMedalDrop } from "../../../utils/api";
 import { useCharacterStore } from "../../characterStore";
@@ -176,8 +176,7 @@ export function processMobDrops(
     }
 
     if (itemDef) {
-      const stackableSlots = ["consumable", "resource", "quest"];
-      const canStack = itemDef.stackable !== false && stackableSlots.includes(itemDef.slot);
+      const canStack = isStackableHeroItem({ id: itemDef.id, slot: itemDef.slot, kind: itemDef.kind, stackable: itemDef.stackable } as any);
       const existingItemIndex = canStack ? newInventory.findIndex((item: HeroInventoryItem) => item.id === drop.id && !(item as any).meta?.hasLSPassive) : -1;
       const canAddToExisting = canStack && existingItemIndex >= 0;
 
@@ -284,8 +283,7 @@ export function processMobDrops(
       
       if (itemDef) {
         // Перевіряємо, чи інвентар не повний
-        const stackableSlots = ["consumable", "resource", "quest"];
-        const canStack = stackableSlots.includes(itemDef.slot);
+        const canStack = isStackableHeroItem({ id: itemDef.id, slot: itemDef.slot, kind: itemDef.kind, stackable: itemDef.stackable } as any);
         const existingItemIndex = newInventory.findIndex((item: HeroInventoryItem) => item.id === treasureBoxId);
         const canAddToExisting = canStack && existingItemIndex >= 0;
         const currentInventorySize = newInventory.filter(Boolean).length;
@@ -352,8 +350,7 @@ export function processMobDrops(
       }
 
       if (itemDef) {
-        const stackableSlots = ["consumable", "resource", "quest"];
-        const canStack = itemDef.stackable !== false && stackableSlots.includes(itemDef.slot);
+        const canStack = isStackableHeroItem({ id: itemDef.id, slot: itemDef.slot, kind: itemDef.kind, stackable: itemDef.stackable } as any);
         const existingItemIndex = canStack
           ? newInventory.findIndex((inv: HeroInventoryItem) => inv.id === spoil.id && !(inv as any).meta?.hasLSPassive)
           : -1;

@@ -1812,10 +1812,12 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       const count = Math.max(1, Math.floor(Number(item.count ?? 1)));
       if (!itemId) continue;
 
-      // Try to stack with existing item (stackable = kind is consumable/resource or count > 1 logic)
+      // Equipment pieces are never stackable — everything else stacks by default.
+      const EQUIP_KINDS_PU = new Set(["weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"]);
       const isStackable =
-        ["consumable", "resource", "quest"].includes(String(item.kind ?? "").toLowerCase()) ||
-        count > 1;
+        !(item as any).meta?.hasLSPassive &&
+        !EQUIP_KINDS_PU.has(String(item.kind ?? "").toLowerCase()) &&
+        !EQUIP_KINDS_PU.has(String(item.slot ?? "").toLowerCase());
 
       const existingIdx = isStackable
         ? inventory.findIndex((i: any) => i && i.id === itemId && !(i?.meta?.hasLSPassive))
