@@ -165,12 +165,8 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     );
   }
 
-  const warehouseUsed = warehouseArr.reduce((total, item) => {
-    if (item) {
-      return total + (Number(item.count) || 1);
-    }
-    return total;
-  }, 0);
+  // Кількість зайнятих СЛОТІВ (не кількість предметів): кожен слот = 1, незалежно від item.count
+  const warehouseUsed = warehouseArr.filter(Boolean).length;
 
   // Функція для покладення предмета на склад
   const handlePutToWarehouse = (item: HeroInventoryItem, count?: number) => {
@@ -189,28 +185,31 @@ export default function Warehouse({ navigate }: WarehouseProps) {
       return;
     }
 
-    // Перевіряємо місткість складу
-    if (warehouseUsed + itemCount > warehouseCapacity) {
-      showToast(
-        `Склад переповнений! Вместимость: ${warehouseUsed}/${warehouseCapacity}. Недостаточно места для ${itemCount} предметов.`,
-        "error"
-      );
-      return;
-    }
-
-    // Стак: id + itemsDB.slot (у рядку API slot може бути порожнім — ЛС/скроли все одно мержаться)
+    // Стак: шукаємо спочатку існуючий слот з таким же стакованим предметом
     let targetSlotIndex = -1;
     const canMergeStacks = isStackableHeroItem(item);
 
     if (canMergeStacks) {
-      // Шукаємо існуючий слот з таким же предметом
+      const normId = (s: string) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
       for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
         const existingItem = warehouse[i];
-        if (existingItem && existingItem.id === item.id) {
+        if (existingItem && normId(existingItem.id) === normId(item.id)) {
           targetSlotIndex = i;
           break;
         }
       }
+    }
+
+    // Перевіряємо місткість складу:
+    // Якщо item стакується і вже є в складі — нового слоту не потрібно
+    const needsNewSlot = targetSlotIndex === -1;
+    const slotsNeeded = canMergeStacks ? (needsNewSlot ? 1 : 0) : itemCount;
+    if (warehouseUsed + slotsNeeded > warehouseCapacity) {
+      showToast(
+        `Склад переповнений! Вместимость: ${warehouseUsed}/${warehouseCapacity}.`,
+        "error"
+      );
+      return;
     }
 
     // Якщо не знайшли існуючий слот, шукаємо вільний
@@ -535,7 +534,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                         }}
                       />
                       <div className="flex-1 text-[12px] text-[#cfcfcc]">
-                        <div>{safeText(item.name)}</div>
+                        <div>{safeText(item.name || itemsDB[item.id]?.name || item.id)}</div>
                         {item.count != null && Number(item.count) > 1 && (
                           <div className="text-[10px] text-gray-400">x{Number(item.count)}</div>
                         )}
@@ -612,7 +611,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                           }}
                         />
                         <div className="flex-1 text-[12px] text-[#cfcfcc]">
-                          <div>{safeText(item.name)}</div>
+                          <div>{safeText(item.name || itemsDB[item.id]?.name || item.id)}</div>
                           {item.count != null && Number(item.count) > 1 && (
                             <div className="text-[10px] text-gray-400">x{Number(item.count)}</div>
                           )}
