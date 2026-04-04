@@ -1030,11 +1030,37 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     })();
     // Server always wins for inventory when server is ahead; only keep local items for
     // stackables that local has more of (battle drops not yet PUT to server).
-    const mergedInventory = preferServerSnapshot
+    const rawMergedInventory = preferServerSnapshot
       ? cloneInventorySnapshot(serverInv)
       : mergeInventoriesUnion(localInv, serverInv, {
           preferLocalStackCounts: preferLocalStackableCounts,
           excludeEquippedKeys: equippedKeysForMerge,
+        });
+
+    // Post-merge dedup: remove non-stackable items that server has equipped but NOT in its inventory.
+    // Case: PC equips weapon → server: weapon in equipment, not in inventory.
+    //       Phone still has weapon in stale localInv → mergeUnion keeps it → duplication.
+    // Fix: build set of item-ids that server has equipped AND absent from server inventory,
+    //       then strip those from the merged result.
+    const serverEquippedNotInInv = (() => {
+      const s = new Set<string>();
+      for (const itemId of Object.values(serverEquip)) {
+        if (!itemId) continue;
+        const nid = String(itemId).replace(/^shop_/i, "").toLowerCase();
+        const inServerInv = (serverInv as any[]).some(
+          (inv: any) => inv?.id && String(inv.id).replace(/^shop_/i, "").toLowerCase() === nid
+        );
+        if (!inServerInv) s.add(nid);
+      }
+      return s;
+    })();
+    const mergedInventory = serverEquippedNotInInv.size === 0
+      ? rawMergedInventory
+      : rawMergedInventory.filter((inv: any) => {
+          if (!inv?.id) return true;
+          if (isStackableItem(inv)) return true;
+          const nid = String(inv.id).replace(/^shop_/i, "").toLowerCase();
+          return !serverEquippedNotInInv.has(nid);
         });
 
     // Phase 4: equipmentEnchantLevels always from server (enchants go through Phase 1 endpoint)
