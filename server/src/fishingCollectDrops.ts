@@ -66,7 +66,7 @@ const EQUIP_CHANCE_BY_GRADE_LOWER: Record<"D" | "C" | "B", number> = {
 /** A/S: тільки зброя та броня (без біжутерії). Один кидок 1% за кожні 10 риб; при успіху — випадково A чи S і зброя чи броня. */
 const HIGH_GRADE_WEAPON_ARMOR_CHANCE = 0.01;
 
-const STACKABLE_SLOTS = new Set(["consumable", "resource", "quest"]);
+const EQUIP_SLOTS_NOSTACK = new Set(["weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"]);
 
 function pickRandomId(ids: string[]): string | null {
   const valid = ids.filter((id) => META[id]);
@@ -169,7 +169,7 @@ export function mergeFishingExtraIntoInventory(
   for (const toAdd of drops) {
     const count = Math.max(1, toAdd.count);
     const slot = toAdd.slot || "resource";
-    const stackable = STACKABLE_SLOTS.has(slot);
+    const stackable = !EQUIP_SLOTS_NOSTACK.has(slot);
     const itemObj: any = {
       id: toAdd.id,
       name: toAdd.name,
