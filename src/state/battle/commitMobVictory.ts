@@ -382,31 +382,54 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
             }
           }
 
-          // Зберегти client-reported equipment-дропи які сервер не знає:
-          // Реєстр сервера має equipment-дроп лише для RB. Для звичайних мобів сервер дає тільки ресурси,
-          // а клієнт має повні L2-таблиці дропів включаючи зброю/броню/бижу.
-          // Тому після заміни inventory серверною версією — берегти те, що клієнт додав (equipment) і сервер не перекрив.
-          const serverNids = new Set(deduped.map((i: any) => String(i?.id ?? "").replace(/^shop_/i, "").toLowerCase()));
-          // Поточний стан equipment (щоб не додавати одягнений предмет назад в інвентар)
+          // Merge: client drops WIN over server for THIS battle.
+          // Server registry has only resources for regular mobs (no equipment drops).
+          // Client has full L2 drop tables (resources + equipment + drops).
+          // Strategy:
+          //   - server item count > local → server wins (server-authoritative for pre-battle state)
+          //   - local item count > server → local wins (client dropped more, preserve it)
+          //   - item only in local → add it (server might not have drop table for this mob)
+          //   - item is currently equipped → skip (never duplicate equipped items)
           const currentEquipment = useHeroStore.getState().hero?.equipment ?? {};
           const currentEquippedNids = new Set(
             Object.values(currentEquipment)
               .filter(Boolean)
               .map((v) => String(v).replace(/^shop_/i, "").toLowerCase())
           );
-          const preServerLocalInv = localInvNow; // captured before server response, includes processMobDrops result
-          for (const localItem of preServerLocalInv) {
+          // Build index: nid → index in deduped (for stackable items)
+          const serverNidToIdx = new Map<string, number>();
+          deduped.forEach((item: any, idx: number) => {
+            if (!item?.id) return;
+            const nid = String(item.id).replace(/^shop_/i, "").toLowerCase();
+            serverNidToIdx.set(nid, idx);
+          });
+          for (const localItem of localInvNow) {
             if (!localItem?.id) continue;
             const nid = String(localItem.id).replace(/^shop_/i, "").toLowerCase();
-            if (serverNids.has(nid)) continue; // сервер вже має цей предмет — не дублюємо
-            if (currentEquippedNids.has(nid)) continue; // предмет одягнений — не додавати в інвентар
+            if (currentEquippedNids.has(nid)) continue; // ніколи не кладемо одягнений предмет в інвентар
             const lkind = String((localItem as any).kind ?? "").toLowerCase();
             const lslot = String((localItem as any).slot ?? "").toLowerCase();
-            // Зберігаємо тільки equipment-предмети яких сервер не дав (ресурси — тільки від сервера)
-            const isEquipItem = EQUIP_K.has(lkind) || EQUIP_K.has(lslot) || lkind === "equipment";
-            if (isEquipItem) {
-              deduped.push(localItem);
-              serverNids.add(nid); // щоб не додавати двічі якщо одне і те саме у local кілька разів
+            const isStackable = !EQUIP_K.has(lkind) && !EQUIP_K.has(lslot) && lkind !== "equipment";
+            const serverIdx = serverNidToIdx.get(nid);
+            if (serverIdx !== undefined) {
+              // Item exists on server — for stackable: take max(server, local)
+              if (isStackable) {
+                const srvCount = deduped[serverIdx]?.count ?? 1;
+                const locCount = (localItem as any).count ?? 1;
+                if (locCount > srvCount) {
+                  deduped[serverIdx] = { ...deduped[serverIdx], count: locCount };
+                }
+              }
+              // For equipment: server wins (already in deduped, skip)
+            } else {
+              // Item only in local — add it (server drop table may not have it)
+              if (isStackable) {
+                deduped.push({ ...localItem, count: (localItem as any).count ?? 1 });
+              } else {
+                // Equipment not in server → add (e.g. weapon drop from mob not in RB registry)
+                deduped.push(localItem);
+              }
+              serverNidToIdx.set(nid, deduped.length - 1);
             }
           }
 
