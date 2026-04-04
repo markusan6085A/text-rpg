@@ -5,12 +5,18 @@ import {
   isSkillInProfession,
   normalizeProfessionId,
 } from "../../data/skills";
+import { AdditionalSkills } from "../../data/skills/additional";
 import type { Hero } from "../../types/Hero";
-
-/** Додаткові скіли, дозволені всім професіям (узгоджено з getSkillDef). */
-export const EXTRA_SKILL_IDS_ALL_PROFESSIONS = new Set([130, 429, 401]);
 import { getJSON, removeItem, setJSON } from "../persistence";
 import { loadBattle, persistBattle } from "./persist";
+
+/**
+ * Додаткові скіли з екрану «Доп. скіли» — лишаються в hero.skills для будь-якої професії.
+ * Інакше після learn на сервері filterSkillsListForHeroProfession їх зрізає (не в allowlist професії).
+ */
+export const EXTRA_SKILL_IDS_ALL_PROFESSIONS = new Set(
+  Object.values(AdditionalSkills).map((s) => s.id)
+);
 
 export const BASE_ATTACK_ID = 0;
 export const MAX_SLOTS = 60;
