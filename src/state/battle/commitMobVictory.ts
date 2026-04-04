@@ -21,6 +21,7 @@ import { postPartyKillShare, postWorldMobKill } from "../../utils/api";
 import { applyWorldMobKillLocal } from "../worldMobHpStore";
 import { buildPartyMemberVictoryLogLines } from "./helpers/victoryLootLogLines";
 import { battleFinishAPI } from "../../utils/api/battleFinishAPI";
+import { pickupItemAPI } from "../../utils/api/pickupItemAPI";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -274,49 +275,70 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     void postPartyKillShare(partySharePayload).catch(() => {});
   }
 
-  // Phase 5: fire-and-forget atomic battle-finish save to server
-  // updateHero above already updated local state; this ensures server state is updated atomically.
+  // Phase 5 + pickup-item: fire-and-forget atomic battle result save to server.
+  // updateHero above already updated local state optimistically.
+  // Two parallel commits:
+  // 1. battle-finish: saves exp/sp/adena/level/hp/mp/cp + battle metadata
+  // 2. pickup-item: saves inventory drops atomically (server handles overflow)
   void (async () => {
     try {
       const updatedHero = useHeroStore.getState().hero;
       if (!updatedHero) return;
       const heroJson = (updatedHero as any).heroJson || {};
-      await battleFinishAPI({
-        mobId: String(mob.id ?? ""),
-        earnedExp: displayExp,
-        earnedSp: displaySp,
-        earnedAdena: displayAdena,
-        newLevel: updatedHero.level,
-        newExp: updatedHero.exp,
-        newSp: updatedHero.sp,
-        newAdena: updatedHero.adena,
-        newHp: updatedHero.hp,
-        newMp: updatedHero.mp,
-        newCp: updatedHero.cp,
-        heroJsonPatch: {
-          inventory: updatedHero.inventory,
-          overflowChest: updatedHero.overflowChest,
-          mobsKilled: (updatedHero as any).mobsKilled,
-          dailyQuestsProgress: updatedHero.dailyQuestsProgress,
-          dailyQuestsCompleted: updatedHero.dailyQuestsCompleted,
-          activeQuests: updatedHero.activeQuests,
-          lastKillMobId: heroJson.lastKillMobId,
-          lastKillMobName: heroJson.lastKillMobName,
-          lastKillZoneId: heroJson.lastKillZoneId,
-          lastKillZoneName: heroJson.lastKillZoneName,
-          battleZoneId: heroJson.battleZoneId,
-          zoneId: heroJson.zoneId,
-        },
-      }).then((result) => {
-        if (result.ok && result.heroJson?.heroRevision) {
-          useHeroStore.getState().updateServerState(
-            { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() },
-            {}
-          );
-        }
-      });
+
+      // Run both commits in parallel
+      const [finishResult] = await Promise.allSettled([
+        battleFinishAPI({
+          mobId: String(mob.id ?? ""),
+          earnedExp: displayExp,
+          earnedSp: displaySp,
+          earnedAdena: displayAdena,
+          newLevel: updatedHero.level,
+          newExp: updatedHero.exp,
+          newSp: updatedHero.sp,
+          newAdena: updatedHero.adena,
+          newHp: updatedHero.hp,
+          newMp: updatedHero.mp,
+          newCp: updatedHero.cp,
+          heroJsonPatch: {
+            mobsKilled: (updatedHero as any).mobsKilled,
+            dailyQuestsProgress: updatedHero.dailyQuestsProgress,
+            dailyQuestsCompleted: updatedHero.dailyQuestsCompleted,
+            activeQuests: updatedHero.activeQuests,
+            lastKillMobId: heroJson.lastKillMobId,
+            lastKillMobName: heroJson.lastKillMobName,
+            lastKillZoneId: heroJson.lastKillZoneId,
+            lastKillZoneName: heroJson.lastKillZoneName,
+            battleZoneId: heroJson.battleZoneId,
+            zoneId: heroJson.zoneId,
+          },
+        }),
+        // Only call pickup-item if there were actual item drops
+        actualDroppedItems.length > 0
+          ? pickupItemAPI({
+              items: actualDroppedItems.map((d) => ({
+                id: d.id,
+                count: d.count ?? 1,
+                name: d.name,
+              })),
+              source: "battle",
+            })
+          : Promise.resolve(null),
+      ]);
+
+      // Update heroRevision from battle-finish result
+      if (
+        finishResult.status === "fulfilled" &&
+        finishResult.value?.ok &&
+        finishResult.value?.heroJson?.heroRevision
+      ) {
+        useHeroStore.getState().updateServerState(
+          { heroRevision: finishResult.value.heroJson.heroRevision, updatedAt: Date.now() },
+          {}
+        );
+      }
     } catch {
-      // Failure is OK — the state is already in localStorage via updateHero above
+      // Failure is OK — state already in localStorage via updateHero
     }
   })();
 

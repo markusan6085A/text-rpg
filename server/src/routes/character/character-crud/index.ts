@@ -1205,6 +1205,22 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
     });
 
+    enqueuePlayerActivityLog({
+      accountId: auth.accountId,
+      characterId: id,
+      characterName: String((character.heroJson as any)?.name ?? character.name ?? ""),
+      action: "enchant",
+      metadata: {
+        scrollId,
+        slot: body.slot ?? null,
+        inventoryItemIndex: body.inventoryItemIndex ?? null,
+        success,
+        newEnchantLevel,
+        targetIsEquipped,
+      },
+      clientIp: getClientIp(req),
+    });
+
     return reply.send({ ok: true, success, newEnchantLevel, heroJson: versionedHeroJson });
   });
 
@@ -1260,8 +1276,14 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     // Apply inventory patch if provided (drops)
     if (body.heroJsonPatch) {
       for (const [key, value] of Object.entries(body.heroJsonPatch)) {
-        // Only allow patching non-critical fields (not equipment or enchant levels via this endpoint)
-        if (key !== "equipment" && key !== "equipmentEnchantLevels" && key !== "skills") {
+        // Only allow patching non-critical fields (not equipment/enchant/inventory — those have their own endpoints)
+        if (
+          key !== "equipment" &&
+          key !== "equipmentEnchantLevels" &&
+          key !== "skills" &&
+          key !== "inventory" &&
+          key !== "overflowChest"
+        ) {
           newHeroJson[key] = value;
         }
       }
@@ -1280,6 +1302,22 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     }
 
     await prisma.character.update({ where: { id }, data: updateData });
+
+    enqueuePlayerActivityLog({
+      accountId: auth.accountId,
+      characterId: id,
+      characterName: String((character.heroJson as any)?.name ?? character.name ?? ""),
+      action: "battle.finish",
+      metadata: {
+        mobId: body.mobId ?? null,
+        earnedExp,
+        earnedSp,
+        earnedAdena,
+        newLevel: body.newLevel ?? null,
+        dropCount: Array.isArray(body.drops) ? body.drops.length : 0,
+      },
+      clientIp: getClientIp(req),
+    });
 
     return reply.send({ ok: true, heroJson: versionedHeroJson });
   });
@@ -1320,6 +1358,22 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     await prisma.character.update({
       where: { id },
       data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+    });
+
+    // Count equipped slots for logging
+    const equippedSlots = Object.entries(body.equipment ?? {})
+      .filter(([, v]) => !!v)
+      .map(([k]) => k);
+    enqueuePlayerActivityLog({
+      accountId: auth.accountId,
+      characterId: id,
+      characterName: String((character.heroJson as any)?.name ?? character.name ?? ""),
+      action: "equip.commit",
+      metadata: {
+        equippedSlots,
+        inventoryLen: Array.isArray(body.inventory) ? body.inventory.length : 0,
+      },
+      clientIp: getClientIp(req),
     });
 
     return reply.send({ ok: true, heroJson: versionedHeroJson });
@@ -1421,6 +1475,21 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
     await prisma.character.update({ where: { id }, data: updateData });
 
+    enqueuePlayerActivityLog({
+      accountId: auth.accountId,
+      characterId: id,
+      characterName: String((character.heroJson as any)?.name ?? character.name ?? ""),
+      action: "shop.buy",
+      metadata: {
+        itemId,
+        quantity,
+        currency,
+        unitPrice,
+        totalPrice,
+      },
+      clientIp: getClientIp(req),
+    });
+
     const updatedChar = await prisma.character.findFirst({ where: { id } });
     return reply.send({
       ok: true,
@@ -1428,5 +1497,114 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       adena: Number((updatedChar as any)?.adena ?? newAdena),
       coinsSilver: Number((updatedChar as any)?.coinsSilver ?? 0),
     });
+  });
+
+  // POST /characters/:id/pickup-item — server-side atomic inventory add
+  // Used for: battle drops, quest rewards, mail attachments, any atomic item grant.
+  app.post("/characters/:id/pickup-item", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as {
+      /** Items to add to inventory */
+      items: Array<{
+        id: string;
+        count?: number;
+        name?: string;
+        kind?: string;
+        slot?: string;
+        icon?: string;
+        grade?: string;
+        enchantLevel?: number;
+        [key: string]: any;
+      }>;
+      /** Optional: source for logging (battle, quest, mail, etc.) */
+      source?: string;
+    };
+
+    if (!Array.isArray(body.items) || body.items.length === 0) {
+      return reply.code(400).send({ error: "items array required" });
+    }
+    // Sanity: max 50 items per request
+    if (body.items.length > 50) {
+      return reply.code(400).send({ error: "too many items (max 50)" });
+    }
+
+    const character = await prisma.character.findFirst({
+      where: { id, accountId: auth.accountId },
+    });
+    if (!character) return reply.code(404).send({ error: "character not found" });
+
+    const heroJson: any = (character.heroJson as any) || {};
+    const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+    const MAX_INVENTORY = 200;
+
+    const addedItems: string[] = [];
+    const overflowItems: any[] = Array.isArray(heroJson.overflowChest)
+      ? [...heroJson.overflowChest]
+      : [];
+
+    for (const item of body.items) {
+      if (!item.id) continue;
+      const itemId = String(item.id).trim();
+      const count = Math.max(1, Math.floor(Number(item.count ?? 1)));
+      if (!itemId) continue;
+
+      // Try to stack with existing item (stackable = kind is consumable/resource or count > 1 logic)
+      const isStackable =
+        ["consumable", "resource", "quest"].includes(String(item.kind ?? "").toLowerCase()) ||
+        count > 1;
+
+      const existingIdx = isStackable
+        ? inventory.findIndex((i: any) => i && i.id === itemId && !(i?.meta?.hasLSPassive))
+        : -1;
+
+      if (existingIdx >= 0 && isStackable) {
+        inventory[existingIdx] = {
+          ...inventory[existingIdx],
+          count: (inventory[existingIdx].count ?? 0) + count,
+        };
+        addedItems.push(itemId);
+      } else if (inventory.length < MAX_INVENTORY) {
+        inventory.push({ ...item, id: itemId, count });
+        addedItems.push(itemId);
+      } else {
+        // Inventory full → overflow
+        const ovIdx = overflowItems.findIndex((i: any) => i && i.id === itemId);
+        if (ovIdx >= 0) {
+          overflowItems[ovIdx] = {
+            ...overflowItems[ovIdx],
+            count: (overflowItems[ovIdx].count ?? 0) + count,
+          };
+        } else {
+          overflowItems.push({ ...item, id: itemId, count });
+        }
+      }
+    }
+
+    const newHeroJson: any = { ...heroJson, inventory, overflowChest: overflowItems };
+    const oldRevision = Number(heroJson.heroRevision ?? 0);
+    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+
+    await prisma.character.update({
+      where: { id },
+      data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+    });
+
+    enqueuePlayerActivityLog({
+      accountId: auth.accountId,
+      characterId: id,
+      characterName: String((character.heroJson as any)?.name ?? character.name ?? ""),
+      action: `pickup.${body.source ?? "unknown"}`,
+      metadata: {
+        itemCount: body.items.length,
+        addedItems: addedItems.slice(0, 20),
+        overflowCount: overflowItems.length - (Array.isArray(heroJson.overflowChest) ? heroJson.overflowChest.length : 0),
+      },
+      clientIp: getClientIp(req),
+    });
+
+    return reply.send({ ok: true, heroJson: versionedHeroJson });
   });
 }
