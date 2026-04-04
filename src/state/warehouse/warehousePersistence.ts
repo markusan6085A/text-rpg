@@ -3,8 +3,8 @@ import type { HeroInventoryItem } from "../../types/Hero";
 import { getJSON, setJSON } from "../persistence";
 
 const WAREHOUSE_KEY_PREFIX = "l2_warehouse_";
-/** Скільки фізичних комірок у localStorage (узгоджено з Warehouse.tsx). */
-export const WAREHOUSE_MAX_SLOTS = 10;
+/** Фізичні комірки = місткість героя (до 100). Раніше було 10 — UI показував 100, але 11-й предмет не ліз. */
+export const WAREHOUSE_MAX_SLOTS = 100;
 
 /**
  * Ключ складу: по characterId (не по імені), щоб склад не губився при зміні ніка.

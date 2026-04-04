@@ -24,6 +24,7 @@ import {
 import { adminGetPlayerInventory, adminSetInventoryEnchant } from "../../utils/api/admin";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { useAuthStore } from "../../state/authStore";
+import { useBattleStore } from "../../state/battle/store";
 
 const ITEMS_PER_PAGE = 25;
 // Валюта в полях героя — у списку інвентаря не дублюємо. Ancient Adena лише в інвентарі (стек) — показуємо.
@@ -61,11 +62,13 @@ export default function Inventory() {
     void useAdminStore.getState().checkAdmin();
   }, []);
 
-  // Один персонаж на всіх пристроях: при відкритті інвентаря підтягуємо знімок з API (ревізія/timestamp уже вирішують merge у loadHeroFromAPI).
+  // Один персонаж на всіх пристроях: при відкритті інвентаря — GET + merge. Під час бою не викликаємо setHero:
+  // інакше до приходу PUT сервер може віддати старі стаки сосків і перезатерти локальну витрату.
   useEffect(() => {
     let alive = true;
     (async () => {
       if (!useAuthStore.getState().isAuthenticated || !characterId) return;
+      if (useBattleStore.getState().status === "fighting") return;
       try {
         const h = await loadHeroFromAPI();
         if (alive && h) useHeroStore.getState().setHero(h);

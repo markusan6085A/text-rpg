@@ -1297,61 +1297,63 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           }
         }
       }
-      // Union інвентаря — лише коли локаль не застаріла відносно сервера; інакше знову з’являються дублікати + расход екіп/сумка.
+      // Union інвентаря — завжди при наявній локалці. Якщо пропускати при preferServerSnapshot,
+      // клієнт після витрати сосків (PUT ще не встиг) отримував сирий snapshot сервера на GET → відкат x1000.
       if (localSnapshot) {
+        const localInv = localSnapshot.inventory ?? [];
+        const serverInv = hydratedHero.inventory ?? [];
+        const mergedInv = mergeInventoriesUnion(localInv, serverInv, {
+          preferLocalStackCounts: preferLocalStackableCounts,
+        });
+        const localOv = Array.isArray((localSnapshot as any).overflowChest)
+          ? (localSnapshot as any).overflowChest
+          : [];
+        const serverOv = Array.isArray((hydratedHero as any).overflowChest)
+          ? (hydratedHero as any).overflowChest
+          : [];
+        const mergedOv = mergeInventoriesUnion(localOv, serverOv, {
+          preferLocalStackCounts: preferLocalStackableCounts,
+        });
+        const localTvt = Math.max(
+          Number(
+            (localSnapshot as any).heroJson?.tvtCoins ??
+              (localSnapshot as any).heroJson?.tvt_coins ??
+              0
+          ),
+          0
+        );
+        const serverTvt = Math.max(
+          Number(
+            (hydratedHero as any).heroJson?.tvtCoins ??
+              (hydratedHero as any).heroJson?.tvt_coins ??
+              0
+          ),
+          0
+        );
+        const mergedTvt = Math.max(localTvt, serverTvt);
+        (hydratedHero as any).inventory = mergedInv;
+        (hydratedHero as any).overflowChest = mergedOv;
+        (hydratedHero as any).heroJson = {
+          ...(hydratedHero as any).heroJson,
+          inventory: mergedInv,
+          overflowChest: mergedOv,
+          tvtCoins: mergedTvt,
+          tvt_coins: mergedTvt,
+        };
+        console.log("[loadHeroFromAPI] Applied inventory union merge:", mergedInv.length, "items");
+
         if (!preferServerSnapshot) {
-          const localInv = localSnapshot.inventory ?? [];
-          const serverInv = hydratedHero.inventory ?? [];
           const localEquip = localSnapshot.equipment ?? {};
           const serverEquip = hydratedHero.equipment ?? {};
-          const mergedInv = mergeInventoriesUnion(localInv, serverInv, {
-            preferLocalStackCounts: preferLocalStackableCounts,
-          });
-          const localOv = Array.isArray((localSnapshot as any).overflowChest)
-            ? (localSnapshot as any).overflowChest
-            : [];
-          const serverOv = Array.isArray((hydratedHero as any).overflowChest)
-            ? (hydratedHero as any).overflowChest
-            : [];
-          const mergedOv = mergeInventoriesUnion(localOv, serverOv, {
-            preferLocalStackCounts: preferLocalStackableCounts,
-          });
-          const localTvt = Math.max(
-            Number(
-              (localSnapshot as any).heroJson?.tvtCoins ??
-                (localSnapshot as any).heroJson?.tvt_coins ??
-                0
-            ),
-            0
-          );
-          const serverTvt = Math.max(
-            Number(
-              (hydratedHero as any).heroJson?.tvtCoins ??
-                (hydratedHero as any).heroJson?.tvt_coins ??
-                0
-            ),
-            0
-          );
-          const mergedTvt = Math.max(localTvt, serverTvt);
-          (hydratedHero as any).inventory = mergedInv;
-          (hydratedHero as any).overflowChest = mergedOv;
-          (hydratedHero as any).heroJson = {
-            ...(hydratedHero as any).heroJson,
-            inventory: mergedInv,
-            overflowChest: mergedOv,
-            tvtCoins: mergedTvt,
-            tvt_coins: mergedTvt,
-          };
-          console.log('[loadHeroFromAPI] Applied inventory union merge:', mergedInv.length, 'items');
           const localEquipCount = Object.keys(localEquip).filter((k) => localEquip[k] != null).length;
           const serverEquipCount = Object.keys(serverEquip).filter((k) => serverEquip[k] != null).length;
           if (localEquipCount > serverEquipCount) {
             (hydratedHero as any).equipment = localEquip;
             (hydratedHero as any).heroJson = { ...(hydratedHero as any).heroJson, equipment: localEquip };
             console.log(
-              '[loadHeroFromAPI] Preferring local equipment (more slots):',
+              "[loadHeroFromAPI] Preferring local equipment (more slots):",
               localEquipCount,
-              'vs',
+              "vs",
               serverEquipCount
             );
           }

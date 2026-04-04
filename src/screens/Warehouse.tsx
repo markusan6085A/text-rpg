@@ -8,7 +8,9 @@ import {
   loadWarehouse,
   saveItemToWarehouse,
   loadItemFromWarehouse,
+  WAREHOUSE_MAX_SLOTS,
 } from "../state/warehouse/warehousePersistence";
+import { isStackableHeroItem } from "../state/heroStore/inventoryOverflow";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import { CATEGORIES } from "./character/InventoryFilters";
 import { itemsDB } from "../data/items/itemsDB";
@@ -19,7 +21,6 @@ interface WarehouseProps {
   navigate: (path: string) => void;
 }
 
-const WAREHOUSE_MAX_SLOTS = 10;
 const DEFAULT_WAREHOUSE_CAPACITY = 100;
 const MAX_WAREHOUSE_CAPACITY = 100;
 const LOG_MAX_ENTRIES = 10;
@@ -197,11 +198,11 @@ export default function Warehouse({ navigate }: WarehouseProps) {
       return;
     }
 
-    // Знаходимо вільний слот або існуючий слот з таким же предметом (якщо це ресурс)
+    // Стак: id + itemsDB.slot (у рядку API slot може бути порожнім — ЛС/скроли все одно мержаться)
     let targetSlotIndex = -1;
-    const isResource = item.slot === "resource" || item.slot === "consumable";
-    
-    if (isResource) {
+    const canMergeStacks = isStackableHeroItem(item);
+
+    if (canMergeStacks) {
       // Шукаємо існуючий слот з таким же предметом
       for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
         const existingItem = warehouse[i];
@@ -223,7 +224,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     }
 
     if (targetSlotIndex === -1) {
-      showToast("Склад переповнений! Максимум 10 слотів.", "error");
+      showToast(`Склад переповнений! Нема вільної комірки (${WAREHOUSE_MAX_SLOTS} слотів).`, "error");
       return;
     }
 
@@ -287,10 +288,10 @@ export default function Warehouse({ navigate }: WarehouseProps) {
 
   // Функція для відкриття модального вікна вибору кількості
   const handlePutToWarehouseClick = (item: HeroInventoryItem) => {
-    const isResource = item.slot === "resource" || item.slot === "consumable";
+    const stackItem = isStackableHeroItem(item);
     const hasCount = (item.count || 1) > 1;
 
-    if (isResource && hasCount) {
+    if (stackItem && hasCount) {
       // Показуємо модальне вікно для вибору кількості
       setQuantityModal({
         item,
@@ -310,8 +311,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     const item = warehouse[slotIndex];
     if (!item) return;
 
-    const itemDef = itemsDB[item.id];
-    const canStack = itemDef?.stackable !== false && !(item as any).meta?.hasLSPassive;
+    const canStack = isStackableHeroItem(item);
     const slotsNeeded = canStack ? 1 : (item.count || 1);
     const inventorySize = (hero.inventory || []).length;
     const maxSlots = getInventoryMax(hero);
@@ -579,19 +579,20 @@ export default function Warehouse({ navigate }: WarehouseProps) {
               </div>
             </>
           ) : (
-            // Склад - показуємо тільки 10 предметів
-            <div className="space-y-2">
+            // Склад — усі зайняті комірки за реальним індексом (0…WAREHOUSE_MAX_SLOTS-1)
+            <div className="space-y-2 max-h-[55vh] overflow-y-auto pr-1">
               {(() => {
-                const warehouseItems = warehouseArr.filter(item => item !== null).slice(0, 10);
-                return warehouseItems.length > 0 ? (
-                  warehouseItems.map((item, idx) => {
-                    const slotIndex = warehouseArr.findIndex(w => w !== null && w.id === item!.id);
-                    const iconVal = item!.icon ?? itemsDB[item!.id]?.icon;
+                const rows = warehouseArr
+                  .map((item, slotIndex) => (item ? { item, slotIndex } : null))
+                  .filter(Boolean) as { item: HeroInventoryItem; slotIndex: number }[];
+                return rows.length > 0 ? (
+                  rows.map(({ item, slotIndex }) => {
+                    const iconVal = item.icon ?? itemsDB[item.id]?.icon;
                     const iconStr = typeof iconVal === "string" ? iconVal : "/items/drops/Weapon_squires_sword_i00_0.jpg";
                     const src = iconStr.startsWith("/") ? iconStr : `/items/${iconStr}`;
                     return (
                       <div
-                        key={`slot-${slotIndex}-${idx}`}
+                        key={`wh-slot-${slotIndex}`}
                         className={
                           isL2
                             ? rowL2
@@ -600,10 +601,10 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                       >
                         <img
                           src={src}
-                          alt={safeText(item!.name)}
+                          alt={safeText(item.name)}
                           className="w-6 h-6 object-contain"
                           onError={(e) => {
-                            const itemDef = itemsDB[item!.id];
+                            const itemDef = itemsDB[item.id];
                             const fallback = typeof itemDef?.icon === "string"
                               ? (itemDef.icon.startsWith("/") ? itemDef.icon : `/items/${itemDef.icon}`)
                               : "/items/drops/Weapon_squires_sword_i00_0.jpg";
@@ -611,9 +612,9 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                           }}
                         />
                         <div className="flex-1 text-[12px] text-[#cfcfcc]">
-                          <div>{safeText(item!.name)}</div>
-                          {item!.count != null && Number(item!.count) > 1 && (
-                            <div className="text-[10px] text-gray-400">x{Number(item!.count)}</div>
+                          <div>{safeText(item.name)}</div>
+                          {item.count != null && Number(item.count) > 1 && (
+                            <div className="text-[10px] text-gray-400">x{Number(item.count)}</div>
                           )}
                         </div>
                         <button

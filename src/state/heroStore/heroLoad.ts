@@ -117,11 +117,12 @@ export function loadHero(): Hero | null {
           tid === "s_draconic_bow" ||
           tid === "s_angel_slayer";
         const stackableSlots = ["consumable", "resource", "quest"];
+        const effectiveSlot = String(itemDef?.slot ?? item.slot ?? "");
         const canStack =
           !isEquipmentPiece &&
           !item.meta?.hasLSPassive &&
           itemDef?.stackable !== false &&
-          (stackableSlots.includes(item.slot) ||
+          (stackableSlots.includes(effectiveSlot) ||
             String(typeId).includes("shot") ||
             String(typeId).includes("potion") ||
             item.type === "consumable" ||

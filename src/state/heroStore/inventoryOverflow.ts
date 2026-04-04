@@ -3,7 +3,7 @@
  */
 import type { Hero, HeroInventoryItem } from "../../types/Hero";
 import { getInventoryMax, OVERFLOW_CHEST_ID } from "../heroStore";
-import { itemsDB } from "../../data/items/itemsDB";
+import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
 
 const STACKABLE_SLOTS = new Set(["consumable", "resource", "quest"]);
 
@@ -12,20 +12,49 @@ export function getEffectiveMaxNormal(hero: { inventoryCapacity?: number } | nul
   return Math.max(1, getInventoryMax(hero) - 1);
 }
 
-/** Чи є предмет стакабельним. Камні з ЛС (meta.hasLSPassive) — ніколи не стакаються. */
-function canStack(item: HeroInventoryItem): boolean {
+/**
+ * Стакування: як у heroLoadAPI (slot з itemsDB, якщо в snapshot slot порожній — ЛС/скроли не гублять стак).
+ */
+export function isStackableHeroItem(item: HeroInventoryItem): boolean {
   if ((item as any).meta?.hasLSPassive) return false;
-  const typeId = String(item?.id ?? (item as any)?.itemId ?? "");
-  const def = itemsDB[item.id] || itemsDB[(item as any).itemId];
+  const rawId = item?.id ?? (item as any)?.itemId;
+  const typeId = String(rawId ?? "");
+  const tid = typeId.toLowerCase();
+  const def = itemsDB[rawId as string] || itemsDBWithStarter[rawId as string];
+  const EQUIP_KINDS = new Set([
+    "weapon",
+    "armor",
+    "helmet",
+    "boots",
+    "gloves",
+    "shield",
+    "necklace",
+    "ring",
+    "earring",
+    "jewelry",
+    "belt",
+    "cloak",
+  ]);
+  const isEquipmentPiece =
+    (def && (EQUIP_KINDS.has(String(def.kind || "")) || def.slot === "weapon")) ||
+    tid.includes("_weapon_") ||
+    tid === "s_draconic_bow" ||
+    tid === "s_angel_slayer";
+  if (isEquipmentPiece) return false;
   if (def?.stackable === false) return false;
-  if (def && STACKABLE_SLOTS.has(def.slot)) return true;
+  const slot = String(def?.slot ?? item.slot ?? "");
   return (
+    STACKABLE_SLOTS.has(slot) ||
     typeId.includes("shot") ||
     typeId.includes("potion") ||
     (item as any).type === "consumable" ||
     (item as any).type === "resource" ||
     (item as any).type === "quest"
   );
+}
+
+function canStack(item: HeroInventoryItem): boolean {
+  return isStackableHeroItem(item);
 }
 
 export interface AddItemsResult {
