@@ -1417,10 +1417,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       const count = Math.max(1, Math.floor(Number(drop.count ?? 1)));
       if (!itemId) return;
 
-      const isStackable =
-        ["consumable", "resource", "quest"].includes(
-          String(drop.kind ?? drop.slot ?? "").toLowerCase()
-        ) || count > 1;
+      // Equipment pieces (weapons, armor, jewelry) are never stackable — each is its own row.
+      // Everything else (resources, consumables, quest items, unknown) stacks by default.
+      const EQUIP_KINDS = new Set(["equipment", "weapon", "armor", "helmet", "boots", "gloves", "shield", "necklace", "ring", "earring", "jewelry", "belt", "cloak"]);
+      const EQUIP_SLOTS = new Set(["weapon", "armor", "helmet", "boots", "gloves", "shield", "necklace", "ring", "earring", "jewelry", "belt", "cloak"]);
+      const dropKind = String(drop.kind ?? "").toLowerCase();
+      const dropSlot = String(drop.slot ?? "").toLowerCase();
+      const isStackable = !EQUIP_KINDS.has(dropKind) && !EQUIP_SLOTS.has(dropSlot);
 
       const existingIdx = isStackable
         ? inventory.findIndex((i: any) => i && i.id === itemId && !(i?.meta?.hasLSPassive))

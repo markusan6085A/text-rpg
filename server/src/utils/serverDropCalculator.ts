@@ -236,7 +236,7 @@ export function calculateServerDrops(
         )
           ? Math.round(count * premiumMult)
           : count;
-        addItem(items, item.itemId, scaled);
+        addItem(items, item.itemId, scaled, undefined, "resource");
         messages.push(`Floran drop: ${item.itemId} x${scaled}`);
       }
     }
@@ -261,7 +261,7 @@ export function calculateServerDrops(
     if (drop.id === "adena" || drop.kind === "adena") return; // client handles adena
     const isResource = drop.kind === "resource" || String(drop.id).startsWith("l2item_");
     if (isResource) count = Math.round(count * premiumMult);
-    addItem(items, drop.id, count, drop.displayName);
+    addItem(items, drop.id, count, drop.displayName, drop.kind);
     messages.push(`Drop: ${drop.id} x${count}`);
   };
 
@@ -281,7 +281,7 @@ export function calculateServerDrops(
       }
       const isResource = sp.kind === "resource" || String(sp.id).startsWith("l2item_");
       if (isResource) count = Math.round(count * premiumMult);
-      addItem(items, sp.id, count, sp.displayName);
+      addItem(items, sp.id, count, sp.displayName, sp.kind);
       messages.push(`Spoil: ${sp.id} x${count}`);
     }
   }
