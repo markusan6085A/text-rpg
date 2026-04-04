@@ -53,10 +53,14 @@ export function BattleTargetCard({
       ? "rounded-md overflow-hidden relative bg-[#0a0806] border border-[#6b5a3e]/75 shadow-[inset_0_2px_6px_rgba(0,0,0,0.65),inset_0_-1px_0_rgba(199,173,128,0.12),0_0_0_1px_rgba(0,0,0,0.4)]"
       : "rounded-md overflow-hidden relative bg-[#14110c] border border-white/40 shadow-[inset_0_2px_8px_rgba(0,0,0,0.5)]";
 
+  // min-w: ширина картки не залежить від короткого імені моба — інакше HP/Ceру смуга стискається і цифри не вміщаються
+  const cardWidth =
+    "w-full min-w-[288px] max-w-[min(100%,380px)] sm:max-w-[380px]";
+
   return (
-    <div className="flex flex-col items-center justify-center gap-1.5 text-center w-full max-w-[260px] mx-auto">
+    <div className={`flex flex-col items-stretch justify-center gap-1.5 text-center mx-auto ${cardWidth}`}>
       <div className="flex flex-col items-center gap-0.5 w-full px-1">
-        <div className={nameClass} style={nameStyle}>
+        <div className={`${nameClass} max-w-full break-words`} style={nameStyle}>
           {name}
           {isAggressivePatrol ? (
             <span className={isBattleTest ? "text-rose-400" : "text-[#5c0a0a]"}> (агр)</span>
@@ -66,7 +70,7 @@ export function BattleTargetCard({
           Lv {level}
         </div>
       </div>
-      <div className="w-full max-w-[240px] px-0.5 shrink-0">
+      <div className="w-full px-0.5 shrink-0">
         <div className={`${barHeight} ${barShell} w-full`}>
           <div
             className={`absolute left-0 top-0 bottom-0 z-0 rounded-[5px] overflow-hidden ${

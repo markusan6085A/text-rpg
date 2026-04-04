@@ -136,9 +136,9 @@ export function BattlePanel({
       <div className={isL2 || isBattleTest ? "w-full max-w-[400px] mx-auto" : "w-full max-w-[360px] mx-auto"}>
         <div className={`${line} pt-2`}>
           <div className={pad}>
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 w-full">
               <BuffBar buffs={targetDebuffs ?? []} now={now} />
-              <div className="flex justify-center -mt-1 shrink-0">
+              <div className="flex justify-center -mt-1 shrink-0 w-full max-w-full">
                 <BattleTargetCard
                   name={target.name}
                   level={target.level}
