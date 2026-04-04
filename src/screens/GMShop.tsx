@@ -5,6 +5,7 @@ import { showToast } from "../state/toastStore";
 import { itemsDB } from "../data/items/itemsDB";
 import { itemsDBCrystals } from "../data/items/itemsDB_crystals";
 import { shopBuyAPI } from "../utils/api/shopAPI";
+import { addItemsWithOverflow } from "../state/heroStore/inventoryOverflow";
 import type { HeroInventoryItem } from "../types/Hero";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
@@ -73,46 +74,49 @@ export default function GMShop({ navigate }: GMShopProps) {
 
     const itemDef = itemsDB[item.itemId];
     const itemMeta = itemDef
-      ? {
-          id: itemDef.id,
-          name: itemDef.name,
-          slot: itemDef.slot,
-          kind: itemDef.kind,
-          icon: itemDef.icon,
-          description: itemDef.description,
-          stats: itemDef.stats,
-          grade: itemDef.grade || item.grade,
-        }
-      : {
-          id: item.itemId,
-          name: item.name,
-          slot: "consumable",
-          kind: "consumable",
-          icon: item.icon,
-          description: item.description,
-          grade: item.grade,
-        };
+      ? { id: itemDef.id, name: itemDef.name, slot: itemDef.slot, kind: itemDef.kind, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, grade: itemDef.grade || item.grade }
+      : { id: item.itemId, name: item.name, slot: "consumable", kind: "consumable", icon: item.icon, description: item.description, grade: item.grade };
 
-    try {
-      const result = await shopBuyAPI({
-        itemId: item.itemId,
-        quantity,
-        currency: "ancient_adena",
-        unitPrice: item.price,
-        itemMeta,
-      });
-      if (result.ok) {
-        useHeroStore.getState().applyServerSync(
-          { inventory: result.heroJson.inventory },
-          { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() }
-        );
-        setSelectedItem(null);
-        setBuyQuantity(1);
-      }
-    } catch (err: any) {
-      const msg = err?.body?.error || err?.message || "Помилка купівлі";
-      showToast(msg === "insufficient ancient adena" ? "Недостатньо Ancient Adena (AA)!" : msg, "error");
-    }
+    // ── Клієнтський продаж (як у Shop.tsx) — негайне оновлення ──────────────
+    const liveHero = useHeroStore.getState().hero;
+    if (!liveHero) return;
+
+    // Deduct AA from inventory
+    const newInv = (liveHero.inventory ?? []).map((i: HeroInventoryItem) => {
+      if (i.id === "ancient_adena") return { ...i, count: (i.count ?? 0) - totalPrice };
+      return i;
+    }).filter((i: HeroInventoryItem) => (i.id !== "ancient_adena" || (i.count ?? 0) > 0));
+
+    const newItem: HeroInventoryItem = {
+      id: itemMeta.id,
+      name: itemMeta.name,
+      slot: itemMeta.slot as any,
+      kind: itemMeta.kind as any,
+      icon: itemMeta.icon ?? "",
+      description: itemMeta.description ?? "",
+      stats: itemMeta.stats as any,
+      count: quantity,
+      grade: (itemMeta as any).grade,
+    };
+    const heroForOverflow = { ...liveHero, inventory: newInv, overflowChest: liveHero.overflowChest ?? [] };
+    const { inventory: finalInventory, overflowChest: finalOverflow } = addItemsWithOverflow(heroForOverflow, [newItem]);
+
+    useHeroStore.getState().updateHero({ inventory: finalInventory, overflowChest: finalOverflow });
+    setSelectedItem(null);
+    setBuyQuantity(1);
+    showToast(`Придбано: ${itemMeta.name} x${quantity}`, "success");
+
+    // ── Фонова синхронізація з сервером (не блокує UI) ─────────────────────
+    void shopBuyAPI({ itemId: item.itemId, quantity, currency: "ancient_adena", unitPrice: item.price, itemMeta })
+      .then((result) => {
+        if (result?.ok && result.heroJson) {
+          useHeroStore.getState().applyServerSync(
+            { inventory: result.heroJson.inventory },
+            { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() }
+          );
+        }
+      })
+      .catch(() => { /* server not available — client state already saved */ });
   };
 
   // Генерація каменя: кристал + ЛС + камінь → 5% шанс отримати камінь з пасивним ефектом
@@ -186,7 +190,10 @@ export default function GMShop({ navigate }: GMShopProps) {
     }
 
     const totalPrice = unitPrice * quantity;
-    const currentAdena = hero.adena ?? 0;
+    const liveHero = useHeroStore.getState().hero;
+    if (!liveHero) return;
+
+    const currentAdena = liveHero.adena ?? 0;
     if (currentAdena < totalPrice) {
       showToast("Недостатньо Adena!", "error");
       return;
@@ -198,35 +205,43 @@ export default function GMShop({ navigate }: GMShopProps) {
       return;
     }
 
-    try {
-      const result = await shopBuyAPI({
-        itemId,
-        quantity,
-        currency: "adena",
-        unitPrice,
-        itemMeta: {
-          id: itemDef.id,
-          name: itemDef.name,
-          slot: itemDef.slot,
-          kind: itemDef.kind,
-          icon: itemDef.icon,
-          description: itemDef.description,
-          grade: itemDef.grade,
-        },
-      });
-      if (result.ok) {
-        useHeroStore.getState().applyServerSync(
-          { inventory: result.heroJson.inventory, adena: result.adena },
-          { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() }
-        );
-        setSelectedAdenaPurchase(null);
-        setBuyQuantity(1);
-        showToast(`Придбано: ${itemDef.name} x${quantity}`, "success");
-      }
-    } catch (err: any) {
-      const msg = err?.body?.error || err?.message || "Помилка купівлі";
-      showToast(msg === "insufficient adena" ? "Недостатньо Adena!" : msg, "error");
-    }
+    // ── Клієнтський продаж (як у Shop.tsx) — негайне оновлення ──────────────
+    const newItem: HeroInventoryItem = {
+      id: itemDef.id,
+      name: itemDef.name,
+      slot: itemDef.slot as any,
+      kind: itemDef.kind as any,
+      icon: itemDef.icon ?? "",
+      description: itemDef.description ?? "",
+      stats: itemDef.stats as any,
+      count: quantity,
+      grade: itemDef.grade,
+    };
+
+    const heroForOverflow = { ...liveHero, inventory: liveHero.inventory ?? [], overflowChest: liveHero.overflowChest ?? [] };
+    const { inventory: finalInventory, overflowChest: finalOverflow } = addItemsWithOverflow(heroForOverflow, [newItem]);
+
+    useHeroStore.getState().updateHero({
+      adena: currentAdena - totalPrice,
+      inventory: finalInventory,
+      overflowChest: finalOverflow,
+    });
+    setSelectedAdenaPurchase(null);
+    setBuyQuantity(1);
+    showToast(`Придбано: ${itemDef.name} x${quantity}`, "success");
+
+    // ── Фонова синхронізація з сервером (не блокує UI) ─────────────────────
+    const itemMeta = { id: itemDef.id, name: itemDef.name, slot: itemDef.slot, kind: itemDef.kind, icon: itemDef.icon, description: itemDef.description, grade: itemDef.grade };
+    void shopBuyAPI({ itemId, quantity, currency: "adena", unitPrice, itemMeta })
+      .then((result) => {
+        if (result?.ok && result.heroJson) {
+          useHeroStore.getState().applyServerSync(
+            { inventory: result.heroJson.inventory, adena: result.adena },
+            { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() }
+          );
+        }
+      })
+      .catch(() => { /* server not available — client state already saved */ });
   };
 
   const isL2 = isWarmCityUi(getCityUiVariant());
