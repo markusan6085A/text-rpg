@@ -17,8 +17,11 @@ import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 import { showToast } from "../../state/toastStore";
 import type { HeroInventoryItem } from "../../types/Hero";
-import { heroInventoryIndexFromFilteredIndex } from "../../utils/adminInventoryEnchant";
-import { adminSetInventoryEnchant } from "../../utils/api/admin";
+import {
+  inventoryRowItemId,
+  serverInventoryIndexFromFilteredSelection,
+} from "../../utils/adminInventoryEnchant";
+import { adminGetPlayerInventory, adminSetInventoryEnchant } from "../../utils/api/admin";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 
 const ITEMS_PER_PAGE = 25;
@@ -103,19 +106,28 @@ export default function Inventory() {
       const filteredIndex = startIndex + pageLocalIndex;
       const raw =
         adminEnchantDraft[filteredIndex] ?? String(item.enchantLevel ?? 0);
-      const ix = heroInventoryIndexFromFilteredIndex(hero, filteredItems, filteredIndex);
-      if (ix < 0) {
-        showToast("Не знайдено рядок у інвентарі", "error");
-        return;
-      }
       const want = Math.floor(Number(String(raw).trim().replace(",", ".")) || 0);
       try {
+        const { inventory: serverInv } = await adminGetPlayerInventory(characterId);
+        const ix = serverInventoryIndexFromFilteredSelection(
+          serverInv,
+          filteredItems,
+          filteredIndex
+        );
+        if (ix < 0) {
+          showToast("Рядок не знайдено на сервері — оновіть інвентар (F5)", "error");
+          return;
+        }
+        const row = serverInv[ix];
+        const expectedItemId = inventoryRowItemId(row);
+        const expectedEnchant = Math.max(0, Math.floor(Number(row?.enchantLevel ?? 0)));
+        const expectedCount = Math.max(1, Math.floor(Number(row?.count ?? 1)));
         const r = await adminSetInventoryEnchant(characterId, {
           index: ix,
           enchantLevel: want,
-          expectedItemId: item.id,
-          expectedEnchant: item.enchantLevel ?? 0,
-          expectedCount: item.count ?? 1,
+          expectedItemId,
+          expectedEnchant,
+          expectedCount,
         });
         const loaded = await loadHeroFromAPI();
         if (loaded) useHeroStore.getState().setHero(loaded);
