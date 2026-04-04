@@ -752,18 +752,17 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         const srvHj = (updatedCharacter as any)?.heroJson || {};
         const srvAdm = Number(srvHj?.adminLevelSetAt ?? 0);
         const adminDemoteOk = srvAdm > locAdm && serverLevel < prevLevel;
-        const clampedLevel = adminDemoteOk ? serverLevel : Math.max(prevLevel, serverLevel);
-        const clampedExp =
-          clampedLevel < prevLevel ? serverExp : Math.max(currentHero.exp ?? 0, serverExp);
-        const clampedSp = Math.max(currentHero.sp ?? 0, serverSp);
+        // Сервер авторитетний для всіх прогрес-полів після PUT.
+        // Math.max(local, server) видалено — читер не може "закріпити" роздуті значення через PUT цикл.
+        // exp/sp/level/adena/coinLuck зростають ТІЛЬКИ через battle-finish/fishing/premium (їх applyServerSync вже застосований).
+        const clampedLevel = adminDemoteOk ? serverLevel : serverLevel;
+        const clampedExp = serverExp;
+        const clampedSp = serverSp;
         const serverCoinLuck = Number((updatedCharacter as any).coinLuck ?? 0);
         const serverCoinsSilver = Number((updatedCharacter as any).coinsSilver ?? 0);
         const serverAdena = Number((updatedCharacter as any).adena ?? 0);
-        // Сервер авторитетний для адени: не беремо max(local, server).
-        // Адена може збільшитися лише через battle-finish/fishing (їх applyServerSync вже зробили це).
-        // Math.max тут дозволяв читерам "закріпити" роздуту адену через PUT.
         const clampedAdena = serverAdena;
-        const clampedCoinLuck = Math.max(Number(currentHero.coinOfLuck ?? 0), serverCoinLuck);
+        const clampedCoinLuck = serverCoinLuck;
         useHeroStore.getState().applyServerSync(
           {
             heroRevision: newRevision,
@@ -930,12 +929,11 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
           const localSkills = localSource.skills ?? hero.skills ?? [];
           const serverSkills = serverHeroJson.skills ?? [];
             
-            // 🔥 КРИТИЧНО: Merge exp/mobsKilled - беремо більше значення (щоб не втратити прогрес)
-            // Для mobsKilled це ок, бо це лічильник "назавжди"
-            // Для exp теж ок, бо це накопичувальний прогрес
-            // Якщо в майбутньому буде втрата exp при смерті - потрібно буде змінити логіку
+            // mobsKilled: беремо більше (лічильник назавжди, не критично)
             const mergedMobsKilled = Math.max(localMobsKilled, serverMobsKilled);
-            const mergedExp = Math.max(localExp, serverExp);
+            // exp: сервер авторитетний. Math.max(local, server) дозволяло закріпити роздутий exp через retry.
+            // exp зростає виключно через battle-finish (applyServerSync вже застосований до store).
+            const mergedExp = serverExp;
             
             // Явний skills: [] на сервері (напр. після admin change-class) — не зливати з локалкою при retry PUT.
             let mergedSkills: any[];
@@ -1030,18 +1028,13 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
               const srvAdmRetry = Number((serverHeroJson as any)?.adminLevelSetAt ?? 0);
               const adminDemoteRetry =
                 srvAdmRetry > locAdmRetry && serverLevel < localLv;
-              const mergedLevel = adminDemoteRetry ? serverLevel : Math.max(localLv, serverLevel);
-              const mergedSp = Math.max(heroBase.sp ?? 0, serverSp);
-
-              // Адена: сервер авторитетний. Маркет/battle-finish вже оновили сервер до правильного значення.
-              // Math.max(local, server) дозволяло "закріпити" читерну адену при retry — прибрано.
+              // Сервер авторитетний для всіх прогрес-полів у retry блоці.
+              const mergedLevel = adminDemoteRetry ? serverLevel : serverLevel;
+              const mergedSp = serverSp;
               const serverAdena = Number((currentCharacter as any).adena ?? 0);
               const mergedAdena = serverAdena;
               const serverCol = Number((currentCharacter as any).coinLuck ?? 0);
-              const localCol = Number(
-                (heroBase as any).coinOfLuck ?? (heroBase as any).heroJson?.coinOfLuck ?? 0
-              );
-              const mergedCoinLuck = Math.max(localCol, serverCol);
+              const mergedCoinLuck = serverCol;
 
               const mergedHero = {
                 ...heroBase,

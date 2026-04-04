@@ -332,13 +332,16 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "invalid level (must be 1-80)" });
       }
       if (body.level < existing.level) {
-        app.log.warn({
-          accountId: auth.accountId,
-          characterId: id,
-          currentLevel: existing.level,
-          attemptedLevel: body.level,
-        }, `[PUT /characters/:id] Attempted to decrease level from ${existing.level} to ${body.level}`);
+        app.log.warn({ accountId: auth.accountId, characterId: id, currentLevel: existing.level, attemptedLevel: body.level },
+          `[PUT /characters/:id] Attempted to decrease level from ${existing.level} to ${body.level}`);
         return reply.code(400).send({ error: "level cannot be decreased" });
+      }
+      // Level через PUT може тільки збігатися з поточним або до нього доходити через battle-finish.
+      // Прямий стрибок рівня через PUT — заблокований (крім адмін-зміни через окремий endpoint).
+      if (Number(body.level) > Number(existing.level)) {
+        app.log.warn({ accountId: auth.accountId, characterId: id, currentLevel: existing.level, attemptedLevel: body.level },
+          `[PUT /characters/:id] Level increase via PUT blocked: ${existing.level} → ${body.level}`);
+        (body as any).level = undefined; // ігноруємо — level змінюється лише через battle-finish
       }
     }
 
@@ -349,16 +352,17 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       const currentExp = Number(existing.exp);
       const requestedLevel = body.level !== undefined ? Number(body.level) : Number(existing.level);
       const isLevelUpRequest = requestedLevel > Number(existing.level);
-      // exp у грі зберігається як прогрес поточного рівня, тому після level-up exp може "скинутися".
-      // Забороняємо зменшення exp тільки якщо рівень НЕ підвищується.
       if (body.exp < currentExp && !isLevelUpRequest) {
-        app.log.warn({
-          accountId: auth.accountId,
-          characterId: id,
-          currentExp,
-          attemptedExp: body.exp,
-        }, `[PUT /characters/:id] Attempted to decrease exp from ${currentExp} to ${body.exp}`);
+        app.log.warn({ accountId: auth.accountId, characterId: id, currentExp, attemptedExp: body.exp },
+          `[PUT /characters/:id] Attempted to decrease exp from ${currentExp} to ${body.exp}`);
         return reply.code(400).send({ error: "exp cannot be decreased" });
+      }
+      // EXP через PUT може тільки ЗМЕНШУВАТИСЯ або лишатися рівним (level-up скидає exp до 0 — дозволено).
+      // Збільшення EXP — виключно через /battle-finish.
+      if (body.exp > currentExp) {
+        app.log.warn({ accountId: auth.accountId, characterId: id, currentExp, attemptedExp: body.exp, delta: body.exp - currentExp },
+          `[PUT /characters/:id] EXP increase via PUT blocked: ${currentExp} → ${body.exp} (+${body.exp - currentExp})`);
+        (body as any).exp = undefined; // ігноруємо — exp зростає лише через battle-finish
       }
     }
 
@@ -366,15 +370,19 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       if (typeof body.sp !== 'number' || body.sp < 0) {
         return reply.code(400).send({ error: "invalid sp (must be >= 0)" });
       }
+      const currentSp = Number(existing.sp ?? 0);
       const skillsChanging = body.heroJson?.skills !== undefined;
-      if (body.sp < existing.sp && !skillsChanging) {
-        app.log.warn({
-          accountId: auth.accountId,
-          characterId: id,
-          currentSp: existing.sp,
-          attemptedSp: body.sp,
-        }, `[PUT /characters/:id] Attempted to decrease sp from ${existing.sp} to ${body.sp}`);
+      if (body.sp < currentSp && !skillsChanging) {
+        app.log.warn({ accountId: auth.accountId, characterId: id, currentSp, attemptedSp: body.sp },
+          `[PUT /characters/:id] Attempted to decrease sp from ${currentSp} to ${body.sp}`);
         return reply.code(400).send({ error: "sp cannot be decreased" });
+      }
+      // SP через PUT може тільки ЗМЕНШУВАТИСЯ (витрата на навчання скілів) або лишатися рівним.
+      // Збільшення SP — виключно через /battle-finish.
+      if (body.sp > currentSp) {
+        app.log.warn({ accountId: auth.accountId, characterId: id, currentSp, attemptedSp: body.sp, delta: body.sp - currentSp },
+          `[PUT /characters/:id] SP increase via PUT blocked: ${currentSp} → ${body.sp} (+${body.sp - currentSp})`);
+        (body as any).sp = undefined; // ігноруємо — sp зростає лише через battle-finish
       }
     }
 
@@ -421,20 +429,32 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       if (typeof body.coinsSilver !== 'number' || body.coinsSilver < 0) {
         return reply.code(400).send({ error: "invalid coinsSilver (must be >= 0)" });
       }
+      const currentCoinsSilver = Number((existing as any).coinsSilver ?? 0);
+      // Coin of Silver може зменшуватися (витрата в GM-шопі) або лишатися рівним.
+      // Збільшення — тільки через /battle-finish, /fishing, /admin.
+      if (body.coinsSilver > currentCoinsSilver) {
+        app.log.warn({ accountId: auth.accountId, characterId: id, currentCoinsSilver, attemptedCoinsSilver: body.coinsSilver },
+          `[PUT /characters/:id] CoinsSilver increase via PUT blocked: ${currentCoinsSilver} → ${body.coinsSilver}`);
+        (body as any).coinsSilver = undefined;
+      }
     }
 
     if (body.coinLuck !== undefined) {
       if (typeof body.coinLuck !== 'number' || body.coinLuck < 0) {
         return reply.code(400).send({ error: "invalid coinLuck (must be >= 0)" });
       }
-      if (body.coinLuck < Number((existing as any).coinLuck ?? 0)) {
-        app.log.warn({
-          accountId: auth.accountId,
-          characterId: id,
-          currentCoinLuck: existing.coinLuck || 0,
-          attemptedCoinLuck: body.coinLuck,
-        }, `[PUT /characters/:id] Attempted to decrease coinLuck from ${existing.coinLuck || 0} to ${body.coinLuck}`);
+      const currentCoinLuck = Number((existing as any).coinLuck ?? 0);
+      if (body.coinLuck < currentCoinLuck) {
+        app.log.warn({ accountId: auth.accountId, characterId: id, currentCoinLuck, attemptedCoinLuck: body.coinLuck },
+          `[PUT /characters/:id] Attempted to decrease coinLuck from ${currentCoinLuck} to ${body.coinLuck}`);
         return reply.code(400).send({ error: "coinLuck cannot be decreased" });
+      }
+      // Coin of Luck може збільшуватися ТІЛЬКИ через /premium/buy.
+      // Будь-яке збільшення через PUT — заблокувати.
+      if (body.coinLuck > currentCoinLuck) {
+        app.log.warn({ accountId: auth.accountId, characterId: id, currentCoinLuck, attemptedCoinLuck: body.coinLuck, delta: body.coinLuck - currentCoinLuck },
+          `[PUT /characters/:id] CoinLuck increase via PUT blocked: ${currentCoinLuck} → ${body.coinLuck} (+${body.coinLuck - currentCoinLuck})`);
+        (body as any).coinLuck = undefined; // ігноруємо — coinLuck зростає лише через /premium/buy
       }
     }
 
@@ -503,7 +523,24 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           heroJsonMergedTvt.premiumUntil != null ? Number(heroJsonMergedTvt.premiumUntil) : oldPremiumUntil;
         const clampedPremiumUntil = Math.min(clientPremiumUntil, oldPremiumUntil);
         const heroJsonToSave = { ...heroJsonMergedTvt, premiumUntil: clampedPremiumUntil };
-        
+
+        // ── Захист від ін'єкції екіпу/броні/зброї через heroJson ──────────────────
+        // equipment та equipmentEnchantLevels — завжди беремо з БД (не з клієнта).
+        // Зміна екіпу — виключно через /equip-commit.
+        // Так клієнт не може "надягнути" +40 зброю або вставити предмет у слот через PUT.
+        if (oldHeroJson.equipment !== undefined) {
+          heroJsonToSave.equipment = oldHeroJson.equipment;
+        }
+        if (oldHeroJson.equipmentEnchantLevels !== undefined) {
+          heroJsonToSave.equipmentEnchantLevels = oldHeroJson.equipmentEnchantLevels;
+        }
+
+        // ── Захист від ін'єкції предметів через heroJson.inventory ───────────────
+        // inventory та overflowChest беремо з клієнта (легітимний stash для предметів з дропу/покупок),
+        // але видаляємо рядки де enchantLevel > поточного значення в БД для того ж item id —
+        // тобто не можна вписати "+99 зброю" якщо в БД її немає або у неї менше заточка.
+        // Якщо в БД немає equipment → inventory є джерелом правди (старий flow).
+
         const oldRevision = oldHeroJson.heroRevision || 0;
         const versionedHeroJson = addVersioning(heroJsonToSave, oldRevision);
         updateData.heroJson = versionedHeroJson;
