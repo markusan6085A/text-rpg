@@ -71,6 +71,8 @@ export function maxEnchantLevelForItemId(itemId: string): number {
   const def = itemsDB[itemId] || itemsDBWithStarter[itemId];
   if (def) {
     if (def.kind === "weapon") return 40;
+    // lrhand = dual swords, rhand/lhand — теж зброя
+    if (["lrhand", "rhand", "lhand", "weapon"].includes(def.slot || "")) return 40;
     const isArmor =
       ["armor", "helmet", "boots", "gloves", "shield", "necklace", "ring", "earring", "jewelry", "belt", "cloak"].includes(
         def.kind || ""

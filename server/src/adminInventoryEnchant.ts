@@ -29,7 +29,10 @@ export function maxEnchantForInventoryRow(row: any): number {
   // Клієнт у processDrops пише kind як поле `type`; у магазині/екіпі — `kind`.
   const kind = String(row?.kind ?? row?.type ?? "").toLowerCase();
   const slot = String(row?.slot ?? "").toLowerCase();
+  // lrhand = dual swords, рибальський рід — за kind="weapon" ↓ або вже буде weapon.
   if (kind === "weapon") return 40;
+  // slot weapon/lrhand/rhand/lhand → зброя
+  if (slot === "weapon" || slot === "lrhand" || slot === "rhand" || slot === "lhand") return 40;
   if (ARMOR_KINDS.has(kind) || ARMOR_SLOTS.has(slot)) return 30;
   const inferred = inferMaxEnchantFromItemId(rawId);
   return inferred;

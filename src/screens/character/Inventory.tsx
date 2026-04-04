@@ -20,6 +20,8 @@ import type { HeroInventoryItem } from "../../types/Hero";
 import {
   inventoryRowItemId,
   serverInventoryIndexFromFilteredSelection,
+  applyAdminEnchantToHeroInventory,
+  heroInventoryIndexFromFilteredIndex,
 } from "../../utils/adminInventoryEnchant";
 import { adminGetPlayerInventory, adminSetInventoryEnchant } from "../../utils/api/admin";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
@@ -150,9 +152,18 @@ export default function Inventory() {
           expectedEnchant,
           expectedCount,
         });
+        // Оновлюємо live store одразу, щоб loadHeroFromAPI injection не перетер нову заточку
+        const confirmedLevel = r.enchantLevel ?? want;
+        const localIx = heroInventoryIndexFromFilteredIndex(hero, filteredItems, filteredIndex);
+        if (localIx >= 0) {
+          const { ok, inventory: patchedInv } = applyAdminEnchantToHeroInventory(
+            hero, localIx, String(confirmedLevel)
+          );
+          if (ok && patchedInv) useHeroStore.getState().updateHero({ inventory: patchedInv });
+        }
         const loaded = await loadHeroFromAPI();
         if (loaded) useHeroStore.getState().setHero(loaded);
-        showToast(`Заточка (адмін, сервер): +${r.enchantLevel ?? want}`, "success");
+        showToast(`Заточка (адмін, сервер): +${confirmedLevel}`, "success");
       } catch (e: any) {
         const msg =
           e?.status === 409
