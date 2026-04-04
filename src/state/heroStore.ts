@@ -225,7 +225,9 @@ function immediateSave(hero: Hero) {
   if (resurrectInProgress) return;
   const now = Date.now();
   // 🔥 Throttle: якщо недавно вже славили — дебаунсимо замість миттєвого PUT (менше 429 при фармі)
+  // Але спочатку синхронно пишемо в localStorage — якщо гравець F5 до таймауту, критична зміна не губиться.
   if (now - lastApiPutAt < MIN_PUT_INTERVAL_MS) {
+    saveHeroToLocalStorageOnly(hero);
     debouncedSave(hero, MIN_PUT_INTERVAL_MS);
     return;
   }
