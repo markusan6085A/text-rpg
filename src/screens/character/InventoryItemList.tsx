@@ -8,12 +8,19 @@ import { isGmBlessSoulScrollItem } from "../../data/items/gmBlessSoulScrollBuffs
 import { applyGmBlessSoulScrollFromInventory } from "../../utils/gmBlessSoulScrollApply";
 import { showToast } from "../../state/toastStore";
 import { resolveDisplayGrade } from "../../utils/itemGrade";
+import { isAdminEnchantableInventoryItem, maxEnchantLevelForItemId } from "../../utils/adminInventoryEnchant";
 
 interface InventoryItemListProps {
   items: HeroInventoryItem[];
   hero: Hero;
   onItemClick: (item: HeroInventoryItem) => void;
   onEquipItem: (item: HeroInventoryItem) => void;
+  /** Лише після adminCheck + isAdmin — заточка 100%, max +40 / +30 */
+  showAdminEnchant?: boolean;
+  filteredBaseIndex?: number;
+  adminEnchantDraft?: Record<number, string>;
+  onAdminEnchantDraftChange?: (filteredIndex: number, value: string) => void;
+  onAdminEnchantApply?: (item: HeroInventoryItem, pageLocalIndex: number) => void;
 }
 
 export default function InventoryItemList({
@@ -21,6 +28,11 @@ export default function InventoryItemList({
   hero,
   onItemClick,
   onEquipItem,
+  showAdminEnchant = false,
+  filteredBaseIndex = 0,
+  adminEnchantDraft = {},
+  onAdminEnchantDraftChange,
+  onAdminEnchantApply,
 }: InventoryItemListProps) {
   const isL2 = isWarmCityUi(getCityUiVariant());
   const listShell = isL2
@@ -242,6 +254,53 @@ export default function InventoryItemList({
                     Одеть
                   </button>
                 )}
+                {showAdminEnchant &&
+                  itemKey !== OVERFLOW_CHEST_ID &&
+                  isAdminEnchantableInventoryItem(itemKey) && (
+                    <div
+                      className="flex items-center gap-0.5 shrink-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {(() => {
+                        const filteredIndex = filteredBaseIndex + idx;
+                        const maxEnc = maxEnchantLevelForItemId(itemKey);
+                        const draftVal = adminEnchantDraft[filteredIndex];
+                        const inputVal =
+                          draftVal !== undefined ? draftVal : String(item.enchantLevel ?? 0);
+                        return (
+                          <>
+                            <input
+                              type="number"
+                              min={0}
+                              max={maxEnc}
+                              title={`Заточка 0–${maxEnc} (адмін)`}
+                              value={inputVal}
+                              onChange={(e) =>
+                                onAdminEnchantDraftChange?.(filteredIndex, e.target.value)
+                              }
+                              className={
+                                isL2
+                                  ? "w-9 rounded border border-[#5c4a32]/70 bg-[#14110c] text-[#e8dcc8] text-[9px] px-0.5 py-0.5"
+                                  : "w-9 rounded border border-white/25 bg-[#1a1a1a] text-[10px] px-0.5 py-0.5"
+                              }
+                            />
+                            <button
+                              type="button"
+                              title="Адмін: застосувати заточку (100%)"
+                              onClick={() => onAdminEnchantApply?.(item, idx)}
+                              className={
+                                isL2
+                                  ? "text-[#7ec97e] hover:text-[#a8e6a8] text-[9px] font-semibold px-1.5 py-0.5 rounded-md border border-[#3d5c3d]/80 bg-gradient-to-b from-[#1a2619] to-[#0c140c] whitespace-nowrap"
+                                  : "text-[#6bc06b] text-[9px] font-semibold px-1.5 py-0.5 border border-white/40 rounded bg-[#1a2a1a] whitespace-nowrap"
+                              }
+                            >
+                              Заточити
+                            </button>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
               </div>
             </div>
           );

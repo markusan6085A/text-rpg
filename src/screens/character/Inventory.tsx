@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useHeroStore } from "../../state/heroStore";
+import { useAdminStore } from "../../state/adminStore";
 import { getInventoryMax, OVERFLOW_CHEST_ID } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
 import { clearInventoryAPI } from "../../utils/api";
@@ -14,6 +15,12 @@ import TransferItemModal from "./modals/TransferItemModal";
 import OverflowChestModal from "./modals/OverflowChestModal";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
+import { showToast } from "../../state/toastStore";
+import type { HeroInventoryItem } from "../../types/Hero";
+import {
+  applyAdminEnchantToHeroInventory,
+  heroInventoryIndexFromFilteredIndex,
+} from "../../utils/adminInventoryEnchant";
 
 const ITEMS_PER_PAGE = 25;
 // Валюта в полях героя — у списку інвентаря не дублюємо. Ancient Adena лише в інвентарі (стек) — показуємо.
@@ -43,6 +50,13 @@ export default function Inventory() {
   const [wipeLoading, setWipeLoading] = useState(false);
   const [wipeError, setWipeError] = useState<string | null>(null);
   const characterId = useCharacterStore((s) => s.characterId);
+  const isAdmin = useAdminStore((s) => s.isAdmin);
+  const adminChecked = useAdminStore((s) => s.checked);
+  const [adminEnchantDraft, setAdminEnchantDraft] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    void useAdminStore.getState().checkAdmin();
+  }, []);
 
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;
@@ -83,6 +97,28 @@ export default function Inventory() {
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handleAdminEnchantApply = useCallback(
+    (item: HeroInventoryItem, pageLocalIndex: number) => {
+      if (!hero) return;
+      const filteredIndex = startIndex + pageLocalIndex;
+      const raw =
+        adminEnchantDraft[filteredIndex] ?? String(item.enchantLevel ?? 0);
+      const ix = heroInventoryIndexFromFilteredIndex(hero, filteredItems, filteredIndex);
+      if (ix < 0) {
+        showToast("Не знайдено рядок у інвентарі", "error");
+        return;
+      }
+      const r = applyAdminEnchantToHeroInventory(hero, ix, raw);
+      if (!r.ok || !r.inventory) {
+        showToast(r.message ?? "Помилка заточки", "error");
+        return;
+      }
+      updateHero({ inventory: r.inventory });
+      showToast(`Заточка (адмін): +${r.level ?? 0}`, "success");
+    },
+    [hero, filteredItems, startIndex, adminEnchantDraft, updateHero]
+  );
 
   // Кількість зайнятих слотів (включаючи слот сундука переповнення)
   const invCount = (hero?.inventory || []).filter((i: any) => i && i.id !== OVERFLOW_CHEST_ID).length;
@@ -337,6 +373,13 @@ export default function Inventory() {
           hero={hero}
           onItemClick={handleItemClick}
           onEquipItem={equipItem}
+          showAdminEnchant={adminChecked && isAdmin}
+          filteredBaseIndex={startIndex}
+          adminEnchantDraft={adminEnchantDraft}
+          onAdminEnchantDraftChange={(filteredIndex, value) =>
+            setAdminEnchantDraft((p) => ({ ...p, [filteredIndex]: value }))
+          }
+          onAdminEnchantApply={handleAdminEnchantApply}
         />
 
         {/* Пагінація: << < [вікно сторінок] > >> — завжди можна перейти на 1-шу та останню */}
