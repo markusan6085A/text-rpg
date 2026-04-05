@@ -7,7 +7,7 @@ import { useCharacterStore } from "../state/characterStore";
 import InventoryFilters, { CATEGORIES } from "./character/InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { getSellPrice } from "../utils/sellPrices";
-import { updateInventoryAPI } from "../utils/api/characters";
+import { sellInventoryItemsAPI } from "../utils/api/characters";
 import { showToast } from "../state/toastStore";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { getL2dopResourceIconPath } from "../data/world/l2dop/droplistMapping";
@@ -26,7 +26,7 @@ interface SellItemsProps {
 
 export default function SellItems({ navigate }: SellItemsProps) {
   const hero = useHeroStore((s) => s.hero);
-  const updateHero = useHeroStore((s) => s.updateHero);
+  const applyServerSync = useHeroStore((s) => s.applyServerSync);
 
   const [currentCategory, setCurrentCategory] = useState("all");
   const [currentGrade, setCurrentGrade] = useState("");
@@ -77,75 +77,79 @@ export default function SellItems({ navigate }: SellItemsProps) {
     });
   };
 
+  const resolveInventoryIndex = (target: any): number => {
+    const inv = hero?.inventory || [];
+    const byRef = inv.findIndex((i: any) => i === target);
+    if (byRef >= 0) return byRef;
+    const targetId = String(target?.id ?? "");
+    const targetEnchant = Number(target?.enchantLevel ?? 0);
+    const targetCount = Number(target?.count ?? 1);
+    return inv.findIndex(
+      (i: any) =>
+        i &&
+        String(i.id ?? "") === targetId &&
+        Number(i.enchantLevel ?? 0) === targetEnchant &&
+        Number(i.count ?? 1) === targetCount
+    );
+  };
+
   const doSellSelected = async () => {
     if (!hero || !hero.inventory || selectedIndices.size === 0) return;
     if (selling) return;
     const indices = Array.from(selectedIndices).sort((a, b) => a - b);
-    let totalAdena = 0;
-    const toRemove: { id: string; enchantLevel: number; amount: number }[] = [];
-    indices.forEach((idx) => {
-      const item = filteredItems[idx];
-      if (!item) return;
-      const price = getSellPrice(item.id, itemsDB[item.id] || itemsDBWithStarter[item.id]);
-      const amount = item.count ?? 1;
-      const enchantLevel = item.enchantLevel || 0;
-      if (price != null && price > 0) {
-        totalAdena += price * amount;
-        toRemove.push({ id: item.id, enchantLevel, amount });
-      }
-    });
-    if (totalAdena === 0) return;
-    const inv = [...hero.inventory];
-    const remaining = new Map<string, number>();
-    toRemove.forEach(({ id, enchantLevel, amount }) => {
-      const key = `${id}_${enchantLevel}`;
-      remaining.set(key, (remaining.get(key) ?? 0) + amount);
-    });
-    const newInv = inv.map((i: any) => {
-      if (!i) return i;
-      const key = `${i.id}_${i.enchantLevel || 0}`;
-      const need = remaining.get(key);
-      if (need == null || need <= 0) return i;
-      const cnt = i.count ?? 1;
-      if (cnt <= need) {
-        remaining.set(key, need - cnt);
-        return null;
-      }
-      remaining.set(key, 0);
-      return { ...i, count: cnt - need };
-    }).filter(Boolean) as typeof hero.inventory;
+    const operations = indices
+      .map((idx) => filteredItems[idx])
+      .filter(Boolean)
+      .map((item: any) => {
+        const inventoryIndex = resolveInventoryIndex(item);
+        return {
+          inventoryIndex,
+          amount: Math.max(1, Number(item?.count ?? 1)),
+          expectedItemId: String(item?.id ?? ""),
+          expectedEnchantLevel: Math.max(0, Number(item?.enchantLevel ?? 0)),
+        };
+      })
+      .filter((op) => op.inventoryIndex >= 0);
+    if (operations.length === 0) {
+      showToast("Не вдалося визначити предмети для продажу. Оновіть інвентар.", "error");
+      return;
+    }
+
     const expectedRevision = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
     setSelling(true);
     try {
-      // Persist inventory atomically first, so sold items do not return on next GET/refresh.
       const charId = useCharacterStore.getState().characterId;
       if (!charId) throw new Error("no character id");
-      const updated = await updateInventoryAPI(charId, {
-        inventory: newInv as any[],
-        overflowChest: Array.isArray(hero.overflowChest) ? hero.overflowChest : [],
+      const result = await sellInventoryItemsAPI(charId, {
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+        operations,
       });
-      const nextInventory = Array.isArray((updated as any)?.heroJson?.inventory) ? (updated as any).heroJson.inventory : newInv;
-      const nextOverflow = Array.isArray((updated as any)?.heroJson?.overflowChest) ? (updated as any).heroJson.overflowChest : (hero.overflowChest || []);
-      const nextRevision = Number((updated as any)?.heroJson?.heroRevision ?? expectedRevision);
-      useHeroStore.getState().applyServerSync(
+
+      const nextInventory = Array.isArray((result as any)?.character?.heroJson?.inventory)
+        ? (result as any).character.heroJson.inventory
+        : [];
+      const nextOverflow = Array.isArray((result as any)?.character?.heroJson?.overflowChest)
+        ? (result as any).character.heroJson.overflowChest
+        : (hero.overflowChest || []);
+      const nextRevision = Number((result as any)?.character?.heroJson?.heroRevision ?? expectedRevision);
+      const nextAdena = Number((result as any)?.character?.adena ?? useHeroStore.getState().hero?.adena ?? 0);
+      applyServerSync(
         {
           inventory: nextInventory,
           overflowChest: nextOverflow,
+          adena: nextAdena,
           heroRevision: nextRevision,
         } as any,
-        { heroRevision: nextRevision, updatedAt: Date.now() }
+        { adena: nextAdena, heroRevision: nextRevision, updatedAt: Date.now() }
       );
-      const currentAdena = Number(useHeroStore.getState().hero?.adena ?? 0);
-      updateHero({ adena: currentAdena + totalAdena });
       setSelectedIndices(new Set());
       setSelectMode(false);
       setConfirmSell(null);
-      showToast(`Продано. +${totalAdena.toLocaleString()} Adena`, "success");
+      showToast(`Продано. +${Number((result as any)?.payoutAdena ?? 0).toLocaleString()} Adena`, "success");
     } catch (e: any) {
       const msg = e?.status === 409
         ? "Инвентарь изменился на сервере. Обновите и повторите продажу."
-        : (e?.message || "Не удалось сохранить продажу на сервере.");
+        : (e?.body?.error || e?.message || "Не удалось продать предметы на сервере.");
       showToast(msg, "error");
     } finally {
       setSelling(false);
@@ -177,55 +181,49 @@ export default function SellItems({ navigate }: SellItemsProps) {
     const price = getSellPrice(item.id, itemsDB[item.id] || itemsDBWithStarter[item.id]);
     if (price == null || price <= 0) return;
 
-    const totalGain = price * amount;
-    const inv = [...hero.inventory];
-    let toRemove = amount;
-
-    for (let i = 0; i < inv.length && toRemove > 0; i++) {
-      const invItem = inv[i];
-      if (!invItem || invItem.id !== item.id) continue;
-      const cnt = invItem.count ?? 1;
-      if (cnt <= toRemove) {
-        inv[i] = null;
-        toRemove -= cnt;
-      } else {
-        inv[i] = { ...invItem, count: cnt - toRemove };
-        toRemove = 0;
-      }
-    }
-
-    const updatedInventory = inv.filter(Boolean) as typeof hero.inventory;
-    const currentAdena = Number(useHeroStore.getState().hero?.adena ?? 0);
-    const newAdena = currentAdena + totalGain;
-
     const expectedRevision = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
     setSelling(true);
     try {
       const charId = useCharacterStore.getState().characterId;
       if (!charId) throw new Error("no character id");
-      const updated = await updateInventoryAPI(charId, {
-        inventory: updatedInventory as any[],
-        overflowChest: Array.isArray(hero.overflowChest) ? hero.overflowChest : [],
+      const inventoryIndex = resolveInventoryIndex(item);
+      if (inventoryIndex < 0) {
+        throw new Error("item not found in inventory");
+      }
+      const result = await sellInventoryItemsAPI(charId, {
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+        operations: [
+          {
+            inventoryIndex,
+            amount: Math.max(1, Number(amount || 1)),
+            expectedItemId: String(item.id ?? ""),
+            expectedEnchantLevel: Math.max(0, Number(item.enchantLevel ?? 0)),
+          },
+        ],
       });
-      const nextInventory = Array.isArray((updated as any)?.heroJson?.inventory) ? (updated as any).heroJson.inventory : updatedInventory;
-      const nextOverflow = Array.isArray((updated as any)?.heroJson?.overflowChest) ? (updated as any).heroJson.overflowChest : (hero.overflowChest || []);
-      const nextRevision = Number((updated as any)?.heroJson?.heroRevision ?? expectedRevision);
-      useHeroStore.getState().applyServerSync(
+      const nextInventory = Array.isArray((result as any)?.character?.heroJson?.inventory)
+        ? (result as any).character.heroJson.inventory
+        : [];
+      const nextOverflow = Array.isArray((result as any)?.character?.heroJson?.overflowChest)
+        ? (result as any).character.heroJson.overflowChest
+        : (hero.overflowChest || []);
+      const nextRevision = Number((result as any)?.character?.heroJson?.heroRevision ?? expectedRevision);
+      const nextAdena = Number((result as any)?.character?.adena ?? useHeroStore.getState().hero?.adena ?? 0);
+      applyServerSync(
         {
           inventory: nextInventory,
           overflowChest: nextOverflow,
+          adena: nextAdena,
           heroRevision: nextRevision,
         } as any,
-        { heroRevision: nextRevision, updatedAt: Date.now() }
+        { adena: nextAdena, heroRevision: nextRevision, updatedAt: Date.now() }
       );
-      updateHero({ adena: newAdena });
       setConfirmSell(null);
-      showToast(`Продано. +${totalGain.toLocaleString()} Adena`, "success");
+      showToast(`Продано. +${Number((result as any)?.payoutAdena ?? 0).toLocaleString()} Adena`, "success");
     } catch (e: any) {
       const msg = e?.status === 409
         ? "Инвентарь изменился на сервере. Обновите и повторите продажу."
-        : (e?.message || "Не удалось сохранить продажу на сервере.");
+        : (e?.body?.error || e?.message || "Не удалось продать предмет на сервере.");
       showToast(msg, "error");
     } finally {
       setSelling(false);

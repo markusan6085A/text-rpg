@@ -79,6 +79,84 @@ const serverShopCatalog = shopCatalogRaw as {
   quest?: Record<string, ServerShopCatalogEntry>;
 };
 
+const NO_SELL_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena", "seven_seals_medal", "coin_of_fair", "tvt_coin", "overflow_chest"]);
+const GRADE_BASE_SELL: Record<string, number> = {
+  NG: 300,
+  D: 15000,
+  C: 45000,
+  B: 150000,
+  A: 450000,
+  S: 1500000,
+};
+const GREATER_DYE_SELL_ADENA = 20000;
+const RESOURCE_PRICE_OVERRIDE: Record<string, number> = {
+  soulshot_ng: 200,
+  spiritshot_ng: 200,
+  soulstone_s: 900,
+  soulstone_a: 800,
+  soulstone_b: 600,
+  soulstone_c: 400,
+  soulstone_d: 300,
+  crystallized_core: 500,
+  adamantine_nugget: 450,
+  crude_adamantine: 400,
+  varnish: 350,
+  "c-grade_armor_piece": 200,
+  "b-grade_armor_piece": 350,
+  "a-grade_armor_piece": 500,
+  "s-grade_armor_piece": 700,
+  thorns: 150,
+  animal_bone: 120,
+  exploration_ore: 180,
+};
+
+function simpleHash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function getResourceSellPrice(itemId: string): number {
+  const normalized = normalizeShopItemId(itemId);
+  if (RESOURCE_PRICE_OVERRIDE[normalized] != null) return RESOURCE_PRICE_OVERRIDE[normalized];
+  return 100 + (simpleHash(normalized) % 900);
+}
+
+function getServerSellUnitPrice(row: any): number | null {
+  const rawId = String(row?.id ?? "");
+  const itemId = normalizeShopItemId(rawId);
+  if (!itemId || NO_SELL_IDS.has(itemId)) return null;
+  if (itemId.startsWith("dye_")) return GREATER_DYE_SELL_ADENA;
+
+  const regular = serverShopCatalog.regular?.[itemId];
+  if (regular?.unitPrice != null && Number.isFinite(Number(regular.unitPrice))) {
+    return Math.max(0, Math.floor(Number(regular.unitPrice) * 0.3));
+  }
+  const quest = serverShopCatalog.quest?.[itemId];
+  if (quest?.unitPrice != null && Number.isFinite(Number(quest.unitPrice))) {
+    return Math.max(0, Math.floor(Number(quest.unitPrice) * 0.3));
+  }
+
+  const slot = String(row?.slot ?? "").toLowerCase();
+  const kind = String(row?.kind ?? "").toLowerCase();
+  const isResource = slot === "resource" || kind === "resource";
+  if (isResource) return getResourceSellPrice(itemId);
+
+  const isEquipment =
+    kind === "weapon" ||
+    kind === "armor" ||
+    kind === "shield" ||
+    kind === "jewelry" ||
+    ["weapon", "lrhand", "head", "armor", "legs", "gloves", "boots", "belt", "shield", "lhand", "necklace", "earring", "ring", "jewelry"].includes(slot);
+  if (isEquipment || slot === "consumable") {
+    const grade = String(row?.grade ?? "D").toUpperCase();
+    return GRADE_BASE_SELL[grade] ?? 15000;
+  }
+
+  if (slot === "resource") return getResourceSellPrice(itemId);
+  return null;
+}
+
 function normalizeShopItemId(raw: unknown): string {
   return String(raw ?? "").replace(/^shop_/i, "").trim().toLowerCase();
 }
@@ -333,6 +411,175 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       app.log.error(e, `[PUT /characters/:id/inventory] Error for character ${id}`);
       return reply.code(500).send({ error: e.message || "Internal server error" });
     }
+  });
+
+  // POST /characters/:id/sell — server-authoritative item selling (atomic inventory + adena)
+  app.post("/characters/:id/sell", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const params = req.params as { id?: string };
+    const id = params.id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    const body = req.body as {
+      expectedRevision?: number;
+      operations?: Array<{
+        inventoryIndex?: number;
+        amount?: number;
+        expectedItemId?: string;
+        expectedEnchantLevel?: number;
+      }>;
+    };
+    const expectedRevision = Number(body.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+    if (!Array.isArray(body.operations) || body.operations.length === 0) {
+      return reply.code(400).send({ error: "operations required" });
+    }
+    if (body.operations.length > 200) {
+      return reply.code(400).send({ error: "too many operations" });
+    }
+
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<Array<{ heroJson: any; adena: bigint; updatedAt: Date; name: string }>>`
+        SELECT "heroJson", "adena", "updatedAt", "name"
+        FROM "Character"
+        WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+
+      const row = locked[0];
+      const heroJson = (row.heroJson as any) || {};
+      const currentRevision = Number(heroJson.heroRevision ?? 0);
+      if (currentRevision !== expectedRevision) {
+        return {
+          ok: false as const,
+          reason: "revision_conflict" as const,
+          currentRevision,
+          updatedAt: row.updatedAt,
+        };
+      }
+
+      const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+      const overflowChest: any[] = Array.isArray(heroJson.overflowChest) ? [...heroJson.overflowChest] : [];
+      const sortedOps = [...body.operations]
+        .map((op) => ({
+          inventoryIndex: Math.floor(Number(op?.inventoryIndex ?? -1)),
+          amount: Math.floor(Number(op?.amount ?? 0)),
+          expectedItemId: String(op?.expectedItemId ?? ""),
+          expectedEnchantLevel: Math.max(0, Math.floor(Number(op?.expectedEnchantLevel ?? 0))),
+        }))
+        .sort((a, b) => b.inventoryIndex - a.inventoryIndex);
+
+      let payoutTotal = 0;
+      for (const op of sortedOps) {
+        if (!Number.isFinite(op.inventoryIndex) || op.inventoryIndex < 0 || op.inventoryIndex >= inventory.length) {
+          return { ok: false as const, reason: "invalid_operation" as const };
+        }
+        if (!Number.isFinite(op.amount) || op.amount <= 0) {
+          return { ok: false as const, reason: "invalid_operation" as const };
+        }
+        const rowItem = inventory[op.inventoryIndex];
+        if (!rowItem || !rowItem.id) return { ok: false as const, reason: "invalid_operation" as const };
+
+        const expectedIdNorm = normalizeShopItemId(op.expectedItemId);
+        const actualIdNorm = normalizeShopItemId(rowItem.id);
+        if (!expectedIdNorm || expectedIdNorm !== actualIdNorm) {
+          return { ok: false as const, reason: "invalid_operation" as const };
+        }
+        const actualEnchant = Math.max(0, Math.floor(Number(rowItem.enchantLevel ?? 0)));
+        if (actualEnchant !== op.expectedEnchantLevel) {
+          return { ok: false as const, reason: "invalid_operation" as const };
+        }
+
+        const rowCount = Math.max(1, Math.floor(Number(rowItem.count ?? 1)));
+        if (op.amount > rowCount) return { ok: false as const, reason: "invalid_operation" as const };
+
+        const unitPrice = getServerSellUnitPrice(rowItem);
+        if (unitPrice == null || !Number.isFinite(unitPrice) || unitPrice <= 0) {
+          return { ok: false as const, reason: "unsellable_item" as const };
+        }
+        payoutTotal += unitPrice * op.amount;
+
+        if (op.amount >= rowCount) {
+          inventory.splice(op.inventoryIndex, 1);
+        } else {
+          inventory[op.inventoryIndex] = { ...rowItem, count: rowCount - op.amount };
+        }
+      }
+
+      const nextAdena = Number(row.adena ?? 0n) + Math.max(0, Math.floor(payoutTotal));
+      const newHeroJson = {
+        ...heroJson,
+        inventory,
+        overflowChest,
+        adena: nextAdena,
+      };
+      const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+      const updated = await tx.character.update({
+        where: { id },
+        data: {
+          heroJson: versionedHeroJson as any,
+          adena: BigInt(Math.max(0, Math.floor(nextAdena))),
+          lastActivityAt: new Date(),
+        },
+        select: {
+          id: true, name: true, race: true, classId: true, sex: true,
+          level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true,
+          heroJson: true, createdAt: true, updatedAt: true,
+        },
+      });
+      return { ok: true as const, updated, payoutTotal };
+    });
+
+    if (!txRes.ok) {
+      if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+      if (txRes.reason === "revision_conflict") {
+        return reply.code(409).send({
+          error: "revision_conflict",
+          message: "Character was modified by another session. Please reload and try again.",
+          currentRevision: txRes.currentRevision ?? 0,
+          updatedAt: txRes.updatedAt?.toISOString(),
+          serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+        });
+      }
+      if (txRes.reason === "unsellable_item") return reply.code(400).send({ error: "unsellable item" });
+      return reply.code(400).send({ error: "invalid input" });
+    }
+
+    const updated = txRes.updated;
+    const serialized = {
+      ...updated,
+      exp: Number(updated.exp),
+      adena: Number(updated.adena ?? 0),
+      aa: Number(updated.aa ?? 0),
+      coinLuck: Number(updated.coinLuck ?? 0),
+    };
+
+    enqueuePlayerActivityLog({
+      accountId: auth.accountId,
+      characterId: id,
+      characterName: updated.name,
+      action: "inventory.sell",
+      metadata: {
+        payoutAdena: txRes.payoutTotal,
+        operationsCount: Array.isArray(body.operations) ? body.operations.length : 0,
+      },
+      clientIp: getClientIp(req),
+    });
+
+    return reply.send({
+      ok: true,
+      payoutAdena: txRes.payoutTotal,
+      character: serialized,
+    });
   });
 
   // PUT /characters/:id/inventory/clear — очистити інвентар без exp/level/sp (уникаємо "exp cannot be decreased")

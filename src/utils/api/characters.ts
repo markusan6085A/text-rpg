@@ -74,6 +74,28 @@ export async function updateInventoryAPI(
   return response.character;
 }
 
+/** Server-authoritative NPC sell (atomic inventory decrease + adena increase). */
+export async function sellInventoryItemsAPI(
+  characterId: string,
+  data: {
+    expectedRevision: number;
+    operations: Array<{
+      inventoryIndex: number;
+      amount: number;
+      expectedItemId: string;
+      expectedEnchantLevel?: number;
+    }>;
+  }
+): Promise<{ ok: boolean; payoutAdena: number; character: Character }> {
+  return apiRequest<{ ok: boolean; payoutAdena: number; character: Character }>(
+    `/characters/${encodeURIComponent(characterId)}/sell`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    }
+  );
+}
+
 /** Очистити інвентар на сервері (окремий ендпоінт — без exp/level, уникаємо "exp cannot be decreased") */
 export async function clearInventoryAPI(characterId: string): Promise<Character> {
   const response = await apiRequest<CharacterResponse>(`/characters/${encodeURIComponent(characterId)}/inventory/clear`, {
