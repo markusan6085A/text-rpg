@@ -5,7 +5,6 @@ import { showToast } from "../state/toastStore";
 import { itemsDB } from "../data/items/itemsDB";
 import { itemsDBCrystals } from "../data/items/itemsDB_crystals";
 import { shopBuyAPI } from "../utils/api/shopAPI";
-import type { HeroInventoryItem } from "../types/Hero";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import {
@@ -34,7 +33,6 @@ interface GMShopProps {
 
 export default function GMShop({ navigate }: GMShopProps) {
   const hero = useHeroStore((s) => s.hero);
-  const updateHero = useHeroStore((s) => s.updateHero);
   const applyServerSync = useHeroStore((s) => s.applyServerSync);
   const [selectedShopSubcategory, setSelectedShopSubcategory] = useState<"dyes" | "rasodniki" | "consumables">("dyes");
   const [selectedItem, setSelectedItem] = useState<DyeItem | null>(null);
@@ -129,46 +127,7 @@ export default function GMShop({ navigate }: GMShopProps) {
 
   const handleGenerateStone = () => {
     if (!hero || !generateStoneSelectedId) return;
-    if (hasPassiveForStone(generateStoneSelectedId)) {
-      showToast("У вас уже есть камень с пассивкой этого типа! Эффект даётся только раз.", "error");
-      return;
-    }
-    const inv = [...(hero.inventory || [])];
-    const removeOne = (itemId: string, requireNormal = false) => {
-      const idx = inv.findIndex((i: any) => i.id === itemId && (!requireNormal || !(i as any).meta?.hasLSPassive));
-      if (idx < 0) return false;
-      const it = inv[idx];
-      if ((it.count ?? 1) > 1) {
-        inv[idx] = { ...it, count: (it.count ?? 1) - 1 };
-      } else {
-        inv.splice(idx, 1);
-      }
-      return true;
-    };
-    if (!removeOne("crystal_d") || !removeOne("crystal_ls_d") || !removeOne(generateStoneSelectedId, true)) {
-      showToast("Недостатньо матеріалів!", "error");
-      return;
-    }
-    const def = itemsDBCrystals[generateStoneSelectedId] ?? itemsDB[generateStoneSelectedId];
-    if (!def) return;
-    const success = Math.random() < 0.05; // 5% шанс зловити ЛС
-    const newStone: HeroInventoryItem = {
-      id: def.id,
-      name: def.name,
-      slot: def.slot,
-      kind: def.kind,
-      icon: def.icon,
-      description: def.description,
-      stats: def.stats,
-      count: 1,
-      grade: def.grade,
-      ...(success ? { meta: { hasLSPassive: true } } : {}),
-    };
-    inv.push(newStone);
-    updateHero({ inventory: inv });
-    setGenerateStoneModal(false);
-    setGenerateStoneSelectedId(null);
-    showToast(success ? `Успіх! Отримано камінь з пасивним ефектом: ${def.name}` : `Отримано: ${def.name} (без пасивки)`, success ? "success" : "info");
+    showToast("Генерація каменя переведена в онлайн-режим і тимчасово недоступна до серверного endpoint.", "error");
   };
 
   // Покупка за Adena (розсодники, свитки Giant тощо) — через сервер (Phase 3)

@@ -4,10 +4,8 @@ import { itemsDB } from "../../../data/items/itemsDB";
 import { useHeroStore } from "../../../state/heroStore";
 import { useCharacterStore } from "../../../state/characterStore";
 import FishingCatchInfoModal from "./FishingCatchInfoModal";
-import { addItemsWithOverflow } from "../../../state/heroStore/inventoryOverflow";
-import { dismantleFish } from "../../../utils/api";
+import { dismantleFish, type FishDismantleResponse } from "../../../utils/api";
 import { showToast } from "../../../state/toastStore";
-import { processFishDrop } from "../../../utils/fishDismantle";
 import { normalizeIconPath, handleResourceIconError, resourceIdToFilename } from "../../../utils/itemIcon";
 import {
   characterModalBorderT,
@@ -22,7 +20,6 @@ interface FishItemModalProps {
   onClose: () => void;
   onDelete: (amount: number) => void;
   onTransfer: (amount: number) => void;
-  updateHero: (partial: Partial<Hero>) => void;
 }
 
 const STAT_LABELS: Record<string, string> = {
@@ -82,14 +79,13 @@ export default function FishItemModal({
   onClose,
   onDelete,
   onTransfer,
-  updateHero,
 }: FishItemModalProps) {
   const maxCount = item.count ?? 1;
   const [transferAmount, setTransferAmount] = useState(1);
   const [deleteAmount, setDeleteAmount] = useState(1);
   const [dismantleAmount, setDismantleAmount] = useState(1);
   const [showDismantleResult, setShowDismantleResult] = useState(false);
-  const [dismantleResult, setDismantleResult] = useState<ReturnType<typeof processFishDrop> | null>(null);
+  const [dismantleResult, setDismantleResult] = useState<FishDismantleResponse["dropResult"] | null>(null);
   const [showCatchInfoModal, setShowCatchInfoModal] = useState(false);
   const [dismantleLoading, setDismantleLoading] = useState(false);
 
@@ -185,88 +181,7 @@ export default function FishItemModal({
       return;
     }
 
-    // Fallback: локальна обробка (для офлайн — без збереження на сервер)
-    const result = processFishDrop(dismantleAmount);
-    const inventoryAfterFish = inventory.map((i: HeroInventoryItem) => {
-      if (i.id === item.id) {
-        const newCount = (i.count ?? 1) - dismantleAmount;
-        return newCount > 0 ? { ...i, count: newCount } : null;
-      }
-      return i;
-    }).filter(Boolean) as HeroInventoryItem[];
-
-    const newAdena = (currentHero.adena || 0) + result.adena;
-    const newCoinOfLuck = (currentHero.coinOfLuck ?? 0) + (result.coinOfLuck ?? 0);
-    const newCoinsSilver = (currentHero.coins_silver ?? (currentHero as any).coinsSilver ?? 0) + (result.coinsSilver ?? 0);
-
-    const itemsToAdd: HeroInventoryItem[] = [];
-    result.jewelryPieces.forEach(({ id, count }) => {
-      const itemDef = itemsDB[id];
-      if (itemDef) {
-        for (let i = 0; i < count; i++) {
-          itemsToAdd.push({ id, name: itemDef.name, type: itemDef.kind ?? "jewelry", slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: 1 });
-        }
-      }
-    });
-    result.weapons.forEach(({ id, count }) => {
-      const itemDef = itemsDB[id];
-      if (itemDef) {
-        for (let i = 0; i < count; i++) {
-          itemsToAdd.push({ id, name: itemDef.name, type: itemDef.kind ?? "weapon", slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: 1 });
-        }
-      }
-    });
-    result.armorPieces.forEach(({ id, count }) => {
-      const itemDef = itemsDB[id];
-      if (itemDef) {
-        for (let i = 0; i < count; i++) {
-          itemsToAdd.push({ id, name: itemDef.name, type: itemDef.kind ?? "armor", slot: itemDef.slot, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, count: 1 });
-        }
-      }
-    });
-    result.resources.forEach(({ id, count }) => {
-      const itemDef = itemsDB[id];
-      if (itemDef) {
-        itemsToAdd.push({
-          id,
-          name: itemDef.name,
-          type: itemDef.kind ?? "resource",
-          slot: itemDef.slot,
-          icon: itemDef.icon,
-          description: itemDef.description,
-          stats: itemDef.stats,
-          count,
-        });
-      }
-    });
-    (result.enchantScrolls || []).forEach(({ id, count }) => {
-      const itemDef = itemsDB[id];
-      if (itemDef) {
-        itemsToAdd.push({
-          id,
-          name: itemDef.name,
-          type: itemDef.kind ?? "resource",
-          slot: itemDef.slot,
-          icon: itemDef.icon,
-          description: itemDef.description,
-          count,
-        });
-      }
-    });
-
-    const heroForOverflow = { ...currentHero, inventory: inventoryAfterFish, overflowChest: currentHero.overflowChest ?? [] };
-    const { inventory: finalInventory, overflowChest: finalOverflow } = addItemsWithOverflow(heroForOverflow, itemsToAdd);
-
-    updateHero({
-      adena: newAdena,
-      coinOfLuck: newCoinOfLuck,
-      coins_silver: newCoinsSilver,
-      inventory: finalInventory,
-      overflowChest: finalOverflow,
-    });
-
-    setDismantleResult(result);
-    setShowDismantleResult(true);
+    showToast("Для разделки рыбы нужна онлайн-сессия персонажа.", "error");
   };
 
   const itemDef = itemsDB[item.id];

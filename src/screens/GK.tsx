@@ -56,7 +56,6 @@ function getCityMobLevelRangeLabel(cityId: string): string | null {
 export default function GKScreen({ navigate }: { navigate: Navigate }) {
   useGameSettingsVersion();
   const hero = useHeroStore((s) => s.hero);
-  const updateAdena = useHeroStore((s) => s.updateAdena);
   const q = useQuery();
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;
@@ -168,13 +167,8 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
         return;
       }
     } else {
-      if (preview > 0 && (hero.adena ?? 0) < preview) {
-        showToast("Недостаточно адены для телепорта в этот город!", "error");
-        return;
-      }
-      if (preview > 0) updateAdena(-preview);
-      const hj = (hero as any).heroJson || {};
-      useHeroStore.getState().updateHero({ heroJson: { ...hj, currentCityId: cityId } } as any);
+      showToast("Для телепорта потрібна онлайн-сесія. Увійдіть у гру.", "error");
+      return;
     }
 
     setSelectedCityId(cityId);
@@ -225,11 +219,8 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
         return;
       }
     } else {
-      if (preview > 0 && (hero.adena ?? 0) < preview) {
-        showToast("Недостаточно адены для телепорта на эту локацию!", "error");
-        return;
-      }
-      if (preview > 0) updateAdena(-preview);
+      showToast("Для телепорта потрібна онлайн-сесія. Увійдіть у гру.", "error");
+      return;
     }
 
     // 🔥 Зберігаємо поточне місто — щоб City та ТП пам'ятали останнє місто

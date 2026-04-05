@@ -281,27 +281,7 @@ export default function AdditionalSkillsScreen({
       return;
     }
 
-    const skills = Array.isArray(hero.skills) ? [...hero.skills] : [];
-    const nextLevel = levelDef.level;
-    const skillIndex = skills.findIndex((s) => Number(s?.id) === skillId);
-    if (skillIndex >= 0) {
-      skills[skillIndex] = { ...skills[skillIndex], id: skillId, level: nextLevel };
-    } else {
-      skills.push({ id: skillId, level: nextLevel });
-    }
-
-    try {
-      updateHero({
-        skills,
-        adena: heroAdena - adenaCost,
-      });
-    } catch (e: any) {
-      if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {
-        console.warn("Ігноруємо revision conflict при вивченні скіла");
-      } else {
-        console.error(e);
-      }
-    }
+    showToast("Для вивчення скіла потрібна онлайн-сесія персонажа.", "error");
   };
 
   return (

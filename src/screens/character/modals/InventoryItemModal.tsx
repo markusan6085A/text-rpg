@@ -126,7 +126,6 @@ export default function InventoryItemModal({
         onClose={onClose}
         onDelete={(amount) => onDeleteRequest(item, amount)}
         onTransfer={(amount) => onTransfer(item, amount)}
-        updateHero={updateHero}
       />
     );
   }

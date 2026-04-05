@@ -4,7 +4,6 @@ import { QUEST_SHOP_ITEMS } from "../data/shop/questShop";
 import type { ShopItem } from "../data/shop/shopTypes";
 import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
-import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 import { postQuestShopExchange } from "../utils/api/characters";
 import { shopBuyAPI } from "../utils/api/shopAPI";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
@@ -35,7 +34,6 @@ interface QuestShopProps {
 
 export default function QuestShop({ navigate }: QuestShopProps) {
   const hero = useHeroStore((s) => s.hero);
-  const setHero = useHeroStore((s) => s.setHero);
   const applyServerSync = useHeroStore((s) => s.applyServerSync);
   const characterId = useCharacterStore((s) => s.characterId);
   const [exchangeBusy, setExchangeBusy] = useState(false);
@@ -50,6 +48,54 @@ export default function QuestShop({ navigate }: QuestShopProps) {
   const [exchangeQuantity, setExchangeQuantity] = useState<number>(1);
   const [confirmExchange, setConfirmExchange] = useState<{ type: QuestExchangeType; name: string } | null>(null);
   const [weaponKindFilter, setWeaponKindFilter] = useState<"all" | "phys" | "magic">("all");
+
+  const applyServerCharacterSnapshot = (character: any) => {
+    if (!character) return;
+    const store = useHeroStore.getState();
+    const currentHero = store.hero;
+    if (!currentHero) return;
+    const heroJson =
+      (character as any).heroJson && typeof (character as any).heroJson === "object"
+        ? (character as any).heroJson
+        : {};
+    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
+    const overflowChest = Array.isArray(heroJson.overflowChest)
+      ? heroJson.overflowChest
+      : currentHero.overflowChest ?? [];
+    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
+    const coinLuckFromServer = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
+    const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
+    const level = Number((character as any).level ?? currentHero.level ?? 1);
+    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
+    const sp = Number((character as any).sp ?? currentHero.sp ?? 0);
+    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
+    const aa = Number((character as any).aa ?? (currentHero as any).aa ?? 0);
+    const coinsSilver = Number((character as any).coinsSilver ?? (currentHero as any).coins_silver ?? 0);
+    store.applyServerSync(
+      {
+        level,
+        exp,
+        sp,
+        adena,
+        aa: Number.isFinite(aa) ? aa : Number((currentHero as any).aa ?? 0),
+        coinOfLuck: coinLuckFromServer,
+        coins_silver: Number.isFinite(coinsSilver) ? coinsSilver : Number((currentHero as any).coins_silver ?? 0),
+        inventory,
+        overflowChest,
+        activeDyes,
+        heroJson,
+      } as any,
+      {
+        level,
+        exp,
+        sp,
+        adena,
+        coinLuck: coinLuckFromServer,
+        heroRevision: Number.isFinite(revision) ? revision : 0,
+        updatedAt: Date.now(),
+      }
+    );
+  };
 
   // Фільтрація предметів
   const filteredItems = QUEST_SHOP_ITEMS.filter((item) => {
@@ -966,13 +1012,12 @@ export default function QuestShop({ navigate }: QuestShopProps) {
                         Number.isFinite(expectedRevisionRaw) && expectedRevisionRaw >= 0 ? expectedRevisionRaw : 0;
                       setExchangeBusy(true);
                       try {
-                        await postQuestShopExchange(characterId, {
+                        const res = await postQuestShopExchange(characterId, {
                           kind: confirmExchange.type,
                           quantity: qty,
                           expectedRevision,
                         });
-                        const synced = await loadHeroFromAPI();
-                        if (synced) setHero(synced);
+                        applyServerCharacterSnapshot((res as any).character);
                         showToast("Обмен выполнен.", "success");
                         setConfirmExchange(null);
                         setExchangeQuantity(1);

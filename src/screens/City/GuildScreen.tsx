@@ -11,7 +11,7 @@ import {
 import { L2_WARM_OUTER_FRAME } from "../../utils/l2WarmLayoutClassNames";
 import { PROFESSION_CHAIN } from "../../data/skills/professionChain";
 import { fixHeroProfession } from "../../utils/fixProfession";
-import { getLearnSkillFailureReason, learnSkillLogic } from "../../state/heroStore/heroSkills";
+import { getLearnSkillFailureReason } from "../../state/heroStore/heroSkills";
 import {
   getActiveMysticSpellbookRequirement,
   mysticSpellbookGuildKey,
@@ -199,27 +199,7 @@ export default function GuildScreen({
       return;
     }
 
-    try {
-      const res = learnSkillLogic(hero, skillId, learnOpts);
-      if (!res.success) {
-        showToast("Не вдалося вивчити скіл. Можливо, не вистачає SP або рівня.", "error");
-        return;
-      }
-      try {
-        sessionStorage.removeItem(ONBOARDING_GUILD_NEED_SP_KEY);
-      } catch {
-        /* ignore */
-      }
-      if (res.updatedHero) {
-        updateHero(res.updatedHero);
-      }
-    } catch (e: any) {
-      if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {
-        console.warn("Ігноруємо revision conflict при вивченні скіла");
-      } else {
-        console.error(e);
-      }
-    }
+    showToast("Для вивчення скіла потрібна онлайн-сесія персонажа.", "error");
   };
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;
