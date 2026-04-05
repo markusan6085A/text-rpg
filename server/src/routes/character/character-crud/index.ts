@@ -181,6 +181,82 @@ function sanitizeClientItemMeta(input: unknown): Record<string, any> {
   return out;
 }
 
+const PERSONAL_WAREHOUSE_MAX_SLOTS = 100;
+const STACKABLE_SLOTS = new Set(["resource", "consumable", "quest", "scroll"]);
+const STACKABLE_KINDS = new Set(["resource", "consumable", "quest", "scroll"]);
+
+function inventoryCapForHeroJson(heroJson: any): number {
+  const cap = Number(heroJson?.inventoryCapacity ?? 100);
+  if (!Number.isFinite(cap)) return 100;
+  return Math.max(1, Math.min(500, Math.floor(cap)));
+}
+
+function isStackableRow(row: any): boolean {
+  const kind = String(row?.kind ?? "").toLowerCase();
+  const slot = String(row?.slot ?? "").toLowerCase();
+  return STACKABLE_KINDS.has(kind) || STACKABLE_SLOTS.has(slot);
+}
+
+function normalizeItemId(id: unknown): string {
+  return String(id ?? "").trim().toLowerCase();
+}
+
+function getWarehouseSlotsFromHeroJson(heroJson: any): (any | null)[] {
+  const arr = Array.isArray(heroJson?.warehouseSlots) ? [...heroJson.warehouseSlots] : [];
+  if (arr.length < PERSONAL_WAREHOUSE_MAX_SLOTS) {
+    for (let i = arr.length; i < PERSONAL_WAREHOUSE_MAX_SLOTS; i++) arr.push(null);
+  }
+  if (arr.length > PERSONAL_WAREHOUSE_MAX_SLOTS) {
+    arr.length = PERSONAL_WAREHOUSE_MAX_SLOTS;
+  }
+  return arr;
+}
+
+type ServerStringRecipe = { outputId: string; ingredients: Array<{ id: string; count: number }> };
+
+const SERVER_RESOURCE_CRAFT_UNLOCK_BY_TIER: Record<number, number> = {
+  1: 20,
+  2: 40,
+  3: 50,
+  4: 60,
+};
+
+const SERVER_RESOURCE_CRAFT_RECIPES: Record<number, readonly ServerStringRecipe[]> = {
+  1: [
+    { outputId: "animal_bone", ingredients: [{ id: "animal_bone_fragment", count: 6 }] },
+    { outputId: "charcoal", ingredients: [{ id: "coal", count: 1 }] },
+    { outputId: "suede", ingredients: [{ id: "leather", count: 3 }, { id: "animal_skin", count: 3 }] },
+    { outputId: "thread", ingredients: [{ id: "stem", count: 5 }, { id: "vein", count: 5 }] },
+    { outputId: "varnish", ingredients: [{ id: "tree_lumber", count: 5 }] },
+  ],
+  2: [
+    { outputId: "varnish_of_purity", ingredients: [{ id: "coarse_bone_powder", count: 3 }, { id: "varnish", count: 3 }, { id: "stone_of_purity", count: 1 }] },
+    { outputId: "synthetic_cokes", ingredients: [{ id: "cokes", count: 3 }, { id: "oriharukon_ore", count: 1 }] },
+    { outputId: "cord", ingredients: [{ id: "steel", count: 2 }, { id: "thread", count: 25 }] },
+    { outputId: "silver_mold", ingredients: [{ id: "braided_hemp", count: 5 }, { id: "cokes", count: 5 }, { id: "silver_nugget", count: 10 }] },
+    { outputId: "compound_braid", ingredients: [{ id: "braided_hemp", count: 5 }, { id: "thread", count: 5 }] },
+    { outputId: "high_grade_suede", ingredients: [{ id: "coarse_bone_powder", count: 1 }, { id: "suede", count: 3 }] },
+    { outputId: "steel_mold", ingredients: [{ id: "braided_hemp", count: 5 }, { id: "iron_ore", count: 5 }, { id: "coal", count: 5 }] },
+  ],
+  3: [
+    { outputId: "mithril_alloy", ingredients: [{ id: "varnish_of_purity", count: 1 }, { id: "steel", count: 2 }, { id: "mithril_ore", count: 1 }] },
+    { outputId: "crafted_leather", ingredients: [{ id: "cord", count: 4 }, { id: "leather", count: 4 }, { id: "coal", count: 4 }] },
+    { outputId: "blacksmith_frame", ingredients: [{ id: "silver_mold", count: 1 }, { id: "varnish_of_purity", count: 5 }, { id: "mithril_ore", count: 10 }] },
+    { outputId: "artisans_frame", ingredients: [{ id: "steel_mold", count: 1 }, { id: "varnish_of_purity", count: 5 }, { id: "adamantite_nugget", count: 10 }] },
+    { outputId: "oriharukon", ingredients: [{ id: "synthetic_cokes", count: 1 }, { id: "silver_nugget", count: 12 }, { id: "oriharukon_ore", count: 4 }] },
+    { outputId: "metal_hardener", ingredients: [{ id: "stem", count: 10 }, { id: "varnish", count: 10 }, { id: "iron_ore", count: 10 }] },
+    { outputId: "metallic_fiber", ingredients: [{ id: "cord", count: 20 }, { id: "silver_nugget", count: 15 }] },
+    { outputId: "durable_metal_plate", ingredients: [{ id: "metallic_thread", count: 5 }, { id: "mithril_ore", count: 5 }] },
+    { outputId: "metallic_thread", ingredients: [{ id: "thread", count: 10 }, { id: "iron_ore", count: 5 }] },
+  ],
+  4: [
+    { outputId: "maestro_mold", ingredients: [{ id: "blacksmith_frame", count: 1 }, { id: "mold_glue", count: 10 }, { id: "asofe", count: 5 }] },
+    { outputId: "craftsman_mold", ingredients: [{ id: "artisans_frame", count: 2 }, { id: "mold_hardener", count: 20 }, { id: "enria", count: 5 }] },
+    { outputId: "maestro_holder", ingredients: [{ id: "varnish_of_purity", count: 10 }, { id: "mold_lubricant", count: 10 }, { id: "mold_hardener", count: 10 }] },
+    { outputId: "maestro_anvil_lock", ingredients: [{ id: "synthetic_cokes", count: 4 }, { id: "mold_glue", count: 4 }, { id: "mold_lubricant", count: 4 }] },
+  ],
+};
+
 const CLIENT_PUT_HEROJSON_ALLOWLIST = new Set<string>([
   "name",
   "inventory",
@@ -754,6 +830,447 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       return { ok: true, character: serialized };
     } catch (e: any) {
       app.log.error(e, `[PUT /characters/:id/inventory/clear] Error for character ${id}`);
+      return reply.code(500).send({ error: e.message || "Internal server error" });
+    }
+  });
+
+  // POST /characters/:id/warehouse/deposit — server-authoritative personal warehouse deposit
+  app.post("/characters/:id/warehouse/deposit", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as { id?: string }).id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    const body = req.body as {
+      expectedRevision?: number;
+      inventoryIndex?: number;
+      count?: number;
+      targetSlotIndex?: number;
+    };
+    const expectedRevision = Number(body?.expectedRevision);
+    const inventoryIndex = Math.floor(Number(body?.inventoryIndex ?? -1));
+    const count = Math.max(1, Math.floor(Number(body?.count ?? 1)));
+    const targetSlotIndexRaw = Number(body?.targetSlotIndex);
+    const targetSlotIndex = Number.isFinite(targetSlotIndexRaw) ? Math.floor(targetSlotIndexRaw) : undefined;
+
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+    if (!Number.isFinite(inventoryIndex) || inventoryIndex < 0) {
+      return reply.code(400).send({ error: "inventoryIndex required" });
+    }
+
+    try {
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date }>>`
+          SELECT "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+
+        const heroJson = (locked[0].heroJson as any) || {};
+        const currentRevision = Number(heroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: locked[0].updatedAt,
+          };
+        }
+
+        const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+        if (inventoryIndex >= inventory.length) return { ok: false as const, reason: "invalid_inventory_index" as const };
+        const row = inventory[inventoryIndex];
+        if (!row || typeof row !== "object") return { ok: false as const, reason: "invalid_inventory_index" as const };
+        if ((row as any)?.meta?.hasLSPassive) return { ok: false as const, reason: "item_forbidden" as const };
+
+        const rowCount = Math.max(1, Math.floor(Number(row.count ?? 1)));
+        if (count > rowCount) return { ok: false as const, reason: "invalid_count" as const };
+        const stackable = isStackableRow(row);
+        if (!stackable && count !== 1) return { ok: false as const, reason: "invalid_count" as const };
+
+        const slots = getWarehouseSlotsFromHeroJson(heroJson);
+        let slotToUse = -1;
+        if (targetSlotIndex !== undefined && targetSlotIndex >= 0 && targetSlotIndex < PERSONAL_WAREHOUSE_MAX_SLOTS) {
+          slotToUse = targetSlotIndex;
+        } else if (stackable) {
+          const rowId = normalizeItemId(row.id);
+          const rowEnchant = Number(row.enchantLevel ?? 0) || 0;
+          slotToUse = slots.findIndex((s) => {
+            if (!s || typeof s !== "object") return false;
+            return normalizeItemId((s as any).id) === rowId && Number((s as any).enchantLevel ?? 0) === rowEnchant;
+          });
+        }
+        if (slotToUse < 0) slotToUse = slots.findIndex((s) => !s);
+        if (slotToUse < 0) return { ok: false as const, reason: "warehouse_full" as const };
+
+        const existing = slots[slotToUse];
+        if (existing && (!stackable || normalizeItemId((existing as any).id) !== normalizeItemId(row.id))) {
+          return { ok: false as const, reason: "target_slot_busy" as const };
+        }
+
+        if (stackable && existing) {
+          slots[slotToUse] = {
+            ...(existing as any),
+            count: Math.max(1, Math.floor(Number((existing as any).count ?? 1))) + count,
+          };
+        } else {
+          slots[slotToUse] = {
+            ...row,
+            count,
+          };
+        }
+
+        if (count >= rowCount) inventory.splice(inventoryIndex, 1);
+        else inventory[inventoryIndex] = { ...row, count: rowCount - count };
+
+        const nextHeroJson = {
+          ...heroJson,
+          inventory,
+          warehouseSlots: slots,
+        };
+        const invariants = enforceCharacterMutationInvariants({ heroJson: nextHeroJson });
+        if (!invariants.ok) return { ok: false as const, reason: "mutation_invariant_failed" as const };
+
+        const versionedHeroJson = addVersioning(invariants.heroJson, currentRevision);
+        const updated = await tx.character.update({
+          where: { id },
+          data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+          select: {
+            id: true, name: true, race: true, classId: true, sex: true,
+            level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true,
+            heroJson: true, updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+          });
+        }
+        if (txRes.reason === "warehouse_full") return reply.code(400).send({ error: "warehouse_full" });
+        if (txRes.reason === "target_slot_busy") return reply.code(400).send({ error: "target_slot_busy" });
+        if (txRes.reason === "item_forbidden") return reply.code(400).send({ error: "item_forbidden" });
+        if (txRes.reason === "invalid_inventory_index") return reply.code(400).send({ error: "invalid_inventory_index" });
+        if (txRes.reason === "invalid_count") return reply.code(400).send({ error: "invalid_count" });
+        return reply.code(400).send({ error: "mutation_invariant_failed" });
+      }
+
+      return {
+        ok: true,
+        character: {
+          ...txRes.updated,
+          exp: Number(txRes.updated.exp),
+          adena: Number((txRes.updated as any).adena ?? 0),
+          aa: Number((txRes.updated as any).aa ?? 0),
+          coinLuck: Number((txRes.updated as any).coinLuck ?? 0),
+          coinsSilver: Number((txRes.updated as any).coinsSilver ?? 0),
+        },
+      };
+    } catch (e: any) {
+      app.log.error(e, `[POST /characters/:id/warehouse/deposit] Error for character ${id}`);
+      return reply.code(500).send({ error: e.message || "Internal server error" });
+    }
+  });
+
+  // POST /characters/:id/warehouse/withdraw — server-authoritative personal warehouse withdraw
+  app.post("/characters/:id/warehouse/withdraw", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as { id?: string }).id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    const body = req.body as { expectedRevision?: number; slotIndex?: number; count?: number };
+    const expectedRevision = Number(body?.expectedRevision);
+    const slotIndex = Math.floor(Number(body?.slotIndex ?? -1));
+    const requestedCount = Math.max(1, Math.floor(Number(body?.count ?? 1)));
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+    if (!Number.isFinite(slotIndex) || slotIndex < 0 || slotIndex >= PERSONAL_WAREHOUSE_MAX_SLOTS) {
+      return reply.code(400).send({ error: "slotIndex required" });
+    }
+
+    try {
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date }>>`
+          SELECT "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+
+        const heroJson = (locked[0].heroJson as any) || {};
+        const currentRevision = Number(heroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: locked[0].updatedAt,
+          };
+        }
+
+        const slots = getWarehouseSlotsFromHeroJson(heroJson);
+        const row = slots[slotIndex];
+        if (!row || typeof row !== "object") return { ok: false as const, reason: "slot_empty" as const };
+        const stackable = isStackableRow(row);
+        const rowCount = Math.max(1, Math.floor(Number((row as any).count ?? 1)));
+        const count = stackable ? Math.min(rowCount, requestedCount) : 1;
+
+        const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+        const invCap = inventoryCapForHeroJson(heroJson);
+        const normalizedId = normalizeItemId((row as any).id);
+        const normalizedEnchant = Number((row as any).enchantLevel ?? 0) || 0;
+
+        let canStackToInventory = false;
+        if (stackable) {
+          canStackToInventory = inventory.some(
+            (it: any) =>
+              normalizeItemId(it?.id) === normalizedId &&
+              (Number(it?.enchantLevel ?? 0) || 0) === normalizedEnchant &&
+              !(it as any)?.meta?.hasLSPassive
+          );
+        }
+        const currentSlotsUsed = inventory.filter(Boolean).length;
+        const slotsNeeded = stackable && canStackToInventory ? 0 : 1;
+        if (currentSlotsUsed + slotsNeeded > invCap) {
+          return { ok: false as const, reason: "inventory_full" as const };
+        }
+
+        if (stackable && canStackToInventory) {
+          const idx = inventory.findIndex(
+            (it: any) =>
+              normalizeItemId(it?.id) === normalizedId &&
+              (Number(it?.enchantLevel ?? 0) || 0) === normalizedEnchant &&
+              !(it as any)?.meta?.hasLSPassive
+          );
+          const prev = Math.max(1, Math.floor(Number(inventory[idx]?.count ?? 1)));
+          inventory[idx] = { ...inventory[idx], count: prev + count };
+        } else {
+          inventory.push({ ...(row as any), count });
+        }
+
+        if (count >= rowCount) {
+          slots[slotIndex] = null;
+        } else {
+          slots[slotIndex] = { ...(row as any), count: rowCount - count };
+        }
+
+        const nextHeroJson = {
+          ...heroJson,
+          inventory,
+          warehouseSlots: slots,
+        };
+        const invariants = enforceCharacterMutationInvariants({ heroJson: nextHeroJson });
+        if (!invariants.ok) return { ok: false as const, reason: "mutation_invariant_failed" as const };
+
+        const versionedHeroJson = addVersioning(invariants.heroJson, currentRevision);
+        const updated = await tx.character.update({
+          where: { id },
+          data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+          select: {
+            id: true, name: true, race: true, classId: true, sex: true,
+            level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true,
+            heroJson: true, updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+          });
+        }
+        if (txRes.reason === "slot_empty") return reply.code(400).send({ error: "slot_empty" });
+        if (txRes.reason === "inventory_full") return reply.code(400).send({ error: "inventory_full" });
+        return reply.code(400).send({ error: "mutation_invariant_failed" });
+      }
+
+      return {
+        ok: true,
+        character: {
+          ...txRes.updated,
+          exp: Number(txRes.updated.exp),
+          adena: Number((txRes.updated as any).adena ?? 0),
+          aa: Number((txRes.updated as any).aa ?? 0),
+          coinLuck: Number((txRes.updated as any).coinLuck ?? 0),
+          coinsSilver: Number((txRes.updated as any).coinsSilver ?? 0),
+        },
+      };
+    } catch (e: any) {
+      app.log.error(e, `[POST /characters/:id/warehouse/withdraw] Error for character ${id}`);
+      return reply.code(500).send({ error: e.message || "Internal server error" });
+    }
+  });
+
+  // POST /characters/:id/resource-craft — server-authoritative crafting
+  app.post("/characters/:id/resource-craft", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+    const id = (req.params as { id?: string }).id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    const body = req.body as {
+      expectedRevision?: number;
+      tier?: number;
+      recipeIndex?: number;
+      quantity?: number;
+    };
+    const expectedRevision = Number(body.expectedRevision);
+    const tier = Math.floor(Number(body.tier ?? 0));
+    const recipeIndex = Math.floor(Number(body.recipeIndex ?? -1));
+    const quantity = Math.max(1, Math.floor(Number(body.quantity ?? 1)));
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+    const recipes = SERVER_RESOURCE_CRAFT_RECIPES[tier];
+    const unlockLevel = SERVER_RESOURCE_CRAFT_UNLOCK_BY_TIER[tier];
+    if (!recipes || !unlockLevel || recipeIndex < 0 || recipeIndex >= recipes.length) {
+      return reply.code(400).send({ error: "invalid_recipe" });
+    }
+
+    try {
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<Array<{ heroJson: any; level: number; updatedAt: Date }>>`
+          SELECT "heroJson", "level", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+        const row = locked[0];
+        const heroJson = (row.heroJson as any) || {};
+        const currentRevision = Number(heroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: row.updatedAt,
+          };
+        }
+
+        const heroLevel = Math.max(1, Number(heroJson.level ?? row.level ?? 1));
+        if (heroLevel < unlockLevel) return { ok: false as const, reason: "level_too_low" as const };
+
+        const recipe = recipes[recipeIndex]!;
+        const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+        for (const ing of recipe.ingredients) {
+          const need = Math.max(1, Math.floor(ing.count)) * quantity;
+          let have = 0;
+          for (const it of inventory) {
+            if (normalizeItemId(it?.id) !== normalizeItemId(ing.id)) continue;
+            have += Math.max(1, Math.floor(Number(it?.count ?? 1)));
+          }
+          if (have < need) return { ok: false as const, reason: "insufficient_materials" as const };
+        }
+
+        for (const ing of recipe.ingredients) {
+          let left = Math.max(1, Math.floor(ing.count)) * quantity;
+          for (let i = inventory.length - 1; i >= 0 && left > 0; i--) {
+            const it = inventory[i];
+            if (normalizeItemId(it?.id) !== normalizeItemId(ing.id)) continue;
+            const cnt = Math.max(1, Math.floor(Number(it?.count ?? 1)));
+            if (cnt <= left) {
+              left -= cnt;
+              inventory.splice(i, 1);
+            } else {
+              inventory[i] = { ...it, count: cnt - left };
+              left = 0;
+            }
+          }
+          if (left > 0) return { ok: false as const, reason: "insufficient_materials" as const };
+        }
+
+        const outId = recipe.outputId;
+        const outCount = quantity;
+        const outStackable = true;
+        const invCap = inventoryCapForHeroJson(heroJson);
+        const outIdx = inventory.findIndex((it) => normalizeItemId(it?.id) === normalizeItemId(outId) && isStackableRow(it));
+        if (outIdx >= 0 && outStackable) {
+          const prev = Math.max(1, Math.floor(Number(inventory[outIdx]?.count ?? 1)));
+          inventory[outIdx] = { ...inventory[outIdx], count: prev + outCount };
+        } else {
+          if (inventory.filter(Boolean).length + 1 > invCap) return { ok: false as const, reason: "inventory_full" as const };
+          inventory.push({
+            id: outId,
+            name: outId,
+            slot: "resource",
+            kind: "resource",
+            count: outCount,
+          });
+        }
+
+        const nextHeroJson = {
+          ...heroJson,
+          inventory,
+        };
+        const invariants = enforceCharacterMutationInvariants({ heroJson: nextHeroJson });
+        if (!invariants.ok) return { ok: false as const, reason: "mutation_invariant_failed" as const };
+        const versionedHeroJson = addVersioning(invariants.heroJson, currentRevision);
+        const updated = await tx.character.update({
+          where: { id },
+          data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+          select: {
+            id: true, name: true, race: true, classId: true, sex: true,
+            level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true,
+            heroJson: true, updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated, outputId: outId, outputCount: outCount };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+          });
+        }
+        if (txRes.reason === "level_too_low") return reply.code(400).send({ error: "level_too_low" });
+        if (txRes.reason === "insufficient_materials") return reply.code(400).send({ error: "insufficient_materials" });
+        if (txRes.reason === "inventory_full") return reply.code(400).send({ error: "inventory_full" });
+        return reply.code(400).send({ error: "mutation_invariant_failed" });
+      }
+
+      return {
+        ok: true,
+        outputId: txRes.outputId,
+        outputCount: txRes.outputCount,
+        character: {
+          ...txRes.updated,
+          exp: Number(txRes.updated.exp),
+          adena: Number((txRes.updated as any).adena ?? 0),
+          aa: Number((txRes.updated as any).aa ?? 0),
+          coinLuck: Number((txRes.updated as any).coinLuck ?? 0),
+          coinsSilver: Number((txRes.updated as any).coinsSilver ?? 0),
+        },
+      };
+    } catch (e: any) {
+      app.log.error(e, `[POST /characters/:id/resource-craft] Error for character ${id}`);
       return reply.code(500).send({ error: e.message || "Internal server error" });
     }
   });

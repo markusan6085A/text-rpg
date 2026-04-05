@@ -2,14 +2,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
-import { getInventoryMax } from "../state/heroStore";
 import type { HeroInventoryItem } from "../types/Hero";
-import {
-  loadWarehouse,
-  saveItemToWarehouse,
-  loadItemFromWarehouse,
-  WAREHOUSE_MAX_SLOTS,
-} from "../state/warehouse/warehousePersistence";
+import { postWarehouseDeposit, postWarehouseWithdraw } from "../utils/api";
 import { isStackableHeroItem } from "../state/heroStore/inventoryOverflow";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import { CATEGORIES } from "./character/InventoryFilters";
@@ -24,6 +18,7 @@ interface WarehouseProps {
 const DEFAULT_WAREHOUSE_CAPACITY = 100;
 const MAX_WAREHOUSE_CAPACITY = 100;
 const LOG_MAX_ENTRIES = 10;
+const WAREHOUSE_MAX_SLOTS = 100;
 // Валюта — показується в балансі персонажа, не в інвентарі/складі
 const CURRENCY_IDS = new Set(["adena", "coin_of_luck", "coins_silver", "ancient_adena"]);
 
@@ -41,6 +36,9 @@ interface LogEntry {
   timestamp: number;
 }
 
+const emptyWarehouse = (): (HeroInventoryItem | null)[] =>
+  Array.from({ length: WAREHOUSE_MAX_SLOTS }, () => null);
+
 export default function Warehouse({ navigate }: WarehouseProps) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
@@ -55,15 +53,19 @@ export default function Warehouse({ navigate }: WarehouseProps) {
   const [quantityModal, setQuantityModal] = useState<{
     item: HeroInventoryItem;
     maxCount: number;
+    inventoryIndex: number;
   } | null>(null);
   const [quantityInput, setQuantityInput] = useState<string>("1");
 
   // Завантажуємо склад по characterId (не по імені), щоб не губити при зміні ніка
   useEffect(() => {
-    if (!activeCharacterId) return;
+    if (!hero) return;
     try {
-      const loadedWarehouse = loadWarehouse(activeCharacterId, hero?.name);
-      const list = Array.isArray(loadedWarehouse) ? loadedWarehouse : [];
+      const rawSlots = (hero as any)?.heroJson?.warehouseSlots;
+      const list = Array.isArray(rawSlots) ? rawSlots.slice(0, WAREHOUSE_MAX_SLOTS) : emptyWarehouse();
+      if (list.length < WAREHOUSE_MAX_SLOTS) {
+        while (list.length < WAREHOUSE_MAX_SLOTS) list.push(null);
+      }
       const warehouseWithIcons = list.map((item) => {
         if (!item) return null;
         try {
@@ -77,10 +79,10 @@ export default function Warehouse({ navigate }: WarehouseProps) {
       });
       setWarehouse(warehouseWithIcons);
     } catch (e) {
-      if (import.meta.env.DEV) console.warn("[Warehouse] loadWarehouse failed:", e);
-      setWarehouse([]);
+      if (import.meta.env.DEV) console.warn("[Warehouse] heroJson warehouse parse failed:", e);
+      setWarehouse(emptyWarehouse());
     }
-  }, [activeCharacterId, hero?.name]);
+  }, [hero, activeCharacterId]);
 
   // Усі хуки обов'язково викликаються до будь-якого return (Rules of Hooks)
   const warehouseArr = Array.isArray(warehouse) ? warehouse : [];
@@ -165,32 +167,11 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     );
   }
 
-  // Online-authoritative hardening: personal warehouse is disabled until fully server-backed.
-  // LocalStorage warehouse operations are not allowed for online economy integrity.
-  return (
-    <div
-      className={
-        isL2
-          ? `${l2Frame} w-full min-w-0 my-1 flex flex-col items-center justify-center gap-3 text-center p-4 text-[#8a7a60]`
-          : "flex flex-col items-center justify-center gap-3 text-center p-4 text-gray-400"
-      }
-    >
-      <p className="text-sm">Персональний склад тимчасово недоступний в онлайн-режимі.</p>
-      <p className="text-xs">Функція буде повернена після повного серверного (authoritative) переносу.</p>
-      <button
-        onClick={() => navigate("/city")}
-        className="text-[12px] text-[#ff8c00] hover:text-[#ffa500] underline py-1"
-      >
-        Назад в місто
-      </button>
-    </div>
-  );
-
   // Кількість зайнятих СЛОТІВ (не кількість предметів): кожен слот = 1, незалежно від item.count
   const warehouseUsed = warehouseArr.filter(Boolean).length;
 
   // Функція для покладення предмета на склад
-  const handlePutToWarehouse = (item: HeroInventoryItem, count?: number) => {
+  const handlePutToWarehouse = async (item: HeroInventoryItem, inventoryIndex: number, count?: number) => {
     if (!activeCharacterId) return;
 
     if ((item as any).meta?.hasLSPassive) {
@@ -206,108 +187,31 @@ export default function Warehouse({ navigate }: WarehouseProps) {
       return;
     }
 
-    // Стак: шукаємо спочатку існуючий слот з таким же стакованим предметом
-    let targetSlotIndex = -1;
-    const canMergeStacks = isStackableHeroItem(item);
-
-    if (canMergeStacks) {
-      const normId = (s: string) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
-      for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
-        const existingItem = warehouse[i];
-        if (existingItem && normId(existingItem.id) === normId(item.id)) {
-          targetSlotIndex = i;
-          break;
-        }
-      }
-    }
-
-    // Перевіряємо місткість складу:
-    // Якщо item стакується і вже є в складі — нового слоту не потрібно
-    const needsNewSlot = targetSlotIndex === -1;
-    const slotsNeeded = canMergeStacks ? (needsNewSlot ? 1 : 0) : itemCount;
-    if (warehouseUsed + slotsNeeded > warehouseCapacity) {
-      showToast(
-        `Склад переповнений! Вместимость: ${warehouseUsed}/${warehouseCapacity}.`,
-        "error"
-      );
-      return;
-    }
-
-    // Якщо не знайшли існуючий слот, шукаємо вільний
-    if (targetSlotIndex === -1) {
-      for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
-        if (warehouse[i] === null) {
-          targetSlotIndex = i;
-          break;
-        }
-      }
-    }
-
-    if (targetSlotIndex === -1) {
-      showToast(`Склад переповнений! Нема вільної комірки (${WAREHOUSE_MAX_SLOTS} слотів).`, "error");
-      return;
-    }
-
-    // Видаляємо предмет з інвентаря
-    const newInventory = [...(hero.inventory || [])];
-    const itemIndex = newInventory.findIndex((invItem) => invItem.id === item.id);
-
-    if (itemIndex >= 0) {
-      const existingItem = newInventory[itemIndex];
-      const newCount = (existingItem.count || 1) - itemCount;
-
-      if (newCount <= 0) {
-        // Видаляємо предмет повністю
-        newInventory.splice(itemIndex, 1);
+    const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+    try {
+      const updated = await postWarehouseDeposit(activeCharacterId, {
+        expectedRevision,
+        inventoryIndex,
+        count: itemCount,
+      });
+      const hj = (updated as any)?.heroJson ?? {};
+      if (Array.isArray(hj.inventory)) {
+        updateHero({ inventory: hj.inventory, heroJson: hj } as any);
       } else {
-        // Зменшуємо count
-        newInventory[itemIndex] = { ...existingItem, count: newCount };
+        updateHero({ heroJson: hj } as any);
       }
-
-      // Додаємо предмет на склад
-      const existingWarehouseItem = warehouse[targetSlotIndex];
-      let itemToStore: HeroInventoryItem;
-
-      if (existingWarehouseItem && existingWarehouseItem.id === item.id) {
-        // Об'єднуємо з існуючим предметом
-        itemToStore = {
-          ...existingWarehouseItem,
-          count: (existingWarehouseItem.count || 1) + itemCount,
-          // Переконаємося, що icon зберігається
-          icon: existingWarehouseItem.icon || item.icon || itemsDB[item.id]?.icon,
-        };
-      } else {
-        // Створюємо новий предмет
-        itemToStore = {
-          ...item,
-          count: itemCount,
-          // Переконаємося, що icon зберігається
-          icon: item.icon || itemsDB[item.id]?.icon,
-        };
-      }
-
-      // Зберігаємо на склад (по characterId)
-      saveItemToWarehouse(activeCharacterId, targetSlotIndex, itemToStore);
-
-      // Оновлюємо стан
-      const newWarehouse = [...warehouse];
-      newWarehouse[targetSlotIndex] = itemToStore;
-      setWarehouse(newWarehouse);
-
-      // Оновлюємо інвентар героя
-      updateHero({ inventory: newInventory });
-
-      // Додаємо запис до логу
+      const slots = Array.isArray(hj.warehouseSlots) ? hj.warehouseSlots : emptyWarehouse();
+      setWarehouse(slots);
       addLogEntry(`Положено на склад: ${item.name} x${itemCount}`);
+      setQuantityModal(null);
+      setQuantityInput("1");
+    } catch (err: any) {
+      showToast(err?.message || "Ошибка при перемещении на склад", "error");
     }
-
-    // Закриваємо модальне вікно
-    setQuantityModal(null);
-    setQuantityInput("1");
   };
 
   // Функція для відкриття модального вікна вибору кількості
-  const handlePutToWarehouseClick = (item: HeroInventoryItem) => {
+  const handlePutToWarehouseClick = (item: HeroInventoryItem, inventoryIndex: number) => {
     const stackItem = isStackableHeroItem(item);
     const hasCount = (item.count || 1) > 1;
 
@@ -316,75 +220,46 @@ export default function Warehouse({ navigate }: WarehouseProps) {
       setQuantityModal({
         item,
         maxCount: item.count || 1,
+        inventoryIndex,
       });
       setQuantityInput("1");
     } else {
       // Покладаємо одразу
-      handlePutToWarehouse(item, 1);
+      void handlePutToWarehouse(item, inventoryIndex, 1);
     }
   };
 
   // Функція для взяття предмета зі складу
-  const handleTakeFromWarehouse = (slotIndex: number) => {
+  const handleTakeFromWarehouse = async (slotIndex: number) => {
     if (!activeCharacterId) return;
 
     const item = warehouse[slotIndex];
     if (!item) return;
 
-    const canStack = isStackableHeroItem(item);
-    const slotsNeeded = canStack ? 1 : (item.count || 1);
-    const inventorySize = (hero.inventory || []).length;
-    const maxSlots = getInventoryMax(hero);
-    if (inventorySize + slotsNeeded > maxSlots) {
-      showToast(`Инвентарь переполнен! Нужно ${slotsNeeded} слотов, свободно ${maxSlots - inventorySize}.`, "error");
-      return;
-    }
-
-    // Додаємо предмет до інвентаря (stackable: false — кожен окремим слотом)
-    const newInventory = [...(hero.inventory || [])];
-    const existingItemIndex = canStack ? newInventory.findIndex((invItem) => invItem.id === item.id && !(invItem as any).meta?.hasLSPassive) : -1;
-
-    if (existingItemIndex >= 0) {
-      const existingItem = newInventory[existingItemIndex];
-      newInventory[existingItemIndex] = {
-        ...existingItem,
-        count: (existingItem.count || 1) + (item.count || 1),
-      };
-    } else {
-      const cnt = item.count || 1;
-      if (canStack) {
-        newInventory.push(item);
+    const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+    try {
+      const updated = await postWarehouseWithdraw(activeCharacterId, {
+        expectedRevision,
+        slotIndex,
+        count: Math.max(1, Number(item.count || 1)),
+      });
+      const hj = (updated as any)?.heroJson ?? {};
+      if (Array.isArray(hj.inventory)) {
+        updateHero({ inventory: hj.inventory, heroJson: hj } as any);
       } else {
-        for (let i = 0; i < cnt; i++) {
-          newInventory.push({ ...item, count: 1 });
-        }
+        updateHero({ heroJson: hj } as any);
       }
+      const slots = Array.isArray(hj.warehouseSlots) ? hj.warehouseSlots : emptyWarehouse();
+      setWarehouse(slots);
+      addLogEntry(`Взято со склада: ${item.name} x${item.count || 1}`);
+    } catch (err: any) {
+      showToast(err?.message || "Ошибка при выводе предмета", "error");
     }
-
-    // Видаляємо предмет зі складу
-    saveItemToWarehouse(activeCharacterId, slotIndex, null);
-
-    // Оновлюємо стан
-    const newWarehouse = [...warehouse];
-    newWarehouse[slotIndex] = null;
-    setWarehouse(newWarehouse);
-
-    // Оновлюємо інвентар героя
-    updateHero({ inventory: newInventory });
-
-    // Додаємо запис до логу
-    addLogEntry(`Взято со склада: ${item.name} x${item.count || 1}`);
   };
 
   // Функція для збільшення місткості складу
   const handleIncreaseCapacity = () => {
-    const newCapacity = Math.min(warehouseCapacity + 10, MAX_WAREHOUSE_CAPACITY);
-    if (newCapacity > warehouseCapacity) {
-      updateHero({ warehouseCapacity: newCapacity });
-      addLogEntry(`Вместимость склада увеличена до ${newCapacity}`);
-    } else {
-      showToast(`Максимальная вместимость склада: ${MAX_WAREHOUSE_CAPACITY}`, "info");
-    }
+    showToast("Увеличение вместимости склада будет доступно через серверный сервис.", "info");
   };
 
   return (
@@ -523,6 +398,9 @@ export default function Warehouse({ navigate }: WarehouseProps) {
               <div className="space-y-2">
                 {paginatedItems.length > 0 ? (
                   paginatedItems.map((item, index) => (
+                    (() => {
+                      const inventoryIndex = (hero.inventory || []).indexOf(item);
+                      return (
                     <div
                       key={`${item.id}-${index}`}
                       className={
@@ -561,12 +439,14 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                         )}
                       </div>
                       <button
-                        onClick={() => handlePutToWarehouseClick(item)}
+                        onClick={() => handlePutToWarehouseClick(item, inventoryIndex)}
                         className="text-[10px] text-[#ff8c00] hover:text-[#ffa500] underline px-2 py-1"
                       >
                         [Положить на склад]
                       </button>
                     </div>
+                      );
+                    })()
                   ))
                 ) : (
                   <div className="text-center text-gray-400 text-[12px] py-4">
@@ -775,7 +655,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
                 onClick={() => {
                   const count = Number(quantityInput) || 1;
                   if (count >= 1 && count <= quantityModal.maxCount) {
-                    handlePutToWarehouse(quantityModal.item, count);
+                    void handlePutToWarehouse(quantityModal.item, quantityModal.inventoryIndex, count);
                   } else {
                     showToast(`Введите число от 1 до ${quantityModal.maxCount}`, "error");
                   }

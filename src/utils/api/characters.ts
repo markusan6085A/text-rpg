@@ -104,6 +104,53 @@ export async function clearInventoryAPI(characterId: string, expectedRevision: n
   });
   return response.character;
 }
+
+export async function postWarehouseDeposit(
+  characterId: string,
+  body: {
+    expectedRevision: number;
+    inventoryIndex: number;
+    count: number;
+    targetSlotIndex?: number;
+  }
+): Promise<Character> {
+  const response = await apiRequest<CharacterResponse>(
+    `/characters/${encodeURIComponent(characterId)}/warehouse/deposit`,
+    { method: "POST", body: JSON.stringify(body) }
+  );
+  return response.character;
+}
+
+export async function postWarehouseWithdraw(
+  characterId: string,
+  body: {
+    expectedRevision: number;
+    slotIndex: number;
+    count?: number;
+  }
+): Promise<Character> {
+  const response = await apiRequest<CharacterResponse>(
+    `/characters/${encodeURIComponent(characterId)}/warehouse/withdraw`,
+    { method: "POST", body: JSON.stringify(body) }
+  );
+  return response.character;
+}
+
+export async function postResourceCraft(
+  characterId: string,
+  body: {
+    expectedRevision: number;
+    tier: number;
+    recipeIndex: number;
+    quantity: number;
+  }
+): Promise<Character> {
+  const response = await apiRequest<CharacterResponse>(
+    `/characters/${encodeURIComponent(characterId)}/resource-craft`,
+    { method: "POST", body: JSON.stringify(body) }
+  );
+  return response.character;
+}
 /** Сплатити 1M аден для перегляду характеристик іншого гравця */
 export async function payToViewPlayerStats(
   targetCharacterId: string,

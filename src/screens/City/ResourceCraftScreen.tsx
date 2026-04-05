@@ -27,12 +27,11 @@ import { CRAFT_RESOURCE_ENGLISH_NAMES } from "../../data/crafting/craftResourceE
 import type { StringIdCraftRecipe } from "../../data/crafting/resourceCraftTypes";
 import {
   countResourceInInventory,
-  tryApplyResourceCraft,
-  tryApplyStringIdCraftRecipe,
   computeMaxCraftable,
 } from "../../utils/crafting/applyResourceCraft";
 import type { HeroInventoryItem } from "../../types/Hero";
 import { showToast } from "../../state/toastStore";
+import { postResourceCraft } from "../../utils/api";
 
 type Navigate = (path: string) => void;
 
@@ -203,17 +202,42 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
     if (craftModal) setCraftQtyInput("1");
   }, [craftModal]);
 
-  const commitModalCraft = React.useCallback(() => {
+  const commitModalCraft = React.useCallback(async () => {
     if (!hero || !craftModal || !modalRecipe) return;
-    showToast(
-      "Крафт тимчасово вимкнено: йде перехід на серверний (online-authoritative) режим.",
-      "error"
-    );
-    setCraftModal(null);
+    const raw = parseInt(craftQtyInput.trim(), 10);
+    const qty = Number.isFinite(raw) ? Math.floor(raw) : 0;
+    if (qty < 1 || qty > modalMaxCraft) {
+      showToast(`Введите число от 1 до ${modalMaxCraft}.`, "error");
+      return;
+    }
+
+    const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+    try {
+      const updated = await postResourceCraft(hero.id, {
+        expectedRevision,
+        tier: craftModal.tier,
+        recipeIndex: craftModal.idx,
+        quantity: qty,
+      });
+      const serverHeroJson = (updated as any)?.heroJson ?? {};
+      if (Array.isArray(serverHeroJson.inventory)) {
+        updateHero({ inventory: serverHeroJson.inventory, heroJson: serverHeroJson } as any);
+      } else {
+        updateHero({ heroJson: serverHeroJson } as any);
+      }
+      const name = displayCraftResourceName(modalRecipe.outputId);
+      showToast(`Скрафчено: ${name} ×${qty}`, "success");
+      setCraftModal(null);
+    } catch (e: any) {
+      showToast(e?.message || "Крафт не выполнен на сервере", "error");
+    }
   }, [
     hero,
     craftModal,
     modalRecipe,
+    craftQtyInput,
+    modalMaxCraft,
+    updateHero,
     setCraftModal,
   ]);
 
