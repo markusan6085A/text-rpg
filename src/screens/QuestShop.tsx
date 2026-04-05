@@ -48,6 +48,13 @@ export default function QuestShop({ navigate }: QuestShopProps) {
   const [exchangeQuantity, setExchangeQuantity] = useState<number>(1);
   const [confirmExchange, setConfirmExchange] = useState<{ type: QuestExchangeType; name: string } | null>(null);
   const [weaponKindFilter, setWeaponKindFilter] = useState<"all" | "phys" | "magic">("all");
+  const buildQuestBuyItemIdCandidates = (rawId: string, mappedId?: string | null): string[] => {
+    const base = String(rawId || "").trim().toLowerCase();
+    const mapped = String(mappedId || "").trim().toLowerCase();
+    const stripped = base.replace(/^shop_/i, "").replace(/^quest_/i, "");
+    const out = [base, mapped, stripped, stripped ? `quest_${stripped}` : ""];
+    return Array.from(new Set(out.filter(Boolean)));
+  };
 
   const applyServerCharacterSnapshot = (character: any) => {
     if (!character) return;
@@ -206,23 +213,46 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       Number.isFinite(expectedRevisionRaw) && expectedRevisionRaw >= 0 ? expectedRevisionRaw : 0;
     setBuyBusy(true);
     try {
-      const result = await shopBuyAPI({
-        itemId: itemDef.id,
-        quantity,
-        shopType: "quest",
-        itemMeta: {
-          id: itemDef.id,
-          name: itemDef.name,
-          slot: itemDef.slot,
-          kind: itemDef.kind,
-          icon: itemDef.icon,
-          description: itemDef.description,
-          stats: finalStats,
-          grade,
-          armorType,
-        },
-        expectedRevision,
-      });
+      const baseMeta = {
+        id: itemDef.id,
+        name: itemDef.name,
+        slot: itemDef.slot,
+        kind: itemDef.kind,
+        icon: itemDef.icon,
+        description: itemDef.description,
+        stats: finalStats,
+        grade,
+        armorType,
+      };
+      const mappedId = QUEST_SHOP_ITEM_MAPPING[item.itemId];
+      const candidates = buildQuestBuyItemIdCandidates(itemDef.id, mappedId);
+      let result: Awaited<ReturnType<typeof shopBuyAPI>> | null = null;
+      let lastAvailabilityError: any = null;
+      for (const candidateId of candidates) {
+        try {
+          result = await shopBuyAPI({
+            itemId: candidateId,
+            quantity,
+            shopType: "quest",
+            itemMeta: { ...baseMeta, id: candidateId },
+            expectedRevision,
+          });
+          break;
+        } catch (e: any) {
+          const isNotAvailable =
+            e?.status === 400 &&
+            (String(e?.body?.error ?? "").toLowerCase().includes("item not available in shop") ||
+             String(e?.message ?? "").toLowerCase().includes("item not available in shop"));
+          if (isNotAvailable) {
+            lastAvailabilityError = e;
+            continue;
+          }
+          throw e;
+        }
+      }
+      if (!result) {
+        throw lastAvailabilityError || new Error("item not available in shop");
+      }
       if (!result?.ok || !result.heroJson) {
         showToast("Сервер відхилив покупку.", "error");
         return;

@@ -45,6 +45,12 @@ export default function GMShop({ navigate }: GMShopProps) {
   const [generateStoneModal, setGenerateStoneModal] = useState(false);
   const [generateStoneSelectedId, setGenerateStoneSelectedId] = useState<string | null>(null);
   const [consumablesSub, setConsumablesSub] = useState<"giant" | "charges" | "bless_scrolls">("giant");
+  const buildGmBuyItemIdCandidates = (rawId: string): string[] => {
+    const base = String(rawId || "").trim().toLowerCase();
+    const stripped = base.replace(/^shop_/i, "").replace(/^quest_/i, "");
+    const out = [base, stripped, stripped ? `shop_${stripped}` : "", stripped ? `quest_${stripped}` : ""];
+    return Array.from(new Set(out.filter(Boolean)));
+  };
 
   if (!hero) {
     return (
@@ -177,13 +183,34 @@ export default function GMShop({ navigate }: GMShopProps) {
     const expectedRevision =
       Number.isFinite(expectedRevisionRaw) && expectedRevisionRaw >= 0 ? expectedRevisionRaw : 0;
     try {
-      const result = await shopBuyAPI({
-        itemId,
-        quantity,
-        shopType: "gm",
-        itemMeta,
-        expectedRevision,
-      });
+      const candidates = buildGmBuyItemIdCandidates(itemId);
+      let result: Awaited<ReturnType<typeof shopBuyAPI>> | null = null;
+      let lastAvailabilityError: any = null;
+      for (const candidateId of candidates) {
+        try {
+          result = await shopBuyAPI({
+            itemId: candidateId,
+            quantity,
+            shopType: "gm",
+            itemMeta: { ...itemMeta, id: candidateId },
+            expectedRevision,
+          });
+          break;
+        } catch (e: any) {
+          const isNotAvailable =
+            e?.status === 400 &&
+            (String(e?.body?.error ?? "").toLowerCase().includes("item not available in shop") ||
+             String(e?.message ?? "").toLowerCase().includes("item not available in shop"));
+          if (isNotAvailable) {
+            lastAvailabilityError = e;
+            continue;
+          }
+          throw e;
+        }
+      }
+      if (!result) {
+        throw lastAvailabilityError || new Error("item not available in shop");
+      }
       if (!result?.ok || !result.heroJson) {
         showToast(`Помилка покупки: сервер відхилив запит`, "error");
         return;

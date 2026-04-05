@@ -126,6 +126,13 @@ export default function Shop({ navigate }: ShopProps) {
   const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const [buying, setBuying] = useState(false);
+  const buildShopBuyItemIdCandidates = (rawId: string, mappedId?: string | null): string[] => {
+    const base = String(rawId || "").trim().toLowerCase();
+    const mapped = String(mappedId || "").trim().toLowerCase();
+    const stripped = base.replace(/^shop_/i, "").replace(/^quest_/i, "");
+    const out = [base, mapped, stripped, stripped ? `shop_${stripped}` : ""];
+    return Array.from(new Set(out.filter(Boolean)));
+  };
   const applyServerShopSnapshot = (result: { heroJson: any; adena: number; coinsSilver?: number }) => {
     const store = useHeroStore.getState();
     const currentHero = store.hero;
@@ -234,13 +241,35 @@ export default function Shop({ navigate }: ShopProps) {
       Number.isFinite(expectedRevisionRaw) && expectedRevisionRaw >= 0 ? expectedRevisionRaw : 0;
     setBuying(true);
     try {
-      const result = await shopBuyAPI({
-        itemId: itemMeta.id,
-        quantity,
-        shopType: "regular",
-        itemMeta,
-        expectedRevision,
-      });
+      const mappedId = SHOP_ITEM_ID_MAPPING[item.itemId];
+      const candidates = buildShopBuyItemIdCandidates(itemMeta.id, mappedId);
+      let result: Awaited<ReturnType<typeof shopBuyAPI>> | null = null;
+      let lastAvailabilityError: any = null;
+      for (const candidateId of candidates) {
+        try {
+          result = await shopBuyAPI({
+            itemId: candidateId,
+            quantity,
+            shopType: "regular",
+            itemMeta: { ...itemMeta, id: candidateId },
+            expectedRevision,
+          });
+          break;
+        } catch (e: any) {
+          const isNotAvailable =
+            e?.status === 400 &&
+            (String(e?.body?.error ?? "").toLowerCase().includes("item not available in shop") ||
+             String(e?.message ?? "").toLowerCase().includes("item not available in shop"));
+          if (isNotAvailable) {
+            lastAvailabilityError = e;
+            continue;
+          }
+          throw e;
+        }
+      }
+      if (!result) {
+        throw lastAvailabilityError || new Error("item not available in shop");
+      }
       if (!result?.ok || !result.heroJson) {
         showToast("Сервер відхилив покупку.", "error");
         return;
