@@ -111,7 +111,11 @@ export function schedulePveMobDebuffOnline(args: {
     } catch (e: any) {
       const st = Number(e?.status);
       if (st === 409) applyRevisionConflictFromApiError(e);
-      if (st === 404 && typeof onFallback === "function") {
+      const errCode = String((e as any)?.body?.error ?? "");
+      const tryLocal =
+        typeof onFallback === "function" &&
+        (st === 404 || (st === 400 && errCode === "no_effect"));
+      if (tryLocal) {
         try {
           onFallback();
         } catch (err) {
