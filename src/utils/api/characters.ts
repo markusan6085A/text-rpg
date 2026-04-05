@@ -105,10 +105,13 @@ export async function clearInventoryAPI(characterId: string): Promise<Character>
   return response.character;
 }
 /** Сплатити 1M аден для перегляду характеристик іншого гравця */
-export async function payToViewPlayerStats(targetCharacterId: string): Promise<{ ok: boolean; newAdena: number }> {
+export async function payToViewPlayerStats(
+  targetCharacterId: string,
+  expectedRevision: number
+): Promise<{ ok: boolean; newAdena: number }> {
   const response = await apiRequest<{ ok: boolean; newAdena: number }>(
     `/characters/${targetCharacterId}/pay-view-stats`,
-    { method: "POST", body: JSON.stringify({}) }
+    { method: "POST", body: JSON.stringify({ expectedRevision }) }
   );
   return response;
 }

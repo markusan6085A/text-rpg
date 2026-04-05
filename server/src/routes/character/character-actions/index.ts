@@ -436,23 +436,66 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
     const targetId = (req.params as { targetId?: string }).targetId;
     if (!targetId) return reply.code(400).send({ error: "targetId required" });
+    const body = req.body as { expectedRevision?: number };
+    const expectedRevision = Number(body?.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
 
     try {
-      const myChar = await prisma.character.findFirst({
-        where: { accountId: auth.accountId },
-        orderBy: { createdAt: "asc" },
-        select: { id: true, adena: true },
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{ id: string; adena: bigint; heroJson: any; updatedAt: Date }>
+        >`
+          SELECT "id", "adena", "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "accountId" = ${auth.accountId}
+          ORDER BY "createdAt" ASC
+          LIMIT 1
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+        const myChar = locked[0];
+        const heroJson = (myChar.heroJson ?? {}) as any;
+        const currentRevision = Number(heroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: myChar.updatedAt,
+          };
+        }
+        const currentAdena = Number(myChar.adena ?? 0n);
+        if (currentAdena < VIEW_STATS_COST) {
+          return {
+            ok: false as const,
+            reason: "not_enough" as const,
+            currentAdena,
+          };
+        }
+        const nextAdena = Math.max(0, currentAdena - VIEW_STATS_COST);
+        const versionedHeroJson = addVersioning({ ...heroJson, adena: nextAdena }, currentRevision);
+        await tx.character.update({
+          where: { id: myChar.id },
+          data: { adena: BigInt(nextAdena), heroJson: versionedHeroJson as any },
+        });
+        return { ok: true as const, nextAdena };
       });
-      if (!myChar) return reply.code(404).send({ error: "character not found" });
-      const currentAdena = Number(myChar.adena ?? 0);
-      if (currentAdena < VIEW_STATS_COST) {
-        return reply.code(400).send({ error: "not enough adena", needed: VIEW_STATS_COST, have: currentAdena });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+          });
+        }
+        return reply.code(400).send({ error: "not enough adena", needed: VIEW_STATS_COST, have: txRes.currentAdena ?? 0 });
       }
-      await prisma.character.update({
-        where: { id: myChar.id },
-        data: { adena: { decrement: VIEW_STATS_COST } },
-      });
-      return reply.send({ ok: true, newAdena: currentAdena - VIEW_STATS_COST });
+      return reply.send({ ok: true, newAdena: txRes.nextAdena });
     } catch (error) {
       app.log.error(error, "POST /characters/:targetId/pay-view-stats");
       return reply.code(500).send({ error: "Internal Server Error" });

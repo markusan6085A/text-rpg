@@ -826,7 +826,15 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     }
     setStatsLoadError(null);
     try {
-      const res = await payToViewPlayerStats(character.id);
+      const expectedRevision = Number(
+        useHeroStore.getState().serverState?.heroRevision ??
+        (hero as any)?.heroJson?.heroRevision ??
+        0
+      );
+      const res = await payToViewPlayerStats(
+        character.id,
+        Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0
+      );
       if (res.ok) {
         useHeroStore.getState().updateHero({ adena: res.newAdena });
         let charForStats = character;
