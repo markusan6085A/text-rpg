@@ -19,7 +19,8 @@ import {
 } from "./applyPassiveSkills";
 import { applyPassiveStoneStatsToCombat, applyPassiveStoneStatsToResources } from "./applyPassiveStoneStats";
 import { applyBaseStatGrowthByClass } from "./applyBaseStatGrowth";
-import { computeBuffedMaxResources, applyBuffsToStats } from "../../state/battle/helpers";
+import { computeBuffedMaxResources } from "../../state/battle/helpers/resources";
+import { applyBuffsToStats } from "../../state/battle/helpers/buffs";
 import { getMaxResources } from "../../state/battle/helpers/getMaxResources";
 import { getSkillDef } from "../../state/battle/loadout";
 import type { BattleBuff } from "../../state/battle/types";

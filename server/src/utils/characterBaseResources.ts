@@ -45,24 +45,26 @@ export function injectColumnBaseResourcesIntoHeroJson(
   return h;
 }
 
-/** Пріоритет: явні baseMax* у json, інакше max*, інакше існуючі колонки БД. */
+/**
+ * Пріоритет: лише явні baseMax* у json, інакше існуючі колонки БД.
+ * Не підставляємо maxHp/maxMp/maxCp — у збереженому json вони могли бути бафнутими;
+ * дубль з max* → колонки БД → подвійний наклад бафів на клієнті.
+ */
 export function deriveBaseResourceColumnsFromHeroJson(
   hj: Record<string, any> | null | undefined,
   existingCols: BaseResourceColumns,
 ): BaseResourceColumns {
   const h = hj || {};
-  const pick = (baseKey: string, maxKey: string, existingVal: number) => {
+  const pickBaseOnly = (baseKey: string, existingVal: number) => {
     const fromBase = Math.floor(Number(h[baseKey]));
     if (Number.isFinite(fromBase) && fromBase >= 1) return fromBase;
-    const fromMax = Math.floor(Number(h[maxKey]));
-    if (Number.isFinite(fromMax) && fromMax >= 1) return fromMax;
     return existingVal;
   };
   const ex = coerceBaseResourceTriplet(existingCols);
   return coerceBaseResourceTriplet({
-    baseMaxHp: pick("baseMaxHp", "maxHp", ex.baseMaxHp),
-    baseMaxMp: pick("baseMaxMp", "maxMp", ex.baseMaxMp),
-    baseMaxCp: pick("baseMaxCp", "maxCp", ex.baseMaxCp),
+    baseMaxHp: pickBaseOnly("baseMaxHp", ex.baseMaxHp),
+    baseMaxMp: pickBaseOnly("baseMaxMp", ex.baseMaxMp),
+    baseMaxCp: pickBaseOnly("baseMaxCp", ex.baseMaxCp),
   });
 }
 
