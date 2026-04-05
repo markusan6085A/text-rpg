@@ -40,6 +40,18 @@ export type MobVictoryCommitParams = {
 
 const MAX_LEVEL_UPS_PER_TICK = 10;
 const XP_RATE = 1;
+const VICTORY_DEDUPE_WINDOW_MS = 2500;
+let lastVictorySignature = "";
+let lastVictoryAt = 0;
+let lastVictoryResult: {
+  displayExp: number;
+  displaySp: number;
+  displayAdena: number;
+  dropMessages: string[];
+  mobSpoiled: boolean;
+  levelUpMessage?: string;
+  partyMemberLootLines: string[];
+} | null = null;
 
 /**
  * Нарахування EXP/SP/адени, дропу, щоденок після смерті моба (спільна логіка для baseAttack / skill / reflect).
@@ -65,6 +77,16 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     zoneId,
     mobIndex,
   } = params;
+  const heroForSig = useHeroStore.getState().hero as any;
+  const victorySignature = `${String(heroForSig?.id ?? heroForSig?.name ?? "unknown")}::${String(zoneId ?? "")}::${String(mobIndex ?? "")}::${String(mob?.id ?? "")}`;
+  const nowSig = Date.now();
+  if (
+    lastVictoryResult &&
+    lastVictorySignature === victorySignature &&
+    nowSig - lastVictoryAt <= VICTORY_DEDUPE_WINDOW_MS
+  ) {
+    return lastVictoryResult;
+  }
 
   let adenaGain: number;
   let expGain: number;
@@ -333,7 +355,25 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         try {
           finishResult = await battleFinishAPI(finishPayload);
           break;
-        } catch (err) {
+        } catch (err: any) {
+          if (err?.status === 409) {
+            const currentRevision = Number(err?.body?.currentRevision ?? 0);
+            if (Number.isFinite(currentRevision) && currentRevision >= 0) {
+              useHeroStore.getState().updateServerState({
+                heroRevision: currentRevision,
+                updatedAt: Date.now(),
+              } as any);
+            }
+            try {
+              const { loadHeroFromAPI } = await import("../heroStore/heroLoadAPI");
+              const synced = await loadHeroFromAPI();
+              if (synced) useHeroStore.getState().setHero(synced);
+            } catch {
+              /* ignore secondary sync failure */
+            }
+            finishResult = null;
+            break;
+          }
           if (attempt === 0) {
             await new Promise((resolve) => setTimeout(resolve, 400));
             continue;
@@ -573,7 +613,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
       .catch(() => {});
   }
 
-  return {
+  const result = {
     displayExp,
     displaySp,
     displayAdena,
@@ -582,4 +622,8 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     levelUpMessage,
     partyMemberLootLines,
   };
+  lastVictorySignature = victorySignature;
+  lastVictoryAt = nowSig;
+  lastVictoryResult = result;
+  return result;
 }
