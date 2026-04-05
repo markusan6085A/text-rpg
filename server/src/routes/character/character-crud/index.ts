@@ -1871,6 +1871,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const body = req.body as {
       mobId?: string;
       finishNonce?: string;
+      expectedRevision?: number;
       /** true = hero used Sweep/Auto Spoil before this kill */
       spoiled?: boolean;
       /** Zone where the mob was killed — used for server-side drop table lookup */
@@ -1895,6 +1896,10 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const earnedExp = Math.max(0, Math.min(MAX_EXP_PER_KILL, Number(body.earnedExp ?? 0)));
     const earnedAdena = Math.max(0, Math.min(MAX_ADENA_PER_KILL, Number(body.earnedAdena ?? 0)));
     const earnedSp = Math.max(0, Math.min(MAX_SP_PER_KILL, Number(body.earnedSp ?? 0)));
+    const expectedRevision = Number(body.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
 
     const txRes = await prisma.$transaction(async (tx) => {
       const locked = await tx.$queryRaw<
@@ -1905,9 +1910,10 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           sp: number;
           coinLuck: bigint;
           name: string;
+          updatedAt: Date;
         }>
       >`
-        SELECT "heroJson", "level", "exp", "sp", "coinLuck", "name"
+        SELECT "heroJson", "level", "exp", "sp", "coinLuck", "name", "updatedAt"
         FROM "Character"
         WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
         FOR UPDATE
@@ -1938,6 +1944,15 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             zaricheEquipped: false,
             zaricheEquippedUntil: undefined,
           },
+        };
+      }
+      const currentRevision = Number(heroJson.heroRevision ?? 0);
+      if (currentRevision !== expectedRevision) {
+        return {
+          ok: false as const,
+          reason: "revision_conflict" as const,
+          currentRevision,
+          updatedAt: row.updatedAt,
         };
       }
 
@@ -2271,7 +2286,16 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       };
     });
 
-    if (!txRes.ok) return reply.code(404).send({ error: "character not found" });
+    if (!txRes.ok) {
+      if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+      return reply.code(409).send({
+        error: "revision_conflict",
+        message: "Character was modified by another session. Please reload and try again.",
+        currentRevision: txRes.currentRevision ?? 0,
+        updatedAt: txRes.updatedAt?.toISOString(),
+        serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+      });
+    }
 
     if (!txRes.duplicate) {
       enqueuePlayerActivityLog({

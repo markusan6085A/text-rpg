@@ -19,6 +19,8 @@ export interface BattleFinishParams {
   mobId?: string;
   /** Idempotency key for one concrete kill resolution; retries must reuse same value. */
   finishNonce?: string;
+  /** CAS guard against stale client snapshot. */
+  expectedRevision: number;
   /** true = hero had Auto Spoil / Sweep active */
   spoiled?: boolean;
   /** Zone id where the mob was killed */

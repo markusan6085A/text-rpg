@@ -295,10 +295,16 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
       const questDropItems: Array<{ id: string; count: number; name?: string; kind?: string; slot?: string; icon?: string }> = [];
       // Idempotency key: retry of the same kill must not duplicate server rewards/progress.
       const finishNonce = `${Date.now()}_${Math.floor(Math.random() * 1_000_000_000)}`;
+      const expectedRevision = Number(
+        useHeroStore.getState().serverState?.heroRevision ??
+        (updatedHero as any)?.heroJson?.heroRevision ??
+        0
+      );
 
       const finishPayload = {
         mobId: String(mob.id ?? ""),
         finishNonce,
+        expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
         spoiled: mobSpoiled,
         zoneId: zoneId,
         earnedExp: displayExp,
