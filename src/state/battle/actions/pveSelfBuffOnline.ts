@@ -11,8 +11,8 @@ import {
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
 import { filterBuffsForHeroProfession } from "../loadout";
-
-let inFlightSkillId: number | null = null;
+import { applyRevisionConflictFromApiError } from "../../heroStore";
+import { runSerializedPveMutation } from "./pveMutationQueue";
 
 function mergeCooldowns(skillId: number, def: SkillDefinition, cleaned: any[], now: number): Record<string, number> {
   const bs = battleStoreRef.getState();
@@ -43,7 +43,6 @@ export function schedulePveSelfBuffOnline(
   def: SkillDefinition,
   onFallback?: () => void
 ): void {
-  if (inFlightSkillId === skillId) return;
   const hero = useHeroStore.getState().hero;
   const cid =
     String(useCharacterStore.getState().characterId ?? "").trim() ||
@@ -55,9 +54,9 @@ export function schedulePveSelfBuffOnline(
   const expectedRevision = Number(expectedRevisionRaw);
   if (!Number.isFinite(expectedRevision) || expectedRevision < 0) return;
 
-  inFlightSkillId = skillId;
-  void pveCastSelfBuffAPI(cid, { skillId, expectedRevision })
-    .then((res) => {
+  void runSerializedPveMutation(async () => {
+    try {
+      const res = await pveCastSelfBuffAPI(cid, { skillId, expectedRevision });
       if (!res?.ok || !(res as any).character) return;
       const ch = (res as any).character;
       const hj = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, any>;
@@ -108,9 +107,9 @@ export function schedulePveSelfBuffOnline(
         },
         heroName
       );
-    })
-    .catch((e: any) => {
+    } catch (e: any) {
       const st = Number(e?.status);
+      if (st === 409) applyRevisionConflictFromApiError(e);
       if (st === 404 && typeof onFallback === "function") {
         if (import.meta.env.DEV) {
           console.warn("[pve-self-buff] 404 — fallback до локального касту (задеплойте API)");
@@ -126,8 +125,6 @@ export function schedulePveSelfBuffOnline(
         showToast("Не вдалося застосувати навик. Оновіть або спробуйте знову.", "error");
       });
       void import("../../heroStore/heroLoadAPI").then(({ loadHeroFromAPI }) => loadHeroFromAPI()).catch(() => {});
-    })
-    .finally(() => {
-      if (inFlightSkillId === skillId) inFlightSkillId = null;
-    });
+    }
+  });
 }

@@ -18,8 +18,10 @@ import {
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
 import { filterBuffsForHeroProfession } from "../loadout";
+import { runSerializedPveMutation } from "./pveMutationQueue";
 
-let inFlightSkillId: number | null = null;
+/** Жоден другий pve-battle-attack, поки попередній не завершив snapshot (разом із тіком у спільній черзі). */
+let attackRoundBusy = false;
 
 function pickCombatStatsForServer(heroStats: Record<string, any>): Record<string, number> {
   const keys = [
@@ -63,7 +65,7 @@ export function schedulePveAttackSkillOnline(args: {
   onFallback: () => void;
 }): void {
   const { skillId, def, hero, heroStats, state, cooldownDurationMs, now, onFallback } = args;
-  if (inFlightSkillId === skillId) return;
+  if (attackRoundBusy) return;
   const cid =
     String(useCharacterStore.getState().characterId ?? "").trim() ||
     String((hero as any)?.id ?? "").trim();
@@ -80,17 +82,18 @@ export function schedulePveAttackSkillOnline(args: {
     return;
   }
 
-  inFlightSkillId = skillId;
-  void pveBattleAttackAPI(cid, {
-    skillId,
-    expectedRevision,
-    heroCombatStats: pickCombatStatsForServer(heroStats),
-    skillName: def.name,
-    loadoutSlots: state.loadoutSlots,
-    activeChargeSlots: state.activeChargeSlots ?? [],
-    mobBuffs: state.mobBuffs ?? [],
-  })
-    .then((res) => {
+  attackRoundBusy = true;
+  void runSerializedPveMutation(async () => {
+    try {
+      const res = await pveBattleAttackAPI(cid, {
+        skillId,
+        expectedRevision,
+        heroCombatStats: pickCombatStatsForServer(heroStats),
+        skillName: def.name,
+        loadoutSlots: state.loadoutSlots,
+        activeChargeSlots: state.activeChargeSlots ?? [],
+        mobBuffs: state.mobBuffs ?? [],
+      });
       if (!res?.ok || !(res as any).character) return;
       const ch = (res as any).character;
       const hj = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, any>;
@@ -141,6 +144,7 @@ export function schedulePveAttackSkillOnline(args: {
 
       const heroAfter = store.hero;
       const bs = battleStoreRef.getState();
+      const stLog = bs?.log ?? [];
       const prevCd = { ...(bs?.cooldowns || {}) };
       let nextCooldowns = prevCd;
       let heroNextAttackAtOut: number | undefined;
@@ -177,7 +181,7 @@ export function schedulePveAttackSkillOnline(args: {
           ...(v.dropMessages.length > 0 ? v.dropMessages : []),
           ...(v.partyMemberLootLines.length > 0 ? v.partyMemberLootLines : []),
           ...logLines,
-          ...(bs?.log || []),
+          ...stLog,
         ].filter((msg): msg is string => msg != null);
 
         const victoryLogTrim = victoryLog.slice(0, 30);
@@ -225,7 +229,7 @@ export function schedulePveAttackSkillOnline(args: {
         return;
       }
 
-      const mergedLog = [...logLines, ...(bs?.log || [])].slice(0, 30);
+      const mergedLog = [...logLines, ...stLog].slice(0, 30);
       const nextHeroBuffs = cleanupBuffs(
         Array.isArray((heroAfter as any).heroJson?.heroBuffs)
           ? ((heroAfter as any).heroJson.heroBuffs as any[])
@@ -255,8 +259,7 @@ export function schedulePveAttackSkillOnline(args: {
         } as any,
         heroName
       );
-    })
-    .catch((e: any) => {
+    } catch (e: any) {
       const st = Number(e?.status);
       if (st === 409) applyRevisionConflictFromApiError(e);
       const code = String(e?.body?.error ?? "");
@@ -304,8 +307,8 @@ export function schedulePveAttackSkillOnline(args: {
         showToast("Не вдалося застосувати удар. Спробуйте знову або оновіть гру.", "error");
       });
       void import("../../heroStore/heroLoadAPI").then(({ loadHeroFromAPI }) => loadHeroFromAPI()).catch(() => {});
-    })
-    .finally(() => {
-      if (inFlightSkillId === skillId) inFlightSkillId = null;
-    });
+    } finally {
+      attackRoundBusy = false;
+    }
+  });
 }

@@ -11,8 +11,11 @@ import {
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
 import { filterBuffsForHeroProfession } from "../loadout";
+import { applyRevisionConflictFromApiError } from "../../heroStore";
+import { runSerializedPveMutation } from "./pveMutationQueue";
 
-let tickInFlight = false;
+/** Другий тік не ставимо в чергу — один «інтент» за раз (наступний інтервал спробує знову). */
+let tickScheduleBusy = false;
 
 function pickDefenseStatsForServer(heroStats: Record<string, any>): Record<string, number> {
   const keys = ["pDef", "mDef", "evasion", "invulnerable", "damageTakenReduction"];
@@ -58,7 +61,7 @@ function mergeServerBattleControl(
  * Серверний крок удару моба. При помилці — тихий fallback на локальний processMobAttack через виклик з Layout.
  */
 export function schedulePveMobTickOnline(): void {
-  if (tickInFlight) return;
+  if (tickScheduleBusy) return;
 
   const hero = useHeroStore.getState().hero;
   const token = useAuthStore.getState().accessToken;
@@ -72,18 +75,19 @@ export function schedulePveMobTickOnline(): void {
   const sess = hj.battleSession;
   if (!sess || Number(sess.v) !== 1) return;
 
-  tickInFlight = true;
+  tickScheduleBusy = true;
   const expectedRevisionRaw =
     useHeroStore.getState().serverState?.heroRevision ?? hj.heroRevision ?? 0;
   const expectedRevision = Number(expectedRevisionRaw);
 
   const heroStats = applyBuffsToStats(hero.battleStats || {}, bs.heroBuffs || []);
 
-  void pveBattleTickAPI(cid, {
-    expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
-    heroDefenseStats: pickDefenseStatsForServer(heroStats as any),
-  })
-    .then((res) => {
+  void runSerializedPveMutation(async () => {
+    try {
+      const res = await pveBattleTickAPI(cid, {
+        expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+        heroDefenseStats: pickDefenseStatsForServer(heroStats as any),
+      });
       if (battleStoreRef.getState()?.status !== "fighting") return;
       if (!res?.ok || !(res as any).character) return;
       const ch = (res as any).character;
@@ -127,7 +131,8 @@ export function schedulePveMobTickOnline(): void {
       const now = Date.now();
       const mobNextAt = now + 1000 + Math.random() * 5000;
       const heroName = store.hero?.name;
-      const nextLog = [...logLines, ...(bs.log || [])].slice(0, 30);
+      const stLog = battleStoreRef.getState()?.log ?? [];
+      const nextLog = [...logLines, ...stLog].slice(0, 30);
       const bcRaw = (res as any).battleControl;
       const bc =
         bcRaw && typeof bcRaw === "object"
@@ -189,9 +194,11 @@ export function schedulePveMobTickOnline(): void {
           ...controlPatch,
         } as any, heroName);
       }
-    })
-    .catch((e: any) => {
+    } catch (e: any) {
       const code = String(e?.body?.error ?? "");
+      if (Number(e?.status) === 409) {
+        applyRevisionConflictFromApiError(e);
+      }
       if (code === "no_battle_session" || code === "mob_dead") {
         const store = useHeroStore.getState();
         const h = store.hero;
@@ -229,10 +236,10 @@ export function schedulePveMobTickOnline(): void {
       if (battleStoreRef.getState()?.status === "fighting") {
         void import("../../heroStore/heroLoadAPI").then(({ loadHeroFromAPI }) => loadHeroFromAPI()).catch(() => {});
       }
-    })
-    .finally(() => {
-      tickInFlight = false;
-    });
+    } finally {
+      tickScheduleBusy = false;
+    }
+  });
 }
 
 export function shouldUsePveServerMobTick(): boolean {

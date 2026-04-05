@@ -27,6 +27,7 @@ import {
   mergeServerAndClientBuffsForResourceScaling,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
+import { runSerializedPveMutation } from "./pveMutationQueue";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -335,58 +336,60 @@ export const createStartBattle =
     let serverSessionMobHp: number | null = null;
     if (!isFishingZone) {
       try {
-        const { battleStartAPI } = await import("../../../utils/api/characters");
-        const { useCharacterStore } = await import("../../characterStore");
-        const cid = String(useCharacterStore.getState().characterId ?? "").trim();
-        const hj0 = ((hero as any)?.heroJson || {}) as Record<string, any>;
-        const revRaw =
-          useHeroStore.getState().serverState?.heroRevision ?? hj0.heroRevision ?? 0;
-        const rev = Number(revRaw);
-        const isRb = (mob as any).isRaidBoss === true;
-        const rawAi =
-          isRb && typeof (mob as any).aiProfileId === "string"
-            ? String((mob as any).aiProfileId).trim()
-            : "";
-        const ch = await battleStartAPI(cid, {
-          expectedRevision: Number.isFinite(rev) && rev >= 0 ? rev : 0,
-          zoneId,
-          mobIndex,
-          mobId: mob.id,
-          clientMobMaxHp: getMobEffectiveMaxHp(mob),
-          mobIsRaidBoss: isRb,
-          raidAiProfileId: rawAi || undefined,
-          mobIsEpicRaidBoss: isRb && (mob as any).isEpicRaidBoss === true,
-        });
-        const hj = (ch as any)?.heroJson && typeof (ch as any).heroJson === "object" ? (ch as any).heroJson : {};
-        const store = useHeroStore.getState();
-        const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
-        const buffsForScale = cleanupBuffs(
-          filterBuffsForHeroProfession(
-            hero,
-            mergeServerAndClientBuffsForResourceScaling((hj as any).heroBuffs, savedBuffs),
-          ),
-          now,
-        );
-        const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj as Record<string, any>, buffsForScale, now);
-        store.applyServerSync(
-          {
-            hp: scaledRes.hp,
-            mp: scaledRes.mp,
-            cp: scaledRes.cp,
-            heroJson: { ...prevHj, ...hj },
-          } as any,
-          {
-            heroRevision: (hj as any).heroRevision,
-            updatedAt: (ch as any).updatedAt ? new Date((ch as any).updatedAt).getTime() : Date.now(),
+        await runSerializedPveMutation(async () => {
+          const { battleStartAPI } = await import("../../../utils/api/characters");
+          const { useCharacterStore } = await import("../../characterStore");
+          const cid = String(useCharacterStore.getState().characterId ?? "").trim();
+          const hj0 = ((hero as any)?.heroJson || {}) as Record<string, any>;
+          const revRaw =
+            useHeroStore.getState().serverState?.heroRevision ?? hj0.heroRevision ?? 0;
+          const rev = Number(revRaw);
+          const isRb = (mob as any).isRaidBoss === true;
+          const rawAi =
+            isRb && typeof (mob as any).aiProfileId === "string"
+              ? String((mob as any).aiProfileId).trim()
+              : "";
+          const ch = await battleStartAPI(cid, {
+            expectedRevision: Number.isFinite(rev) && rev >= 0 ? rev : 0,
+            zoneId,
+            mobIndex,
+            mobId: mob.id,
+            clientMobMaxHp: getMobEffectiveMaxHp(mob),
+            mobIsRaidBoss: isRb,
+            raidAiProfileId: rawAi || undefined,
+            mobIsEpicRaidBoss: isRb && (mob as any).isEpicRaidBoss === true,
+          });
+          const hj = (ch as any)?.heroJson && typeof (ch as any).heroJson === "object" ? (ch as any).heroJson : {};
+          const store = useHeroStore.getState();
+          const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
+          const buffsForScale = cleanupBuffs(
+            filterBuffsForHeroProfession(
+              hero,
+              mergeServerAndClientBuffsForResourceScaling((hj as any).heroBuffs, savedBuffs),
+            ),
+            now,
+          );
+          const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj as Record<string, any>, buffsForScale, now);
+          store.applyServerSync(
+            {
+              hp: scaledRes.hp,
+              mp: scaledRes.mp,
+              cp: scaledRes.cp,
+              heroJson: { ...prevHj, ...hj },
+            } as any,
+            {
+              heroRevision: (hj as any).heroRevision,
+              updatedAt: (ch as any).updatedAt ? new Date((ch as any).updatedAt).getTime() : Date.now(),
+            }
+          );
+          heroForBattle = useHeroStore.getState().hero ?? hero;
+          const sessHp = Number((ch as any)?.sessionMobHp);
+          if (Number.isFinite(sessHp) && sessHp > 0) serverSessionMobHp = sessHp;
+          else {
+            const sess = (heroForBattle as any)?.heroJson?.battleSession;
+            if (sess && typeof sess.mobHP === "number" && sess.mobHP > 0) serverSessionMobHp = sess.mobHP;
           }
-        );
-        heroForBattle = useHeroStore.getState().hero ?? hero;
-        const sessHp = Number((ch as any)?.sessionMobHp);
-        if (Number.isFinite(sessHp) && sessHp > 0) serverSessionMobHp = sessHp;
-        else {
-          const sess = (heroForBattle as any)?.heroJson?.battleSession;
-          if (sess && typeof sess.mobHP === "number" && sess.mobHP > 0) serverSessionMobHp = sess.mobHP;
-        }
+        });
       } catch (e: any) {
         if (e?.status !== 404) {
           set({

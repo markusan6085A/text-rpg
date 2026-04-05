@@ -26,6 +26,7 @@ import { battleStoreRef } from "../battleStoreRef";
 import { itemsDB } from "../../data/items/itemsDB";
 import { cleanupBuffs, mergeServerHeroBuffsRespectLocalToggleOff } from "./helpers";
 import { persistBattle, loadBattle } from "./persist";
+import { runSerializedPveMutation } from "./actions/pveMutationQueue";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -315,7 +316,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
   // 1. battle-finish: server calculates real drops, saves exp/sp/adena/inventory atomically
   // 2. quest drops (client-calculated) are sent to server to be added to inventory
   // 3. On response: apply server's heroJson.inventory to replace optimistic state
-  void (async () => {
+  void runSerializedPveMutation(async () => {
     try {
       const updatedHero = heroSnapshotForFinish ?? useHeroStore.getState().hero;
       if (!updatedHero) return;
@@ -620,7 +621,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         })
         .catch(() => {});
     }
-  })();
+  });
 
   let partyMemberLootLines: string[] = [];
   if (partyLogMeta?.heroId) {
