@@ -119,6 +119,8 @@ function buildBackupHeroJson(hero: Hero): Record<string, unknown> {
     ...(() => {
       const widRaw = (hero as any).id;
       const wid = typeof widRaw === "string" && String(widRaw).trim().length > 0 ? String(widRaw).trim() : "";
+      const fromHeroJson = (hero as any)?.heroJson?.warehouseSlots;
+      if (Array.isArray(fromHeroJson)) return { warehouseSlots: fromHeroJson };
       if (!wid) return {};
       return { warehouseSlots: loadWarehouse(wid, hero.name) };
     })(),
@@ -575,12 +577,14 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       battleLoadoutSlots: loadLoadout(hero.name),
       // Клієнтський склад (localStorage) — дублюємо в heroJson, щоб F5 / очищення cookie не губили речі
       warehouseSlots: (() => {
+        const fromHeroJson = (hero as any)?.heroJson?.warehouseSlots;
+        if (Array.isArray(fromHeroJson)) return fromHeroJson;
+        const fromExisting = (existingHeroJson as any)?.warehouseSlots;
+        if (Array.isArray(fromExisting)) return fromExisting;
         const cid = characterStore.characterId || (hero as any).id;
         const wid = typeof cid === "string" && String(cid).trim().length > 0 ? String(cid).trim() : "";
         if (wid) return loadWarehouse(wid, hero.name);
-        return Array.isArray((existingHeroJson as any).warehouseSlots)
-          ? (existingHeroJson as any).warehouseSlots
-          : [];
+        return [];
       })(),
     };
     

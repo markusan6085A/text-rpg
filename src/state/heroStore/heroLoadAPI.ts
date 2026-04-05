@@ -759,6 +759,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           adena: finalAdenaPreferred,
           inventory: consolidatedInv,
           overflowChest: mergedOverflowPreferred,
+          warehouseSlots: Array.isArray((serverHeroJson as any)?.warehouseSlots)
+            ? (serverHeroJson as any).warehouseSlots
+            : (Array.isArray((prevMergedHj as any)?.warehouseSlots) ? (prevMergedHj as any).warehouseSlots : []),
           tvtCoins: mergedTvtPreferred,
           tvt_coins: mergedTvtPreferred,
         };
