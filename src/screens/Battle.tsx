@@ -15,7 +15,10 @@ import { useCityUiVariant } from "../utils/cityUiVariant";
 import { displayMobName } from "../utils/worldDisplay";
 import { useGameSettingsVersion } from "../hooks/useGameSettingsVersion";
 import { clearDeathGate } from "../utils/deathGate";
-import { formatLootIntEn } from "../state/battle/helpers/victoryLootLogLines";
+import {
+  formatLootIntEn,
+  extractVictoryLootLinesForPanel,
+} from "../state/battle/helpers/victoryLootLogLines";
 import { flushWorldMobHpSyncAsync } from "../state/worldMobHpStore";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import { filterBuffsForHeroProfession } from "../state/battle/loadout";
@@ -484,6 +487,8 @@ export default function Battle({ navigate }: BattleProps) {
       ? "text-left text-[12px] py-0.5 text-slate-500 hover:text-cyan-300 bg-transparent border-0 cursor-pointer w-fit transition-colors"
       : textHitNextL2;
 
+    const { lootLines, logWithoutLoot } = extractVictoryLootLinesForPanel(log);
+
     const victoryContent = (
       <>
         {isModernBattle ? (
@@ -541,6 +546,17 @@ export default function Battle({ navigate }: BattleProps) {
                     Бить следующего!
                   </button>
                 </div>
+                {lootLines.length > 0 ? (
+                  <div
+                    className={`mt-3 space-y-1 pt-2 ${victoryInnerDivider} text-[12px] leading-relaxed text-left ${
+                      isBattleTest ? "text-emerald-300/95" : "text-[#8fd99a]"
+                    }`}
+                  >
+                    {lootLines.map((line, idx) => (
+                      <div key={`vloot-${idx}`}>{line}</div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
           </>
@@ -586,6 +602,13 @@ export default function Battle({ navigate }: BattleProps) {
                     Бить следующего!
                   </button>
                 </div>
+                {lootLines.length > 0 ? (
+                  <div className="mt-3 space-y-1 border-t border-[#c7ad80]/25 pt-3 text-[12px] text-[#8fd99a] leading-relaxed text-left">
+                    {lootLines.map((line, idx) => (
+                      <div key={`vloot-cl-${idx}`}>{line}</div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
           </>
@@ -621,7 +644,7 @@ export default function Battle({ navigate }: BattleProps) {
                 isBattleTest ? "text-slate-300" : "text-[#d4c4a8]"
               }`}
             >
-              <BattleLog noBorder maxLines={18} />
+              <BattleLog noBorder maxLines={40} lines={logWithoutLoot} />
             </div>
           </div>
           <div className="mt-3 flex justify-center">

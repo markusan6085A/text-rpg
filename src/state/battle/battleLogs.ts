@@ -2,6 +2,8 @@
 import { getJSON, setJSON, removeItem } from "../persistence";
 
 const BATTLE_LOGS_KEY = "l2_battle_logs";
+/** Скільки рядків логу зберігаємо в persist/localStorage між боями (раніше 10 — історія зникала). */
+export const BATTLE_LOG_MAX_LINES = 80;
 const BATTLE_LOGS_MAX_COUNT = 10;
 const BATTLE_LOGS_TTL_MS = 5 * 60 * 1000; // 5 хвилин
 
@@ -25,7 +27,7 @@ export function saveBattleLogs(logs: string[], heroName?: string | null): void {
     const now = Date.now();
     const newEntry: BattleLogEntry = {
       timestamp: now,
-      logs: logs.slice(0, BATTLE_LOGS_MAX_COUNT), // Обмежуємо до 10 логів
+      logs: logs.slice(0, BATTLE_LOG_MAX_LINES),
     };
 
     let entries: BattleLogEntry[] = [];

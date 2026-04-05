@@ -23,7 +23,8 @@ import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
 import type { BattleState, CooldownMap } from "../types";
 import { isMobOnRespawn, getRespawnTimeRemaining, clearMobRespawn } from "../mobRespawns";
 import { itemsDB } from "../../../data/items/itemsDB";
-import { loadBattleLogs, saveBattleLogs } from "../battleLogs";
+import { loadBattleLogs, BATTLE_LOG_MAX_LINES } from "../battleLogs";
+import { sanitizeLine } from "../helpers/persist";
 import { savePreviousCity } from "../../../utils/locationNavigation";
 import { displayMobName } from "../../../utils/worldDisplay";
 import {
@@ -476,17 +477,24 @@ export const createStartBattle =
     let preservedSummon = savedSummon || prevSummon;
     if (classOrLoadoutMismatch) preservedSummon = null;
     
-    // 🔥 Завантажуємо збережені логи бою (останні 10 протягом 5 хвилин)
-    const savedLogs = loadBattleLogs(heroName);
+    // Ланцюг боїв: не скидати лог. Раніше брали лише loadBattleLogs (≤10 рядків з persist) і ще slice(0,10) —
+    // зникали перемога/дроп; дубль «Бій розпочато» при повторному виклику й той самий рядок.
     const battleStartLine = `Бій розпочато: [${displayMobName(mob.name)}] (ур. ${mob.level ?? 1})`;
-
-    // Зберігаємо попередній лог, додаючи новий запис про початок бою
-    // Спочатку перевіряємо savedLogs, потім prevState.log, потім новий запис
-    const preservedLog = savedLogs.length > 0
-      ? [battleStartLine, ...savedLogs].slice(0, 10)
-      : prevState.log && prevState.log.length > 0
-      ? [battleStartLine, ...prevState.log].slice(0, 10)
-      : [battleStartLine];
+    const storedLogs = loadBattleLogs(heroName);
+    const liveLines = Array.isArray(get().log)
+      ? (get().log as unknown[])
+          .filter((l): l is string => typeof l === "string")
+          .map((l) => sanitizeLine(l))
+      : [];
+    const baseLog =
+      liveLines.length > 0 ? liveLines : storedLogs.length > 0 ? storedLogs : [];
+    const preservedLog =
+      baseLog.length > 0
+        ? (baseLog[0] === battleStartLine ? baseLog : [battleStartLine, ...baseLog]).slice(
+            0,
+            BATTLE_LOG_MAX_LINES,
+          )
+        : [battleStartLine];
     
     // 🔥 Оновлюємо location в heroJson при зміні локації (для відображення в профілі)
     if (heroForBattle && zone) {

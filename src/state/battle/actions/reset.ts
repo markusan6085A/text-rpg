@@ -1,4 +1,5 @@
 import { clearBattlePersist, persistBattle } from "../persist";
+import { BATTLE_LOG_MAX_LINES } from "../battleLogs";
 import type { BattleState } from "../types";
 import { BASE_ATTACK } from "../loadout";
 import { useHeroStore } from "../../heroStore";
@@ -56,7 +57,7 @@ export const createReset =
       heroSkillsBlockedUntil: undefined, // Скидаємо блокування скілів при reset
       heroNextAttackAt: undefined,
       status: "idle",
-      log: prev.log?.slice(0, 10) ?? [],
+      log: prev.log?.slice(0, BATTLE_LOG_MAX_LINES) ?? [],
       cooldowns: cooldownsToSave,
       loadoutSlots: loadoutSlotsToSave,
       activeChargeSlots: activeChargeSlotsToSave, // Заряди не скидаємо
@@ -82,7 +83,7 @@ export const createReset =
       heroBuffs: heroBuffsToSave,
       loadoutSlots: loadoutSlotsToSave,
       activeChargeSlots: activeChargeSlotsToSave,
-      log: prev.log?.slice(0, 10) ?? [],
+      log: prev.log?.slice(0, BATTLE_LOG_MAX_LINES) ?? [],
       summon: aliveSummon,
       summonBuffs: summonBuffsToSave,
       baseSummonStats: baseSummonStatsToSave,

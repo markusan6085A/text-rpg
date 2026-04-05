@@ -1,5 +1,5 @@
 import type { BattleState } from "../types";
-import { saveBattleLogs } from "../battleLogs";
+import { saveBattleLogs, BATTLE_LOG_MAX_LINES } from "../battleLogs";
 import { getMobEffectiveMaxHp } from "../../../utils/mobs/mobEffectiveMaxHp";
 import { scheduleWorldMobHpSync } from "../../worldMobHpStore";
 
@@ -14,7 +14,7 @@ export const sanitizeLog = (lines: unknown): string[] => {
   return (lines as unknown[])
     .filter((l) => typeof l === "string")
     .map((l) => sanitizeLine(l as string))
-    .slice(0, 10) as string[]; // 🔥 Обмежуємо до 10 логів
+    .slice(0, BATTLE_LOG_MAX_LINES) as string[];
 };
 
 export const persistSnapshot = (
@@ -35,7 +35,7 @@ export const persistSnapshot = (
   
   const sanitizedLog = sanitizeLog(merged.log);
   
-  // 🔥 Зберігаємо логи бою в окреме місце для відновлення після виходу з бою (10 логів протягом 5 хвилин)
+  // Зберігаємо логи бою для відновлення після виходу з бою (див. BATTLE_LOG_MAX_LINES у battleLogs.ts; TTL 5 хв).
   if (sanitizedLog.length > 0) {
     saveBattleLogs(sanitizedLog, heroName);
   }
