@@ -33,6 +33,7 @@ import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { useAuthStore } from "../../state/authStore";
 import { useBattleStore } from "../../state/battle/store";
 import { commitEquipStateAPI } from "../../utils/api/equipAPI";
+import { getMaxResources } from "../../state/battle/helpers/getMaxResources";
 
 const ITEMS_PER_PAGE = 25;
 // Валюта в полях героя — у списку інвентаря не дублюємо. Ancient Adena лише в інвентарі (стек) — показуємо.
@@ -319,11 +320,15 @@ export default function Inventory() {
             (live as any)?.heroJson?.heroRevision ??
             0
           );
+          const caps = getMaxResources(live as any);
           const legacyRes = await commitEquipStateAPI({
             equipment: (live as any).equipment ?? {},
             inventory: inv,
             equipmentEnchantLevels: (live as any).equipmentEnchantLevels ?? {},
             expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+            baseMaxHp: caps.maxHp,
+            baseMaxMp: caps.maxMp,
+            baseMaxCp: caps.maxCp,
           });
           if ((legacyRes as any).character) applyCharacterSnapshotFromApi((legacyRes as any).character);
           else applyHeroJsonSnapshotFromApi((legacyRes as any).heroJson);

@@ -19,6 +19,7 @@ import { showToast } from "./toastStore";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { isStackableHeroItem } from "./heroStore/inventoryOverflow";
 import { maxRevisionFromConflictBody } from "../utils/revisionConflictBody";
+import { getMaxResources } from "./battle/helpers/getMaxResources";
 
 export const INVENTORY_MAX_ITEMS = 100;
 export const INVENTORY_ABSOLUTE_MAX = 500;
@@ -669,11 +670,15 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         (get().hero as any)?.heroJson?.heroRevision ??
         0
       );
+      const caps = getMaxResources(updated as any);
       commitEquipStateAPI({
         equipment: updated.equipment as Record<string, any>,
         inventory: updated.inventory,
         equipmentEnchantLevels: (updated.equipmentEnchantLevels ?? {}) as Record<string, number>,
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+        baseMaxHp: caps.maxHp,
+        baseMaxMp: caps.maxMp,
+        baseMaxCp: caps.maxCp,
       }).then((result) => {
         if (result.ok && (result as any).character) {
           applyCharacterSnapshotFromApi((result as any).character);
@@ -704,11 +709,15 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         (get().hero as any)?.heroJson?.heroRevision ??
         0
       );
+      const caps = getMaxResources(updated as any);
       commitEquipStateAPI({
         equipment: updated.equipment as Record<string, any>,
         inventory: updated.inventory,
         equipmentEnchantLevels: (updated.equipmentEnchantLevels ?? {}) as Record<string, number>,
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+        baseMaxHp: caps.maxHp,
+        baseMaxMp: caps.maxMp,
+        baseMaxCp: caps.maxCp,
       }).then((result) => {
         if (result.ok && (result as any).character) {
           applyCharacterSnapshotFromApi((result as any).character);
@@ -931,6 +940,18 @@ export function applyCharacterSnapshotFromApi(character: unknown, opts?: ApplyCh
   if (nextNick) {
     partial.nickColor = nextNick;
     heroJson.nickColor = nextNick;
+  }
+
+  for (const [key, fromChar] of [
+    ["baseMaxHp", c.baseMaxHp],
+    ["baseMaxMp", c.baseMaxMp],
+    ["baseMaxCp", c.baseMaxCp],
+  ] as const) {
+    if (fromChar == null) continue;
+    const v = Math.floor(Number(fromChar));
+    if (!Number.isFinite(v) || v < 1) continue;
+    (partial as any)[key] = v;
+    heroJson[key] = v;
   }
 
   store.applyServerSync(partial, {

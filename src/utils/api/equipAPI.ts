@@ -18,6 +18,10 @@ export async function commitEquipStateAPI(params: {
   inventory: any[];
   equipmentEnchantLevels: Record<string, number>;
   expectedRevision: number;
+  /** Base max (level + equip, без бафів) — оновлює колонки Character.baseMax* на сервері */
+  baseMaxHp?: number;
+  baseMaxMp?: number;
+  baseMaxCp?: number;
 }): Promise<EquipCommitResult> {
   const characterId = useCharacterStore.getState().characterId;
   if (!characterId) throw new Error("no character id");

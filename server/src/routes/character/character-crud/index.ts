@@ -34,6 +34,12 @@ import { applyPveBattleAttackSnapshot } from "../../../pveBattle/applyPveBattleA
 import { applyPveMobTickSnapshot } from "../../../pveBattle/applyPveMobTick";
 import { applyPveMobDebuffSnapshot } from "../../../pveBattle/applyPveMobDebuff";
 import { applyPveConsumableUseSnapshot } from "../../../pveBattle/applyPveConsumableUse";
+import {
+  attachBaseResourcesForApi,
+  coerceBaseResourceTriplet,
+  deriveBaseResourceColumnsFromHeroJson,
+  injectColumnBaseResourcesIntoHeroJson,
+} from "../../../utils/characterBaseResources";
 
 function getExpToNext(level: number): number {
   const lvl = Math.max(1, Math.min(MAX_LEVEL, Number(level) || 1));
@@ -91,12 +97,15 @@ const BATTLE_FINISH_CHARACTER_SELECT = {
   coinsSilver: true,
   heroJson: true,
   nickColor: true,
+  baseMaxHp: true,
+  baseMaxMp: true,
+  baseMaxCp: true,
   createdAt: true,
   updatedAt: true,
 } as const;
 
 function serializeBattleFinishCharacterRow(c: Record<string, any>) {
-  return {
+  return attachBaseResourcesForApi({
     ...c,
     exp: Number(c.exp ?? 0),
     adena: Number(c.adena ?? 0),
@@ -104,7 +113,7 @@ function serializeBattleFinishCharacterRow(c: Record<string, any>) {
     sp: Number(c.sp ?? 0),
     coinLuck: Number(c.coinLuck ?? 0),
     coinsSilver: Number(c.coinsSilver ?? 0),
-  };
+  });
 }
 
 type ServerShopCatalogEntry = {
@@ -368,6 +377,9 @@ const CLIENT_PUT_HEROJSON_ALLOWLIST = new Set<string>([
   "pvpKills",
   /** Косметика ніка (те саме що POST /colorize-nick); колонка Character.nickColor синхронізується при PUT. */
   "nickColor",
+  "baseMaxHp",
+  "baseMaxMp",
+  "baseMaxCp",
 ]);
 
 const CLIENT_PUT_HEROJSON_DENYLIST = new Set<string>([
@@ -862,14 +874,14 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     }
 
     const updated = txRes.updated;
-    const serialized = {
+    const serialized = attachBaseResourcesForApi({
       ...updated,
       exp: Number(updated.exp),
       adena: Number(updated.adena ?? 0),
       aa: Number(updated.aa ?? 0),
       coinLuck: Number(updated.coinLuck ?? 0),
       coinsSilver: Number(updated.coinsSilver ?? 0),
-    };
+    });
 
     enqueuePlayerActivityLog({
       accountId: auth.accountId,
@@ -980,14 +992,14 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     }
 
     const updated = txRes.updated;
-    const serialized = {
+    const serialized = attachBaseResourcesForApi({
       ...updated,
       exp: Number(updated.exp),
       adena: Number(updated.adena ?? 0),
       aa: Number(updated.aa ?? 0),
       coinLuck: Number(updated.coinLuck ?? 0),
       coinsSilver: Number(updated.coinsSilver ?? 0),
-    };
+    });
 
     enqueuePlayerActivityLog({
       accountId: auth.accountId,
@@ -1727,6 +1739,28 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         id,
         accountId: auth.accountId,
       },
+      select: {
+        id: true,
+        accountId: true,
+        name: true,
+        race: true,
+        classId: true,
+        sex: true,
+        level: true,
+        exp: true,
+        sp: true,
+        adena: true,
+        aa: true,
+        coinLuck: true,
+        coinsSilver: true,
+        heroJson: true,
+        nickColor: true,
+        baseMaxHp: true,
+        baseMaxMp: true,
+        baseMaxCp: true,
+        updatedAt: true,
+        createdAt: true,
+      },
     });
 
     if (!existing) return reply.code(404).send({ error: "character not found" });
@@ -1749,16 +1783,24 @@ export async function characterCrudRoutes(app: FastifyInstance) {
               classId: string;
               heroJson: any;
               updatedAt: Date;
+              baseMaxHp: number;
+              baseMaxMp: number;
+              baseMaxCp: number;
             }>
           >`
-            SELECT "id", "name", "race", "classId", "heroJson", "updatedAt"
+            SELECT "id", "name", "race", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
             FROM "Character"
             WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
             FOR UPDATE
           `;
           if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
           const row0 = locked[0];
-          const oldHj = (row0.heroJson as any) || {};
+          const dbCols = coerceBaseResourceTriplet({
+            baseMaxHp: row0.baseMaxHp,
+            baseMaxMp: row0.baseMaxMp,
+            baseMaxCp: row0.baseMaxCp,
+          });
+          const oldHj = injectColumnBaseResourcesIntoHeroJson((row0.heroJson as any) || {}, dbCols);
           const currentRev = Number(oldHj.heroRevision ?? 0);
           if (currentRev !== expectedRevisionSync) {
             return {
@@ -1820,18 +1862,21 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinLuck: true,
             coinsSilver: true,
             heroJson: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             updatedAt: true,
           },
         });
         if (!updatedAfterSync) return reply.code(404).send({ error: "character not found" });
-        const serializedSync = {
+        const serializedSync = attachBaseResourcesForApi({
           ...updatedAfterSync,
           exp: Number(updatedAfterSync.exp),
           adena: Number((updatedAfterSync as any).adena ?? 0),
           aa: Number((updatedAfterSync as any).aa ?? 0),
           coinLuck: Number((updatedAfterSync as any).coinLuck ?? 0),
           coinsSilver: Number((updatedAfterSync as any).coinsSilver ?? 0),
-        };
+        });
         return { ok: true, character: serializedSync };
       } catch (e) {
         app.log.error(e, "[PUT /characters/:id] syncHeroBuffs");
@@ -2058,7 +2103,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         const clientPremiumUntil =
           heroJsonMergedTvt.premiumUntil != null ? Number(heroJsonMergedTvt.premiumUntil) : oldPremiumUntil;
         const clampedPremiumUntil = Math.min(clientPremiumUntil, oldPremiumUntil);
-        const heroJsonToSave = { ...heroJsonMergedTvt, premiumUntil: clampedPremiumUntil };
+        let heroJsonToSave: Record<string, any> = { ...heroJsonMergedTvt, premiumUntil: clampedPremiumUntil };
 
         // ── Захист від ін'єкції екіпу/броні/зброї через heroJson ──────────────────
         // equipment та equipmentEnchantLevels — завжди беремо з БД (не з клієнта).
@@ -2099,6 +2144,17 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         // ── Online-authoritative інвентар ───────────────────────────────────────
         // inventory / overflowChest не приймаємо з клієнтського PUT.
         // Зміни предметів мають приходити лише через server-authoritative mutation endpoints.
+
+        const dbColsPut = coerceBaseResourceTriplet({
+          baseMaxHp: (existing as any).baseMaxHp,
+          baseMaxMp: (existing as any).baseMaxMp,
+          baseMaxCp: (existing as any).baseMaxCp,
+        });
+        const derivedColsPut = deriveBaseResourceColumnsFromHeroJson(heroJsonToSave, dbColsPut);
+        heroJsonToSave = injectColumnBaseResourcesIntoHeroJson(heroJsonToSave, derivedColsPut);
+        (updateData as any).baseMaxHp = derivedColsPut.baseMaxHp;
+        (updateData as any).baseMaxMp = derivedColsPut.baseMaxMp;
+        (updateData as any).baseMaxCp = derivedColsPut.baseMaxCp;
 
         const invariantResult = enforceCharacterMutationInvariants({
           heroJson: heroJsonToSave,
@@ -2233,6 +2289,21 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             params.push((updateData as any).nickColor);
             paramIndex++;
           }
+          if ((updateData as any).baseMaxHp !== undefined) {
+            setParts.push(`"baseMaxHp" = $${paramIndex}`);
+            params.push((updateData as any).baseMaxHp);
+            paramIndex++;
+          }
+          if ((updateData as any).baseMaxMp !== undefined) {
+            setParts.push(`"baseMaxMp" = $${paramIndex}`);
+            params.push((updateData as any).baseMaxMp);
+            paramIndex++;
+          }
+          if ((updateData as any).baseMaxCp !== undefined) {
+            setParts.push(`"baseMaxCp" = $${paramIndex}`);
+            params.push((updateData as any).baseMaxCp);
+            paramIndex++;
+          }
           if (updateData.lastActivityAt) {
             setParts.push(`"lastActivityAt" = $${paramIndex}`);
             params.push(updateData.lastActivityAt);
@@ -2277,6 +2348,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
               coinsSilver: true,
               heroJson: true,
               nickColor: true,
+              baseMaxHp: true,
+              baseMaxMp: true,
+              baseMaxCp: true,
               updatedAt: true,
             },
           });
@@ -2333,20 +2407,23 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinsSilver: true,
             heroJson: true,
             nickColor: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             updatedAt: true,
           },
         });
       }
     }
 
-    const serialized = {
+    const serialized = attachBaseResourcesForApi({
       ...updated,
       exp: Number(updated.exp),
       adena: Number((updated as any).adena ?? 0),
       aa: Number((updated as any).aa ?? 0),
       coinLuck: Number((updated as any).coinLuck ?? 0),
       coinsSilver: Number((updated as any).coinsSilver ?? 0),
-    };
+    });
 
     if (updateData.heroJson && updated) {
       const newHj = (updated.heroJson || {}) as Record<string, unknown>;
@@ -2491,6 +2568,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             aa: true,
             coinLuck: true,
             heroJson: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -2633,6 +2713,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinLuck: true,
             coinsSilver: true,
             heroJson: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -2776,6 +2859,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinLuck: true,
             coinsSilver: true,
             heroJson: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -3352,9 +3438,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           coinLuck: bigint;
           name: string;
           updatedAt: Date;
+          baseMaxHp: number;
+          baseMaxMp: number;
+          baseMaxCp: number;
         }>
       >`
-        SELECT "heroJson", "level", "exp", "sp", "coinLuck", "name", "updatedAt"
+        SELECT "heroJson", "level", "exp", "sp", "coinLuck", "name", "updatedAt",
+          "baseMaxHp", "baseMaxMp", "baseMaxCp"
         FROM "Character"
         WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
         FOR UPDATE
@@ -3369,7 +3459,12 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         name: String(row.name ?? ""),
       };
 
-      const heroJson: any = (row.heroJson as any) || {};
+      const dbColsBf = coerceBaseResourceTriplet({
+        baseMaxHp: row.baseMaxHp,
+        baseMaxMp: row.baseMaxMp,
+        baseMaxCp: row.baseMaxCp,
+      });
+      let heroJson: any = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, dbColsBf);
       const finishNonce =
         typeof body.finishNonce === "string" ? body.finishNonce.trim().slice(0, 120) : "";
       if (finishNonce && String(heroJson.lastBattleFinishNonce ?? "") === finishNonce) {
@@ -3492,6 +3587,15 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       // heroBuffs: PUT їх не приймає — єдиний масовий шлях після бою. Клієнт шле знімок з бою (toggle on/off).
       if (Object.prototype.hasOwnProperty.call(patch, "heroBuffs")) {
         newHeroJson.heroBuffs = sanitizeBattleFinishHeroBuffs(patch.heroBuffs);
+      }
+      for (const [key, field] of [
+        ["baseMaxHp", "baseMaxHp"],
+        ["baseMaxMp", "baseMaxMp"],
+        ["baseMaxCp", "baseMaxCp"],
+      ] as const) {
+        if (!Object.prototype.hasOwnProperty.call(patch, key)) continue;
+        const v = Math.floor(Number((patch as any)[key]));
+        if (Number.isFinite(v) && v >= 1) (newHeroJson as any)[field] = v;
       }
     } else {
       const current = Math.max(0, Math.floor(Number(newHeroJson.mobsKilled ?? 0)));
@@ -3695,18 +3799,24 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     newHeroJson.inventory = deduplicateStackableInventory(filteredInv);
     newHeroJson.overflowChest = deduplicateStackableInventory(overflowChest);
 
+    const nextColsBf = deriveBaseResourceColumnsFromHeroJson(newHeroJson, dbColsBf);
+    const newHeroJsonSynced = injectColumnBaseResourcesIntoHeroJson(newHeroJson, nextColsBf);
+
     const oldRevision = Number(heroJson.heroRevision ?? 0);
-    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+    const versionedHeroJson = addVersioning(newHeroJsonSynced, oldRevision);
 
     const updateData: any = {
       heroJson: versionedHeroJson as any,
       lastActivityAt: new Date(),
     };
-    updateData.level = Math.max(1, Math.min(MAX_LEVEL, Math.floor(Number(newHeroJson.level ?? 1))));
-    updateData.exp = BigInt(Math.max(0, Math.floor(Number(newHeroJson.exp ?? 0))));
-    updateData.adena = BigInt(Math.max(0, Math.floor(Number(newHeroJson.adena))));
-    updateData.sp = Math.max(0, Math.floor(Number(newHeroJson.sp ?? character.sp ?? 0)));
-    updateData.coinLuck = BigInt(Math.max(0, Math.floor(Number(newHeroJson.coinOfLuck ?? character.coinLuck ?? 0))));
+    updateData.baseMaxHp = nextColsBf.baseMaxHp;
+    updateData.baseMaxMp = nextColsBf.baseMaxMp;
+    updateData.baseMaxCp = nextColsBf.baseMaxCp;
+    updateData.level = Math.max(1, Math.min(MAX_LEVEL, Math.floor(Number(newHeroJsonSynced.level ?? 1))));
+    updateData.exp = BigInt(Math.max(0, Math.floor(Number(newHeroJsonSynced.exp ?? 0))));
+    updateData.adena = BigInt(Math.max(0, Math.floor(Number(newHeroJsonSynced.adena))));
+    updateData.sp = Math.max(0, Math.floor(Number(newHeroJsonSynced.sp ?? character.sp ?? 0)));
+    updateData.coinLuck = BigInt(Math.max(0, Math.floor(Number(newHeroJsonSynced.coinOfLuck ?? character.coinLuck ?? 0))));
 
       await tx.character.update({
         where: { id },
@@ -3814,16 +3924,24 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             classId: string;
             heroJson: any;
             updatedAt: Date;
+            baseMaxHp: number;
+            baseMaxMp: number;
+            baseMaxCp: number;
           }>
         >`
-          SELECT "id", "name", "race", "classId", "heroJson", "updatedAt"
+          SELECT "id", "name", "race", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const existing = locked[0];
-        const oldHeroJson = (existing.heroJson as any) || {};
+        const hbCols = coerceBaseResourceTriplet({
+          baseMaxHp: existing.baseMaxHp,
+          baseMaxMp: existing.baseMaxMp,
+          baseMaxCp: existing.baseMaxCp,
+        });
+        const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((existing.heroJson as any) || {}, hbCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
           return {
@@ -3865,6 +3983,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinsSilver: true,
             nickColor: true,
             heroJson: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -3892,7 +4013,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       const buffCh = txRes.updated as any;
       return reply.send({
         ok: true,
-        character: {
+        character: attachBaseResourcesForApi({
           ...buffCh,
           exp: Number(buffCh.exp),
           adena: Number(buffCh.adena ?? 0),
@@ -3900,7 +4021,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           sp: Number(buffCh.sp ?? 0),
           coinLuck: Number(buffCh.coinLuck ?? 0),
           coinsSilver: Number(buffCh.coinsSilver ?? 0),
-        },
+        }),
       });
     } catch (e) {
       console.error("[hero-buffs-sync]", e);
@@ -3931,16 +4052,30 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     try {
       const txRes = await prisma.$transaction(async (tx) => {
         const locked = await tx.$queryRaw<
-          Array<{ id: string; name: string; classId: string; heroJson: any; updatedAt: Date }>
+          Array<{
+            id: string;
+            name: string;
+            classId: string;
+            heroJson: any;
+            updatedAt: Date;
+            baseMaxHp: number;
+            baseMaxMp: number;
+            baseMaxCp: number;
+          }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt"
+          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const oldHeroJson = (row.heroJson as any) || {};
+        const pveBaseCols = coerceBaseResourceTriplet({
+          baseMaxHp: row.baseMaxHp,
+          baseMaxMp: row.baseMaxMp,
+          baseMaxCp: row.baseMaxCp,
+        });
+        const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
           return {
@@ -3966,7 +4101,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           };
         }
 
-        const newHeroJson = { ...applied.nextHeroJson };
+        const newHeroJson = injectColumnBaseResourcesIntoHeroJson({ ...applied.nextHeroJson }, pveBaseCols);
         const validation = validateHeroJson(newHeroJson);
         if (!validation.valid) {
           return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
@@ -3992,6 +4127,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinLuck: true,
             coinsSilver: true,
             heroJson: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -4027,14 +4165,14 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }
 
       const updated = txRes.updated;
-      const serialized = {
+      const serialized = attachBaseResourcesForApi({
         ...updated,
         exp: Number(updated.exp),
         adena: Number(updated.adena ?? 0),
         aa: Number(updated.aa ?? 0),
         coinLuck: Number(updated.coinLuck ?? 0),
         coinsSilver: Number(updated.coinsSilver ?? 0),
-      };
+      });
 
       enqueuePlayerActivityLog({
         accountId: auth.accountId,
@@ -4075,16 +4213,30 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     try {
       const txRes = await prisma.$transaction(async (tx) => {
         const locked = await tx.$queryRaw<
-          Array<{ id: string; name: string; classId: string; heroJson: any; updatedAt: Date }>
+          Array<{
+            id: string;
+            name: string;
+            classId: string;
+            heroJson: any;
+            updatedAt: Date;
+            baseMaxHp: number;
+            baseMaxMp: number;
+            baseMaxCp: number;
+          }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt"
+          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const oldHeroJson = (row.heroJson as any) || {};
+        const pveBaseCols = coerceBaseResourceTriplet({
+          baseMaxHp: row.baseMaxHp,
+          baseMaxMp: row.baseMaxMp,
+          baseMaxCp: row.baseMaxCp,
+        });
+        const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
           return {
@@ -4110,7 +4262,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           };
         }
 
-        const newHeroJson = { ...applied.nextHeroJson };
+        const newHeroJson = injectColumnBaseResourcesIntoHeroJson({ ...applied.nextHeroJson }, pveBaseCols);
         const validation = validateHeroJson(newHeroJson);
         if (!validation.valid) {
           return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
@@ -4136,6 +4288,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinLuck: true,
             coinsSilver: true,
             heroJson: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -4171,14 +4326,14 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }
 
       const updated = txRes.updated;
-      const serialized = {
+      const serialized = attachBaseResourcesForApi({
         ...updated,
         exp: Number(updated.exp),
         adena: Number(updated.adena ?? 0),
         aa: Number(updated.aa ?? 0),
         coinLuck: Number(updated.coinLuck ?? 0),
         coinsSilver: Number(updated.coinsSilver ?? 0),
-      };
+      });
 
       enqueuePlayerActivityLog({
         accountId: auth.accountId,
@@ -4227,16 +4382,30 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     try {
       const txRes = await prisma.$transaction(async (tx) => {
         const locked = await tx.$queryRaw<
-          Array<{ id: string; name: string; classId: string; heroJson: any; updatedAt: Date }>
+          Array<{
+            id: string;
+            name: string;
+            classId: string;
+            heroJson: any;
+            updatedAt: Date;
+            baseMaxHp: number;
+            baseMaxMp: number;
+            baseMaxCp: number;
+          }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt"
+          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const oldHeroJson = (row.heroJson as any) || {};
+        const pveBaseCols = coerceBaseResourceTriplet({
+          baseMaxHp: row.baseMaxHp,
+          baseMaxMp: row.baseMaxMp,
+          baseMaxCp: row.baseMaxCp,
+        });
+        const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
           return {
@@ -4277,7 +4446,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           };
         }
 
-        const newHeroJson = { ...started.nextHeroJson };
+        const newHeroJson = injectColumnBaseResourcesIntoHeroJson({ ...started.nextHeroJson }, pveBaseCols);
         const validation = validateHeroJson(newHeroJson);
         if (!validation.valid) {
           return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
@@ -4303,6 +4472,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinLuck: true,
             coinsSilver: true,
             heroJson: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -4340,14 +4512,14 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }
 
       const updated = txRes.updated;
-      const serialized = {
+      const serialized = attachBaseResourcesForApi({
         ...updated,
         exp: Number(updated.exp),
         adena: Number(updated.adena ?? 0),
         aa: Number(updated.aa ?? 0),
         coinLuck: Number(updated.coinLuck ?? 0),
         coinsSilver: Number(updated.coinsSilver ?? 0),
-      };
+      });
 
       enqueuePlayerActivityLog({
         accountId: auth.accountId,
@@ -4400,16 +4572,30 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     try {
       const txRes = await prisma.$transaction(async (tx) => {
         const locked = await tx.$queryRaw<
-          Array<{ id: string; name: string; classId: string; heroJson: any; updatedAt: Date }>
+          Array<{
+            id: string;
+            name: string;
+            classId: string;
+            heroJson: any;
+            updatedAt: Date;
+            baseMaxHp: number;
+            baseMaxMp: number;
+            baseMaxCp: number;
+          }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt"
+          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const oldHeroJson = (row.heroJson as any) || {};
+        const pveBaseCols = coerceBaseResourceTriplet({
+          baseMaxHp: row.baseMaxHp,
+          baseMaxMp: row.baseMaxMp,
+          baseMaxCp: row.baseMaxCp,
+        });
+        const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
           return {
@@ -4440,7 +4626,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
         // Оновлений inventory (стрілки/заряди) входить у nextHeroJson і зберігається в Character.heroJson (БД).
         // Оновлений inventory (стрілки/заряди) входить у nextHeroJson і зберігається в Character.heroJson (БД).
-        const newHeroJson = { ...applied.nextHeroJson };
+        const newHeroJson = injectColumnBaseResourcesIntoHeroJson({ ...applied.nextHeroJson }, pveBaseCols);
         const validation = validateHeroJson(newHeroJson);
         if (!validation.valid) {
           return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
@@ -4466,6 +4652,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinLuck: true,
             coinsSilver: true,
             heroJson: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -4510,14 +4699,14 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }
 
       const updated = txRes.updated;
-      const serialized = {
+      const serialized = attachBaseResourcesForApi({
         ...updated,
         exp: Number(updated.exp),
         adena: Number(updated.adena ?? 0),
         aa: Number(updated.aa ?? 0),
         coinLuck: Number(updated.coinLuck ?? 0),
         coinsSilver: Number(updated.coinsSilver ?? 0),
-      };
+      });
 
       enqueuePlayerActivityLog({
         accountId: auth.accountId,
@@ -4565,16 +4754,30 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     try {
       const txRes = await prisma.$transaction(async (tx) => {
         const locked = await tx.$queryRaw<
-          Array<{ id: string; name: string; classId: string; heroJson: any; updatedAt: Date }>
+          Array<{
+            id: string;
+            name: string;
+            classId: string;
+            heroJson: any;
+            updatedAt: Date;
+            baseMaxHp: number;
+            baseMaxMp: number;
+            baseMaxCp: number;
+          }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt"
+          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const oldHeroJson = (row.heroJson as any) || {};
+        const pveBaseCols = coerceBaseResourceTriplet({
+          baseMaxHp: row.baseMaxHp,
+          baseMaxMp: row.baseMaxMp,
+          baseMaxCp: row.baseMaxCp,
+        });
+        const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
           return {
@@ -4598,7 +4801,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           };
         }
 
-        const newHeroJson = { ...applied.nextHeroJson };
+        const newHeroJson = injectColumnBaseResourcesIntoHeroJson({ ...applied.nextHeroJson }, pveBaseCols);
         const validation = validateHeroJson(newHeroJson);
         if (!validation.valid) {
           return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
@@ -4624,6 +4827,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinLuck: true,
             coinsSilver: true,
             heroJson: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -4663,14 +4869,14 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }
 
       const updated = txRes.updated;
-      const serialized = {
+      const serialized = attachBaseResourcesForApi({
         ...updated,
         exp: Number(updated.exp),
         adena: Number(updated.adena ?? 0),
         aa: Number(updated.aa ?? 0),
         coinLuck: Number(updated.coinLuck ?? 0),
         coinsSilver: Number(updated.coinsSilver ?? 0),
-      };
+      });
 
       return reply.send({
         ok: true,
@@ -4716,16 +4922,30 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     try {
       const txRes = await prisma.$transaction(async (tx) => {
         const locked = await tx.$queryRaw<
-          Array<{ id: string; name: string; classId: string; heroJson: any; updatedAt: Date }>
+          Array<{
+            id: string;
+            name: string;
+            classId: string;
+            heroJson: any;
+            updatedAt: Date;
+            baseMaxHp: number;
+            baseMaxMp: number;
+            baseMaxCp: number;
+          }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt"
+          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const oldHeroJson = (row.heroJson as any) || {};
+        const pveBaseCols = coerceBaseResourceTriplet({
+          baseMaxHp: row.baseMaxHp,
+          baseMaxMp: row.baseMaxMp,
+          baseMaxCp: row.baseMaxCp,
+        });
+        const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
           return {
@@ -4757,7 +4977,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           };
         }
 
-        const newHeroJson = { ...applied.nextHeroJson };
+        const newHeroJson = injectColumnBaseResourcesIntoHeroJson({ ...applied.nextHeroJson }, pveBaseCols);
         const validation = validateHeroJson(newHeroJson);
         if (!validation.valid) {
           return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
@@ -4783,6 +5003,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinLuck: true,
             coinsSilver: true,
             heroJson: true,
+            baseMaxHp: true,
+            baseMaxMp: true,
+            baseMaxCp: true,
             createdAt: true,
             updatedAt: true,
           },
@@ -4822,14 +5045,14 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }
 
       const updated = txRes.updated;
-      const serialized = {
+      const serialized = attachBaseResourcesForApi({
         ...updated,
         exp: Number(updated.exp),
         adena: Number(updated.adena ?? 0),
         aa: Number(updated.aa ?? 0),
         coinLuck: Number(updated.coinLuck ?? 0),
         coinsSilver: Number(updated.coinsSilver ?? 0),
-      };
+      });
 
       return reply.send({
         ok: true,
@@ -4857,6 +5080,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       inventory?: any[];
       equipmentEnchantLevels?: Record<string, number>;
       expectedRevision?: number;
+      baseMaxHp?: number;
+      baseMaxMp?: number;
+      baseMaxCp?: number;
     };
 
     if (!body.equipment || !body.inventory) {
@@ -4868,8 +5094,17 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     }
 
     const txRes = await prisma.$transaction(async (tx) => {
-      const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date; name: string }>>`
-        SELECT "heroJson", "updatedAt", "name"
+      const locked = await tx.$queryRaw<
+        Array<{
+          heroJson: any;
+          updatedAt: Date;
+          name: string;
+          baseMaxHp: number;
+          baseMaxMp: number;
+          baseMaxCp: number;
+        }>
+      >`
+        SELECT "heroJson", "updatedAt", "name", "baseMaxHp", "baseMaxMp", "baseMaxCp"
         FROM "Character"
         WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
         FOR UPDATE
@@ -4877,7 +5112,12 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
 
       const row = locked[0];
-      const heroJson: any = (row.heroJson as any) || {};
+      const eqDbCols = coerceBaseResourceTriplet({
+        baseMaxHp: row.baseMaxHp,
+        baseMaxMp: row.baseMaxMp,
+        baseMaxCp: row.baseMaxCp,
+      });
+      const heroJson: any = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, eqDbCols);
       const currentRevision = Number(heroJson.heroRevision ?? 0);
       if (currentRevision !== expectedRevision) {
         return {
@@ -4962,16 +5202,36 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         return !equippedNormIds.has(itemId);
       });
 
-      const newHeroJson: any = {
+      const newHeroJsonRaw: any = {
         ...heroJson,
         equipment: body.equipment,
         inventory: cleanedInventory,
         equipmentEnchantLevels: body.equipmentEnchantLevels ?? heroJson.equipmentEnchantLevels ?? {},
       };
+      if (body.baseMaxHp != null && Number.isFinite(Number(body.baseMaxHp))) {
+        const v = Math.floor(Number(body.baseMaxHp));
+        if (v >= 1) newHeroJsonRaw.baseMaxHp = v;
+      }
+      if (body.baseMaxMp != null && Number.isFinite(Number(body.baseMaxMp))) {
+        const v = Math.floor(Number(body.baseMaxMp));
+        if (v >= 1) newHeroJsonRaw.baseMaxMp = v;
+      }
+      if (body.baseMaxCp != null && Number.isFinite(Number(body.baseMaxCp))) {
+        const v = Math.floor(Number(body.baseMaxCp));
+        if (v >= 1) newHeroJsonRaw.baseMaxCp = v;
+      }
+      const nextEqCols = deriveBaseResourceColumnsFromHeroJson(newHeroJsonRaw, eqDbCols);
+      const newHeroJson = injectColumnBaseResourcesIntoHeroJson(newHeroJsonRaw, nextEqCols);
       const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
       const updated = await tx.character.update({
         where: { id },
-        data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+        data: {
+          heroJson: versionedHeroJson as any,
+          lastActivityAt: new Date(),
+          baseMaxHp: nextEqCols.baseMaxHp,
+          baseMaxMp: nextEqCols.baseMaxMp,
+          baseMaxCp: nextEqCols.baseMaxCp,
+        },
         select: {
           id: true,
           name: true,
@@ -4987,6 +5247,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           coinsSilver: true,
           nickColor: true,
           heroJson: true,
+          baseMaxHp: true,
+          baseMaxMp: true,
+          baseMaxCp: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -5029,7 +5292,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     });
 
     const eqCh = txRes.updated as any;
-    const serializedEquip = {
+    const serializedEquip = attachBaseResourcesForApi({
       ...eqCh,
       exp: Number(eqCh.exp),
       adena: Number(eqCh.adena ?? 0),
@@ -5037,7 +5300,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       sp: Number(eqCh.sp ?? 0),
       coinLuck: Number(eqCh.coinLuck ?? 0),
       coinsSilver: Number(eqCh.coinsSilver ?? 0),
-    };
+    });
 
     return reply.send({ ok: true, character: serializedEquip });
   });

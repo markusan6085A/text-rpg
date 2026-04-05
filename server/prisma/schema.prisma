@@ -48,6 +48,11 @@ model Character {
   coinLuck     BigInt   @default(0)
   coinsSilver  BigInt   @default(0)  // Серебряные Монеты
 
+  // Base max HP/MP/CP (рівень + екіп, без бафів). heroJson.max* у snapshot мають збігатися з цими колонками.
+  baseMaxHp    Int      @default(1)
+  baseMaxMp    Int      @default(1)
+  baseMaxCp    Int      @default(1)
+
   // Один JSON під "героя" (статі, hp/mp/cp, бафи, позиція, що завгодно)
   heroJson     Json     @default("{}")
 

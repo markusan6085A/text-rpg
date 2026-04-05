@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { prisma } from "../../../db";
 import { getAuth } from "../auth";
+import { attachBaseResourcesForApi } from "../../../utils/characterBaseResources";
 
 export async function characterListRoutes(app: FastifyInstance) {
   // GET /characters  (Bearer token)
@@ -24,6 +25,9 @@ export async function characterListRoutes(app: FastifyInstance) {
         aa: true,
         coinLuck: true,
         heroJson: true,
+        baseMaxHp: true,
+        baseMaxMp: true,
+        baseMaxCp: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -62,15 +66,17 @@ export async function characterListRoutes(app: FastifyInstance) {
       }
     } catch (_) {}
 
-    const serializedChars = chars.map(char => ({
-      ...char,
-      exp: Number(char.exp),
-      adena: Number(char.adena ?? 0),
-      aa: Number(char.aa ?? 0),
-      coinLuck: Number(char.coinLuck ?? 0),
-      bannedUntil: banMap[char.id]?.bannedUntil ?? null,
-      blockedUntil: banMap[char.id]?.blockedUntil ?? null,
-    }));
+    const serializedChars = chars.map((char) =>
+      attachBaseResourcesForApi({
+        ...char,
+        exp: Number(char.exp),
+        adena: Number(char.adena ?? 0),
+        aa: Number(char.aa ?? 0),
+        coinLuck: Number(char.coinLuck ?? 0),
+        bannedUntil: banMap[char.id]?.bannedUntil ?? null,
+        blockedUntil: banMap[char.id]?.blockedUntil ?? null,
+      }),
+    );
 
     return { ok: true, characters: serializedChars };
   });
@@ -101,6 +107,9 @@ export async function characterListRoutes(app: FastifyInstance) {
         coinLuck: true,
         coinsSilver: true,
         heroJson: true,
+        baseMaxHp: true,
+        baseMaxMp: true,
+        baseMaxCp: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -126,7 +135,7 @@ export async function characterListRoutes(app: FastifyInstance) {
       data: { lastActivityAt: new Date() },
     }).catch(() => {});
 
-    const serialized = {
+    const serialized = attachBaseResourcesForApi({
       ...char,
       exp: Number(char.exp),
       adena: Number(char.adena ?? 0),
@@ -135,7 +144,7 @@ export async function characterListRoutes(app: FastifyInstance) {
       coinsSilver: Number((char as any).coinsSilver ?? 0),
       bannedUntil,
       blockedUntil,
-    };
+    });
 
     return { ok: true, character: serialized };
   });

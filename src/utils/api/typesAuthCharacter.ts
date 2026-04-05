@@ -28,6 +28,10 @@ export interface Character {
   aa: number;
   coinLuck: number;
   coinsSilver?: number;
+  /** Base max (level + equip, без бафів) — дзеркало колонок БД */
+  baseMaxHp?: number;
+  baseMaxMp?: number;
+  baseMaxCp?: number;
   heroJson: any;
   bannedUntil?: string | null;
   blockedUntil?: string | null;
