@@ -4,7 +4,7 @@ import { effectiveSkillMpCost, rollMpSpend } from "./pveMpRsk";
 import {
   canAttackWithBowServer,
   consumeOneArrow,
-  getWeaponTypeFromEquipment,
+  getWeaponTypeFromEquipment as getWeaponSlotKindServer,
   tryConsumeShotFromInventory,
 } from "./pveShotArrowsServer";
 import { cleanupBattleBuffs, applyMobBuffsToCombat } from "./pveBattleBuffsLite";
@@ -262,8 +262,8 @@ export function applyPveBattleAttackSnapshot(args: {
 
   const bowNeed =
     skillId === 0
-      ? getWeaponTypeFromEquipment(hj.equipment) === "bow"
-      : cat === "physical_attack" && getWeaponTypeFromEquipment(hj.equipment) === "bow";
+      ? getWeaponSlotKindServer(hj.equipment) === "bow"
+      : cat === "physical_attack" && getWeaponSlotKindServer(hj.equipment) === "bow";
 
   let bowGrade: ReturnType<typeof canAttackWithBowServer>["grade"] = null;
   if (bowNeed) {
@@ -333,7 +333,8 @@ export function applyPveBattleAttackSnapshot(args: {
   let isCrit = false;
 
   if (skillId === 0) {
-    const physMult = heroIsMageClass(hj) ? 0.5 : 1.0;
+    const wtBow = getWeaponSlotKindServer(hj.equipment) === "bow";
+    const physMult = heroIsMageClass(hj) && !wtBow ? 0.5 : 1.0;
     const r = rollBaseAutoAttackDamage({
       pAtk: Number(csStats.pAtk) || 1,
       targetPDef: Math.max(1, Number(sess.mobPDef) || 1),
@@ -373,7 +374,7 @@ export function applyPveBattleAttackSnapshot(args: {
 
   let healVamp = 0;
   if (damage > 0) {
-    const wt = getWeaponTypeFromEquipment(hj.equipment);
+    const wt = getWeaponSlotKindServer(hj.equipment);
     const vampMeleeBonus =
       isPhysical && !isMagic && wt !== "bow"
         ? Math.max(0, Number((csInRaw as any).vampirismMelee) || 0)

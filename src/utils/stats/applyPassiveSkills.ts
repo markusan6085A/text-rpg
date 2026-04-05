@@ -57,8 +57,8 @@ export function getWeaponTypeFromEquipment(
   equipment?: Record<string, string | null>
 ): "sword" | "bow" | "staff" | "club" | "dagger" | "polearm" | "fist" | "dualsword" | "dualdagger" | null {
   if (!equipment) return null;
-  
-  const weaponSlot = equipment.weapon;
+  // Як у сервера pveShotArrowsServer: дворуч (лук / staff) часто лише в lrhand
+  const weaponSlot = equipment.weapon || equipment.lrhand;
   if (!weaponSlot) return null;
   
   // Використовуємо itemsDB з імпорту

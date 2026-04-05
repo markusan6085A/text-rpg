@@ -98,7 +98,9 @@ export function handleBaseAttack(
                    (hero.profession || "").toLowerCase().includes("prophet") ||
                    (hero.profession || "").toLowerCase().includes("shaman");
     
-    physicalDamageMultiplier = isMage ? 0.5 : 1.0; // Маги наносять 50% фізичного урону
+    // Зниження лише для «плеєру» мага (без лука): постріли з лука не штрафуємо ×0.5
+    const weaponTypeBa = getWeaponTypeFromEquipment(hero.equipment);
+    physicalDamageMultiplier = isMage && weaponTypeBa !== "bow" ? 0.5 : 1.0;
     baseDmg = Math.max(1, Math.round(pAtk * physicalDamageMultiplier * (1 - variance + Math.random() * variance * 2)));
   }
   

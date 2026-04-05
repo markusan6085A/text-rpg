@@ -126,7 +126,7 @@ export function canAttackWithBow(hero: Hero): { canAttack: boolean; message?: st
     return { canAttack: true }; // Не лук, перевірка не потрібна
   }
   
-  const weaponId = hero.equipment?.weapon;
+  const weaponId = hero.equipment?.weapon ?? hero.equipment?.lrhand;
   const weaponGrade = getWeaponGrade(weaponId);
   
   if (!weaponGrade) {
