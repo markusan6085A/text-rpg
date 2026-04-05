@@ -308,6 +308,39 @@ export async function syncHeroBuffsAPI(
   }
 }
 
+/** PvE buff/toggle — повний character snapshot після мутації (CAS). */
+export async function pveCastSelfBuffAPI(
+  characterId: string,
+  data: { skillId: number; expectedRevision: number }
+): Promise<{ ok: boolean; character: Character; logLine?: string }> {
+  let rev = data.expectedRevision;
+  try {
+    rev = await readHeroRevisionFromGetCharacter(characterId);
+  } catch {
+    rev = data.expectedRevision;
+  }
+  const url = `/characters/${encodeURIComponent(characterId)}/pve-self-buff`;
+  const body = { skillId: data.skillId, expectedRevision: rev };
+  try {
+    return await apiRequest<{ ok: boolean; character: Character; logLine?: string }>(url, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  } catch (e: any) {
+    if (e?.status !== 409) throw e;
+    let rev2: number;
+    try {
+      rev2 = await readHeroRevisionFromGetCharacter(characterId);
+    } catch {
+      throw e;
+    }
+    return await apiRequest<{ ok: boolean; character: Character; logLine?: string }>(url, {
+      method: "POST",
+      body: JSON.stringify({ skillId: data.skillId, expectedRevision: rev2 }),
+    });
+  }
+}
+
 // Player Admin API
 export async function healPlayer(
   characterId: string,

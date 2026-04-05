@@ -1,11 +1,13 @@
 import { useHeroStore } from "../../heroStore";
+import { useCharacterStore } from "../../characterStore";
 import {
   applyBuffsToStats,
   cleanupBuffs,
   computeBuffedMaxResources,
 } from "../helpers";
 import { getMaxResources } from "../helpers/getMaxResources";
-import { BASE_ATTACK, getSkillDef, getSkillDefForBattle, skillDefIsToggle } from "../loadout";
+import { BASE_ATTACK, getSkillDef, getSkillDefForBattle, skillDefIsBuff, skillDefIsToggle } from "../loadout";
+import type { SkillDefinition } from "../../../data/skills/types";
 import type { BattleState } from "../types";
 import { checkSkillConditions } from "../../../utils/stats/applyPassiveSkills";
 import { canAttackWithBow, isBowEquipped } from "./useSkill/arrowHelpers";
@@ -33,13 +35,27 @@ import {
   SONIC_FOCUS_ID,
   SONIC_CONSUMERS,
   SONIC_COST,
+  SUMMON_SKILLS,
   FOCUSED_FORCE_ID,
   FOCUSED_FORCE_CONSUMERS,
   FOCUSED_FORCE_COST,
   type Setter,
 } from "./useSkill/helpers";
+import { schedulePveSelfBuffOnline } from "./pveSelfBuffOnline";
 import { createIsSameBuff } from "./useSkill/buffHelpers";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
+
+function isEligiblePveServerSelfCast(def: SkillDefinition): boolean {
+  if (SUMMON_SKILLS.has(def.id)) return false;
+  if (def.itemConsume) return false;
+  if (def.category === "debuff") return false;
+  if (def.category === "heal") return false;
+  if (def.category === "physical_attack" || def.category === "magic_attack") return false;
+  if (def.category === "special") return false;
+  if (skillDefIsBuff(def)) return true;
+  if (skillDefIsToggle(def)) return true;
+  return false;
+}
 
 export const createUseSkill =
   (set: Setter, get: () => BattleState): BattleState["useSkill"] =>
@@ -488,6 +504,15 @@ export const createUseSkill =
 
     // Buff / Debuff / Toggle / Special / non-attack skills
     if (!isAttack) {
+      if (isEligiblePveServerSelfCast(def)) {
+        const characterId =
+          String(useCharacterStore.getState().characterId ?? "").trim() ||
+          String((hero as any)?.id ?? "").trim();
+        if (characterId) {
+          schedulePveSelfBuffOnline(skillId, def);
+          return;
+        }
+      }
       const handled = handleBuffSkill(
         skillId,
         def,
