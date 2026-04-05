@@ -1,8 +1,10 @@
 // src/screens/TattooArtist.tsx
 import React, { useState } from "react";
 import { useHeroStore } from "../state/heroStore";
+import { useCharacterStore } from "../state/characterStore";
 import { GM_SHOP_ITEMS, type DyeItem } from "./GMShop";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
+import { postTattooApply, postTattooRemove } from "../utils/api";
 import { showToast } from "../state/toastStore";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
@@ -18,7 +20,7 @@ const MIN_STAT = 3; // Мінімальне значення стату
 
 export default function TattooArtist({ navigate }: TattooArtistProps) {
   const hero = useHeroStore((s) => s.hero);
-  const updateHero = useHeroStore((s) => s.updateHero);
+  const characterId = useCharacterStore((s) => s.characterId);
 
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
@@ -74,9 +76,62 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     };
   }).filter(item => item.dyeInfo && (item.count || 0) >= 1);
 
+  const applyServerCharacterSnapshot = (character: any) => {
+    const store = useHeroStore.getState();
+    const currentHero = store.hero;
+    if (!currentHero) return;
+
+    const serverHeroJson = (character as any)?.heroJson ?? {};
+    const nextInventory = Array.isArray(serverHeroJson.inventory)
+      ? serverHeroJson.inventory
+      : (currentHero.inventory ?? []);
+    const heroRevision = Number(
+      serverHeroJson.heroRevision ?? (character as any)?.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0
+    );
+    const nextAdena = Number((character as any)?.adena ?? currentHero.adena ?? 0);
+    const nextLevel = Number((character as any)?.level ?? currentHero.level ?? 1);
+    const nextExp = Number((character as any)?.exp ?? currentHero.exp ?? 0);
+    const nextSp = Number((character as any)?.sp ?? currentHero.sp ?? 0);
+    const nextCoinLuck = Number((character as any)?.coinLuck ?? currentHero.coinOfLuck ?? 0);
+    const nextAA = Number((character as any)?.aa ?? (currentHero as any)?.aa ?? 0);
+
+    store.applyServerSync(
+      {
+        level: nextLevel,
+        exp: nextExp,
+        sp: nextSp,
+        adena: nextAdena,
+        coinOfLuck: nextCoinLuck,
+        aa: nextAA,
+        inventory: nextInventory,
+        activeDyes: Array.isArray(serverHeroJson.activeDyes) ? serverHeroJson.activeDyes : (currentHero.activeDyes ?? []),
+        heroJson: {
+          ...((currentHero as any)?.heroJson ?? {}),
+          ...serverHeroJson,
+          inventory: nextInventory,
+          heroRevision,
+        },
+      } as any,
+      {
+        level: nextLevel,
+        exp: nextExp,
+        sp: nextSp,
+        adena: nextAdena,
+        coinLuck: nextCoinLuck,
+        heroRevision,
+        updatedAt: Date.now(),
+      }
+    );
+  };
+
   // Обробка нанесення тату
-  const handleApplyDye = (dyeItem: typeof dyesWithInfo[0]) => {
+  const handleApplyDye = async (dyeItem: typeof dyesWithInfo[0]) => {
     if (!dyeItem.dyeInfo) return;
+    const activeCharacterId = characterId || hero.id;
+    if (!activeCharacterId) {
+      showToast("Персонаж не найден", "error");
+      return;
+    }
 
     // Перевірка максимальної кількості
     if (activeDyes.length >= MAX_DYES) {
@@ -116,44 +171,27 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
       return;
     }
 
-    // Видаляємо 1 краску з інвентаря
-    const newInventory = [...(hero.inventory || [])];
-    const itemIndex = newInventory.findIndex(item => item.id === dyeItem.id);
-    if (itemIndex >= 0) {
-      const existingItem = newInventory[itemIndex];
-      const currentCount = existingItem.count || 1;
-      const newCount = currentCount - 1;
-      
-      if (newCount > 0) {
-        newInventory[itemIndex] = { ...existingItem, count: newCount };
-      } else {
-        newInventory.splice(itemIndex, 1);
-      }
+    const expectedRevision = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
+    try {
+      const updated = await postTattooApply(activeCharacterId, {
+        expectedRevision,
+        dyeItemId: dyeItem.dyeInfo.itemId,
+      });
+      applyServerCharacterSnapshot(updated);
+      setShowApplyModal(false);
+      showToast(`Нанесено: ${dyeItem.dyeInfo.name}`, "success");
+    } catch (e: any) {
+      showToast(e?.message || "Не удалось нанести татуировку", "error");
     }
-
-    // Додаємо тату до активних
-    const newActiveDyes = [
-      ...activeDyes,
-      {
-        id: dyeItem.dyeInfo.itemId,
-        statPlus: dyeItem.dyeInfo.statPlus,
-        statMinus: dyeItem.dyeInfo.statMinus,
-        effect: dyeItem.dyeInfo.effect,
-        grade: dyeItem.dyeInfo.grade,
-        price: dyeItem.dyeInfo.price,
-      },
-    ];
-
-    updateHero({
-      inventory: newInventory,
-      activeDyes: newActiveDyes,
-    });
-
-    setShowApplyModal(false);
   };
 
   // Обробка зняття тату
-  const handleRemoveDye = (index: number) => {
+  const handleRemoveDye = async (index: number) => {
+    const activeCharacterId = characterId || hero.id;
+    if (!activeCharacterId) {
+      showToast("Персонаж не найден", "error");
+      return;
+    }
     const dyeToRemove = activeDyes[index];
     if (!dyeToRemove) return;
 
@@ -169,29 +207,15 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
       return;
     }
 
-    // Вираховуємо AA
-    const newInventory = [...(hero.inventory || [])];
-    const aaIndex = newInventory.findIndex(item => item.id === "ancient_adena");
-    if (aaIndex >= 0) {
-      const aaItem = newInventory[aaIndex];
-      if (aaItem.count && aaItem.count >= removeCost) {
-        if (aaItem.count > removeCost) {
-          newInventory[aaIndex] = { ...aaItem, count: aaItem.count - removeCost };
-        } else {
-          newInventory.splice(aaIndex, 1);
-        }
-      }
+    const expectedRevision = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
+    try {
+      const updated = await postTattooRemove(activeCharacterId, { expectedRevision, index });
+      applyServerCharacterSnapshot(updated);
+      setShowRemoveModal(false);
+      showToast("Татуировка снята", "success");
+    } catch (e: any) {
+      showToast(e?.message || "Не удалось снять татуировку", "error");
     }
-
-    // Видаляємо тату з активних за індексом (тільки одну)
-    const newActiveDyes = activeDyes.filter((_, i) => i !== index);
-
-    updateHero({
-      inventory: newInventory,
-      activeDyes: newActiveDyes,
-    });
-
-    setShowRemoveModal(false);
   };
 
   return (
@@ -344,7 +368,9 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                         ? "flex flex-row flex-nowrap items-center gap-3 p-2 border border-[#5c4a32]/70 rounded-md hover:border-[#c7ad80]/40 bg-black/15 cursor-pointer min-w-0"
                         : "flex flex-row flex-nowrap items-center gap-3 p-2 border border-white/50 rounded hover:bg-black/20 cursor-pointer min-w-0"
                     }
-                    onClick={() => handleApplyDye(item)}
+                    onClick={() => {
+                      void handleApplyDye(item);
+                    }}
                   >
                     <img
                       src={item.dyeInfo?.icon}
@@ -442,7 +468,9 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
                       </div>
                       <button
                         type="button"
-                        onClick={() => handleRemoveDye(index)}
+                        onClick={() => {
+                          void handleRemoveDye(index);
+                        }}
                         className="px-3 py-1 bg-red-900/30 text-red-400 border border-red-600 rounded text-[11px] hover:bg-red-900/50"
                       >
                         Снять

@@ -151,6 +151,28 @@ export async function postResourceCraft(
   );
   return response.character;
 }
+
+export async function postTattooApply(
+  characterId: string,
+  body: { expectedRevision: number; dyeItemId: string }
+): Promise<Character> {
+  const response = await apiRequest<CharacterResponse>(
+    `/characters/${encodeURIComponent(characterId)}/tattoo/apply`,
+    { method: "POST", body: JSON.stringify(body) }
+  );
+  return response.character;
+}
+
+export async function postTattooRemove(
+  characterId: string,
+  body: { expectedRevision: number; index: number }
+): Promise<Character> {
+  const response = await apiRequest<CharacterResponse>(
+    `/characters/${encodeURIComponent(characterId)}/tattoo/remove`,
+    { method: "POST", body: JSON.stringify(body) }
+  );
+  return response.character;
+}
 /** Сплатити 1M аден для перегляду характеристик іншого гравця */
 export async function payToViewPlayerStats(
   targetCharacterId: string,

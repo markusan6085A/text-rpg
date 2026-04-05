@@ -33,7 +33,6 @@ const ITEMS_PER_PAGE = 10;
 
 export default function Shop({ navigate }: ShopProps) {
   const hero = useHeroStore((s) => s.hero);
-  const applyServerSync = useHeroStore((s) => s.applyServerSync);
 
   const [selectedCategory, setSelectedCategory] = useState<string>("weapons");
   const [selectedGrade, setSelectedGrade] = useState<string>("D");
@@ -127,6 +126,42 @@ export default function Shop({ navigate }: ShopProps) {
   const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const [buying, setBuying] = useState(false);
+  const applyServerShopSnapshot = (result: { heroJson: any; adena: number; coinsSilver?: number }) => {
+    const store = useHeroStore.getState();
+    const currentHero = store.hero;
+    if (!currentHero) return;
+    const serverHeroJson = result.heroJson ?? {};
+    const nextInventory = Array.isArray(serverHeroJson.inventory)
+      ? serverHeroJson.inventory
+      : (currentHero.inventory ?? []);
+    const nextOverflow = Array.isArray(serverHeroJson.overflowChest)
+      ? serverHeroJson.overflowChest
+      : (currentHero.overflowChest ?? []);
+    const heroRevision = Number(serverHeroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
+    const nextAdena = Number(result.adena ?? currentHero.adena ?? 0);
+    const nextCoinsSilver = Number(result.coinsSilver ?? (currentHero as any)?.coins_silver ?? 0);
+    store.applyServerSync(
+      {
+        inventory: nextInventory,
+        overflowChest: nextOverflow,
+        adena: nextAdena,
+        coins_silver: nextCoinsSilver,
+        heroJson: {
+          ...((currentHero as any)?.heroJson ?? {}),
+          ...serverHeroJson,
+          inventory: nextInventory,
+          overflowChest: nextOverflow,
+          heroRevision,
+        },
+      } as any,
+      {
+        adena: nextAdena,
+        heroRevision,
+        updatedAt: Date.now(),
+      }
+    );
+  };
+
   const handleBuy = async (item: ShopItem, quantity: number = 1) => {
     if (!hero) return;
     if (buying) return;
@@ -190,9 +225,10 @@ export default function Shop({ navigate }: ShopProps) {
       grade,
       armorType,
     };
+    const liveHero = useHeroStore.getState().hero;
     const expectedRevisionRaw =
-      typeof (hero as any)?.heroJson?.heroRevision === "number"
-        ? Number((hero as any).heroJson.heroRevision)
+      typeof (liveHero as any)?.heroJson?.heroRevision === "number"
+        ? Number((liveHero as any).heroJson.heroRevision)
         : Number(useHeroStore.getState().serverState?.heroRevision ?? 0);
     const expectedRevision =
       Number.isFinite(expectedRevisionRaw) && expectedRevisionRaw >= 0 ? expectedRevisionRaw : 0;
@@ -209,21 +245,7 @@ export default function Shop({ navigate }: ShopProps) {
         showToast("Сервер відхилив покупку.", "error");
         return;
       }
-      const nextInventory = Array.isArray(result.heroJson.inventory) ? result.heroJson.inventory : [];
-      const nextOverflow = Array.isArray(result.heroJson.overflowChest) ? result.heroJson.overflowChest : [];
-      applyServerSync(
-        {
-          inventory: nextInventory,
-          overflowChest: nextOverflow,
-          adena: Number(result.adena ?? hero.adena ?? 0),
-          heroRevision: result.heroJson.heroRevision,
-        } as any,
-        {
-          adena: Number(result.adena ?? hero.adena ?? 0),
-          heroRevision: result.heroJson.heroRevision,
-          updatedAt: Date.now(),
-        }
-      );
+      applyServerShopSnapshot(result);
       setSelectedItem(null);
       setBuyQuantity(1);
     } catch (e: any) {

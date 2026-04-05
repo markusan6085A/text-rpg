@@ -267,6 +267,28 @@ const SERVER_RESOURCE_CRAFT_RECIPES: Record<number, readonly ServerStringRecipe[
   ],
 };
 
+const TATTOO_DYE_RULES: Record<
+  string,
+  {
+    statPlus: "STR" | "CON" | "DEX" | "INT" | "MEN" | "WIT";
+    statMinus: "STR" | "CON" | "DEX" | "INT" | "MEN" | "WIT";
+    effect: number;
+    grade: "S";
+    price: number;
+  }
+> = {
+  dye_str_con: { statPlus: "STR", statMinus: "CON", effect: 4, grade: "S", price: 1 },
+  dye_str_dex: { statPlus: "STR", statMinus: "DEX", effect: 4, grade: "S", price: 1 },
+  dye_dex_str: { statPlus: "DEX", statMinus: "STR", effect: 4, grade: "S", price: 1 },
+  dye_dex_con: { statPlus: "DEX", statMinus: "CON", effect: 4, grade: "S", price: 1 },
+  dye_con_str: { statPlus: "CON", statMinus: "STR", effect: 4, grade: "S", price: 1 },
+  dye_con_dex: { statPlus: "CON", statMinus: "DEX", effect: 4, grade: "S", price: 1 },
+  dye_int_men: { statPlus: "INT", statMinus: "MEN", effect: 4, grade: "S", price: 1 },
+  dye_int_wit: { statPlus: "INT", statMinus: "WIT", effect: 4, grade: "S", price: 1 },
+  dye_wit_men: { statPlus: "WIT", statMinus: "MEN", effect: 4, grade: "S", price: 1 },
+  dye_wit_int: { statPlus: "WIT", statMinus: "INT", effect: 4, grade: "S", price: 1 },
+};
+
 const CLIENT_PUT_HEROJSON_ALLOWLIST = new Set<string>([
   "name",
   "inventory",
@@ -3525,6 +3547,232 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       adena: Number((txRes.updated as any)?.adena ?? 0),
       coinsSilver: Number((txRes.updated as any)?.coinsSilver ?? 0),
     });
+  });
+
+  // POST /characters/:id/tattoo/apply — server-authoritative dye apply
+  app.post("/characters/:id/tattoo/apply", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as { dyeItemId?: string; expectedRevision?: number };
+    const dyeItemId = String(body?.dyeItemId ?? "").trim().toLowerCase();
+    const expectedRevision = Number(body?.expectedRevision);
+    if (!dyeItemId) return reply.code(400).send({ error: "dyeItemId required" });
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+    const rule = TATTOO_DYE_RULES[dyeItemId];
+    if (!rule) return reply.code(400).send({ error: "invalid_dye" });
+
+    try {
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date }>>`
+          SELECT "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+
+        const row = locked[0];
+        const heroJson = (row.heroJson as any) || {};
+        const currentRevision = Number(heroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: row.updatedAt,
+          };
+        }
+
+        const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+        const activeDyes: any[] = Array.isArray(heroJson.activeDyes) ? [...heroJson.activeDyes] : [];
+        if (activeDyes.length >= 3) return { ok: false as const, reason: "max_dyes_reached" as const };
+
+        const conflict = activeDyes.some(
+          (d: any) =>
+            String(d?.statPlus ?? "").toUpperCase() === rule.statMinus &&
+            String(d?.statMinus ?? "").toUpperCase() === rule.statPlus
+        );
+        if (conflict) return { ok: false as const, reason: "dye_conflict" as const };
+
+        const sameCount = activeDyes.filter(
+          (d: any) =>
+            String(d?.statPlus ?? "").toUpperCase() === rule.statPlus &&
+            String(d?.statMinus ?? "").toUpperCase() === rule.statMinus
+        ).length;
+        if (sameCount >= 2) return { ok: false as const, reason: "too_many_same_dye" as const };
+
+        const invIdx = inventory.findIndex((it: any) => normalizeShopItemId(it?.id ?? it?.itemId) === dyeItemId);
+        if (invIdx < 0) return { ok: false as const, reason: "dye_not_found" as const };
+        const invRow = inventory[invIdx];
+        const invCount = Math.max(1, Math.floor(Number(invRow?.count ?? 1)));
+        if (invCount <= 1) inventory.splice(invIdx, 1);
+        else inventory[invIdx] = { ...invRow, count: invCount - 1 };
+
+        activeDyes.push({
+          id: dyeItemId,
+          statPlus: rule.statPlus,
+          statMinus: rule.statMinus,
+          effect: rule.effect,
+          grade: rule.grade,
+          price: rule.price,
+        });
+
+        const nextHeroJson = { ...heroJson, inventory, activeDyes };
+        const invariants = enforceCharacterMutationInvariants({ heroJson: nextHeroJson });
+        if (!invariants.ok) return { ok: false as const, reason: "mutation_invariant_failed" as const };
+
+        const versionedHeroJson = addVersioning(invariants.heroJson, currentRevision);
+        const updated = await tx.character.update({
+          where: { id },
+          data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+          select: {
+            id: true, name: true, race: true, classId: true, sex: true,
+            level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true,
+            heroJson: true, updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+          });
+        }
+        if (txRes.reason === "max_dyes_reached") return reply.code(400).send({ error: "max_dyes_reached" });
+        if (txRes.reason === "dye_conflict") return reply.code(400).send({ error: "dye_conflict" });
+        if (txRes.reason === "too_many_same_dye") return reply.code(400).send({ error: "too_many_same_dye" });
+        if (txRes.reason === "dye_not_found") return reply.code(400).send({ error: "dye_not_found" });
+        return reply.code(400).send({ error: "mutation_invariant_failed" });
+      }
+
+      return {
+        ok: true,
+        character: {
+          ...txRes.updated,
+          exp: Number(txRes.updated.exp),
+          sp: Number((txRes.updated as any).sp ?? 0),
+          adena: Number((txRes.updated as any).adena ?? 0),
+          aa: Number((txRes.updated as any).aa ?? 0),
+          coinLuck: Number((txRes.updated as any).coinLuck ?? 0),
+          coinsSilver: Number((txRes.updated as any).coinsSilver ?? 0),
+        },
+      };
+    } catch (e: any) {
+      app.log.error(e, `[POST /characters/:id/tattoo/apply] Error for character ${id}`);
+      return reply.code(500).send({ error: e.message || "Internal server error" });
+    }
+  });
+
+  // POST /characters/:id/tattoo/remove — server-authoritative dye remove
+  app.post("/characters/:id/tattoo/remove", async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as { index?: number; expectedRevision?: number };
+    const index = Math.floor(Number(body?.index ?? -1));
+    const expectedRevision = Number(body?.expectedRevision);
+    if (!Number.isFinite(index) || index < 0) return reply.code(400).send({ error: "index required" });
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+
+    try {
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date }>>`
+          SELECT "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+
+        const row = locked[0];
+        const heroJson = (row.heroJson as any) || {};
+        const currentRevision = Number(heroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: row.updatedAt,
+          };
+        }
+
+        const activeDyes: any[] = Array.isArray(heroJson.activeDyes) ? [...heroJson.activeDyes] : [];
+        if (index >= activeDyes.length) return { ok: false as const, reason: "invalid_index" as const };
+        const dye = activeDyes[index] || {};
+        const removeCost = Math.max(1, Math.round(Number(dye?.price ?? 1) * 0.3));
+
+        const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+        const aaIdx = inventory.findIndex((it: any) => normalizeShopItemId(it?.id ?? it?.itemId) === "ancient_adena");
+        if (aaIdx < 0) return { ok: false as const, reason: "insufficient_aa" as const };
+        const aaRow = inventory[aaIdx];
+        const aaCount = Math.max(0, Math.floor(Number(aaRow?.count ?? 0)));
+        if (aaCount < removeCost) return { ok: false as const, reason: "insufficient_aa" as const };
+        const left = aaCount - removeCost;
+        if (left <= 0) inventory.splice(aaIdx, 1);
+        else inventory[aaIdx] = { ...aaRow, count: left };
+
+        const nextActive = activeDyes.filter((_, i) => i !== index);
+        const nextHeroJson = { ...heroJson, inventory, activeDyes: nextActive };
+        const invariants = enforceCharacterMutationInvariants({ heroJson: nextHeroJson });
+        if (!invariants.ok) return { ok: false as const, reason: "mutation_invariant_failed" as const };
+
+        const versionedHeroJson = addVersioning(invariants.heroJson, currentRevision);
+        const updated = await tx.character.update({
+          where: { id },
+          data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+          select: {
+            id: true, name: true, race: true, classId: true, sex: true,
+            level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true,
+            heroJson: true, updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+          });
+        }
+        if (txRes.reason === "invalid_index") return reply.code(400).send({ error: "invalid_index" });
+        if (txRes.reason === "insufficient_aa") return reply.code(400).send({ error: "insufficient_aa" });
+        return reply.code(400).send({ error: "mutation_invariant_failed" });
+      }
+
+      return {
+        ok: true,
+        character: {
+          ...txRes.updated,
+          exp: Number(txRes.updated.exp),
+          sp: Number((txRes.updated as any).sp ?? 0),
+          adena: Number((txRes.updated as any).adena ?? 0),
+          aa: Number((txRes.updated as any).aa ?? 0),
+          coinLuck: Number((txRes.updated as any).coinLuck ?? 0),
+          coinsSilver: Number((txRes.updated as any).coinsSilver ?? 0),
+        },
+      };
+    } catch (e: any) {
+      app.log.error(e, `[POST /characters/:id/tattoo/remove] Error for character ${id}`);
+      return reply.code(500).send({ error: e.message || "Internal server error" });
+    }
   });
 
   // POST /characters/:id/pickup-item — server-side atomic inventory add
