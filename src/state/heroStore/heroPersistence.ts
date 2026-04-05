@@ -884,7 +884,17 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
 
       // Ігноруємо якщо це просто конфлікт при фоновому збереженні
       // Ми не хочемо спамити користувачу alert-ами
-      const maxRetries = isActiveBattleForHero(hero) ? MAX_RETRIES_BATTLE : MAX_RETRIES_NON_BATTLE;
+      const inBattle = isActiveBattleForHero(hero);
+      const maxRetries = inBattle ? MAX_RETRIES_BATTLE : MAX_RETRIES_NON_BATTLE;
+      if (import.meta.env.DEV) {
+        console.debug("[saveHeroToLocalStorage] 409 retry policy", {
+          mode: inBattle ? "battle" : "non-battle",
+          retryCount,
+          maxRetries,
+          status: error?.status,
+          message: error?.message,
+        });
+      }
       if (retryCount >= maxRetries) {
         // 🔥 КРИТИЧНО: При exp error — зберігаємо хоча б inventory (куплені предмети не зникнуть після F5)
         if (isExpLevelSpDecreased) {
