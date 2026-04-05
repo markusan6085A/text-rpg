@@ -88,6 +88,7 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
       const transferRes = await sendItemTransferLetter({
         toCharacterName: recipientName.trim(),
         itemPayload: payload,
+        expectedRevision: Number((currentHero as any)?.heroJson?.heroRevision ?? 0),
       });
 
       // 3. Оновлюємо локального героя тільки з серверного snapshot

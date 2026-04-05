@@ -249,22 +249,37 @@ export async function letterRoutes(app: FastifyInstance) {
     const body = req.body as {
       toCharacterName: string;
       itemPayload: string; // JSON string of the item
+      expectedRevision?: number;
     };
 
     if (!body.itemPayload || !body.toCharacterName) {
       return reply.code(400).send({ error: "toCharacterName and itemPayload are required" });
+    }
+    const expectedRevision = Number(body.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
     }
 
     try {
       const reqItem = parseTransferPayload(body.itemPayload);
 
       const result = await prisma.$transaction(async (tx) => {
-        const fromCharacter = await tx.character.findFirst({
-          where: { accountId: auth.accountId },
-          orderBy: { createdAt: "asc" },
-          select: { id: true, heroJson: true, adena: true },
-        });
-        if (!fromCharacter) throw new Error("character not found");
+        const lockedFromCharacter = await tx.$queryRaw<
+          Array<{ id: string; heroJson: any; adena: bigint }>
+        >`
+          SELECT "id", "heroJson", "adena"
+          FROM "Character"
+          WHERE "accountId" = ${auth.accountId}
+          ORDER BY "createdAt" ASC
+          LIMIT 1
+          FOR UPDATE
+        `;
+        if (lockedFromCharacter.length === 0) throw new Error("character not found");
+        const fromCharacter = lockedFromCharacter[0];
+        const currentRevision = Number((fromCharacter.heroJson as any)?.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          throw new Error("revision_conflict");
+        }
 
         const toCharacter = await tx.character.findFirst({
           where: { name: { equals: body.toCharacterName, mode: "insensitive" } },
@@ -355,6 +370,7 @@ export async function letterRoutes(app: FastifyInstance) {
       if (error instanceof Error) {
         const msg = error.message;
         if (
+          msg === "revision_conflict" ||
           msg === "character not found" ||
           msg === "recipient character not found" ||
           msg === "cannot transfer to yourself" ||
@@ -370,9 +386,15 @@ export async function letterRoutes(app: FastifyInstance) {
           msg === "not enough adena for transfer fee"
         ) {
           const code =
+            msg === "revision_conflict"
+              ? 409
+              :
             msg === "recipient character not found" || msg === "character not found"
               ? 404
               : 400;
+          if (msg === "revision_conflict") {
+            return reply.code(409).send({ error: "revision_conflict" });
+          }
           return reply.code(code).send({ error: msg });
         }
       }
@@ -652,14 +674,30 @@ export async function letterRoutes(app: FastifyInstance) {
     const letterId = params?.id;
     if (!letterId) return reply.code(400).send({ error: "letter id is required" });
 
+    const body = (req.body ?? {}) as { expectedRevision?: number };
+    const expectedRevision = Number(body.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+
     try {
       const result = await prisma.$transaction(async (tx) => {
-        const character = await tx.character.findFirst({
-          where: { accountId: auth.accountId },
-          orderBy: { createdAt: "asc" },
-          select: { id: true, heroJson: true },
-        });
-        if (!character) throw new Error("character not found");
+        const lockedCharacter = await tx.$queryRaw<
+          Array<{ id: string; heroJson: any }>
+        >`
+          SELECT "id", "heroJson"
+          FROM "Character"
+          WHERE "accountId" = ${auth.accountId}
+          ORDER BY "createdAt" ASC
+          LIMIT 1
+          FOR UPDATE
+        `;
+        if (lockedCharacter.length === 0) throw new Error("character not found");
+        const character = lockedCharacter[0];
+        const currentRevision = Number((character.heroJson as any)?.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          throw new Error("revision_conflict");
+        }
 
         const letter = await tx.letter.findUnique({
           where: { id: letterId },
@@ -731,6 +769,7 @@ export async function letterRoutes(app: FastifyInstance) {
       if (error instanceof Error) {
         const msg = error.message;
         if (
+          msg === "revision_conflict" ||
           msg === "character not found" ||
           msg === "letter not found" ||
           msg === "access denied" ||
@@ -742,6 +781,9 @@ export async function letterRoutes(app: FastifyInstance) {
           msg === "invalid item count" ||
           msg === "invalid enchant level"
         ) {
+          if (msg === "revision_conflict") {
+            return reply.code(409).send({ error: "revision_conflict" });
+          }
           const code = msg === "character not found" || msg === "letter not found" ? 404 : 400;
           return reply.code(code).send({ error: msg });
         }

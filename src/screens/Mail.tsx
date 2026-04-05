@@ -368,7 +368,8 @@ export default function Mail({ navigate }: MailProps) {
     if (!hero) return;
     setClaimingLetterId(letter.id);
     try {
-      const claimRes = await collectItemFromLetter(letter.id);
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+      const claimRes = await collectItemFromLetter(letter.id, expectedRevision);
       const serverHeroJson = claimRes.character?.heroJson || {};
       useHeroStore.getState().updateHero({
         inventory: Array.isArray(serverHeroJson.inventory) ? serverHeroJson.inventory : [],

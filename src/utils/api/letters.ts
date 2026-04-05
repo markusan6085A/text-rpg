@@ -53,6 +53,7 @@ export async function sendLetter(request: SendLetterRequest): Promise<Letter> {
 export interface SendItemTransferRequest {
   toCharacterName: string;
   itemPayload: string;
+  expectedRevision: number;
 }
 
 export interface CharacterTransferSnapshot {
@@ -92,10 +93,13 @@ export async function sendItemTransferLetter(request: SendItemTransferRequest): 
   return response;
 }
 
-export async function collectItemFromLetter(letterId: string): Promise<CollectItemFromLetterResponse> {
+export async function collectItemFromLetter(
+  letterId: string,
+  expectedRevision: number
+): Promise<CollectItemFromLetterResponse> {
   return apiRequest<CollectItemFromLetterResponse>(`/letters/${encodeURIComponent(letterId)}/collect-item`, {
     method: "POST",
-    body: JSON.stringify({}),
+    body: JSON.stringify({ expectedRevision }),
   });
 }
 
