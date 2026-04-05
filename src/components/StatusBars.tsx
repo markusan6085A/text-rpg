@@ -29,6 +29,8 @@ export default function StatusBars({ showResourceHud = false }: StatusBarsProps)
   const [pkDeathNotice, setPkDeathNotice] = React.useState<any>(null);
   
   const inBattle = battleStatus !== "idle";
+  /** Тільки активний PvE: regen дає battle `regenTick`. Idle + victory — поза цим треба міський інтервал нижче. */
+  const isPveFighting = battleStatus === "fighting";
 
   // Завантажуємо клан для відображення емблеми (відкладаємо 100ms, щоб бари відмалювалися першими)
   // 🔥 ОПТИМІЗАЦІЯ: Завантажуємо клан один раз при зміні hero, не поллимо
@@ -132,7 +134,7 @@ export default function StatusBars({ showResourceHud = false }: StatusBarsProps)
 
   // 🔥 Периодичне очищення прострочених бафів поза боєм — зберігаємо в persist і heroJson
   React.useEffect(() => {
-    if (inBattle) return;
+    if (isPveFighting) return;
     const t = setInterval(() => {
       const heroStore = useHeroStore.getState();
       const h = heroStore.hero;
@@ -146,11 +148,11 @@ export default function StatusBars({ showResourceHud = false }: StatusBarsProps)
       heroStore.updateHero({ heroJson: { ...(h as any).heroJson, heroBuffs: cleaned } } as any);
     }, 30000);
     return () => clearInterval(t);
-  }, [inBattle]);
+  }, [isPveFighting]);
   
   React.useEffect(() => {
     // 🔥 Правильний патерн React: cleanup тільки в return, не перед створенням
-    if (inBattle) {
+    if (isPveFighting) {
       return; // Cleanup спрацює автоматично через return нижче
     }
     
@@ -283,7 +285,7 @@ export default function StatusBars({ showResourceHud = false }: StatusBarsProps)
         regenThrottleRef.current.pendingUpdates = null;
       }
     };
-  }, [inBattle]); // 🔥 Мінімальні dependencies - тільки inBattle (примітив), updateHero викликається через store
+  }, [isPveFighting]); // idle + victory отримують реген; під час fighting — лише regenTick у бою
 
   // ВАЖЛИВО: Перевірка hero має бути ПІСЛЯ всіх хуків (useEffect тощо)
   if (!hero) return null;
