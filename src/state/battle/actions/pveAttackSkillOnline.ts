@@ -15,6 +15,7 @@ import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
 import { applyBuffsToStats } from "../helpers";
 import {
   mergeHeroBuffsForPveResourceScaling,
+  pveSnapshotBaseCaps,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
 import { filterBuffsForHeroProfession } from "../loadout";
@@ -116,7 +117,7 @@ export function schedulePveAttackSkillOnline(args: {
         filterBuffsForHeroProfession(heroForBuffMerge, forScaleRaw),
         tickNow,
       );
-      const baseCapsAtk = getMaxResources(heroForBuffMerge);
+      const baseCapsAtk = pveSnapshotBaseCaps(hj, getMaxResources(heroForBuffMerge));
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow, baseCapsAtk);
       const hjMerged = { ...hj, heroBuffs: mergedHeroBuffs };
       const invSync = Array.isArray(hj.inventory) ? hj.inventory : undefined;

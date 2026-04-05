@@ -33,6 +33,7 @@ import {
 } from "../../worldMobHpStore";
 import {
   mergeServerAndClientBuffsForResourceScaling,
+  pveSnapshotBaseCaps,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
 import { runSerializedPveMutation } from "./pveMutationQueue";
@@ -403,7 +404,7 @@ export const createStartBattle =
             ),
             now,
           );
-          const baseCapsStart = getMaxResources(hero);
+          const baseCapsStart = pveSnapshotBaseCaps(hj as Record<string, any>, getMaxResources(hero));
           const scaledRes = scalePveSnapshotHpMpCpToBuffed(
             hj as Record<string, any>,
             buffsForScale,

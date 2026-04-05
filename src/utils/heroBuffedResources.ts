@@ -120,6 +120,32 @@ function pickBaseMaxFromSnapshot(
 }
 
 /**
+ * Після онлайн PvE-мутації сервер клампить heroJson до base max із БД (див. attachBaseResources).
+ * Для resourceFillRatio знаменник має збігатися з цим hp/mp/cp — інакше root hero.baseMaxHp, що роз’їхався
+ * з колонками, дає «провал» смуги (~половина HP після тіку).
+ */
+export function pveSnapshotBaseCaps(
+  hj: Record<string, any> | null | undefined,
+  fallback: { maxHp: number; maxMp: number; maxCp: number } | null | undefined,
+): { maxHp: number; maxMp: number; maxCp: number } {
+  const f = fallback ?? { maxHp: 1, maxMp: 1, maxCp: 1 };
+  const h = hj && typeof hj === "object" ? hj : {};
+  const pick = (baseKey: unknown, maxKey: unknown, fb: number) => {
+    const a = Math.floor(Number(baseKey));
+    if (Number.isFinite(a) && a > 0) return Math.max(1, a);
+    const b = Math.floor(Number(maxKey));
+    if (Number.isFinite(b) && b > 0) return Math.max(1, b);
+    const c = Math.floor(Number(fb));
+    return Math.max(1, Number.isFinite(c) && c > 0 ? c : 1);
+  };
+  return {
+    maxHp: pick(h.baseMaxHp, h.maxHp, f.maxHp),
+    maxMp: pick(h.baseMaxMp, h.maxMp, f.maxMp),
+    maxCp: pick(h.baseMaxCp, h.maxCp, f.maxCp),
+  };
+}
+
+/**
  * Сервер зберігає hp/mp/cp у heroJson у масштабі base max (див. heroPersistence).
  * Після applyServerSync клієнтський max з buffs вищий — без масштабування смуги HUD показують ~половину після PvE snapshot.
  *

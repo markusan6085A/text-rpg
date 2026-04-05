@@ -7,6 +7,7 @@ import { cleanupBuffs } from "../helpers";
 import { loadBattle, persistBattle } from "../persist";
 import {
   mergeHeroBuffsForPveResourceScaling,
+  pveSnapshotBaseCaps,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
 import { filterBuffsForHeroProfession } from "../loadout";
@@ -59,7 +60,7 @@ export function schedulePveMobDebuffOnline(args: {
       const buffsForScale = heroForBuffMerge
         ? cleanupBuffs(filterBuffsForHeroProfession(heroForBuffMerge, forScaleRaw), tickNow)
         : cleanupBuffs(forScaleRaw, tickNow);
-      const baseCapsDeb = getMaxResources(heroForBuffMerge);
+      const baseCapsDeb = pveSnapshotBaseCaps(hj, getMaxResources(heroForBuffMerge));
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow, baseCapsDeb);
       const hjMerged = { ...hj, heroBuffs: mergedHjBuffs };
       store.applyServerSync(

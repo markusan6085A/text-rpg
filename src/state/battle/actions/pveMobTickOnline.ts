@@ -13,6 +13,7 @@ import { persistBattle, loadBattle } from "../persist";
 import type { BattleState } from "../types";
 import {
   mergeHeroBuffsForPveResourceScaling,
+  pveSnapshotBaseCaps,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
 import { filterBuffsForHeroProfession } from "../loadout";
@@ -127,16 +128,16 @@ export function schedulePveMobTickOnline(): void {
         ? cleanupBuffs(filterBuffsForHeroProfession(hSync, forScaleRaw), tickNow)
         : cleanupBuffs(forScaleRaw, tickNow);
       const liveHero = store.hero;
-      const baseCaps = liveHero ? getMaxResources(liveHero) : null;
+      const baseCaps = pveSnapshotBaseCaps(mergedHj, liveHero ? getMaxResources(liveHero) : null);
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(
         mergedHj,
         buffsForScale,
         tickNow,
         baseCaps,
       );
-      const bmh = Math.max(1, Math.floor(baseCaps?.maxHp ?? Number(mergedHj.maxHp ?? 1)));
-      const bmm = Math.max(1, Math.floor(baseCaps?.maxMp ?? Number(mergedHj.maxMp ?? 1)));
-      const bmc = Math.max(1, Math.floor(baseCaps?.maxCp ?? Number(mergedHj.maxCp ?? 1)));
+      const bmh = baseCaps.maxHp;
+      const bmm = baseCaps.maxMp;
+      const bmc = baseCaps.maxCp;
       const buffedCaps = computeBuffedMaxResources({ maxHp: bmh, maxMp: bmm, maxCp: bmc }, buffsForScale as any);
 
       const prevBHp = Math.floor(Number(heroJsonBeforeTick.hp ?? NaN));

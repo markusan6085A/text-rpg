@@ -10,6 +10,7 @@ import {
 import { persistBattle, loadBattle } from "../persist";
 import {
   mergeHeroBuffsForPveResourceScaling,
+  pveSnapshotBaseCaps,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
 import { filterBuffsForHeroProfession } from "../loadout";
@@ -118,7 +119,7 @@ export function schedulePveConsumableOnline(args: {
       const buffsForScale = hSync
         ? cleanupBuffs(filterBuffsForHeroProfession(hSync, forScaleRaw), tickNow)
         : cleanupBuffs(forScaleRaw, tickNow);
-      const baseCapsUse = hSync ? getMaxResources(hSync) : null;
+      const baseCapsUse = pveSnapshotBaseCaps(mergedHj, hSync ? getMaxResources(hSync) : null);
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(mergedHj, buffsForScale, tickNow, baseCapsUse);
 
       const inv =
