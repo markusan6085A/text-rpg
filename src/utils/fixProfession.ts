@@ -10,6 +10,18 @@ export function fixHeroProfession(hero: any): any {
   const klass = (hero.klass || "").toLowerCase();
   const currentProfession = (hero.profession || "").toLowerCase();
   const level = hero.level || 1;
+  const rawProf = String(hero.profession ?? "").trim();
+  const rawKlass = String(hero.klass ?? "").trim();
+  const normalizedExisting = normalizeProfessionId(rawProf);
+
+  // Якщо професія вже валідна (або це валідний label/alias, що мапиться в id) —
+  // НЕ робимо "авто-даунгрейд" до базової.
+  if (rawProf && normalizedExisting && getProfessionDefinition(normalizedExisting)) {
+    if (rawProf !== normalizedExisting) {
+      return { ...hero, profession: normalizedExisting };
+    }
+    return hero;
+  }
 
   // Перевіряємо, чи це Dark Elf
   const isDarkElf = 
@@ -39,7 +51,7 @@ export function fixHeroProfession(hero: any): any {
   // ДОДАТКОВА ПЕРЕВІРКА: якщо професія містить human_mystic, але раса - Dark Elf, це помилка
   const hasWrongHumanProfession = 
     isDarkElf && 
-    (currentProfession.includes("human_mystic") || currentProfession.includes("necromancer"));
+    currentProfession.includes("human_mystic");
 
   // Діагностичне логування
   if (isDarkElf || hasWrongHumanProfession) {
@@ -59,8 +71,7 @@ export function fixHeroProfession(hero: any): any {
     // Виправляємо ТІЛЬКИ неправильні професії (наприклад, human_mystic_*)
     // НЕ встановлюємо автоматично професію за рівнем - це має робити гравець вручну!
     const needsFix = 
-      currentProfession.includes("human_mystic") ||
-      currentProfession.includes("necromancer");
+      currentProfession.includes("human_mystic");
 
     if (needsFix) {
       // Встановлюємо базову професію, якщо була неправильна
@@ -82,13 +93,29 @@ export function fixHeroProfession(hero: any): any {
   }
 
   // Професія збігається з ігровим класом (Fighter/Mystic) — це не L2 job id; інакше GuildScreen не знаходить ланцюжок і скілів
-  const rawProf = String(hero.profession ?? "").trim();
-  const rawKlass = String(hero.klass ?? "").trim();
+  const GENERIC_CLASS_MARKERS = new Set([
+    "fighter",
+    "mystic",
+    "human_fighter",
+    "human_mystic",
+    "dark_fighter",
+    "dark_mystic",
+    "elven_fighter",
+    "elven_mystic",
+    "orc_fighter",
+    "orc_mystic",
+    "dwarven_fighter",
+    "воин",
+    "маг",
+  ]);
   if (rawProf && rawKlass && rawProf.toLowerCase() === rawKlass.toLowerCase()) {
-    const defaultProf = getDefaultProfessionForKlass(hero.klass || "", hero.race);
-    if (defaultProf) {
-      console.log(`[fixProfession] profession === klass (${rawProf}) → базова job id:`, defaultProf, hero.name || "");
-      return { ...hero, profession: defaultProf };
+    const lower = rawProf.toLowerCase();
+    if (GENERIC_CLASS_MARKERS.has(lower)) {
+      const defaultProf = getDefaultProfessionForKlass(hero.klass || "", hero.race);
+      if (defaultProf) {
+        console.log(`[fixProfession] profession === klass (${rawProf}) → базова job id:`, defaultProf, hero.name || "");
+        return { ...hero, profession: defaultProf };
+      }
     }
   }
 
