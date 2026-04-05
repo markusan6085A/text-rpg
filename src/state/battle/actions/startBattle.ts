@@ -11,7 +11,13 @@ import {
   sanitizeBattleLoadoutSlots,
 } from "../loadout";
 import { loadBattle, persistBattle } from "../persist";
-import { cleanupBuffs, persistSnapshot, applyBuffsToStats, computeBuffedMaxResources } from "../helpers";
+import {
+  cleanupBuffs,
+  persistSnapshot,
+  applyBuffsToStats,
+  computeBuffedMaxResources,
+  mergeServerHeroBuffsRespectLocalToggleOff,
+} from "../helpers";
 import { getMaxResources } from "../helpers/getMaxResources";
 import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
 import type { BattleState, CooldownMap } from "../types";
@@ -25,7 +31,6 @@ import {
   getWorldMobHpForSlot,
 } from "../../worldMobHpStore";
 import {
-  mergeHeroBuffsForPveResourceScaling,
   mergeServerAndClientBuffsForResourceScaling,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
@@ -330,6 +335,15 @@ export const createStartBattle =
     // Пасивні скіли вже застосовані в heroStore через recalculateAllStats
     // У бою просто читаємо hero.maxHp/maxMp/maxCp та hero.hp/mp/cp
     // НЕ перераховуємо пасиви в бою!
+
+    // Поки йде POST pve-battle-start, без цього React лишає status/mob/старий lastReward → блимання «ВЫ ПОБЕДИЛИ».
+    set({
+      status: "idle",
+      mob: undefined,
+      lastReward: undefined,
+      zoneId,
+      mobIndex,
+    });
     
     // Обчислюємо інтервал auto-attack на основі attackSpeed
     // Для риболовлі: фіксований інтервал 0.4 сек (400 мс)
@@ -374,15 +388,17 @@ export const createStartBattle =
             Array.isArray(prevState.heroBuffs) ? prevState.heroBuffs : [],
             Array.isArray(saved?.heroBuffs) ? saved.heroBuffs : [],
           );
-          const buffsCore = mergeHeroBuffsForPveResourceScaling(
+          // Як pve-battle-attack: не віддавати heroJson лише з сирими srv heroBuffs — зникають міст/toggle/локальні.
+          const buffsMergedForSync = mergeServerHeroBuffsRespectLocalToggleOff(
+            hero,
             (hj as any).heroBuffs,
-            prevHj.heroBuffs,
             clientBattleMerged,
+            now,
           );
           const buffsForScale = cleanupBuffs(
             filterBuffsForHeroProfession(
               hero,
-              mergeServerAndClientBuffsForResourceScaling(buffsCore, savedBuffs),
+              mergeServerAndClientBuffsForResourceScaling(buffsMergedForSync, savedBuffs),
             ),
             now,
           );
@@ -420,7 +436,7 @@ export const createStartBattle =
               hp: finalHp,
               mp: finalMp,
               cp: finalCp,
-              heroJson: { ...prevHj, ...hj },
+              heroJson: { ...prevHj, ...hj, heroBuffs: buffsForScale },
             } as any,
             {
               heroRevision: (hj as any).heroRevision,
@@ -520,10 +536,7 @@ export const createStartBattle =
       const ab = ((heroForBattle as any)?.heroJson || {}) as Record<string, any>;
       if (Array.isArray(ab.heroBuffs)) {
         battleHeroBuffsForInitial = cleanupBuffs(
-          filterBuffsForHeroProfession(
-            heroForBattle,
-            mergeServerAndClientBuffsForResourceScaling(ab.heroBuffs, savedBuffs),
-          ),
+          filterBuffsForHeroProfession(heroForBattle, ab.heroBuffs),
           now,
         );
       }

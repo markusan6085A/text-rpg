@@ -409,8 +409,14 @@ export default function Battle({ navigate }: BattleProps) {
     );
   }
 
-  // Екран перемоги
-  if (status === "victory" && lastReward && mob) {
+  // Екран перемоги лише коли це той самий бій, що в URL (інакше під стартом нового моба лишається старий snapshot).
+  const victoryContextOk =
+    Boolean(zoneId) &&
+    mobIndex >= 0 &&
+    battleZoneId === zoneId &&
+    battleMobIndex === mobIndex;
+
+  if (status === "victory" && lastReward && mob && victoryContextOk) {
     const handleHitNextMob = () => {
       if (zone && battleMobIndex !== undefined && zoneId) {
         const heroName = useHeroStore.getState().hero?.name;
@@ -651,6 +657,50 @@ export default function Battle({ navigate }: BattleProps) {
         isL2={isModernBattle}
         isBattleTest={isBattleTest}
       />
+    );
+  }
+
+  if (status === "victory" && !victoryContextOk) {
+    return (
+      <div
+        className={
+          isModernBattle
+            ? `${battleShell} w-full min-w-0 my-1 flex items-center justify-center px-4 py-10 ${
+                isBattleTest ? "text-slate-200" : "text-[#d4c4a8]"
+              }`
+            : "text-white flex items-center justify-center px-4 py-8"
+        }
+      >
+        <div className="space-y-3 max-w-[380px] text-center">
+          <div
+            className={
+              isModernBattle
+                ? isBattleTest
+                  ? "mx-auto w-6 h-6 border-2 border-cyan-950 border-t-cyan-400 rounded-full animate-spin"
+                  : "mx-auto w-6 h-6 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin"
+                : "hidden"
+            }
+          />
+          <h1
+            className={
+              isBattleTest
+                ? "text-lg font-semibold text-cyan-200"
+                : isModernBattle
+                  ? "text-lg font-semibold text-[#e8c56e]"
+                  : "text-xl font-bold"
+            }
+          >
+            Завантаження...
+          </h1>
+          <p
+            className={
+              isBattleTest ? "text-sm text-slate-400" : isModernBattle ? "text-sm text-[#8a7a60]" : "text-sm text-gray-300"
+            }
+          >
+            Підготовка бою...
+          </p>
+        </div>
+      </div>
     );
   }
 
