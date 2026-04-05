@@ -39,6 +39,25 @@ interface LogEntry {
 const emptyWarehouse = (): (HeroInventoryItem | null)[] =>
   Array.from({ length: WAREHOUSE_MAX_SLOTS }, () => null);
 
+function isRevisionConflictError(err: any): boolean {
+  return (
+    err?.status === 409 ||
+    err?.body?.error === "revision_conflict" ||
+    String(err?.message ?? "").includes("revision_conflict") ||
+    String(err?.message ?? "").includes("Character was modified")
+  );
+}
+
+async function resyncHeroSilently(): Promise<void> {
+  try {
+    const { loadHeroFromAPI } = await import("../state/heroStore/heroLoadAPI");
+    const synced = await loadHeroFromAPI();
+    if (synced) useHeroStore.getState().setHero(synced);
+  } catch {
+    // silent best-effort sync
+  }
+}
+
 export default function Warehouse({ navigate }: WarehouseProps) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
@@ -187,26 +206,36 @@ export default function Warehouse({ navigate }: WarehouseProps) {
       return;
     }
 
-    const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
-    try {
-      const updated = await postWarehouseDeposit(activeCharacterId, {
-        expectedRevision,
-        inventoryIndex,
-        count: itemCount,
-      });
-      const hj = (updated as any)?.heroJson ?? {};
-      if (Array.isArray(hj.inventory)) {
-        updateHero({ inventory: hj.inventory, heroJson: hj } as any);
-      } else {
-        updateHero({ heroJson: hj } as any);
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const liveHero = useHeroStore.getState().hero;
+      const expectedRevision = Number((liveHero as any)?.heroJson?.heroRevision ?? 0);
+      try {
+        const updated = await postWarehouseDeposit(activeCharacterId, {
+          expectedRevision,
+          inventoryIndex,
+          count: itemCount,
+        });
+        const hj = (updated as any)?.heroJson ?? {};
+        if (Array.isArray(hj.inventory)) {
+          updateHero({ inventory: hj.inventory, heroJson: hj } as any);
+        } else {
+          updateHero({ heroJson: hj } as any);
+        }
+        const slots = Array.isArray(hj.warehouseSlots) ? hj.warehouseSlots : emptyWarehouse();
+        setWarehouse(slots);
+        addLogEntry(`Положено на склад: ${item.name} x${itemCount}`);
+        setQuantityModal(null);
+        setQuantityInput("1");
+        return;
+      } catch (err: any) {
+        if (isRevisionConflictError(err) && attempt === 0) {
+          await resyncHeroSilently();
+          await new Promise((resolve) => setTimeout(resolve, 120));
+          continue;
+        }
+        showToast(err?.message || "Ошибка при перемещении на склад", "error");
+        return;
       }
-      const slots = Array.isArray(hj.warehouseSlots) ? hj.warehouseSlots : emptyWarehouse();
-      setWarehouse(slots);
-      addLogEntry(`Положено на склад: ${item.name} x${itemCount}`);
-      setQuantityModal(null);
-      setQuantityInput("1");
-    } catch (err: any) {
-      showToast(err?.message || "Ошибка при перемещении на склад", "error");
     }
   };
 
@@ -236,24 +265,34 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     const item = warehouse[slotIndex];
     if (!item) return;
 
-    const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
-    try {
-      const updated = await postWarehouseWithdraw(activeCharacterId, {
-        expectedRevision,
-        slotIndex,
-        count: Math.max(1, Number(item.count || 1)),
-      });
-      const hj = (updated as any)?.heroJson ?? {};
-      if (Array.isArray(hj.inventory)) {
-        updateHero({ inventory: hj.inventory, heroJson: hj } as any);
-      } else {
-        updateHero({ heroJson: hj } as any);
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const liveHero = useHeroStore.getState().hero;
+      const expectedRevision = Number((liveHero as any)?.heroJson?.heroRevision ?? 0);
+      try {
+        const updated = await postWarehouseWithdraw(activeCharacterId, {
+          expectedRevision,
+          slotIndex,
+          count: Math.max(1, Number(item.count || 1)),
+        });
+        const hj = (updated as any)?.heroJson ?? {};
+        if (Array.isArray(hj.inventory)) {
+          updateHero({ inventory: hj.inventory, heroJson: hj } as any);
+        } else {
+          updateHero({ heroJson: hj } as any);
+        }
+        const slots = Array.isArray(hj.warehouseSlots) ? hj.warehouseSlots : emptyWarehouse();
+        setWarehouse(slots);
+        addLogEntry(`Взято со склада: ${item.name} x${item.count || 1}`);
+        return;
+      } catch (err: any) {
+        if (isRevisionConflictError(err) && attempt === 0) {
+          await resyncHeroSilently();
+          await new Promise((resolve) => setTimeout(resolve, 120));
+          continue;
+        }
+        showToast(err?.message || "Ошибка при выводе предмета", "error");
+        return;
       }
-      const slots = Array.isArray(hj.warehouseSlots) ? hj.warehouseSlots : emptyWarehouse();
-      setWarehouse(slots);
-      addLogEntry(`Взято со склада: ${item.name} x${item.count || 1}`);
-    } catch (err: any) {
-      showToast(err?.message || "Ошибка при выводе предмета", "error");
     }
   };
 

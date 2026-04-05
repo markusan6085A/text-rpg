@@ -69,6 +69,25 @@ type CraftModalState =
   | { tier: 3; idx: number }
   | { tier: 4; idx: number };
 
+function isRevisionConflictError(err: any): boolean {
+  return (
+    err?.status === 409 ||
+    err?.body?.error === "revision_conflict" ||
+    String(err?.message ?? "").includes("revision_conflict") ||
+    String(err?.message ?? "").includes("Character was modified")
+  );
+}
+
+async function resyncHeroSilently(): Promise<void> {
+  try {
+    const { loadHeroFromAPI } = await import("../../state/heroStore/heroLoadAPI");
+    const synced = await loadHeroFromAPI();
+    if (synced) useHeroStore.getState().setHero(synced);
+  } catch {
+    // silent best-effort sync
+  }
+}
+
 function RecipeCard(props: {
   outputId: string;
   ingredients: IngRow[];
@@ -211,25 +230,35 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
       return;
     }
 
-    const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
-    try {
-      const updated = await postResourceCraft(hero.id, {
-        expectedRevision,
-        tier: craftModal.tier,
-        recipeIndex: craftModal.idx,
-        quantity: qty,
-      });
-      const serverHeroJson = (updated as any)?.heroJson ?? {};
-      if (Array.isArray(serverHeroJson.inventory)) {
-        updateHero({ inventory: serverHeroJson.inventory, heroJson: serverHeroJson } as any);
-      } else {
-        updateHero({ heroJson: serverHeroJson } as any);
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const liveHero = useHeroStore.getState().hero;
+      const expectedRevision = Number((liveHero as any)?.heroJson?.heroRevision ?? 0);
+      try {
+        const updated = await postResourceCraft(hero.id, {
+          expectedRevision,
+          tier: craftModal.tier,
+          recipeIndex: craftModal.idx,
+          quantity: qty,
+        });
+        const serverHeroJson = (updated as any)?.heroJson ?? {};
+        if (Array.isArray(serverHeroJson.inventory)) {
+          updateHero({ inventory: serverHeroJson.inventory, heroJson: serverHeroJson } as any);
+        } else {
+          updateHero({ heroJson: serverHeroJson } as any);
+        }
+        const name = displayCraftResourceName(modalRecipe.outputId);
+        showToast(`Скрафчено: ${name} ×${qty}`, "success");
+        setCraftModal(null);
+        return;
+      } catch (e: any) {
+        if (isRevisionConflictError(e) && attempt === 0) {
+          await resyncHeroSilently();
+          await new Promise((resolve) => setTimeout(resolve, 120));
+          continue;
+        }
+        showToast(e?.message || "Крафт не выполнен на сервере", "error");
+        return;
       }
-      const name = displayCraftResourceName(modalRecipe.outputId);
-      showToast(`Скрафчено: ${name} ×${qty}`, "success");
-      setCraftModal(null);
-    } catch (e: any) {
-      showToast(e?.message || "Крафт не выполнен на сервере", "error");
     }
   }, [
     hero,
