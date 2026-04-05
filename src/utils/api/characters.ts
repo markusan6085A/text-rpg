@@ -1,5 +1,6 @@
 import { apiRequest } from "./core";
 import { applyRevisionConflictFromApiError } from "../../state/heroStore";
+import { maxRevisionFromConflictBody } from "../revisionConflictBody";
 import type {
   Character,
   CreateCharacterRequest,
@@ -282,18 +283,17 @@ async function readHeroRevisionFromGetCharacter(characterId: string): Promise<nu
   return Number.isFinite(r) && r >= 0 ? r : 0;
 }
 
-/** Після 409: брати max(ревізія з тіла помилки, GET) — GET інколи відстає, тоді повторний POST знову 409. */
+/** Після 409: max(усі ревізії з тіла, GET) — у тілі поля інколи не збігаються; GET може відставати. */
 async function resolveRevisionAfter409Conflict(characterId: string, e: any): Promise<number> {
-  const fromBody = Number(
-    e?.body?.currentRevision ?? e?.body?.serverState?.heroRevision ?? e?.body?.heroRevision,
-  );
+  const fromBody = maxRevisionFromConflictBody(e?.body);
   let fromGet = NaN;
   try {
     fromGet = await readHeroRevisionFromGetCharacter(characterId);
   } catch {
     /* ignore */
   }
-  const nums = [fromBody, fromGet].filter((n) => Number.isFinite(n) && n >= 0) as number[];
+  const nums = [fromBody, fromGet]
+    .filter((n): n is number => n != null && Number.isFinite(n) && n >= 0) as number[];
   if (nums.length === 0) throw e;
   return Math.max(...nums);
 }
@@ -370,41 +370,32 @@ export async function battleStartAPI(
     rev = data.expectedRevision;
   }
   const url = `/characters/${encodeURIComponent(characterId)}/pve-battle-start`;
-  const body = { ...data, expectedRevision: rev };
-  try {
-    const res = await apiRequest<{
-      ok: boolean;
-      character: Character;
-      sessionMobHp?: number;
-      sessionMobMaxHp?: number;
-    }>(url, {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
-    if (!res?.character) throw new Error("no character");
-    return Object.assign(res.character, {
-      sessionMobHp: res.sessionMobHp,
-      sessionMobMaxHp: res.sessionMobMaxHp,
-    });
-  } catch (e: any) {
-    if (e?.status !== 409) throw e;
-    applyRevisionConflictFromApiError(e);
-    const rev2 = await resolveRevisionAfter409Conflict(characterId, e);
-    const res = await apiRequest<{
-      ok: boolean;
-      character: Character;
-      sessionMobHp?: number;
-      sessionMobMaxHp?: number;
-    }>(url, {
-      method: "POST",
-      body: JSON.stringify({ ...data, expectedRevision: rev2 }),
-    });
-    if (!res?.character) throw new Error("no character");
-    return Object.assign(res.character, {
-      sessionMobHp: res.sessionMobHp,
-      sessionMobMaxHp: res.sessionMobMaxHp,
-    });
+  let attemptRev = rev;
+  let lastErr: any;
+  for (let i = 0; i < 3; i++) {
+    try {
+      const res = await apiRequest<{
+        ok: boolean;
+        character: Character;
+        sessionMobHp?: number;
+        sessionMobMaxHp?: number;
+      }>(url, {
+        method: "POST",
+        body: JSON.stringify({ ...data, expectedRevision: attemptRev }),
+      });
+      if (!res?.character) throw new Error("no character");
+      return Object.assign(res.character, {
+        sessionMobHp: res.sessionMobHp,
+        sessionMobMaxHp: res.sessionMobMaxHp,
+      });
+    } catch (e: any) {
+      lastErr = e;
+      if (e?.status !== 409) throw e;
+      applyRevisionConflictFromApiError(e);
+      attemptRev = await resolveRevisionAfter409Conflict(characterId, e);
+    }
   }
+  throw lastErr;
 }
 
 /** PvE атакуючий скил — урон і MP на сервері (CAS). */
@@ -435,21 +426,22 @@ export async function pveBattleAttackAPI(
     rev = data.expectedRevision;
   }
   const url = `/characters/${encodeURIComponent(characterId)}/pve-battle-attack`;
-  const payload = { ...data, expectedRevision: rev };
-  try {
-    return await apiRequest(url, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-  } catch (e: any) {
-    if (e?.status !== 409) throw e;
-    applyRevisionConflictFromApiError(e);
-    const rev2 = await resolveRevisionAfter409Conflict(characterId, e);
-    return await apiRequest(url, {
-      method: "POST",
-      body: JSON.stringify({ ...data, expectedRevision: rev2 }),
-    });
+  let attemptRev = rev;
+  let lastErr: any;
+  for (let i = 0; i < 3; i++) {
+    try {
+      return await apiRequest(url, {
+        method: "POST",
+        body: JSON.stringify({ ...data, expectedRevision: attemptRev }),
+      });
+    } catch (e: any) {
+      lastErr = e;
+      if (e?.status !== 409) throw e;
+      applyRevisionConflictFromApiError(e);
+      attemptRev = await resolveRevisionAfter409Conflict(characterId, e);
+    }
   }
+  throw lastErr;
 }
 
 /** PvE тік моба — урон по герою на сервері (CAS). */
@@ -478,21 +470,22 @@ export async function pveBattleTickAPI(
     rev = data.expectedRevision;
   }
   const url = `/characters/${encodeURIComponent(characterId)}/pve-battle-tick`;
-  const payload = { ...data, expectedRevision: rev };
-  try {
-    return await apiRequest(url, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-  } catch (e: any) {
-    if (e?.status !== 409) throw e;
-    applyRevisionConflictFromApiError(e);
-    const rev2 = await resolveRevisionAfter409Conflict(characterId, e);
-    return await apiRequest(url, {
-      method: "POST",
-      body: JSON.stringify({ ...data, expectedRevision: rev2 }),
-    });
+  let attemptRev = rev;
+  let lastErr: any;
+  for (let i = 0; i < 3; i++) {
+    try {
+      return await apiRequest(url, {
+        method: "POST",
+        body: JSON.stringify({ ...data, expectedRevision: attemptRev }),
+      });
+    } catch (e: any) {
+      lastErr = e;
+      if (e?.status !== 409) throw e;
+      applyRevisionConflictFromApiError(e);
+      attemptRev = await resolveRevisionAfter409Conflict(characterId, e);
+    }
   }
+  throw lastErr;
 }
 
 export async function pveCastSelfBuffAPI(

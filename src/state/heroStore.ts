@@ -18,6 +18,7 @@ import { itemsDB } from "../data/items/itemsDB";
 import { showToast } from "./toastStore";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { isStackableHeroItem } from "./heroStore/inventoryOverflow";
+import { maxRevisionFromConflictBody } from "../utils/revisionConflictBody";
 
 export const INVENTORY_MAX_ITEMS = 100;
 export const INVENTORY_ABSOLUTE_MAX = 500;
@@ -787,10 +788,8 @@ export function applyRevisionConflictFromApiError(error: unknown): void {
   if (e?.status !== 409) return;
   const body = e?.body;
   if (!body || typeof body !== "object") return;
-  const raw =
-    body.currentRevision ?? body.serverState?.heroRevision ?? body.heroRevision;
-  if (raw == null || !Number.isFinite(Number(raw))) return;
-  const r = Number(raw);
+  const r = maxRevisionFromConflictBody(body);
+  if (r == null) return;
   const store = useHeroStore.getState();
   const h = store.hero;
   if (h && (h as any).heroJson && typeof (h as any).heroJson === "object") {

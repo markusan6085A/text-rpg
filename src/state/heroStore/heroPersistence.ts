@@ -19,6 +19,7 @@ import { loadLoadout } from "../battle/loadout";
 import { loadWarehouse, seedWarehouseFromHeroJsonIfStorageEmpty } from "../warehouse/warehousePersistence";
 import { cleanupBuffs, computeBuffedMaxResources } from "../battle/helpers";
 import { hydrateHero } from "./heroHydration";
+import { maxRevisionFromConflictBody } from "../../utils/revisionConflictBody";
 
 /** Логін / реєстрація / після GET героя: `l2_current_user` і запис `{ username, hero }` у `l2_accounts_v2`. Якщо `hero` не передано — лише встановлює поточного користувача (наприклад перед loadHeroFromAPI). */
 export function syncCurrentUserAndAccountHero(username: string, hero?: Hero): void {
@@ -51,15 +52,11 @@ function isActiveBattleForHero(hero: Hero | null | undefined): boolean {
 /** PUT/PvE 409 повертає актуальну ревізію БД; підставляємо джерело правди (не Math.max зі «здутою» локальною). */
 async function applyHeroRevisionFrom409Body(error: any): Promise<void> {
   if (error?.status !== 409) return;
-  const body = (error as any).body;
-  if (!body || typeof body !== "object") return;
-  const srvRev =
-    body.currentRevision ??
-    body.serverState?.heroRevision ??
-    body.heroRevision ??
-    (error as any).details?.serverState?.heroRevision;
-  if (srvRev == null || !Number.isFinite(Number(srvRev))) return;
-  const r = Number(srvRev);
+  const fromBody = maxRevisionFromConflictBody((error as any).body);
+  const fromDetails = maxRevisionFromConflictBody((error as any).details);
+  const nums = [fromBody, fromDetails].filter((n): n is number => n != null);
+  if (nums.length === 0) return;
+  const r = Math.max(...nums);
   const { useHeroStore } = await import('../heroStore');
   useHeroStore.getState().updateServerState(
     {

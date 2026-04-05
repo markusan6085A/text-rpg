@@ -13,7 +13,11 @@ import { addDailyProgress } from "../../dailyQuestsProgress";
 import { createCooldownEntry } from "./useSkill/helpers";
 import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
 import { applyBuffsToStats } from "../helpers";
-import { scalePveSnapshotHpMpCpToBuffed } from "../../../utils/heroBuffedResources";
+import {
+  mergeServerAndClientBuffsForResourceScaling,
+  scalePveSnapshotHpMpCpToBuffed,
+} from "../../../utils/heroBuffedResources";
+import { filterBuffsForHeroProfession } from "../loadout";
 
 let inFlightSkillId: number | null = null;
 
@@ -92,8 +96,13 @@ export function schedulePveAttackSkillOnline(args: {
       const hj = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, any>;
       const store = useHeroStore.getState();
       const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
-      const buffsForScale = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
-      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, Date.now());
+      const tickNow = Date.now();
+      const clientBattle = cleanupBuffs(state.heroBuffs || [], tickNow);
+      const buffsForScale = cleanupBuffs(
+        filterBuffsForHeroProfession(hero, mergeServerAndClientBuffsForResourceScaling(hj.heroBuffs, clientBattle)),
+        tickNow,
+      );
+      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow);
       store.applyServerSync(
         {
           hp: scaledRes.hp,

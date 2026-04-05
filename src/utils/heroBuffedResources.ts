@@ -49,6 +49,23 @@ export function getHeroResourceValues(hero: Hero, inBattle: boolean) {
   };
 }
 
+/**
+ * Серверний heroBuffs може бути «урезаний» vs клієнт (місто/скроли/паті лише локально).
+ * Для caps HP при PvE snapshot об’єднуємо списки (dedupe), інакше buffed max занижується → смуги «падають».
+ */
+export function mergeServerAndClientBuffsForResourceScaling(
+  serverBuffs: any[] | undefined,
+  clientBuffs: any[],
+): any[] {
+  const merged = [...(Array.isArray(serverBuffs) ? serverBuffs : []), ...clientBuffs];
+  return merged.filter(
+    (buff, i, arr) =>
+      arr.findIndex((b) =>
+        (b.id && buff.id && b.id === buff.id) || (!b.id && !buff.id && b.name === buff.name),
+      ) === i,
+  );
+}
+
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
 function normalizeStoredResourcePercent(raw: unknown): number {

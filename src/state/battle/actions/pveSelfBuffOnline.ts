@@ -6,7 +6,11 @@ import { battleStoreRef } from "../../battleStoreRef";
 import { cleanupBuffs } from "../helpers";
 import { loadBattle, persistBattle } from "../persist";
 import { skillDefIsToggle } from "../loadout";
-import { scalePveSnapshotHpMpCpToBuffed } from "../../../utils/heroBuffedResources";
+import {
+  mergeServerAndClientBuffsForResourceScaling,
+  scalePveSnapshotHpMpCpToBuffed,
+} from "../../../utils/heroBuffedResources";
+import { filterBuffsForHeroProfession } from "../loadout";
 
 let inFlightSkillId: number | null = null;
 
@@ -60,7 +64,12 @@ export function schedulePveSelfBuffOnline(
       const store = useHeroStore.getState();
       const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
       const now = Date.now();
-      const buffsForScale = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
+      const clientBattle = cleanupBuffs(battleStoreRef.getState()?.heroBuffs || [], now);
+      const heroSync = store.hero;
+      const mergedBuffs = mergeServerAndClientBuffsForResourceScaling(hj.heroBuffs, clientBattle);
+      const buffsForScale = heroSync
+        ? cleanupBuffs(filterBuffsForHeroProfession(heroSync, mergedBuffs), now)
+        : cleanupBuffs(mergedBuffs, now);
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, now);
       store.applyServerSync(
         {
