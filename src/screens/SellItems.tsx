@@ -3,9 +3,12 @@
 
 import React, { useState, useMemo } from "react";
 import { useHeroStore } from "../state/heroStore";
+import { useCharacterStore } from "../state/characterStore";
 import InventoryFilters, { CATEGORIES } from "./character/InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { getSellPrice } from "../utils/sellPrices";
+import { updateInventoryAPI } from "../utils/api/characters";
+import { showToast } from "../state/toastStore";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { getL2dopResourceIconPath } from "../data/world/l2dop/droplistMapping";
 import { normalizeIconPath, FALLBACK_ICON } from "../utils/itemIcon";
@@ -30,6 +33,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const [selling, setSelling] = useState(false);
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;
   const modalPanel = isL2
@@ -73,8 +77,9 @@ export default function SellItems({ navigate }: SellItemsProps) {
     });
   };
 
-  const doSellSelected = () => {
+  const doSellSelected = async () => {
     if (!hero || !hero.inventory || selectedIndices.size === 0) return;
+    if (selling) return;
     const indices = Array.from(selectedIndices).sort((a, b) => a - b);
     let totalAdena = 0;
     const toRemove: { id: string; enchantLevel: number; amount: number }[] = [];
@@ -109,11 +114,42 @@ export default function SellItems({ navigate }: SellItemsProps) {
       remaining.set(key, 0);
       return { ...i, count: cnt - need };
     }).filter(Boolean) as typeof hero.inventory;
-    const currentAdena = Number(useHeroStore.getState().hero?.adena ?? 0);
-    updateHero({ inventory: newInv, adena: currentAdena + totalAdena });
-    setSelectedIndices(new Set());
-    setSelectMode(false);
-    setConfirmSell(null);
+    const expectedRevision = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
+    setSelling(true);
+    try {
+      // Persist inventory atomically first, so sold items do not return on next GET/refresh.
+      const charId = useCharacterStore.getState().characterId;
+      if (!charId) throw new Error("no character id");
+      const updated = await updateInventoryAPI(charId, {
+        inventory: newInv as any[],
+        overflowChest: Array.isArray(hero.overflowChest) ? hero.overflowChest : [],
+        expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+      });
+      const nextInventory = Array.isArray((updated as any)?.heroJson?.inventory) ? (updated as any).heroJson.inventory : newInv;
+      const nextOverflow = Array.isArray((updated as any)?.heroJson?.overflowChest) ? (updated as any).heroJson.overflowChest : (hero.overflowChest || []);
+      const nextRevision = Number((updated as any)?.heroJson?.heroRevision ?? expectedRevision);
+      useHeroStore.getState().applyServerSync(
+        {
+          inventory: nextInventory,
+          overflowChest: nextOverflow,
+          heroRevision: nextRevision,
+        } as any,
+        { heroRevision: nextRevision, updatedAt: Date.now() }
+      );
+      const currentAdena = Number(useHeroStore.getState().hero?.adena ?? 0);
+      updateHero({ adena: currentAdena + totalAdena });
+      setSelectedIndices(new Set());
+      setSelectMode(false);
+      setConfirmSell(null);
+      showToast(`Продано. +${totalAdena.toLocaleString()} Adena`, "success");
+    } catch (e: any) {
+      const msg = e?.status === 409
+        ? "Инвентарь изменился на сервере. Обновите и повторите продажу."
+        : (e?.message || "Не удалось сохранить продажу на сервере.");
+      showToast(msg, "error");
+    } finally {
+      setSelling(false);
+    }
   };
 
   const showSellSelectedConfirm = () => {
@@ -135,8 +171,9 @@ export default function SellItems({ navigate }: SellItemsProps) {
     });
   };
 
-  const handleSell = (item: any, amount: number) => {
+  const handleSell = async (item: any, amount: number) => {
     if (!hero || !hero.inventory) return;
+    if (selling) return;
     const price = getSellPrice(item.id, itemsDB[item.id] || itemsDBWithStarter[item.id]);
     if (price == null || price <= 0) return;
 
@@ -161,8 +198,38 @@ export default function SellItems({ navigate }: SellItemsProps) {
     const currentAdena = Number(useHeroStore.getState().hero?.adena ?? 0);
     const newAdena = currentAdena + totalGain;
 
-    updateHero({ inventory: updatedInventory, adena: newAdena });
-    setConfirmSell(null);
+    const expectedRevision = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
+    setSelling(true);
+    try {
+      const charId = useCharacterStore.getState().characterId;
+      if (!charId) throw new Error("no character id");
+      const updated = await updateInventoryAPI(charId, {
+        inventory: updatedInventory as any[],
+        overflowChest: Array.isArray(hero.overflowChest) ? hero.overflowChest : [],
+        expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+      });
+      const nextInventory = Array.isArray((updated as any)?.heroJson?.inventory) ? (updated as any).heroJson.inventory : updatedInventory;
+      const nextOverflow = Array.isArray((updated as any)?.heroJson?.overflowChest) ? (updated as any).heroJson.overflowChest : (hero.overflowChest || []);
+      const nextRevision = Number((updated as any)?.heroJson?.heroRevision ?? expectedRevision);
+      useHeroStore.getState().applyServerSync(
+        {
+          inventory: nextInventory,
+          overflowChest: nextOverflow,
+          heroRevision: nextRevision,
+        } as any,
+        { heroRevision: nextRevision, updatedAt: Date.now() }
+      );
+      updateHero({ adena: newAdena });
+      setConfirmSell(null);
+      showToast(`Продано. +${totalGain.toLocaleString()} Adena`, "success");
+    } catch (e: any) {
+      const msg = e?.status === 409
+        ? "Инвентарь изменился на сервере. Обновите и повторите продажу."
+        : (e?.message || "Не удалось сохранить продажу на сервере.");
+      showToast(msg, "error");
+    } finally {
+      setSelling(false);
+    }
   };
 
   const showSellConfirm = (item: any, amount: number) => {
