@@ -357,6 +357,9 @@ export async function battleStartAPI(
     mobIndex: number;
     mobId: string;
     clientMobMaxHp: number;
+    clientMobPAtk?: number;
+    clientMobMAtk?: number;
+    clientMobName?: string;
     mobIsRaidBoss?: boolean;
     /** Профіль рейд-AI з моба; сервер валідує whitelist. */
     raidAiProfileId?: string;

@@ -4178,6 +4178,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       mobIndex?: number;
       mobId?: string;
       clientMobMaxHp?: number;
+      clientMobPAtk?: number;
+      clientMobMAtk?: number;
+      clientMobName?: string;
       mobIsRaidBoss?: boolean;
       raidAiProfileId?: string;
       mobIsEpicRaidBoss?: boolean;
@@ -4217,6 +4220,15 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             mobIndex: Math.floor(Number(body.mobIndex ?? -1)),
             mobId: String(body.mobId ?? ""),
             clientMobMaxHp: Math.floor(Number(body.clientMobMaxHp ?? 0)),
+            clientMobPAtk:
+              body.clientMobPAtk != null && Number.isFinite(Number(body.clientMobPAtk))
+                ? Number(body.clientMobPAtk)
+                : undefined,
+            clientMobMAtk:
+              body.clientMobMAtk != null && Number.isFinite(Number(body.clientMobMAtk))
+                ? Number(body.clientMobMAtk)
+                : undefined,
+            clientMobName: typeof body.clientMobName === "string" ? body.clientMobName : undefined,
             mobIsRaidBoss: body.mobIsRaidBoss === true,
             raidAiProfileId: typeof body.raidAiProfileId === "string" ? body.raidAiProfileId : undefined,
             mobIsEpicRaidBoss: body.mobIsEpicRaidBoss === true,

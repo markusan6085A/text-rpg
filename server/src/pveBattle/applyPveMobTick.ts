@@ -95,8 +95,10 @@ export function applyPveMobTickSnapshot(args: {
   const isRb = sess.mobIsRaidBoss === true;
   const isEpic = sess.mobIsEpicRaidBoss === true;
   const isPhysical = Math.random() < 0.5;
-  let mobPAtk = Math.max(1, lv * 20);
-  let mobMAtk = Math.max(1, lv * 15);
+  let mobPAtk = Math.floor(Number(sess.mobPAtk));
+  if (!Number.isFinite(mobPAtk) || mobPAtk < 1) mobPAtk = lv * 20;
+  let mobMAtk = Math.floor(Number(sess.mobMAtk));
+  if (!Number.isFinite(mobMAtk) || mobMAtk < 1) mobMAtk = lv * 15;
   let base = isPhysical ? Math.max(5, mobPAtk) : Math.max(5, mobMAtk);
 
   let phaseMult = 1;
@@ -113,6 +115,8 @@ export function applyPveMobTickSnapshot(args: {
     base *= 2.25;
   } else if (isRb && !isEpic) {
     base *= 2.25;
+  } else if (sess.mobIsChampion === true) {
+    base *= 4;
   }
 
   const variance = 0.25;

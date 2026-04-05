@@ -2,11 +2,33 @@ import { lookupMobRegistry } from "../utils/serverDropCalculator";
 import { mobDefenseFromLevel, resolveMobMaxHp } from "./pveDamage";
 import { isValidRaidAiProfileId } from "./raidBossAIServer";
 
+function isChampionMobName(name: string): boolean {
+  if (!name) return false;
+  return (
+    name.startsWith("[Champion]") || name.startsWith("[Чемпион]") || name.startsWith("[Чемпіон]")
+  );
+}
+
+/** Кламп клієнтської атаки: не нижче 25% і не вище 200% дефолту (lv×20 / lv×15), інакше чит або роз’їзд з локальним боєм. */
+function resolveSessionMobAtk(clientRaw: unknown, defaultAtk: number): number {
+  const d = Math.max(1, Math.floor(Number(defaultAtk) || 1));
+  const c = Math.floor(Number(clientRaw));
+  if (!Number.isFinite(c) || c <= 0) return d;
+  const lo = Math.max(1, Math.floor(d * 0.25));
+  const hi = Math.max(lo + 1, Math.ceil(d * 2));
+  return Math.max(lo, Math.min(hi, c));
+}
+
 export type PveBattleStartBody = {
   zoneId: string;
   mobIndex: number;
   mobId: string;
   clientMobMaxHp: number;
+  /** Від клієнта як у processMobAttack; кламп до [0.25×..2×] від lv×20 / lv×15. */
+  clientMobPAtk?: number;
+  clientMobMAtk?: number;
+  /** Ім’я моба в зоні (префікс [Чемпіон] тощо) — реєстр може не містити префікса для id. */
+  clientMobName?: string;
   mobIsRaidBoss?: boolean;
   /** ID з raidBossAI (тільки для рейд-босів; валідується по whitelist). */
   raidAiProfileId?: string;
@@ -55,6 +77,12 @@ export function applyPveBattleStartSnapshot(args: { heroJson: any; body: PveBatt
 
   const mobIsEpicRaidBoss = args.body.mobIsEpicRaidBoss === true;
   const lv = Math.max(1, Math.floor(reg.level));
+  const defaultMobPAtk = lv * 20;
+  const defaultMobMAtk = lv * 15;
+  const mobPAtk = resolveSessionMobAtk(args.body.clientMobPAtk, defaultMobPAtk);
+  const mobMAtk = resolveSessionMobAtk(args.body.clientMobMAtk, defaultMobMAtk);
+  const nameForChamp = String(args.body.clientMobName ?? reg.name ?? "").trim();
+  const mobIsChampion = !isRaidBoss && isChampionMobName(nameForChamp);
   const mobEvasionBase = Math.min(
     90,
     Math.max(3, Math.round(lv * 1.35 + (isRaidBoss ? 12 : 0) + (mobIsEpicRaidBoss ? 6 : 0)))
@@ -68,6 +96,9 @@ export function applyPveBattleStartSnapshot(args: { heroJson: any; body: PveBatt
     mobHP: mobMaxHp,
     mobMaxHp,
     mobLevel: reg.level,
+    mobPAtk,
+    mobMAtk,
+    mobIsChampion,
     mobIsRaidBoss: isRaidBoss,
     mobIsEpicRaidBoss,
     raidAiProfileId,

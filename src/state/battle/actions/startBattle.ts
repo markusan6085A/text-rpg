@@ -349,12 +349,16 @@ export const createStartBattle =
             isRb && typeof (mob as any).aiProfileId === "string"
               ? String((mob as any).aiProfileId).trim()
               : "";
+          const mobLv = Math.max(1, Math.floor(Number(mob.level) || 1));
           const ch = await battleStartAPI(cid, {
             expectedRevision: Number.isFinite(rev) && rev >= 0 ? rev : 0,
             zoneId,
             mobIndex,
             mobId: mob.id,
             clientMobMaxHp: getMobEffectiveMaxHp(mob),
+            clientMobPAtk: Math.max(1, Math.floor(Number((mob as any).pAtk ?? mobLv * 20))),
+            clientMobMAtk: Math.max(1, Math.floor(Number((mob as any).mAtk ?? Math.round(mobLv * 15)))),
+            clientMobName: typeof mob.name === "string" ? mob.name : undefined,
             mobIsRaidBoss: isRb,
             raidAiProfileId: rawAi || undefined,
             mobIsEpicRaidBoss: isRb && (mob as any).isEpicRaidBoss === true,
