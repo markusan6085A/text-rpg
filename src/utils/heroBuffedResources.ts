@@ -76,6 +76,18 @@ function normalizeStoredResourcePercent(raw: unknown): number {
 }
 
 /**
+ * Доля поточних hp/mp/cp у base-просторі. Абсолюти зі snapshot мають пріоритет над hpPercent/mpPercent:
+ * після витрат MP/скилів відсотки в БД часто лишаються старими → інакше кожен pve-battle-tick «ріжe» MP/CP у HUD.
+ */
+function resourceFillRatio(currentRaw: unknown, baseMax: number, storedPercentRaw: unknown): number {
+  const bm = Math.max(1, Math.floor(baseMax));
+  const cur = Number(currentRaw);
+  if (Number.isFinite(cur) && bm > 0) return clamp01(cur / bm);
+  const p = normalizeStoredResourcePercent(storedPercentRaw);
+  return Number.isFinite(p) ? p : 1;
+}
+
+/**
  * Сервер зберігає hp/mp/cp у heroJson у масштабі base max (див. heroPersistence).
  * Після applyServerSync клієнтський max з buffs вищий — без масштабування смуги HUD показують ~половину після PvE snapshot.
  */
@@ -92,12 +104,9 @@ export function scalePveSnapshotHpMpCpToBuffed(
     { maxHp: bmh, maxMp: bmm, maxCp: bmc },
     cleaned as any,
   );
-  const hpPctRaw = normalizeStoredResourcePercent(hj.hpPercent);
-  const mpPctRaw = normalizeStoredResourcePercent(hj.mpPercent);
-  const cpPctRaw = normalizeStoredResourcePercent(hj.cpPercent);
-  const hpPct = Number.isFinite(hpPctRaw) ? hpPctRaw : (bmh > 0 ? clamp01(Number(hj.hp ?? 0) / bmh) : 1);
-  const mpPct = Number.isFinite(mpPctRaw) ? mpPctRaw : (bmm > 0 ? clamp01(Number(hj.mp ?? 0) / bmm) : 1);
-  const cpPct = Number.isFinite(cpPctRaw) ? cpPctRaw : (bmc > 0 ? clamp01(Number(hj.cp ?? 0) / bmc) : 1);
+  const hpPct = resourceFillRatio(hj.hp, bmh, hj.hpPercent);
+  const mpPct = resourceFillRatio(hj.mp, bmm, hj.mpPercent);
+  const cpPct = resourceFillRatio(hj.cp, bmc, hj.cpPercent);
   return {
     hp: Math.min(buffed.maxHp, Math.max(0, Math.round(hpPct * buffed.maxHp))),
     mp: Math.min(buffed.maxMp, Math.max(0, Math.round(mpPct * buffed.maxMp))),
