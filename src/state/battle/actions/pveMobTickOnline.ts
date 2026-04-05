@@ -18,6 +18,7 @@ import {
 import { filterBuffsForHeroProfession } from "../loadout";
 import { applyRevisionConflictFromApiError } from "../../heroStore";
 import { runSerializedPveMutation } from "./pveMutationQueue";
+import { getMaxResources } from "../helpers/getMaxResources";
 
 /** Другий тік не ставимо в чергу — один «інтент» за раз (наступний інтервал спробує знову). */
 let tickScheduleBusy = false;
@@ -125,11 +126,17 @@ export function schedulePveMobTickOnline(): void {
       const buffsForScale = hSync
         ? cleanupBuffs(filterBuffsForHeroProfession(hSync, forScaleRaw), tickNow)
         : cleanupBuffs(forScaleRaw, tickNow);
-      const scaledRes = scalePveSnapshotHpMpCpToBuffed(mergedHj, buffsForScale, tickNow);
       const liveHero = store.hero;
-      const bmh = Math.max(1, Math.floor(Number(mergedHj.maxHp ?? 1)));
-      const bmm = Math.max(1, Math.floor(Number(mergedHj.maxMp ?? 1)));
-      const bmc = Math.max(1, Math.floor(Number(mergedHj.maxCp ?? 1)));
+      const baseCaps = liveHero ? getMaxResources(liveHero) : null;
+      const scaledRes = scalePveSnapshotHpMpCpToBuffed(
+        mergedHj,
+        buffsForScale,
+        tickNow,
+        baseCaps,
+      );
+      const bmh = Math.max(1, Math.floor(baseCaps?.maxHp ?? Number(mergedHj.maxHp ?? 1)));
+      const bmm = Math.max(1, Math.floor(baseCaps?.maxMp ?? Number(mergedHj.maxMp ?? 1)));
+      const bmc = Math.max(1, Math.floor(baseCaps?.maxCp ?? Number(mergedHj.maxCp ?? 1)));
       const buffedCaps = computeBuffedMaxResources({ maxHp: bmh, maxMp: bmm, maxCp: bmc }, buffsForScale as any);
 
       const prevBHp = Math.floor(Number(heroJsonBeforeTick.hp ?? NaN));

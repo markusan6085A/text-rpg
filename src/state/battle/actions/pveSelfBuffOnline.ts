@@ -13,6 +13,7 @@ import {
 import { filterBuffsForHeroProfession } from "../loadout";
 import { applyRevisionConflictFromApiError } from "../../heroStore";
 import { runSerializedPveMutation } from "./pveMutationQueue";
+import { getMaxResources } from "../helpers/getMaxResources";
 
 function mergeCooldowns(skillId: number, def: SkillDefinition, cleaned: any[], now: number): Record<string, number> {
   const bs = battleStoreRef.getState();
@@ -69,7 +70,8 @@ export function schedulePveSelfBuffOnline(
       const buffsForScale = heroSync
         ? cleanupBuffs(filterBuffsForHeroProfession(heroSync, mergedBuffs), now)
         : cleanupBuffs(mergedBuffs, now);
-      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, now);
+      const baseCapsSelf = heroSync ? getMaxResources(heroSync) : null;
+      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, now, baseCapsSelf);
       store.applyServerSync(
         {
           hp: scaledRes.hp,

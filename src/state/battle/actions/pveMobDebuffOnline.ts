@@ -13,6 +13,7 @@ import { filterBuffsForHeroProfession } from "../loadout";
 import { applyRevisionConflictFromApiError } from "../../heroStore";
 import { runSerializedPveMutation } from "./pveMutationQueue";
 import { createCooldownEntry } from "./useSkill/helpers";
+import { getMaxResources } from "../helpers/getMaxResources";
 
 /**
  * Онлайн PvE: дебаф/стан на моба через POST .../pve-battle-debuff (CAS + snapshot у battleSession).
@@ -58,7 +59,8 @@ export function schedulePveMobDebuffOnline(args: {
       const buffsForScale = heroForBuffMerge
         ? cleanupBuffs(filterBuffsForHeroProfession(heroForBuffMerge, forScaleRaw), tickNow)
         : cleanupBuffs(forScaleRaw, tickNow);
-      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow);
+      const baseCapsDeb = getMaxResources(heroForBuffMerge);
+      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow, baseCapsDeb);
       const hjMerged = { ...hj, heroBuffs: mergedHjBuffs };
       store.applyServerSync(
         {

@@ -12,6 +12,7 @@ import {
 } from "../loadout";
 import { loadBattle, persistBattle } from "../persist";
 import { cleanupBuffs, persistSnapshot, applyBuffsToStats, computeBuffedMaxResources } from "../helpers";
+import { getMaxResources } from "../helpers/getMaxResources";
 import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
 import type { BattleState, CooldownMap } from "../types";
 import { isMobOnRespawn, getRespawnTimeRemaining, clearMobRespawn } from "../mobRespawns";
@@ -385,15 +386,21 @@ export const createStartBattle =
             ),
             now,
           );
-          const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj as Record<string, any>, buffsForScale, now);
+          const baseCapsStart = getMaxResources(hero);
+          const scaledRes = scalePveSnapshotHpMpCpToBuffed(
+            hj as Record<string, any>,
+            buffsForScale,
+            now,
+            baseCapsStart,
+          );
           // Серверний heroJson.hp/mp ще без локального регену з міста; scalePve* лише піднімає base→buffed.
           // Інакше HUD показував ~13k, а після кліку в бій — ~9k (різкий «провал» смуг).
           const heroLive = store.hero;
           const buffedCaps = computeBuffedMaxResources(
             {
-              maxHp: Math.max(1, Math.floor(Number((hj as any).maxHp ?? 1))),
-              maxMp: Math.max(1, Math.floor(Number((hj as any).maxMp ?? 1))),
-              maxCp: Math.max(1, Math.floor(Number((hj as any).maxCp ?? 1))),
+              maxHp: baseCapsStart.maxHp,
+              maxMp: baseCapsStart.maxMp,
+              maxCp: baseCapsStart.maxCp,
             },
             buffsForScale as any,
           );

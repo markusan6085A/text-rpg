@@ -16,6 +16,7 @@ import { filterBuffsForHeroProfession } from "../loadout";
 import { applyRevisionConflictFromApiError } from "../../heroStore";
 import { runSerializedPveMutation } from "./pveMutationQueue";
 import type { BattleState } from "../types";
+import { getMaxResources } from "../helpers/getMaxResources";
 
 const SERVER_SYNC_POTION_IDS = new Set([
   "lesser_healing_potion",
@@ -117,7 +118,8 @@ export function schedulePveConsumableOnline(args: {
       const buffsForScale = hSync
         ? cleanupBuffs(filterBuffsForHeroProfession(hSync, forScaleRaw), tickNow)
         : cleanupBuffs(forScaleRaw, tickNow);
-      const scaledRes = scalePveSnapshotHpMpCpToBuffed(mergedHj, buffsForScale, tickNow);
+      const baseCapsUse = hSync ? getMaxResources(hSync) : null;
+      const scaledRes = scalePveSnapshotHpMpCpToBuffed(mergedHj, buffsForScale, tickNow, baseCapsUse);
 
       const inv =
         Array.isArray(mergedHj.inventory) ? mergedHj.inventory : store.hero?.inventory;

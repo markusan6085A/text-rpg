@@ -19,6 +19,7 @@ import {
 } from "../../../utils/heroBuffedResources";
 import { filterBuffsForHeroProfession } from "../loadout";
 import { runSerializedPveMutation } from "./pveMutationQueue";
+import { getMaxResources } from "../helpers/getMaxResources";
 
 /** Жоден другий pve-battle-attack, поки попередній не завершив snapshot (разом із тіком у спільній черзі). */
 let attackRoundBusy = false;
@@ -113,7 +114,8 @@ export function schedulePveAttackSkillOnline(args: {
         filterBuffsForHeroProfession(heroForBuffMerge, forScaleRaw),
         tickNow,
       );
-      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow);
+      const baseCapsAtk = getMaxResources(heroForBuffMerge);
+      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow, baseCapsAtk);
       const hjMerged = { ...hj, heroBuffs: mergedHeroBuffs };
       store.applyServerSync(
         {

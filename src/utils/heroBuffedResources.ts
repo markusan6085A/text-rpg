@@ -105,19 +105,36 @@ function resourceFillRatio(currentRaw: unknown, baseMax: number, storedPercentRa
   return Number.isFinite(p) ? p : 1;
 }
 
+function pickBaseMaxFromSnapshot(
+  fromHero: number | undefined,
+  hjBaseKey: unknown,
+  hjMaxKey: unknown
+): number {
+  if (typeof fromHero === "number" && Number.isFinite(fromHero) && fromHero > 0) {
+    return Math.max(1, Math.floor(fromHero));
+  }
+  const b = Number(hjBaseKey);
+  if (Number.isFinite(b) && b > 0) return Math.max(1, Math.floor(b));
+  const m = Number(hjMaxKey);
+  return Math.max(1, Math.floor(Number.isFinite(m) && m > 0 ? m : 1));
+}
+
 /**
  * Сервер зберігає hp/mp/cp у heroJson у масштабі base max (див. heroPersistence).
  * Після applyServerSync клієнтський max з buffs вищий — без масштабування смуги HUD показують ~половину після PvE snapshot.
+ *
+ * `baseCaps` з getMaxResources(hero) — коли hj.maxHp у знімку вже «бафнутий» з PUT, а hp лишився базовим (типово після pve-battle-tick).
  */
 export function scalePveSnapshotHpMpCpToBuffed(
   hj: Record<string, any>,
   buffsForScaling: any[],
   now = Date.now(),
+  baseCaps?: { maxHp: number; maxMp: number; maxCp: number } | null,
 ): { hp: number; mp: number; cp: number } {
   const cleaned = cleanupBuffs(buffsForScaling, now);
-  const bmh = Math.max(1, Math.floor(Number(hj.maxHp ?? 1)));
-  const bmm = Math.max(1, Math.floor(Number(hj.maxMp ?? 1)));
-  const bmc = Math.max(1, Math.floor(Number(hj.maxCp ?? 1)));
+  const bmh = pickBaseMaxFromSnapshot(baseCaps?.maxHp, hj.baseMaxHp, hj.maxHp);
+  const bmm = pickBaseMaxFromSnapshot(baseCaps?.maxMp, hj.baseMaxMp, hj.maxMp);
+  const bmc = pickBaseMaxFromSnapshot(baseCaps?.maxCp, hj.baseMaxCp, hj.maxCp);
   const buffed = computeBuffedMaxResources(
     { maxHp: bmh, maxMp: bmm, maxCp: bmc },
     cleaned as any,
