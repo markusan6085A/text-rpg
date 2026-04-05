@@ -3,6 +3,7 @@ import { prisma } from "./db";
 import { rateLimiters, rateLimitMiddleware } from "./rateLimiter";
 import { getAuth } from "./routes/character/auth";
 import { addVersioning } from "./heroJsonValidator";
+import { enforceCharacterMutationInvariants } from "./utils/characterMutationInvariants";
 
 const MAX_TRANSFER_PAYLOAD_LENGTH = 10_000;
 
@@ -303,11 +304,16 @@ export async function letterRoutes(app: FastifyInstance) {
           { ...heroJson, inventory: newInventory },
           oldRevision
         );
+        const invariants = enforceCharacterMutationInvariants({
+          heroJson: updatedHeroJson,
+          adena: currentAdena - transferFee,
+        });
+        if (!invariants.ok) throw new Error("mutation_invariant_failed");
 
         await tx.character.update({
           where: { id: fromCharacter.id },
           data: {
-            heroJson: updatedHeroJson,
+            heroJson: invariants.heroJson,
             adena: { decrement: transferFee },
           },
         });
@@ -383,7 +389,8 @@ export async function letterRoutes(app: FastifyInstance) {
           msg === "invalid item id" ||
           msg === "invalid item count" ||
           msg === "invalid enchant level" ||
-          msg === "not enough adena for transfer fee"
+          msg === "not enough adena for transfer fee" ||
+          msg === "mutation_invariant_failed"
         ) {
           const code =
             msg === "revision_conflict"
@@ -734,10 +741,12 @@ export async function letterRoutes(app: FastifyInstance) {
           { ...heroJson, inventory: nextInventory },
           oldRevision
         );
+        const invariants = enforceCharacterMutationInvariants({ heroJson: updatedHeroJson });
+        if (!invariants.ok) throw new Error("mutation_invariant_failed");
 
         const updatedCharacter = await tx.character.update({
           where: { id: character.id },
-          data: { heroJson: updatedHeroJson },
+          data: { heroJson: invariants.heroJson },
           select: {
             id: true,
             name: true,
@@ -779,7 +788,8 @@ export async function letterRoutes(app: FastifyInstance) {
           msg === "itemPayload must be valid JSON" ||
           msg === "invalid item id" ||
           msg === "invalid item count" ||
-          msg === "invalid enchant level"
+          msg === "invalid enchant level" ||
+          msg === "mutation_invariant_failed"
         ) {
           if (msg === "revision_conflict") {
             return reply.code(409).send({ error: "revision_conflict" });

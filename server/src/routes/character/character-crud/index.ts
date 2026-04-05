@@ -17,6 +17,7 @@ import {
   MYSTIC_SPELLBOOK_TURNIN,
   removeOneStackFromInventory,
 } from "../../../mysticSpellbookServer";
+import { enforceCharacterMutationInvariants } from "../../../utils/characterMutationInvariants";
 import { trySendWelcomeLetterForNewAccount } from "../../../welcomeNewPlayerLetter";
 import {
   computeProfessionSkillLearn,
@@ -1037,8 +1038,24 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         // тобто не можна вписати "+99 зброю" якщо в БД її немає або у неї менше заточка.
         // Якщо в БД немає equipment → inventory є джерелом правди (старий flow).
 
+        const invariantResult = enforceCharacterMutationInvariants({
+          heroJson: heroJsonToSave,
+          adena: body.adena !== undefined ? body.adena : existing.adena,
+          aa: body.aa !== undefined ? body.aa : existing.aa,
+          coinLuck: body.coinLuck !== undefined ? body.coinLuck : (existing as any).coinLuck,
+          coinsSilver:
+            body.coinsSilver !== undefined ? body.coinsSilver : (existing as any).coinsSilver,
+        });
+        if (!invariantResult.ok) {
+          return reply.code(400).send({
+            error: "mutation_invariant_failed",
+            message: "character mutation invariants failed",
+            errors: invariantResult.errors,
+          });
+        }
+
         const oldRevision = oldHeroJson.heroRevision || 0;
-        const versionedHeroJson = addVersioning(heroJsonToSave, oldRevision);
+        const versionedHeroJson = addVersioning(invariantResult.heroJson, oldRevision);
         updateData.heroJson = versionedHeroJson;
         app.log.info({
           accountId: auth.accountId,

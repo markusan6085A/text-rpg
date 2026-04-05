@@ -3,6 +3,7 @@ import { prisma } from "../db";
 import { getAuth } from "../routes/character/auth";
 import { addVersioning } from "../heroJsonValidator";
 import { removeItemFromInventory, addItemToInventory, pickSafeItemFields } from "../utils/inventoryHelpers";
+import { enforceCharacterMutationInvariants } from "../utils/characterMutationInvariants";
 import { registerClanInviteNestedRoutes } from "../routes/clans/invites";
 import { registerClanApplicationNestedRoutes } from "../routes/clans/applications";
 import { registerClanMemberNestedRoutes } from "../routes/clans/members";
@@ -561,9 +562,11 @@ export async function clanNestedRoutes(app: FastifyInstance) {
             { ...heroJson, inventory: newInventory },
             oldRevision
           );
+          const invariants = enforceCharacterMutationInvariants({ heroJson: updatedHeroJson });
+          if (!invariants.ok) throw new Error("mutation_invariant_failed");
           await tx.character.update({
             where: { id: character.id },
-            data: { heroJson: updatedHeroJson },
+            data: { heroJson: invariants.heroJson },
           });
           return tx.clanWarehouse.create({
             data: {
@@ -598,9 +601,11 @@ export async function clanNestedRoutes(app: FastifyInstance) {
                 { ...heroJson, inventory: newInventory },
                 oldRevision
               );
+              const invariants = enforceCharacterMutationInvariants({ heroJson: updatedHeroJson });
+              if (!invariants.ok) throw new Error("mutation_invariant_failed");
               await tx.character.update({
                 where: { id: character.id },
-                data: { heroJson: updatedHeroJson },
+                data: { heroJson: invariants.heroJson },
               });
               return tx.clanWarehouse.create({
                 data: {
@@ -654,6 +659,9 @@ export async function clanNestedRoutes(app: FastifyInstance) {
     } catch (error: any) {
       if (error?.message === "revision_conflict") {
         return reply.code(409).send({ error: "revision_conflict" });
+      }
+      if (error?.message === "mutation_invariant_failed") {
+        return reply.code(400).send({ error: "mutation_invariant_failed" });
       }
       app.log.error({ error: error.message, stack: error.stack }, "Error in warehouse deposit");
       return reply.code(500).send({ error: error.message || "Internal server error" });
@@ -744,6 +752,10 @@ export async function clanNestedRoutes(app: FastifyInstance) {
       { ...heroJson, inventory: newInventory },
       oldRevision
     );
+    const invariants = enforceCharacterMutationInvariants({ heroJson: updatedHeroJson });
+    if (!invariants.ok) {
+      return reply.code(400).send({ error: "mutation_invariant_failed" });
+    }
 
     try {
       await prisma.$transaction(async (tx) => {
@@ -759,7 +771,7 @@ export async function clanNestedRoutes(app: FastifyInstance) {
 
         await tx.character.update({
           where: { id: character.id },
-          data: { heroJson: updatedHeroJson },
+          data: { heroJson: invariants.heroJson },
         });
         await tx.clanWarehouse.delete({
           where: { id: warehouseItem.id },
