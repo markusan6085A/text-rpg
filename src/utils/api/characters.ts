@@ -50,11 +50,38 @@ export async function createCharacter(data: CreateCharacterRequest): Promise<Cha
   return response.character;
 }
 
+/** Ключі heroJson, які сервер заборонено приймати від клієнта (character-crud CLIENT_PUT_HEROJSON_DENYLIST). Інакше 400 forbidden_hero_json_fields. */
+const HEROJSON_DENYLIST_FOR_CLIENT_PUT = new Set([
+  "heroRevision",
+  "heroJsonVersion",
+  "premiumUntil",
+  "adminLevelSetAt",
+  "adminExpSetAt",
+  "adminSpSetAt",
+  "adminAdenaSetAt",
+  "adminCoinLuckSetAt",
+]);
+
+function stripDeniedHeroJsonKeysForPut(hj: Record<string, unknown>): Record<string, unknown> {
+  const out = { ...hj };
+  for (const k of HEROJSON_DENYLIST_FOR_CLIENT_PUT) {
+    delete out[k];
+  }
+  return out;
+}
+
 /** top-level exp/level не шлемо — колонки в БД можуть лишатися старими; прогрес у heroJson. SP шлемо — інакше Character.sp не оновлюється після мобів і після F5 відкат. */
 export async function updateCharacter(id: string, data: UpdateCharacterRequest): Promise<Character> {
   const cleanData = { ...data };
   delete cleanData.exp;
   delete cleanData.level;
+  if (
+    cleanData.heroJson &&
+    typeof cleanData.heroJson === "object" &&
+    !Array.isArray(cleanData.heroJson)
+  ) {
+    cleanData.heroJson = stripDeniedHeroJsonKeysForPut(cleanData.heroJson as Record<string, unknown>) as any;
+  }
 
   const response = await apiRequest<CharacterResponse>(`/characters/${id}`, {
     method: 'PUT',
