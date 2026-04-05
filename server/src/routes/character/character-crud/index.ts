@@ -652,23 +652,46 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
       let payoutTotal = 0;
       for (const op of sortedOps) {
-        if (!Number.isFinite(op.inventoryIndex) || op.inventoryIndex < 0 || op.inventoryIndex >= inventory.length) {
-          return { ok: false as const, reason: "invalid_operation" as const };
-        }
         if (!Number.isFinite(op.amount) || op.amount <= 0) {
           return { ok: false as const, reason: "invalid_operation" as const };
         }
-        const rowItem = inventory[op.inventoryIndex];
-        const rowItemId = String((rowItem as any)?.id ?? (rowItem as any)?.itemId ?? "");
-        if (!rowItem || !rowItemId) return { ok: false as const, reason: "invalid_operation" as const };
 
         const expectedIdNorm = normalizeShopItemId(op.expectedItemId);
-        const actualIdNorm = normalizeShopItemId(rowItemId);
-        if (!expectedIdNorm || expectedIdNorm !== actualIdNorm) {
+        if (!expectedIdNorm) {
           return { ok: false as const, reason: "invalid_operation" as const };
         }
-        const actualEnchant = Math.max(0, Math.floor(Number(rowItem.enchantLevel ?? 0)));
-        if (actualEnchant !== op.expectedEnchantLevel) {
+
+        const matchRowAtIndex = (idx: number): any | null => {
+          if (!Number.isFinite(idx) || idx < 0 || idx >= inventory.length) return null;
+          const row = inventory[idx];
+          const rowItemId = String((row as any)?.id ?? (row as any)?.itemId ?? "");
+          if (!row || !rowItemId) return null;
+          const actualIdNorm = normalizeShopItemId(rowItemId);
+          if (expectedIdNorm !== actualIdNorm) return null;
+          const actualEnchant = Math.max(0, Math.floor(Number((row as any).enchantLevel ?? 0)));
+          if (actualEnchant !== op.expectedEnchantLevel) return null;
+          return row;
+        };
+
+        let resolvedIndex = op.inventoryIndex;
+        let rowItem = matchRowAtIndex(resolvedIndex);
+
+        // Client/server inventory ordering can drift.
+        // Fallback: find matching row by expected item id + enchant directly on server snapshot.
+        if (!rowItem) {
+          for (let i = inventory.length - 1; i >= 0; i -= 1) {
+            const probe = matchRowAtIndex(i);
+            if (probe) {
+              const probeCount = Math.max(1, Math.floor(Number((probe as any).count ?? 1)));
+              if (probeCount >= op.amount) {
+                resolvedIndex = i;
+                rowItem = probe;
+                break;
+              }
+            }
+          }
+        }
+        if (!rowItem) {
           return { ok: false as const, reason: "invalid_operation" as const };
         }
 
@@ -682,9 +705,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         payoutTotal += unitPrice * op.amount;
 
         if (op.amount >= rowCount) {
-          inventory.splice(op.inventoryIndex, 1);
+          inventory.splice(resolvedIndex, 1);
         } else {
-          inventory[op.inventoryIndex] = { ...rowItem, count: rowCount - op.amount };
+          inventory[resolvedIndex] = { ...rowItem, count: rowCount - op.amount };
         }
       }
 
