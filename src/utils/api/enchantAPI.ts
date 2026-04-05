@@ -1,12 +1,13 @@
 // Клієнтський хелпер для серверної заточки (Phase 1)
 import { apiRequest } from "./core";
 import { useCharacterStore } from "../../state/characterStore";
+import type { Character } from "./typesAuthCharacter";
 
 export interface EnchantResult {
   ok: boolean;
   success: boolean;
   newEnchantLevel: number;
-  heroJson: any;
+  character: Character;
 }
 
 /**

@@ -1,9 +1,10 @@
 import { apiRequest } from "./core";
 import { useCharacterStore } from "../../state/characterStore";
+import type { Character } from "./typesAuthCharacter";
 
 export interface UseBuffScrollResult {
   ok: boolean;
-  heroJson: any;
+  character: Character;
 }
 
 export async function useBuffScrollAPI(itemId: string, expectedRevision: number): Promise<UseBuffScrollResult> {

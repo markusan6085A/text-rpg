@@ -34,7 +34,6 @@ interface QuestShopProps {
 
 export default function QuestShop({ navigate }: QuestShopProps) {
   const hero = useHeroStore((s) => s.hero);
-  const applyServerSync = useHeroStore((s) => s.applyServerSync);
   const characterId = useCharacterStore((s) => s.characterId);
   const [exchangeBusy, setExchangeBusy] = useState(false);
   const [buyBusy, setBuyBusy] = useState(false);
@@ -205,22 +204,11 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       if (!result) {
         throw lastAvailabilityError || new Error("item not available in shop");
       }
-      if (!result?.ok || !result.heroJson) {
+      if (!result?.ok || !result.character) {
         showToast("Сервер відхилив покупку.", "error");
         return;
       }
-      applyServerSync(
-        {
-          inventory: Array.isArray(result.heroJson.inventory) ? result.heroJson.inventory : [],
-          overflowChest: Array.isArray(result.heroJson.overflowChest) ? result.heroJson.overflowChest : [],
-          coins_silver: Number(result.coinsSilver ?? hero.coins_silver ?? 0),
-          heroRevision: result.heroJson.heroRevision,
-        } as any,
-        {
-          heroRevision: result.heroJson.heroRevision,
-          updatedAt: Date.now(),
-        }
-      );
+      applyCharacterSnapshotFromApi(result.character);
       setSelectedItem(null);
       setBuyQuantity(1);
     } catch (e: any) {

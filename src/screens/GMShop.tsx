@@ -1,6 +1,6 @@
 // src/screens/GMShop.tsx
 import React, { useState } from "react";
-import { useHeroStore } from "../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../state/heroStore";
 import { showToast } from "../state/toastStore";
 import { itemsDB } from "../data/items/itemsDB";
 import { itemsDBCrystals } from "../data/items/itemsDB_crystals";
@@ -33,7 +33,6 @@ interface GMShopProps {
 
 export default function GMShop({ navigate }: GMShopProps) {
   const hero = useHeroStore((s) => s.hero);
-  const applyServerSync = useHeroStore((s) => s.applyServerSync);
   const [selectedShopSubcategory, setSelectedShopSubcategory] = useState<"dyes" | "rasodniki" | "consumables">("dyes");
   const [selectedItem, setSelectedItem] = useState<DyeItem | null>(null);
   const [selectedAdenaPurchase, setSelectedAdenaPurchase] = useState<{
@@ -93,24 +92,11 @@ export default function GMShop({ navigate }: GMShopProps) {
         itemMeta,
         expectedRevision,
       });
-      if (!result?.ok || !result.heroJson) {
+      if (!result?.ok || !result.character) {
         showToast(`Помилка покупки: сервер відхилив запит`, "error");
         return;
       }
-      applyServerSync(
-        {
-          inventory: Array.isArray(result.heroJson.inventory) ? result.heroJson.inventory : [],
-          overflowChest: Array.isArray(result.heroJson.overflowChest) ? result.heroJson.overflowChest : [],
-          adena: Number(result.adena ?? hero.adena ?? 0),
-          coins_silver: Number(result.coinsSilver ?? (hero as any).coins_silver ?? 0),
-          heroRevision: result.heroJson.heroRevision,
-        } as any,
-        {
-          adena: Number(result.adena ?? hero.adena ?? 0),
-          heroRevision: result.heroJson.heroRevision,
-          updatedAt: Date.now(),
-        }
-      );
+      applyCharacterSnapshotFromApi(result.character);
       setSelectedItem(null);
       setBuyQuantity(1);
       showToast(`Придбано: ${itemMeta.name} x${quantity}`, "success");
@@ -211,24 +197,11 @@ export default function GMShop({ navigate }: GMShopProps) {
       if (!result) {
         throw lastAvailabilityError || new Error("item not available in shop");
       }
-      if (!result?.ok || !result.heroJson) {
+      if (!result?.ok || !result.character) {
         showToast(`Помилка покупки: сервер відхилив запит`, "error");
         return;
       }
-      applyServerSync(
-        {
-          inventory: Array.isArray(result.heroJson.inventory) ? result.heroJson.inventory : [],
-          overflowChest: Array.isArray(result.heroJson.overflowChest) ? result.heroJson.overflowChest : [],
-          adena: Number(result.adena ?? currentAdena),
-          coins_silver: Number(result.coinsSilver ?? (hero as any).coins_silver ?? 0),
-          heroRevision: result.heroJson.heroRevision,
-        } as any,
-        {
-          adena: Number(result.adena ?? currentAdena),
-          heroRevision: result.heroJson.heroRevision,
-          updatedAt: Date.now(),
-        }
-      );
+      applyCharacterSnapshotFromApi(result.character);
       setSelectedAdenaPurchase(null);
       setBuyQuantity(1);
       showToast(`Придбано: ${itemDef.name} x${quantity}`, "success");

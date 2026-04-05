@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { itemsDB } from "../../../data/items/itemsDB";
 import { getGradeFromScrollId, getGradeFromItemId } from "../../../utils/enchantHelpers";
 import { enchantItemAPI } from "../../../utils/api/enchantAPI";
-import { useHeroStore } from "../../../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../../../state/heroStore";
 import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import {
   characterModalBorderT,
@@ -91,18 +91,11 @@ export default function EnchantScrollModal({
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
       });
 
-      if (result.ok) {
-        // Apply server heroJson to store (updates inventory + equipmentEnchantLevels without new PUT)
-        useHeroStore.getState().applyServerSync(
-          {
-            inventory: result.heroJson.inventory,
-            equipmentEnchantLevels: result.heroJson.equipmentEnchantLevels,
-          },
-          { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() }
-        );
-
+      if (result.ok && result.character) {
+        applyCharacterSnapshotFromApi(result.character);
+        const hj = (result.character as any)?.heroJson ?? {};
         // Find new index in updated inventory (scroll may have been removed, shifting indices)
-        const newInv: HeroInventoryItem[] = result.heroJson.inventory ?? [];
+        const newInv: HeroInventoryItem[] = Array.isArray(hj.inventory) ? hj.inventory : [];
         const sIdx = inventory.findIndex((i) => i.id === scrollItem.id);
         let nextIdx = selectedInvIndex;
         if (sIdx !== -1 && sIdx < nextIdx && (inventory[sIdx]?.count ?? 1) <= 1) {

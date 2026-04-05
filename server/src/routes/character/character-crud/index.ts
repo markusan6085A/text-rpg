@@ -638,6 +638,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         select: {
           id: true, name: true, race: true, classId: true, sex: true,
           level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true,
+          coinsSilver: true,
           heroJson: true, createdAt: true, updatedAt: true,
         },
       });
@@ -669,6 +670,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       adena: Number(updated.adena ?? 0),
       aa: Number(updated.aa ?? 0),
       coinLuck: Number(updated.coinLuck ?? 0),
+      coinsSilver: Number((updated as any).coinsSilver ?? 0),
     };
 
     enqueuePlayerActivityLog({
@@ -2973,9 +2975,26 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const oldRevision = Number(heroJson.heroRevision ?? 0);
     const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
 
-      await tx.character.update({
+      const updated = await tx.character.update({
         where: { id },
         data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       });
 
       return {
@@ -2983,7 +3002,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         success,
         newEnchantLevel,
         targetIsEquipped,
-        versionedHeroJson,
+        updated,
         characterName: String(row.name ?? ""),
       };
     });
@@ -3015,7 +3034,21 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       clientIp: getClientIp(req),
     });
 
-    return reply.send({ ok: true, success: txRes.success, newEnchantLevel: txRes.newEnchantLevel, heroJson: txRes.versionedHeroJson });
+    const serialized = {
+      ...txRes.updated,
+      exp: Number(txRes.updated.exp),
+      adena: Number(txRes.updated.adena ?? 0),
+      aa: Number(txRes.updated.aa ?? 0),
+      coinLuck: Number(txRes.updated.coinLuck ?? 0),
+      coinsSilver: Number((txRes.updated as any).coinsSilver ?? 0),
+    };
+
+    return reply.send({
+      ok: true,
+      success: txRes.success,
+      newEnchantLevel: txRes.newEnchantLevel,
+      character: serialized,
+    });
   });
 
   // POST /characters/:id/use-buff-scroll — atomic buff scroll application (no client race)
@@ -3099,12 +3132,29 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       const updatedHeroJson = { ...heroJson, inventory, heroBuffs };
       const versionedHeroJson = addVersioning(updatedHeroJson, currentRevision);
 
-      await tx.character.update({
+      const updated = await tx.character.update({
         where: { id },
         data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       });
 
-      return { ok: true as const, versionedHeroJson, characterName: String(row.name ?? "") };
+      return { ok: true as const, updated, characterName: String(row.name ?? "") };
     });
 
     if (!txRes.ok) {
@@ -3127,7 +3177,16 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       clientIp: getClientIp(req),
     });
 
-    return reply.send({ ok: true, heroJson: txRes.versionedHeroJson });
+    const serializedBuff = {
+      ...txRes.updated,
+      exp: Number(txRes.updated.exp),
+      adena: Number(txRes.updated.adena ?? 0),
+      aa: Number(txRes.updated.aa ?? 0),
+      coinLuck: Number(txRes.updated.coinLuck ?? 0),
+      coinsSilver: Number((txRes.updated as any).coinsSilver ?? 0),
+    };
+
+    return reply.send({ ok: true, character: serializedBuff });
   });
 
   /** Знімок бафів з клієнта після kill: PUT /characters ігнорує heroBuffs, інакше toggle/бафи ніколи не пишуться в БД. */
@@ -4715,9 +4774,20 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         data: updateData,
         select: {
           id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
           adena: true,
+          aa: true,
+          coinLuck: true,
           coinsSilver: true,
           heroJson: true,
+          createdAt: true,
+          updatedAt: true,
         },
       });
       return { ok: true as const, updated, unitPrice, currency, totalPrice };
@@ -4739,10 +4809,19 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "invalid input" });
     }
 
+    const serialized = {
+      ...txRes.updated,
+      exp: Number(txRes.updated.exp),
+      adena: Number(txRes.updated.adena ?? 0),
+      aa: Number(txRes.updated.aa ?? 0),
+      coinLuck: Number(txRes.updated.coinLuck ?? 0),
+      coinsSilver: Number((txRes.updated as any).coinsSilver ?? 0),
+    };
+
     enqueuePlayerActivityLog({
       accountId: auth.accountId,
       characterId: id,
-      characterName: String((txRes.updated.heroJson as any)?.name ?? ""),
+      characterName: String(txRes.updated.name ?? (txRes.updated.heroJson as any)?.name ?? ""),
       action: "shop.buy",
       metadata: {
         itemId: canonicalItemId,
@@ -4756,9 +4835,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     });
     return reply.send({
       ok: true,
-      heroJson: txRes.updated.heroJson,
-      adena: Number((txRes.updated as any)?.adena ?? 0),
-      coinsSilver: Number((txRes.updated as any)?.coinsSilver ?? 0),
+      character: serialized,
     });
   });
 

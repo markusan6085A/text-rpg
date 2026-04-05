@@ -1,12 +1,11 @@
 // Клієнтський хелпер для серверного GM-шопу (Phase 3)
 import { apiRequest } from "./core";
 import { useCharacterStore } from "../../state/characterStore";
+import type { Character } from "./typesAuthCharacter";
 
 export interface ShopBuyResult {
   ok: boolean;
-  heroJson: any;
-  adena: number;
-  coinsSilver: number;
+  character: Character;
 }
 
 /**

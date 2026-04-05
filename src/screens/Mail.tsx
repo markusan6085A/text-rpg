@@ -10,7 +10,7 @@ import {
   type Letter,
 } from "../utils/api";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
-import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
+import { useHeroStore, getRateLimitRemainingMs, applyCharacterSnapshotFromApi } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 import WriteLetterModal from "../components/WriteLetterModal";
 import { getNickColorStyle } from "../utils/nickColor";
@@ -372,44 +372,7 @@ export default function Mail({ navigate }: MailProps) {
       const claimRes = await collectItemFromLetter(letter.id, expectedRevision);
       const character = claimRes.character;
       if (character && typeof character === "object") {
-        const heroJson = (character as any).heroJson && typeof (character as any).heroJson === "object"
-          ? (character as any).heroJson
-          : {};
-        const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
-        const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : [];
-        const aaFromServer = Number(
-          (character as any).aa ??
-          (character as any).ancientAdena ??
-          (character as any).ancient_adena ??
-          0
-        );
-        const coinLuckFromServer = Number(
-          (character as any).coinLuck ??
-          (character as any).coinOfLuck ??
-          0
-        );
-        const revision = Number(heroJson.heroRevision ?? 0);
-        useHeroStore.getState().applyServerSync({
-          level: Number((character as any).level ?? hero.level ?? 1),
-          exp: Number((character as any).exp ?? hero.exp ?? 0),
-          sp: Number((character as any).sp ?? hero.sp ?? 0),
-          adena: Number((character as any).adena ?? hero.adena ?? 0),
-          aa: Number.isFinite(aaFromServer) ? aaFromServer : Number((hero as any).aa ?? 0),
-          coinOfLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : Number(hero.coinOfLuck ?? 0),
-          inventory,
-          activeDyes,
-          heroJson,
-        }, {
-          level: Number((character as any).level ?? hero.level ?? 1),
-          exp: Number((character as any).exp ?? hero.exp ?? 0),
-          sp: Number((character as any).sp ?? hero.sp ?? 0),
-          adena: Number((character as any).adena ?? hero.adena ?? 0),
-          coinLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : Number(hero.coinOfLuck ?? 0),
-          heroRevision: Number.isFinite(revision)
-            ? revision
-            : Number((hero as any)?.heroJson?.heroRevision ?? 0),
-          updatedAt: Date.now(),
-        });
+        applyCharacterSnapshotFromApi(character);
       }
       
       // Оновлюємо переписку (видаляємо цей лист з UI)

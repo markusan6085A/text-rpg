@@ -2,7 +2,7 @@
 // Сторінка продажу предметів з інвентаря
 
 import React, { useState, useMemo } from "react";
-import { useHeroStore } from "../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 import InventoryFilters, { CATEGORIES } from "./character/InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
@@ -26,7 +26,6 @@ interface SellItemsProps {
 
 export default function SellItems({ navigate }: SellItemsProps) {
   const hero = useHeroStore((s) => s.hero);
-  const applyServerSync = useHeroStore((s) => s.applyServerSync);
 
   const [currentCategory, setCurrentCategory] = useState("all");
   const [currentGrade, setCurrentGrade] = useState("");
@@ -190,23 +189,8 @@ export default function SellItems({ navigate }: SellItemsProps) {
         operations,
       });
 
-      const nextInventory = Array.isArray((result as any)?.character?.heroJson?.inventory)
-        ? (result as any).character.heroJson.inventory
-        : [];
-      const nextOverflow = Array.isArray((result as any)?.character?.heroJson?.overflowChest)
-        ? (result as any).character.heroJson.overflowChest
-        : (hero.overflowChest || []);
-      const nextRevision = Number((result as any)?.character?.heroJson?.heroRevision ?? expectedRevision);
-      const nextAdena = Number((result as any)?.character?.adena ?? useHeroStore.getState().hero?.adena ?? 0);
-      applyServerSync(
-        {
-          inventory: nextInventory,
-          overflowChest: nextOverflow,
-          adena: nextAdena,
-          heroRevision: nextRevision,
-        } as any,
-        { adena: nextAdena, heroRevision: nextRevision, updatedAt: Date.now() }
-      );
+      const ch = (result as any)?.character;
+      if (ch && typeof ch === "object") applyCharacterSnapshotFromApi(ch);
       setSelectedIndices(new Set());
       setSelectMode(false);
       setConfirmSell(null);
@@ -237,23 +221,8 @@ export default function SellItems({ navigate }: SellItemsProps) {
               }],
             });
             totalPayout += Number((one as any)?.payoutAdena ?? 0);
-            const nextInventory = Array.isArray((one as any)?.character?.heroJson?.inventory)
-              ? (one as any).character.heroJson.inventory
-              : [];
-            const nextOverflow = Array.isArray((one as any)?.character?.heroJson?.overflowChest)
-              ? (one as any).character.heroJson.overflowChest
-              : (useHeroStore.getState().hero?.overflowChest || []);
-            const nextRevision = Number((one as any)?.character?.heroJson?.heroRevision ?? resolveExpectedRevision());
-            const nextAdena = Number((one as any)?.character?.adena ?? useHeroStore.getState().hero?.adena ?? 0);
-            applyServerSync(
-              {
-                inventory: nextInventory,
-                overflowChest: nextOverflow,
-                adena: nextAdena,
-                heroRevision: nextRevision,
-              } as any,
-              { adena: nextAdena, heroRevision: nextRevision, updatedAt: Date.now() }
-            );
+            const chOne = (one as any)?.character;
+            if (chOne && typeof chOne === "object") applyCharacterSnapshotFromApi(chOne);
           }
           setSelectedIndices(new Set());
           setSelectMode(false);
@@ -325,23 +294,8 @@ export default function SellItems({ navigate }: SellItemsProps) {
           },
         ],
       });
-      const nextInventory = Array.isArray((result as any)?.character?.heroJson?.inventory)
-        ? (result as any).character.heroJson.inventory
-        : [];
-      const nextOverflow = Array.isArray((result as any)?.character?.heroJson?.overflowChest)
-        ? (result as any).character.heroJson.overflowChest
-        : (hero.overflowChest || []);
-      const nextRevision = Number((result as any)?.character?.heroJson?.heroRevision ?? expectedRevision);
-      const nextAdena = Number((result as any)?.character?.adena ?? useHeroStore.getState().hero?.adena ?? 0);
-      applyServerSync(
-        {
-          inventory: nextInventory,
-          overflowChest: nextOverflow,
-          adena: nextAdena,
-          heroRevision: nextRevision,
-        } as any,
-        { adena: nextAdena, heroRevision: nextRevision, updatedAt: Date.now() }
-      );
+      const chSell = (result as any)?.character;
+      if (chSell && typeof chSell === "object") applyCharacterSnapshotFromApi(chSell);
       setConfirmSell(null);
       showToast(`Продано. +${Number((result as any)?.payoutAdena ?? 0).toLocaleString()} Adena`, "success");
     } catch (e: any) {
@@ -366,23 +320,8 @@ export default function SellItems({ navigate }: SellItemsProps) {
               expectedEnchantLevel: Math.max(0, Number(row?.enchantLevel ?? 0)),
             }],
           });
-          const nextInventory = Array.isArray((retried as any)?.character?.heroJson?.inventory)
-            ? (retried as any).character.heroJson.inventory
-            : [];
-          const nextOverflow = Array.isArray((retried as any)?.character?.heroJson?.overflowChest)
-            ? (retried as any).character.heroJson.overflowChest
-            : (useHeroStore.getState().hero?.overflowChest || []);
-          const nextRevision = Number((retried as any)?.character?.heroJson?.heroRevision ?? resolveExpectedRevision());
-          const nextAdena = Number((retried as any)?.character?.adena ?? useHeroStore.getState().hero?.adena ?? 0);
-          applyServerSync(
-            {
-              inventory: nextInventory,
-              overflowChest: nextOverflow,
-              adena: nextAdena,
-              heroRevision: nextRevision,
-            } as any,
-            { adena: nextAdena, heroRevision: nextRevision, updatedAt: Date.now() }
-          );
+          const chRetry = (retried as any)?.character;
+          if (chRetry && typeof chRetry === "object") applyCharacterSnapshotFromApi(chRetry);
           setConfirmSell(null);
           showToast(`Продано. +${Number((retried as any)?.payoutAdena ?? 0).toLocaleString()} Adena`, "success");
           return;

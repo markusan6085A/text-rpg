@@ -143,20 +143,11 @@ export async function applyGmBlessSoulScrollFromInventory(itemId: string): Promi
       itemId,
       Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0
     );
-    if (!result.ok) return { ok: false, message: "Сервер відхилив використання скрола" };
+    if (!result.ok || !result.character) return { ok: false, message: "Сервер відхилив використання скрола" };
 
-    // Застосовуємо стан з сервера (inventory + heroBuffs) — без PUT
-    const serverHeroJson = result.heroJson;
-    store.applyServerSync(
-      {
-        inventory: serverHeroJson.inventory,
-        heroJson: {
-          ...((hero as any).heroJson || {}),
-          heroBuffs: serverHeroJson.heroBuffs,
-        },
-      },
-      { heroRevision: serverHeroJson.heroRevision, updatedAt: Date.now() }
-    );
+    const { applyCharacterSnapshotFromApi } = await import("../state/heroStore");
+    applyCharacterSnapshotFromApi(result.character);
+    const serverHeroJson = ((result.character as any).heroJson ?? {}) as any;
 
     // Синхронізуємо battle store / persist щоб бафи відображались у бою
     const now = Date.now();

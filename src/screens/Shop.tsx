@@ -8,7 +8,7 @@ import { A_GRADE_SHOP_ITEMS } from "../data/shop/aGradeShop";
 import { S_GRADE_SHOP_ITEMS } from "../data/shop/sGradeShop";
 import { CONSUMABLES_SHOP_ITEMS } from "../data/shop/consumablesShop";
 import type { ShopItem } from "../data/shop/shopTypes";
-import { useHeroStore } from "../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../state/heroStore";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { findSetForItem, ARMOR_SETS, formatSetStatsForDisplay } from "../data/sets/armorSets";
 import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
@@ -133,42 +133,6 @@ export default function Shop({ navigate }: ShopProps) {
     const out = [base, mapped, stripped, stripped ? `shop_${stripped}` : ""];
     return Array.from(new Set(out.filter(Boolean)));
   };
-  const applyServerShopSnapshot = (result: { heroJson: any; adena: number; coinsSilver?: number }) => {
-    const store = useHeroStore.getState();
-    const currentHero = store.hero;
-    if (!currentHero) return;
-    const serverHeroJson = result.heroJson ?? {};
-    const nextInventory = Array.isArray(serverHeroJson.inventory)
-      ? serverHeroJson.inventory
-      : (currentHero.inventory ?? []);
-    const nextOverflow = Array.isArray(serverHeroJson.overflowChest)
-      ? serverHeroJson.overflowChest
-      : (currentHero.overflowChest ?? []);
-    const heroRevision = Number(serverHeroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
-    const nextAdena = Number(result.adena ?? currentHero.adena ?? 0);
-    const nextCoinsSilver = Number(result.coinsSilver ?? (currentHero as any)?.coins_silver ?? 0);
-    store.applyServerSync(
-      {
-        inventory: nextInventory,
-        overflowChest: nextOverflow,
-        adena: nextAdena,
-        coins_silver: nextCoinsSilver,
-        heroJson: {
-          ...((currentHero as any)?.heroJson ?? {}),
-          ...serverHeroJson,
-          inventory: nextInventory,
-          overflowChest: nextOverflow,
-          heroRevision,
-        },
-      } as any,
-      {
-        adena: nextAdena,
-        heroRevision,
-        updatedAt: Date.now(),
-      }
-    );
-  };
-
   const handleBuy = async (item: ShopItem, quantity: number = 1) => {
     if (!hero) return;
     if (buying) return;
@@ -270,11 +234,11 @@ export default function Shop({ navigate }: ShopProps) {
       if (!result) {
         throw lastAvailabilityError || new Error("item not available in shop");
       }
-      if (!result?.ok || !result.heroJson) {
+      if (!result?.ok || !result.character) {
         showToast("Сервер відхилив покупку.", "error");
         return;
       }
-      applyServerShopSnapshot(result);
+      applyCharacterSnapshotFromApi(result.character);
       setSelectedItem(null);
       setBuyQuantity(1);
     } catch (e: any) {

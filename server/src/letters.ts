@@ -367,10 +367,21 @@ export async function letterRoutes(app: FastifyInstance) {
         { letterId: result.letter.id, toCharacterName: body.toCharacterName, itemId: reqItem.id, count: reqItem.count },
         "Item transfer sent"
       );
+      const snap = result.updatedCharacter;
+      const character = snap
+        ? {
+            ...snap,
+            exp: Number(snap.exp),
+            adena: Number(snap.adena ?? 0),
+            aa: Number(snap.aa ?? 0),
+            coinLuck: Number(snap.coinLuck ?? 0),
+            coinsSilver: Number((snap as any).coinsSilver ?? 0),
+          }
+        : undefined;
       return {
         ok: true,
         letter: result.letter,
-        character: result.updatedCharacter ? { ...result.updatedCharacter, exp: Number(result.updatedCharacter.exp) } : undefined,
+        character,
       };
     } catch (error) {
       if (error instanceof Error) {
@@ -769,9 +780,17 @@ export async function letterRoutes(app: FastifyInstance) {
         return { updatedCharacter, item: safeItem };
       });
 
+      const ch = result.updatedCharacter;
       return reply.send({
         ok: true,
-        character: { ...result.updatedCharacter, exp: Number(result.updatedCharacter.exp) },
+        character: {
+          ...ch,
+          exp: Number(ch.exp),
+          adena: Number(ch.adena ?? 0),
+          aa: Number(ch.aa ?? 0),
+          coinLuck: Number(ch.coinLuck ?? 0),
+          coinsSilver: Number((ch as any).coinsSilver ?? 0),
+        },
         item: result.item,
       });
     } catch (error) {
