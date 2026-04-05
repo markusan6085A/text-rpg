@@ -111,6 +111,48 @@ export function applyPveSelfBuffSnapshot(args: {
   const stub = toStub(meta);
   const isToggle = meta.isToggle === true;
 
+  if (meta.category === "heal") {
+    let rawBuffsHeal = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
+    let activeBuffsHeal = cleanupExpiredBuffs(rawBuffsHeal, now);
+    const maxHpH = Math.max(1, Number(hj.maxHp ?? 1));
+    let curHpH = Number(hj.hp ?? 0);
+    const curMpH = Number(hj.mp ?? 0);
+    let curCpH = Number(hj.cp ?? 0);
+
+    if (skillId === 1271 && curHpH > maxHpH * 0.25) {
+      return {
+        ok: false,
+        code: "skill_condition",
+        message: "Salvation: только при HP ниже 25%",
+      };
+    }
+
+    if (curMpH < mpCost) {
+      return { ok: false, code: "not_enough_mp", message: "Not enough MP" };
+    }
+
+    const bs = hj.battleStats && typeof hj.battleStats === "object" ? hj.battleStats : {};
+    const healBonus = Math.max(0, Number((bs as any).healPower ?? 0) || 0);
+    const healInv = Math.max(0, Number((bs as any).healReceivedBonus ?? 0) || 0);
+    const basePower = Number(levelRow.power ?? 0) || 0;
+    let healAmountRaw =
+      meta.powerType === "percent" ? Math.round(maxHpH * (basePower / 100)) : basePower;
+    let healAmount = Math.round(healAmountRaw * (1 + healBonus / 100));
+    healAmount = Math.round(healAmount * (1 + healInv / 100));
+
+    const nextMpH = curMpH - mpCost;
+    curHpH = clamp(curHpH + healAmount, maxHpH);
+    hj.hp = curHpH;
+    hj.mp = Math.max(0, nextMpH);
+    hj.cp = curCpH;
+    hj.heroBuffs = sanitizeHeroBuffsForServer(activeBuffsHeal);
+    return {
+      ok: true,
+      nextHeroJson: hj,
+      logLine: `Вы использовали ${meta.name} (+${healAmount} HP)`,
+    };
+  }
+
   let rawBuffs = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
   let activeBuffs = cleanupExpiredBuffs(rawBuffs, now);
   const isSameBuff = createIsSameBuff(stub);

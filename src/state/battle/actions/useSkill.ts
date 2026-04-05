@@ -88,6 +88,23 @@ function isEligiblePveServerSelfCast(def: SkillDefinition): boolean {
   return false;
 }
 
+/** Самохіл через POST .../pve-self-buff (без хілів призваного — 1126/1127). */
+function isEligiblePveServerHeal(
+  def: SkillDefinition,
+  skillId: number,
+  state: BattleState,
+  hero: Hero
+): boolean {
+  if (def.category !== "heal") return false;
+  if (skillId === 1126 || skillId === 1127) return false;
+  if (state.zoneId === "fishing") return false;
+  if (!useAuthStore.getState().accessToken) return false;
+  const cid = String(useCharacterStore.getState().characterId ?? "").trim();
+  const hid = String((hero as any)?.id ?? "").trim();
+  if (!cid || hid !== cid) return false;
+  return true;
+}
+
 export const createUseSkill =
   (set: Setter, get: () => BattleState): BattleState["useSkill"] =>
   (skillId) => {
@@ -544,6 +561,32 @@ export const createUseSkill =
 
     // Heal skills (self-targeted or summon-targeted)
     if (isHeal) {
+      if (isEligiblePveServerHeal(def, skillId, state, hero)) {
+        const characterId =
+          String(useCharacterStore.getState().characterId ?? "").trim() ||
+          String((hero as any)?.id ?? "").trim();
+        if (characterId) {
+          schedulePveSelfBuffOnline(skillId, def, () => {
+            handleHealSkill(
+              skillId,
+              def,
+              levelDef,
+              state,
+              hero,
+              heroStats,
+              mpCost,
+              now,
+              activeBuffs,
+              computeMaxNow,
+              cooldownMs,
+              updateHero,
+              setAndPersist,
+              get
+            );
+          });
+          return;
+        }
+      }
       const handled = handleHealSkill(
         skillId,
         def,

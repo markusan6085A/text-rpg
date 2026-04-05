@@ -65,11 +65,16 @@ function skillDefIsToggle(def: { category?: string; toggle?: unknown } | null | 
 
 const SUMMON_SKILL_IDS = new Set([1128, 1129, 1154, 1228, 1334]);
 
+/** Хіли по призваному — з battle state, не з heroJson; лишаються клієнтським шляхом до окремого server snapshot. */
+const HEAL_SERVER_EXCLUDE_IDS = new Set([1126, 1127]);
+
 function isEligibleSelfCast(def: SkillDefinition): boolean {
   if (SUMMON_SKILL_IDS.has(def.id)) return false;
   if (def.itemConsume) return false;
   if (def.category === "debuff") return false;
-  if (def.category === "heal") return false;
+  if (def.category === "heal") {
+    return !HEAL_SERVER_EXCLUDE_IDS.has(def.id);
+  }
   if (def.category === "physical_attack" || def.category === "magic_attack") return false;
   if (def.category === "special") return false;
   if (skillDefIsBuff(def)) return true;
