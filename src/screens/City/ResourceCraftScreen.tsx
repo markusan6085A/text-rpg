@@ -205,39 +205,16 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
 
   const commitModalCraft = React.useCallback(() => {
     if (!hero || !craftModal || !modalRecipe) return;
-    const raw = parseInt(craftQtyInput.trim(), 10);
-    const qty = Number.isFinite(raw) ? Math.floor(raw) : 0;
-    if (qty < 1 || qty > modalMaxCraft) {
-      showToast(`Введите число от 1 до ${modalMaxCraft}.`, "error");
-      return;
-    }
-
-    let result: { ok: true; inventory: HeroInventoryItem[] } | { ok: false };
-    if (craftModal.tier === 1) {
-      const r = RESOURCE_CRAFT_LEVEL1_RECIPES[craftModal.idx];
-      if (!r) return;
-      result = tryApplyResourceCraft(hero.inventory, r, maxSlots, qty);
-    } else {
-      result = tryApplyStringIdCraftRecipe(hero.inventory, modalRecipe, maxSlots, qty);
-    }
-
-    if (!result.ok) {
-      showToast("Недостаточно материалов или нет свободного слота в инвентаре.", "error");
-      return;
-    }
-
-    const name = displayCraftResourceName(modalRecipe.outputId);
-    updateHero({ inventory: result.inventory }, { persist: true });
-    showToast(`Скрафчено: ${name} ×${qty}`, "success");
+    showToast(
+      "Крафт тимчасово вимкнено: йде перехід на серверний (online-authoritative) режим.",
+      "error"
+    );
     setCraftModal(null);
   }, [
     hero,
     craftModal,
     modalRecipe,
-    craftQtyInput,
-    modalMaxCraft,
-    maxSlots,
-    updateHero,
+    setCraftModal,
   ]);
 
   const hintClass = isL2 ? "text-[11px] text-[#a89878] leading-relaxed" : "text-xs text-gray-400";

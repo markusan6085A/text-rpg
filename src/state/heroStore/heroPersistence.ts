@@ -10,7 +10,7 @@
  * Bootstrap (логін / реєстрація): `syncCurrentUserAndAccountHero` — єдине місце для `l2_current_user` + рядка в `l2_accounts_v2`.
  */
 import type { Hero } from "../../types/Hero";
-import { updateCharacter, getCharacter, updateInventoryAPI } from "../../utils/api";
+import { updateCharacter, getCharacter } from "../../utils/api";
 import { useCharacterStore } from "../characterStore";
 import { useAuthStore } from "../authStore";
 import { getJSON, setJSON } from "../persistence"; // Fallback for localStorage
@@ -910,31 +910,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         });
       }
       if (retryCount >= maxRetries) {
-        // 🔥 КРИТИЧНО: При exp error — зберігаємо хоча б inventory (куплені предмети не зникнуть після F5)
-        if (isExpLevelSpDecreased) {
-          const cs = useCharacterStore.getState();
-          if (cs.characterId) {
-            const source = (await import('../heroStore')).useHeroStore.getState().hero ?? hero;
-            const inv = Array.isArray(source?.inventory) ? source.inventory : [];
-            const chest = Array.isArray((source as any)?.overflowChest) ? (source as any).overflowChest : [];
-            const expectedRevision = Number(
-              (source as any)?.heroJson?.heroRevision ??
-              (source as any)?.heroRevision ??
-              (await import('../heroStore')).useHeroStore.getState().serverState?.heroRevision ??
-              0
-            );
-            try {
-              await updateInventoryAPI(cs.characterId, {
-                inventory: inv,
-                overflowChest: chest,
-                expectedRevision,
-              });
-              console.log('[saveHeroToLocalStorage] Saved inventory via fallback (exp error)');
-            } catch (e) {
-              console.warn('[saveHeroToLocalStorage] Inventory fallback failed:', e);
-            }
-          }
-        }
+        // Online-authoritative hardening: no client-side inventory snapshot fallback writes.
         return;
       }
       retryCount++;

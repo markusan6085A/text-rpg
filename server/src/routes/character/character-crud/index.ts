@@ -359,6 +359,12 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (expectedRevision === undefined || !Number.isFinite(expectedRevision) || expectedRevision < 0) {
       return reply.code(400).send({ error: "expectedRevision required" });
     }
+    // Online-authoritative hardening: raw inventory snapshot writes from client are disabled.
+    // Inventory/overflow must be mutated only by dedicated server-authoritative endpoints.
+    return reply.code(410).send({
+      error: "inventory_snapshot_put_disabled",
+      message: "Use server-authoritative mutation endpoints instead of inventory snapshot PUT.",
+    });
 
     const existing = await prisma.character.findFirst({
       where: { id, accountId: auth.accountId },
@@ -1031,12 +1037,22 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         } else {
           delete (heroJsonToSave as any).heroBuffs;
         }
+        // inventory and overflowChest are server-authoritative.
+        // Client PUT must not directly inject/override item snapshots.
+        if (oldHeroJson.inventory !== undefined) {
+          heroJsonToSave.inventory = oldHeroJson.inventory;
+        } else {
+          delete (heroJsonToSave as any).inventory;
+        }
+        if (oldHeroJson.overflowChest !== undefined) {
+          heroJsonToSave.overflowChest = oldHeroJson.overflowChest;
+        } else {
+          delete (heroJsonToSave as any).overflowChest;
+        }
 
-        // ── Захист від ін'єкції предметів через heroJson.inventory ───────────────
-        // inventory та overflowChest беремо з клієнта (легітимний stash для предметів з дропу/покупок),
-        // але видаляємо рядки де enchantLevel > поточного значення в БД для того ж item id —
-        // тобто не можна вписати "+99 зброю" якщо в БД її немає або у неї менше заточка.
-        // Якщо в БД немає equipment → inventory є джерелом правди (старий flow).
+        // ── Online-authoritative інвентар ───────────────────────────────────────
+        // inventory / overflowChest не приймаємо з клієнтського PUT.
+        // Зміни предметів мають приходити лише через server-authoritative mutation endpoints.
 
         const invariantResult = enforceCharacterMutationInvariants({
           heroJson: heroJsonToSave,

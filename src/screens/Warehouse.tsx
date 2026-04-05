@@ -165,6 +165,27 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     );
   }
 
+  // Online-authoritative hardening: personal warehouse is disabled until fully server-backed.
+  // LocalStorage warehouse operations are not allowed for online economy integrity.
+  return (
+    <div
+      className={
+        isL2
+          ? `${l2Frame} w-full min-w-0 my-1 flex flex-col items-center justify-center gap-3 text-center p-4 text-[#8a7a60]`
+          : "flex flex-col items-center justify-center gap-3 text-center p-4 text-gray-400"
+      }
+    >
+      <p className="text-sm">Персональний склад тимчасово недоступний в онлайн-режимі.</p>
+      <p className="text-xs">Функція буде повернена після повного серверного (authoritative) переносу.</p>
+      <button
+        onClick={() => navigate("/city")}
+        className="text-[12px] text-[#ff8c00] hover:text-[#ffa500] underline py-1"
+      >
+        Назад в місто
+      </button>
+    </div>
+  );
+
   // Кількість зайнятих СЛОТІВ (не кількість предметів): кожен слот = 1, незалежно від item.count
   const warehouseUsed = warehouseArr.filter(Boolean).length;
 
