@@ -203,6 +203,7 @@ export default function Layout({
       const pathname = typeof window !== "undefined" ? window.location.pathname.replace(/\?.*$/, "") : "";
       if (pathname !== "/battle") return; // Не атакувати поза сторінкою бою
       const battleStore = useBattleStore.getState();
+      if (battleStore.status !== "fighting") return;
       const now = Date.now();
       if (shouldUsePveServerMobTick()) {
         const st = battleStore;

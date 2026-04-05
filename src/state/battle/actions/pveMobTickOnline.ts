@@ -66,6 +66,7 @@ export function schedulePveMobTickOnline(): void {
   const hid = String((hero as any)?.id ?? "").trim();
   const bs = battleStoreRef.getState();
   if (!hero?.name || !token || !cid || hid !== cid) return;
+  if (!bs || bs.status !== "fighting") return;
   if (bs.zoneId === "fishing") return;
   const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
   const sess = hj.battleSession;
@@ -83,6 +84,7 @@ export function schedulePveMobTickOnline(): void {
     heroDefenseStats: pickDefenseStatsForServer(heroStats as any),
   })
     .then((res) => {
+      if (battleStoreRef.getState()?.status !== "fighting") return;
       if (!res?.ok || !(res as any).character) return;
       const ch = (res as any).character;
       const mergedHj = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, any>;
@@ -213,7 +215,9 @@ export function schedulePveMobTickOnline(): void {
         }
         return;
       }
-      void import("../../heroStore/heroLoadAPI").then(({ loadHeroFromAPI }) => loadHeroFromAPI()).catch(() => {});
+      if (battleStoreRef.getState()?.status === "fighting") {
+        void import("../../heroStore/heroLoadAPI").then(({ loadHeroFromAPI }) => loadHeroFromAPI()).catch(() => {});
+      }
     })
     .finally(() => {
       tickInFlight = false;
@@ -226,6 +230,7 @@ export function shouldUsePveServerMobTick(): boolean {
   const cid = String(useCharacterStore.getState().characterId ?? "").trim();
   const hid = String((hero as any)?.id ?? "").trim();
   if (!cid || hid !== cid) return false;
+  if (battleStoreRef.getState()?.status !== "fighting") return false;
   const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
   const sess = hj.battleSession;
   return !!(sess && Number(sess.v) === 1);

@@ -284,7 +284,8 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
       ? recalculatedAfter.finalStats
       : recalculatedAfter.baseFinalStats;
 
-    const hj = (curHero as any).heroJson || {};
+    const hj = { ...((curHero as any).heroJson || {}) };
+    delete hj.battleSession;
     const buffSnapshot = Array.isArray(heroBuffs)
       ? heroBuffs.map((b: any) => ({ ...b }))
       : Array.isArray(hj.heroBuffs)
