@@ -2094,15 +2094,43 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         if (ovIdx >= 0) overflowChest[ovIdx] = { ...overflowChest[ovIdx], count: Number(overflowChest[ovIdx].count ?? 0) + 1 };
         else overflowChest.push({ ...rowItem, count: 1 });
       };
+      const collapseStackRowsById = (rows: any[], itemId: string): any[] => {
+        const normTarget = normalizeShopItemId(itemId);
+        let total = 0;
+        let template: any | null = null;
+        const kept: any[] = [];
+        for (const rowItem of rows) {
+          if (normalizeShopItemId(rowItem?.id) === normTarget) {
+            const rowCount = Math.max(1, Math.floor(Number(rowItem?.count ?? 1) || 1));
+            total += rowCount;
+            if (!template) template = rowItem;
+            continue;
+          }
+          kept.push(rowItem);
+        }
+        if (total > 0) {
+          kept.push({
+            ...(template ?? {}),
+            ...canonicalMeta,
+            id: canonicalItemId,
+            count: total,
+          });
+        }
+        return kept;
+      };
       const basePurchasedRow = {
         id: canonicalItemId,
         ...canonicalMeta,
       };
       for (let i = 0; i < quantity; i++) addOne(basePurchasedRow);
       if (stackable) {
-        // collapse to a single stack row
-        const idx = inventory.findIndex((i: any) => normalizeShopItemId(i?.id) === normalizeShopItemId(canonicalItemId));
-        if (idx >= 0) inventory[idx] = { ...inventory[idx], count: Number(inventory[idx].count ?? 0) };
+        // Keep exactly one stack row per id in each container to avoid fragmented stacks from legacy snapshots.
+        const collapsedInventory = collapseStackRowsById(inventory, canonicalItemId);
+        const collapsedOverflow = collapseStackRowsById(overflowChest, canonicalItemId);
+        inventory.length = 0;
+        inventory.push(...collapsedInventory);
+        overflowChest.length = 0;
+        overflowChest.push(...collapsedOverflow);
       }
 
       const newHeroJson = {
