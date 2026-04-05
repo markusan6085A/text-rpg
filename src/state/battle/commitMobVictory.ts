@@ -27,6 +27,7 @@ import { itemsDB } from "../../data/items/itemsDB";
 import { cleanupBuffs, mergeServerHeroBuffsRespectLocalToggleOff } from "./helpers";
 import { persistBattle, loadBattle } from "./persist";
 import { runSerializedPveMutation } from "./actions/pveMutationQueue";
+import { heroResourcesForBattleFinishPayload } from "../../utils/heroResourceSnapshotForBattleFinish";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -321,6 +322,13 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
       const updatedHero = heroSnapshotForFinish ?? useHeroStore.getState().hero;
       if (!updatedHero) return;
       const heroJson = heroJsonSnapshotForFinish;
+      const liveHero = useHeroStore.getState().hero ?? updatedHero;
+      const finishResources = heroResourcesForBattleFinishPayload(liveHero);
+      const finishBuffsRaw: any[] = Array.isArray((liveHero as any).heroJson?.heroBuffs)
+        ? ((liveHero as any).heroJson.heroBuffs as any[])
+        : Array.isArray(heroBuffs)
+          ? heroBuffs
+          : [];
 
       // No separate pickupItemAPI — server handles item drops in battle-finish.
       // Quest items that need to be in inventory: the server's heroJson.inventory
@@ -347,9 +355,9 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         newExp: updatedHero.exp,
         newSp: updatedHero.sp,
         // Don't send newAdena — server adds drop adena on top of current DB adena
-        newHp: updatedHero.hp,
-        newMp: updatedHero.mp,
-        newCp: updatedHero.cp,
+        newHp: finishResources.hp,
+        newMp: finishResources.mp,
+        newCp: finishResources.cp,
         questDrops: questDropItems.length > 0 ? questDropItems : undefined,
         heroJsonPatch: {
           mobsKilled: (updatedHero as any).mobsKilled,
@@ -359,7 +367,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
           lastKillZoneName: heroJson.lastKillZoneName,
           battleZoneId: heroJson.battleZoneId,
           zoneId: heroJson.zoneId,
-          heroBuffs: JSON.parse(JSON.stringify(Array.isArray(heroBuffs) ? heroBuffs : [])),
+          heroBuffs: JSON.parse(JSON.stringify(finishBuffsRaw)),
         },
       };
       let finishResult: Awaited<ReturnType<typeof battleFinishAPI>> | null = null;

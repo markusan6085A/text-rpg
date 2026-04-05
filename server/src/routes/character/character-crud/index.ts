@@ -3236,9 +3236,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       if (typeof (b as any).stackType === "string") o.stackType = String((b as any).stackType).slice(0, 120);
       if (typeof (b as any).buffGroup === "string") o.buffGroup = String((b as any).buffGroup).slice(0, 120);
       if (typeof (b as any).source === "string") o.source = String((b as any).source).slice(0, 80);
-      const exp = (b as any).expiresAt;
-      if (typeof exp === "number" && Number.isFinite(exp)) o.expiresAt = exp;
-      else if (exp === Number.MAX_SAFE_INTEGER) o.expiresAt = Number.MAX_SAFE_INTEGER;
+      const expNum = Number((b as any).expiresAt);
+      if (Number.isFinite(expNum)) o.expiresAt = expNum;
       if (typeof (b as any).startedAt === "number" && Number.isFinite((b as any).startedAt)) o.startedAt = (b as any).startedAt;
       if (typeof (b as any).durationMs === "number" && Number.isFinite((b as any).durationMs)) o.durationMs = (b as any).durationMs;
       if (typeof (b as any).tickInterval === "number" && Number.isFinite((b as any).tickInterval)) o.tickInterval = (b as any).tickInterval;
