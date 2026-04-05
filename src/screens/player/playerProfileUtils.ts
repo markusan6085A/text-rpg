@@ -40,22 +40,46 @@ export function filterProfileBuffsByLearnedSkills(
   });
 }
 
+function parseMaybeJsonObject(raw: unknown): Record<string, unknown> {
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw as Record<string, unknown>;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed as Record<string, unknown>;
+    } catch {
+      // malformed legacy payload
+    }
+  }
+  return {};
+}
+
+function parseMaybeJsonMap(raw: unknown): Record<string, any> {
+  return parseMaybeJsonObject(raw) as Record<string, any>;
+}
+
 /** Об'єкт як Hero для екіпу / recalculateAllStats; має містити baseStats з heroJson (інакше стати — дефолтні). */
 export function characterToProfileHeroData(character: Character) {
-  const heroJson = (() => {
-    const raw = (character as any).heroJson;
-    if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw;
-    if (typeof raw === "string") {
-      try {
-        const p = JSON.parse(raw);
-        if (p && typeof p === "object" && !Array.isArray(p)) return p;
-      } catch {
-        // malformed legacy payload
-      }
-    }
-    return {};
-  })();
-  const professionRaw = heroJson.profession || character.classId || "";
+  const rootHeroJson = parseMaybeJsonObject((character as any).heroJson);
+  const nestedHeroJson = parseMaybeJsonObject((rootHeroJson as any).heroJson);
+  // Legacy compatibility: some rows keep payload under heroJson.heroJson.
+  const heroJson = Object.keys(nestedHeroJson).length > 0
+    ? { ...rootHeroJson, ...nestedHeroJson }
+    : rootHeroJson;
+  const equipment = parseMaybeJsonMap((heroJson as any).equipment);
+  const equipmentEnchantLevels = parseMaybeJsonMap((heroJson as any).equipmentEnchantLevels);
+  const equipmentInserts = parseMaybeJsonMap((heroJson as any).equipmentInserts);
+  const professionRaw = String((heroJson as any).profession ?? character.classId ?? "");
+  const status = String((heroJson as any).status ?? "");
+  const location =
+    typeof (heroJson as any).location === "string"
+      ? (heroJson as any).location
+      : typeof (heroJson as any).currentLocation === "string"
+        ? (heroJson as any).currentLocation
+        : typeof (heroJson as any).zone === "string"
+          ? (heroJson as any).zone
+          : undefined;
+  const nickColor =
+    typeof (heroJson as any).nickColor === "string" ? (heroJson as any).nickColor : undefined;
   return {
     id: character.id,
     name: character.name,
@@ -65,19 +89,16 @@ export function characterToProfileHeroData(character: Character) {
     gender: character.sex,
     level: effectiveCharacterLevel(character),
     profession: professionRaw,
-    status: heroJson.status || "",
+    status,
     ...(heroJson.baseStats && typeof heroJson.baseStats === "object"
       ? { baseStats: heroJson.baseStats }
       : {}),
     ...(heroJson.baseStatsInitial && typeof heroJson.baseStatsInitial === "object"
       ? { baseStatsInitial: heroJson.baseStatsInitial }
       : {}),
-    equipment: heroJson.equipment || {},
-    equipmentEnchantLevels: heroJson.equipmentEnchantLevels || {},
-    equipmentInserts:
-      heroJson.equipmentInserts && typeof heroJson.equipmentInserts === "object"
-        ? heroJson.equipmentInserts
-        : {},
+    equipment,
+    equipmentEnchantLevels,
+    equipmentInserts,
     activeDyes: heroJson.activeDyes || [],
     skills: Array.isArray(heroJson.skills) ? heroJson.skills : [],
     heroJson,
@@ -95,8 +116,8 @@ export function characterToProfileHeroData(character: Character) {
     maxMp: heroJson.maxMp || 100,
     cp: heroJson.cp || heroJson.maxCp || 0,
     maxCp: heroJson.maxCp || 0,
-    location: heroJson.location || heroJson.currentLocation || heroJson.zone || undefined,
+    location,
     mobsKilled: heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? undefined,
-    nickColor: heroJson.nickColor || undefined,
+    nickColor,
   };
 }

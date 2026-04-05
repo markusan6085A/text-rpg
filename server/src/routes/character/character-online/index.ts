@@ -17,8 +17,16 @@ function parseMaybeJsonObject(raw: any): Record<string, unknown> {
   return {};
 }
 
+function normalizeHeroJsonForPublic(raw: any): Record<string, unknown> {
+  const root = parseMaybeJsonObject(raw);
+  const nested = parseMaybeJsonObject((root as any).heroJson);
+  if (Object.keys(nested).length === 0) return root;
+  // Legacy rows may contain payload under heroJson.heroJson. Merge to keep public profile stable.
+  return { ...root, ...nested };
+}
+
 function buildPublicHeroJson(raw: any): Record<string, unknown> {
-  const src = parseMaybeJsonObject(raw);
+  const src = normalizeHeroJsonForPublic(raw);
   const out: Record<string, unknown> = {};
   const copy = (k: string) => {
     if (Object.prototype.hasOwnProperty.call(src, k)) out[k] = src[k];
@@ -136,7 +144,7 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
       }
 
       const players = onlineCharacters.map((char: any) => {
-        const heroJson = (char.heroJson as any) || {};
+        const heroJson = normalizeHeroJsonForPublic((char as any).heroJson);
         const location = heroJson.location || "Unknown";
         const power = heroJson.power || 0;
         const nickColor = getEffectiveNickColor(heroJson, (char as any).nickColor);

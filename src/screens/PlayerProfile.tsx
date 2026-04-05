@@ -715,10 +715,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     );
   }
 
-  const profession = heroData.profession || character.classId || "";
+  const profession = String((heroData as any).profession ?? character.classId ?? "");
   const profId = normalizeProfessionId(profession as any);
   const profDef = profId ? getProfessionDefinition(profId) : null;
-  const professionLabel = profDef?.label || profession || "Нет";
+  const professionLabel = String(profDef?.label ?? profession ?? "Нет");
 
   if (isPkMode && hero && heroData) {
     const backToLocation = () => {
@@ -788,7 +788,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   }
 
   // Статистика з heroJson (якщо є) - перевіряємо всі можливі варіанти назв полів
-  const stats = (character.heroJson || {}) as any;
+  const stats = (heroData?.heroJson || {}) as any;
   
   const karma = stats.karma || 0;
   const pk = stats.pk || 0;
@@ -797,7 +797,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const mobsKilled = stats.mobsKilled ?? stats.mobs_killed ?? stats.killedMobs ?? stats.totalKills ?? 0;
   const pvpWins = stats.pvpWins || stats.pvp_wins || 0;
   const pvpLosses = stats.pvpLosses || stats.pvp_losses || 0;
-  const profileLocationLabel = formatPublicProfileLocation(character.heroJson, heroData?.location);
+  const profileLocationLabel = formatPublicProfileLocation(
+    stats,
+    typeof (heroData as any)?.location === "string" ? (heroData as any).location : undefined
+  );
 
   if (import.meta.env.DEV) {
     console.log('[PlayerProfile] mobsKilled:', mobsKilled, 'from fields:', {
@@ -920,7 +923,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
                   playerName={character.name}
                   hero={hero}
                   clan={playerClan}
-                  nickColor={heroData?.nickColor || undefined}
+                  nickColor={typeof (heroData as any)?.nickColor === "string" ? (heroData as any).nickColor : undefined}
                   sevenSealsWinnerRank={sevenSealsRank ?? undefined}
                   size={10}
                 />
@@ -956,7 +959,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
               isL2 ? "text-[#8a7a60]" : "text-gray-400"
             }`}
           >
-            {heroData.status || "Нет статуса"}
+            {String((heroData as any).status ?? "Нет статуса")}
           </div>
         </div>
 
