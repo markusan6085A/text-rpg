@@ -3,7 +3,7 @@ import { useHeroStore } from "../../state/heroStore";
 import { useAdminStore } from "../../state/adminStore";
 import { getInventoryMax, OVERFLOW_CHEST_ID } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
-import { clearInventoryAPI } from "../../utils/api";
+import { clearInventoryAPI, deleteInventoryItemAPI } from "../../utils/api";
 import Equipment from "./Equipment";
 import InventoryFilters, { CATEGORIES } from "./InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../../data/items/itemsDB";
@@ -202,7 +202,50 @@ export default function Inventory() {
   };
 
   // Функція підтвердження видалення
-  const confirmDelete = () => {
+  const applyServerCharacterSnapshot = (updated: any) => {
+    const store = useHeroStore.getState();
+    const liveHero = store.hero;
+    if (!liveHero || !updated) return;
+    const heroJson =
+      (updated as any)?.heroJson && typeof (updated as any).heroJson === "object"
+        ? (updated as any).heroJson
+        : {};
+    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : liveHero.inventory ?? [];
+    const overflowChest = Array.isArray(heroJson.overflowChest) ? heroJson.overflowChest : liveHero.overflowChest ?? [];
+    const activeDyes = Array.isArray(heroJson.activeDyes)
+      ? heroJson.activeDyes
+      : liveHero.activeDyes ?? [];
+    const revision = Number(heroJson.heroRevision ?? (liveHero as any)?.heroJson?.heroRevision ?? 0);
+    const nextCoinLuck = Number((updated as any).coinLuck ?? liveHero.coinOfLuck ?? 0);
+    const nextLevel = Number((updated as any).level ?? liveHero.level ?? 1);
+    const nextExp = Number((updated as any).exp ?? liveHero.exp ?? 0);
+    const nextSp = Number((updated as any).sp ?? liveHero.sp ?? 0);
+    const nextAdena = Number((updated as any).adena ?? liveHero.adena ?? 0);
+    store.applyServerSync(
+      {
+        level: nextLevel,
+        exp: nextExp,
+        sp: nextSp,
+        adena: nextAdena,
+        coinOfLuck: nextCoinLuck,
+        inventory,
+        overflowChest,
+        activeDyes,
+        heroJson,
+      } as any,
+      {
+        level: nextLevel,
+        exp: nextExp,
+        sp: nextSp,
+        adena: nextAdena,
+        coinLuck: nextCoinLuck,
+        heroRevision: Number.isFinite(revision) ? revision : 0,
+        updatedAt: Date.now(),
+      }
+    );
+  };
+
+  const confirmDelete = async () => {
     if (!hero || !deleteConfirmItem) return;
     if (deleteConfirmItem.item?.id === OVERFLOW_CHEST_ID) {
       setDeleteConfirmItem(null);
@@ -265,27 +308,41 @@ export default function Inventory() {
       setDeleteConfirmItem(null);
       return;
     }
-    
-    if (amount === 1) {
-      // Видалення екіпіруємого предмета - видаляємо тільки один предмет за індексом
-      const updatedInventory = [...hero.inventory];
-      updatedInventory.splice(itemIndex, 1);
-      updateHero({ inventory: updatedInventory });
-    } else {
-      // Видалення частини расходника
-      const updatedInventory = [...hero.inventory];
-      const currentItem = updatedInventory[itemIndex];
-      const newCount = (currentItem.count ?? 1) - amount;
-      if (newCount > 0) {
-        updatedInventory[itemIndex] = { ...currentItem, count: newCount };
-      } else {
-        updatedInventory.splice(itemIndex, 1);
-      }
-      updateHero({ inventory: updatedInventory });
+
+    if (!characterId) {
+      showToast("Для видалення предмета потрібна онлайн-сесія персонажа.", "error");
+      return;
     }
-    
-    setSelectedItem(null);
-    setDeleteConfirmItem(null);
+
+    try {
+      const row = hero.inventory[itemIndex];
+      const expectedItemId = inventoryRowItemId(row);
+      if (!expectedItemId) {
+        showToast("Не вдалося визначити предмет для видалення. Оновіть інвентар.", "error");
+        return;
+      }
+      const expectedRevision = Number(
+        (useHeroStore.getState() as any).serverState?.heroRevision ??
+        (hero as any)?.heroJson?.heroRevision ??
+        0
+      );
+      const res = await deleteInventoryItemAPI(characterId, {
+        expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+        inventoryIndex: itemIndex,
+        amount: Math.max(1, Math.floor(Number(amount) || 1)),
+        expectedItemId,
+        expectedEnchantLevel: Math.max(0, Math.floor(Number((row as any)?.enchantLevel ?? 0))),
+      });
+      applyServerCharacterSnapshot((res as any).character);
+      setSelectedItem(null);
+      setDeleteConfirmItem(null);
+    } catch (e: any) {
+      if (e?.status === 409) {
+        showToast("Інвентар змінився в іншій сесії. Оновіть стан і спробуйте ще.", "error");
+        return;
+      }
+      showToast(e?.message || e?.error || "Помилка видалення на сервері", "error");
+    }
   };
 
   if (!hero) {

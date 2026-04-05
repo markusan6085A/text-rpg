@@ -755,6 +755,148 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     });
   });
 
+  // POST /characters/:id/inventory/delete — server-authoritative item delete (atomic inventory mutation)
+  app.post("/characters/:id/inventory/delete", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const params = req.params as { id?: string };
+    const id = params.id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    const body = req.body as {
+      expectedRevision?: number;
+      inventoryIndex?: number;
+      amount?: number;
+      expectedItemId?: string;
+      expectedEnchantLevel?: number;
+    };
+    const expectedRevision = Number(body.expectedRevision);
+    const inventoryIndex = Math.floor(Number(body.inventoryIndex));
+    const amountRaw = Number(body.amount ?? 1);
+    const amount = Math.max(1, Math.floor(amountRaw));
+    const expectedItemId = String(body.expectedItemId ?? "");
+    const expectedEnchantLevel = Math.max(0, Math.floor(Number(body.expectedEnchantLevel ?? 0)));
+
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+    if (!Number.isFinite(inventoryIndex) || inventoryIndex < 0) {
+      return reply.code(400).send({ error: "inventoryIndex required" });
+    }
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return reply.code(400).send({ error: "amount required" });
+    }
+    if (!expectedItemId) {
+      return reply.code(400).send({ error: "expectedItemId required" });
+    }
+
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<Array<{
+        heroJson: any;
+        updatedAt: Date;
+      }>>`
+        SELECT "heroJson", "updatedAt"
+        FROM "Character"
+        WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+
+      const row = locked[0];
+      const heroJson = (row.heroJson as any) || {};
+      const currentRevision = Number(heroJson.heroRevision ?? 0);
+      if (currentRevision !== expectedRevision) {
+        return {
+          ok: false as const,
+          reason: "revision_conflict" as const,
+          currentRevision,
+          updatedAt: row.updatedAt,
+        };
+      }
+
+      const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+      if (inventoryIndex >= inventory.length) {
+        return { ok: false as const, reason: "invalid_operation" as const };
+      }
+      const rowItem = inventory[inventoryIndex];
+      const rowItemId = String((rowItem as any)?.id ?? (rowItem as any)?.itemId ?? "");
+      const expectedIdNorm = normalizeShopItemId(expectedItemId);
+      const actualIdNorm = normalizeShopItemId(rowItemId);
+      if (!rowItem || !rowItemId || !expectedIdNorm || expectedIdNorm !== actualIdNorm) {
+        return { ok: false as const, reason: "invalid_operation" as const };
+      }
+      const actualEnchant = Math.max(0, Math.floor(Number((rowItem as any)?.enchantLevel ?? 0)));
+      if (actualEnchant !== expectedEnchantLevel) {
+        return { ok: false as const, reason: "invalid_operation" as const };
+      }
+
+      const rowCount = Math.max(1, Math.floor(Number((rowItem as any)?.count ?? 1)));
+      if (amount > rowCount) {
+        return { ok: false as const, reason: "invalid_operation" as const };
+      }
+
+      if (amount >= rowCount) {
+        inventory.splice(inventoryIndex, 1);
+      } else {
+        inventory[inventoryIndex] = { ...rowItem, count: rowCount - amount };
+      }
+
+      const overflowChest: any[] = Array.isArray(heroJson.overflowChest) ? [...heroJson.overflowChest] : [];
+      const newHeroJson = {
+        ...heroJson,
+        inventory,
+        overflowChest,
+      };
+      const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+      const updated = await tx.character.update({
+        where: { id },
+        data: {
+          heroJson: versionedHeroJson as any,
+          lastActivityAt: new Date(),
+        },
+        select: {
+          id: true, name: true, race: true, classId: true, sex: true,
+          level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true,
+          heroJson: true, createdAt: true, updatedAt: true,
+        },
+      });
+      return { ok: true as const, updated };
+    });
+
+    if (!txRes.ok) {
+      if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+      if (txRes.reason === "revision_conflict") {
+        return reply.code(409).send({
+          error: "revision_conflict",
+          message: "Character was modified by another session. Please reload and try again.",
+          currentRevision: txRes.currentRevision ?? 0,
+          updatedAt: txRes.updatedAt?.toISOString(),
+          serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+        });
+      }
+      return reply.code(400).send({ error: "invalid input" });
+    }
+
+    const updated = txRes.updated;
+    const serialized = {
+      ...updated,
+      exp: Number(updated.exp),
+      adena: Number(updated.adena ?? 0),
+      aa: Number(updated.aa ?? 0),
+      coinLuck: Number(updated.coinLuck ?? 0),
+    };
+    app.log.info(
+      { accountId: auth.accountId, characterId: id, inventoryIndex, amount, expectedItemId },
+      "[POST /characters/:id/inventory/delete] Inventory row deleted"
+    );
+    return reply.send({ ok: true, character: serialized });
+  });
+
   // PUT /characters/:id/inventory/clear — очистити інвентар без exp/level/sp (уникаємо "exp cannot be decreased")
   app.put("/characters/:id/inventory/clear", {
     preHandler: async (req, reply) => {

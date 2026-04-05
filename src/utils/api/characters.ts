@@ -96,6 +96,26 @@ export async function sellInventoryItemsAPI(
   );
 }
 
+/** Видалити предмет з інвентаря на сервері (atomic + CAS revision). */
+export async function deleteInventoryItemAPI(
+  characterId: string,
+  data: {
+    expectedRevision: number;
+    inventoryIndex: number;
+    amount?: number;
+    expectedItemId: string;
+    expectedEnchantLevel?: number;
+  }
+): Promise<{ ok: boolean; character: Character }> {
+  return apiRequest<{ ok: boolean; character: Character }>(
+    `/characters/${encodeURIComponent(characterId)}/inventory/delete`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    }
+  );
+}
+
 /** Очистити інвентар на сервері (окремий ендпоінт — без exp/level, уникаємо "exp cannot be decreased") */
 export async function clearInventoryAPI(characterId: string, expectedRevision: number): Promise<Character> {
   const response = await apiRequest<CharacterResponse>(`/characters/${encodeURIComponent(characterId)}/inventory/clear`, {
