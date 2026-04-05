@@ -303,7 +303,7 @@ export function handleConsumable(
       const ej = ((h as any).heroJson || {}) as Record<string, unknown>;
       useHeroStore.getState().updateHero(
         { heroJson: { ...ej, heroBuffs: r.nextBuffs } as any },
-        { persist: true }
+        { skipServer: true }
       );
     }
     return true;

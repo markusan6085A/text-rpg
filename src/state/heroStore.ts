@@ -401,6 +401,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     }
 
     const updated = updateHeroLogic(prev, partial);
+    const heroJsonPartial = (partial as any).heroJson;
 
     // 🔥 Реген HP/MP/CP — тільки store + localStorage, без API. Критерій: partial лише hp/mp/cp (максимум status).
     const keys = Object.keys(partial);
@@ -421,8 +422,15 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     // Лише локально (напр. location на старті бою) — без debounce PUT, інакше через ~500ms PUT під час бою → 409.
     if (opts?.skipServer) return;
 
-    // У бою: лише HP/MP/CP/battleStats (toggle, урон) — без PUT. Читаємо status з пам’яті (battle store), не loadBattle.
+    // У бою: волатильні поля (ресурси/бойові стати/витрата зарядів/тимчасові heroBuffs)
+    // не повинні робити PUT, інакше це змагається з server-authoritative /battle-finish і дає 409.
     if (opts?.persist !== true) {
+      const heroJsonKeys = heroJsonPartial && typeof heroJsonPartial === "object"
+        ? Object.keys(heroJsonPartial)
+        : [];
+      const heroJsonOnlyBuffs =
+        heroJsonKeys.length > 0 &&
+        heroJsonKeys.every((k) => k === "heroBuffs");
       const onlyBattleFluid =
         keys.length > 0 &&
         keys.every(
@@ -430,7 +438,9 @@ export const useHeroStore = create<HeroState>((set, get) => ({
             k === "hp" ||
             k === "mp" ||
             k === "cp" ||
-            k === "battleStats"
+            k === "battleStats" ||
+            k === "inventory" ||
+            (k === "heroJson" && heroJsonOnlyBuffs)
         );
       if (onlyBattleFluid) {
         try {
@@ -453,7 +463,6 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       });
     }
 
-    const heroJsonPartial = (partial as any).heroJson;
     const isResurrect = heroJsonPartial && (heroJsonPartial.isDead === false || Number(heroJsonPartial.deadAt) === 0);
     const isCriticalChange = (partial as any).mobsKilled !== undefined ||
                              partial.skills !== undefined ||
