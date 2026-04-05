@@ -548,10 +548,6 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
       }
     } catch (error) {
       console.error("[commitMobVictory] battle-finish failed, forcing resync", error);
-      const currentLog = battleStoreRef.getState()?.log ?? [];
-      battleStoreRef.setState?.({
-        log: ["Синхронізація бою з сервером не вдалась, оновлюю стан...", ...currentLog],
-      });
       void import("../heroStore/heroLoadAPI")
         .then(({ loadHeroFromAPI }) => loadHeroFromAPI())
         .then((h) => {
