@@ -76,6 +76,10 @@ export function schedulePveMobTickOnline(): void {
   if (!sess || Number(sess.v) !== 1) return;
 
   tickScheduleBusy = true;
+  if (typeof bs.mobHP === "number" && bs.mobHP <= 0) {
+    tickScheduleBusy = false;
+    return;
+  }
   const expectedRevisionRaw =
     useHeroStore.getState().serverState?.heroRevision ?? hj.heroRevision ?? 0;
   const expectedRevision = Number(expectedRevisionRaw);

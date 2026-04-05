@@ -25,9 +25,11 @@ export function mergeServerHeroBuffsRespectLocalToggleOff(
   const loc = cleanupBuffs(Array.isArray(localBattleBuffs) ? localBattleBuffs : [], now);
 
   const localToggleOnIds = new Set<number>();
+  const locBySkillId = new Map<number, any>();
   for (const b of loc) {
-    if (Number(b?.expiresAt) !== TOGGLE_EXPIRES) continue;
     const id = Number(b?.id);
+    if (Number.isFinite(id)) locBySkillId.set(id, b);
+    if (Number(b?.expiresAt) !== TOGGLE_EXPIRES) continue;
     if (!Number.isFinite(id)) continue;
     const def = getSkillDefForBattle(hero?.profession ?? null, hero?.klass, hero?.race, id);
     if (def && skillDefIsToggle(def)) localToggleOnIds.add(id);
@@ -42,7 +44,24 @@ export function mergeServerHeroBuffsRespectLocalToggleOff(
     return localToggleOnIds.has(id);
   });
 
-  const keys = new Set(filtered.map(buffDedupeKey));
+  // PvE tick/attack з сервера майже не рухають lastTickAt у toggle (немає mpPerTick на кроці моба в snapshot).
+  // Якщо брати серверний lastTickAt як істину, після кожного tick локальний regen «доганяє» миттєво сотні
+  // інтервалів і вимикає ауру (newMP < 0) — «Ваша аура закінчилася» + фальшивий дрен MP.
+  const filteredWithLocalToggleClock = filtered.map((b) => {
+    if (Number(b?.expiresAt) !== TOGGLE_EXPIRES) return b;
+    const id = Number(b?.id);
+    if (!Number.isFinite(id)) return b;
+    const def = getSkillDefForBattle(hero?.profession ?? null, hero?.klass, hero?.race, id);
+    if (!def || !skillDefIsToggle(def)) return b;
+    const lb = locBySkillId.get(id);
+    if (!lb) return b;
+    const sTick = Math.max(Number(b.lastTickAt) || 0, Number(b.startedAt) || 0);
+    const lTick = Math.max(Number(lb.lastTickAt) || 0, Number(lb.startedAt) || 0);
+    if (lTick > sTick) return { ...b, lastTickAt: lTick };
+    return b;
+  });
+
+  const keys = new Set(filteredWithLocalToggleClock.map(buffDedupeKey));
   const extras = loc.filter((b) => !keys.has(buffDedupeKey(b)));
-  return [...filtered, ...extras];
+  return [...filteredWithLocalToggleClock, ...extras];
 }
