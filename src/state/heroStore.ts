@@ -778,6 +778,33 @@ export const useHeroStore = create<HeroState>((set, get) => ({
   },
 }));
 
+/**
+ * Після 409 revision_conflict: вирівняти heroRevision з тілом відповіді (точка істини сервера).
+ * Інакше mergeHeroRevisionMonotonic залишає «здуту» локальну ревізію — PvE start/attack постійно 409.
+ */
+export function applyRevisionConflictFromApiError(error: unknown): void {
+  const e = error as any;
+  if (e?.status !== 409) return;
+  const body = e?.body;
+  if (!body || typeof body !== "object") return;
+  const raw =
+    body.currentRevision ?? body.serverState?.heroRevision ?? body.heroRevision;
+  if (raw == null || !Number.isFinite(Number(raw))) return;
+  const r = Number(raw);
+  const store = useHeroStore.getState();
+  const h = store.hero;
+  if (h && (h as any).heroJson && typeof (h as any).heroJson === "object") {
+    store.updateHero(
+      { heroJson: { ...(h as any).heroJson, heroRevision: r } } as Partial<Hero>,
+      { skipServer: true }
+    );
+  }
+  store.updateServerState(
+    { heroRevision: r, updatedAt: Date.now() },
+    { revisionFromAuthoritativeGet: true }
+  );
+}
+
 export type ApplyCharacterSnapshotOptions = {
   /** Поля, що додаються до heroJson після snapshot сервера (наприклад fishingSession). */
   heroJsonExtra?: Record<string, unknown>;

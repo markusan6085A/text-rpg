@@ -1,4 +1,5 @@
 import { apiRequest } from "./core";
+import { applyRevisionConflictFromApiError } from "../../state/heroStore";
 import type {
   Character,
   CreateCharacterRequest,
@@ -297,11 +298,16 @@ export async function syncHeroBuffsAPI(
     return await syncHeroBuffsAttempt(characterId, data.heroBuffs, rev);
   } catch (e: any) {
     if (e?.status !== 409) throw e;
+    applyRevisionConflictFromApiError(e);
+    const fromBody = Number(
+      (e as any)?.body?.currentRevision ?? (e as any)?.body?.serverState?.heroRevision
+    );
     let rev2: number;
     try {
       rev2 = await readHeroRevisionFromGetCharacter(characterId);
     } catch {
-      throw e;
+      if (Number.isFinite(fromBody) && fromBody >= 0) rev2 = fromBody;
+      else throw e;
     }
     return await syncHeroBuffsAttempt(characterId, data.heroBuffs, rev2);
   }
@@ -348,11 +354,16 @@ export async function battleStartAPI(
     });
   } catch (e: any) {
     if (e?.status !== 409) throw e;
+    applyRevisionConflictFromApiError(e);
+    const fromBody = Number(
+      (e as any)?.body?.currentRevision ?? (e as any)?.body?.serverState?.heroRevision
+    );
     let rev2: number;
     try {
       rev2 = await readHeroRevisionFromGetCharacter(characterId);
     } catch {
-      throw e;
+      if (Number.isFinite(fromBody) && fromBody >= 0) rev2 = fromBody;
+      else throw e;
     }
     const res = await apiRequest<{
       ok: boolean;
@@ -407,11 +418,16 @@ export async function pveBattleAttackAPI(
     });
   } catch (e: any) {
     if (e?.status !== 409) throw e;
+    applyRevisionConflictFromApiError(e);
+    const fromBody = Number(
+      (e as any)?.body?.currentRevision ?? (e as any)?.body?.serverState?.heroRevision
+    );
     let rev2: number;
     try {
       rev2 = await readHeroRevisionFromGetCharacter(characterId);
     } catch {
-      throw e;
+      if (Number.isFinite(fromBody) && fromBody >= 0) rev2 = fromBody;
+      else throw e;
     }
     return await apiRequest(url, {
       method: "POST",
@@ -454,11 +470,16 @@ export async function pveBattleTickAPI(
     });
   } catch (e: any) {
     if (e?.status !== 409) throw e;
+    applyRevisionConflictFromApiError(e);
+    const fromBody = Number(
+      (e as any)?.body?.currentRevision ?? (e as any)?.body?.serverState?.heroRevision
+    );
     let rev2: number;
     try {
       rev2 = await readHeroRevisionFromGetCharacter(characterId);
     } catch {
-      throw e;
+      if (Number.isFinite(fromBody) && fromBody >= 0) rev2 = fromBody;
+      else throw e;
     }
     return await apiRequest(url, {
       method: "POST",
@@ -486,11 +507,16 @@ export async function pveCastSelfBuffAPI(
     });
   } catch (e: any) {
     if (e?.status !== 409) throw e;
+    applyRevisionConflictFromApiError(e);
+    const fromBody = Number(
+      (e as any)?.body?.currentRevision ?? (e as any)?.body?.serverState?.heroRevision
+    );
     let rev2: number;
     try {
       rev2 = await readHeroRevisionFromGetCharacter(characterId);
     } catch {
-      throw e;
+      if (Number.isFinite(fromBody) && fromBody >= 0) rev2 = fromBody;
+      else throw e;
     }
     return await apiRequest<{ ok: boolean; character: Character; logLine?: string }>(url, {
       method: "POST",

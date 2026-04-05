@@ -2,7 +2,7 @@ import type { SkillDefinition, SkillLevelDefinition } from "../../../data/skills
 import type { Hero } from "../../../types/Hero";
 import type { BattleState } from "../types";
 import { pveBattleAttackAPI } from "../../../utils/api/characters";
-import { useHeroStore } from "../../heroStore";
+import { useHeroStore, applyRevisionConflictFromApiError } from "../../heroStore";
 import { useCharacterStore } from "../../characterStore";
 import { battleStoreRef } from "../../battleStoreRef";
 import { cleanupBuffs } from "../helpers";
@@ -231,6 +231,7 @@ export function schedulePveAttackSkillOnline(args: {
     })
     .catch((e: any) => {
       const st = Number(e?.status);
+      if (st === 409) applyRevisionConflictFromApiError(e);
       const code = String(e?.body?.error ?? "");
       if (code === "no_battle_session" || code === "mob_dead") {
         const store = useHeroStore.getState();

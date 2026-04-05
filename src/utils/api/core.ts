@@ -115,10 +115,15 @@ export async function apiRequest<T>(
   const doFetch = async (token: string | null) => {
     const h = { ...headers };
     if (token) (h as Record<string, string>)["Authorization"] = `Bearer ${token}`;
+    const method = (fetchOptions.method || "GET").toUpperCase();
+    const cacheMode =
+      (fetchOptions as RequestInit).cache ??
+      (method === "GET" ? ("no-store" as RequestCache) : undefined);
     return fetch(`${API_URL}${endpoint}`, {
       ...fetchOptions,
       headers: h,
       credentials: "include",
+      ...(cacheMode ? { cache: cacheMode } : {}),
     });
   };
 

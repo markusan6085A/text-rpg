@@ -48,22 +48,26 @@ function isActiveBattleForHero(hero: Hero | null | undefined): boolean {
   return st === "fighting" || st === "victory";
 }
 
-/** PUT 409 повертає актуальний serverState.heroRevision; без цього наступний expectedRevision знову відстає (battle/heartbeat/state). */
+/** PUT/PvE 409 повертає актуальну ревізію БД; підставляємо джерело правди (не Math.max зі «здутою» локальною). */
 async function applyHeroRevisionFrom409Body(error: any): Promise<void> {
   if (error?.status !== 409) return;
   const body = (error as any).body;
   if (!body || typeof body !== "object") return;
   const srvRev =
+    body.currentRevision ??
     body.serverState?.heroRevision ??
     body.heroRevision ??
     (error as any).details?.serverState?.heroRevision;
   if (srvRev == null || !Number.isFinite(Number(srvRev))) return;
   const r = Number(srvRev);
   const { useHeroStore } = await import('../heroStore');
-  useHeroStore.getState().updateServerState({
-    heroRevision: r,
-    updatedAt: Date.now(),
-  });
+  useHeroStore.getState().updateServerState(
+    {
+      heroRevision: r,
+      updatedAt: Date.now(),
+    },
+    { revisionFromAuthoritativeGet: true }
+  );
 }
 
 // 🔥 ВИДАЛЕНО: Глобальні змінні lastServerExp/lastServerLevel та window.__lastServerExp
