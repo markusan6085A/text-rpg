@@ -187,10 +187,15 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
 
                 setIsApplying(true);
                 try {
+                  const expectedRevision = Number(
+                    useHeroStore.getState().serverState?.heroRevision ??
+                    (hero as any)?.heroJson?.heroRevision ??
+                    0
+                  );
                   const res = await colorizeNick(
                     characterId,
                     selectedColor,
-                    (hero as any)?.heroJson?.heroRevision
+                    Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0
                   );
                   if (!res.ok || !res.character) {
                     showToast("Ошибка при изменении цвета ника", "error");
@@ -200,7 +205,6 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
                   const newRevision = heroJsonFromRes?.heroRevision;
 
                   // Update serverState (coinLuck + heroRevision) to avoid PUT sending stale revision
-                  const { useHeroStore } = await import("../state/heroStore");
                   useHeroStore.getState().updateServerState?.({ coinLuck, heroRevision: newRevision });
 
                   // Update hero in store (heroRevision at top level for heroPersistence)

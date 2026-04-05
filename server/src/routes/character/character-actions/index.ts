@@ -27,40 +27,57 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     if (!/^#[0-9A-Fa-f]{6}$/.test(nickColor)) {
       return reply.code(400).send({ error: "invalid nickColor (expected #RRGGBB)" });
     }
+    const expectedRevision = Number(body.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
 
     const PRICE = 50;
 
     try {
-      const ch = await prisma.character.findFirst({
-        where: { id: targetId, accountId: auth.accountId },
-        select: { id: true, coinLuck: true, heroJson: true },
-      });
-      if (!ch) return reply.code(404).send({ error: "character not found" });
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{ id: string; coinLuck: bigint; heroJson: any }>
+        >`
+          SELECT "id", "coinLuck", "heroJson"
+          FROM "Character"
+          WHERE "id" = ${targetId} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
 
-      const heroJson = (ch.heroJson ?? {}) as any;
-      const oldRevision = heroJson.heroRevision ?? 0;
-      if (body.expectedRevision !== undefined && body.expectedRevision !== oldRevision) {
-        return reply.code(409).send({ error: "revision_conflict", revision: oldRevision });
+        const ch = locked[0];
+        const heroJson = (ch.heroJson ?? {}) as any;
+        const oldRevision = Number(heroJson.heroRevision ?? 0);
+        if (oldRevision !== expectedRevision) {
+          return { ok: false as const, reason: "revision_conflict" as const, revision: oldRevision };
+        }
+
+        const currentCoinLuck = Number(ch.coinLuck ?? 0n);
+        if (currentCoinLuck < PRICE) {
+          return { ok: false as const, reason: "not_enough" as const, coinLuck: currentCoinLuck };
+        }
+
+        const updatedHeroJson = addVersioning({ ...heroJson, nickColor }, oldRevision);
+        const updated = await tx.character.update({
+          where: { id: ch.id },
+          data: {
+            coinLuck: { decrement: PRICE },
+            nickColor,
+            heroJson: updatedHeroJson,
+          },
+          select: { id: true, coinLuck: true, nickColor: true, heroJson: true, name: true, level: true, exp: true, sp: true, adena: true, aa: true, updatedAt: true },
+        });
+        return { ok: true as const, updated };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") return reply.code(409).send({ error: "revision_conflict", revision: txRes.revision });
+        return reply.code(400).send({ error: "not enough coinLuck", coinLuck: txRes.coinLuck });
       }
 
-      const currentCoinLuck = ch.coinLuck ?? 0;
-      if (currentCoinLuck < PRICE) {
-        return reply.code(400).send({ error: "not enough coinLuck", coinLuck: currentCoinLuck });
-      }
-
-      const updatedHeroJson = addVersioning({ ...heroJson, nickColor }, oldRevision);
-
-      const updated = await prisma.character.update({
-        where: { id: ch.id },
-        data: {
-          coinLuck: { decrement: PRICE },
-          nickColor,
-          heroJson: updatedHeroJson,
-        },
-        select: { id: true, coinLuck: true, nickColor: true, heroJson: true, name: true, level: true, exp: true, sp: true, adena: true, aa: true, updatedAt: true },
-      });
-
-      return reply.send({ ok: true, character: { ...updated, exp: Number(updated.exp) } });
+      return reply.send({ ok: true, character: { ...txRes.updated, exp: Number(txRes.updated.exp) } });
     } catch (error) {
       app.log.error(error, "Error colorize-nick:");
       return reply.code(500).send({
@@ -83,40 +100,57 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     if (!/^[A-Za-z0-9_\- ]+$/.test(newName)) {
       return reply.code(400).send({ error: "invalid name (use only A-Z, a-z, 0-9, _, -, space)" });
     }
+    const expectedRevision = Number(body.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
 
     const PRICE = 50;
 
     try {
-      const ch = await prisma.character.findFirst({
-        where: { id: targetId, accountId: auth.accountId },
-        select: { id: true, coinLuck: true, heroJson: true },
-      });
-      if (!ch) return reply.code(404).send({ error: "character not found" });
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{ id: string; coinLuck: bigint; heroJson: any }>
+        >`
+          SELECT "id", "coinLuck", "heroJson"
+          FROM "Character"
+          WHERE "id" = ${targetId} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
 
-      const heroJson = (ch.heroJson ?? {}) as any;
-      const oldRevision = heroJson.heroRevision ?? 0;
-      if (body.expectedRevision !== undefined && body.expectedRevision !== oldRevision) {
-        return reply.code(409).send({ error: "revision_conflict", revision: oldRevision });
+        const ch = locked[0];
+        const heroJson = (ch.heroJson ?? {}) as any;
+        const oldRevision = Number(heroJson.heroRevision ?? 0);
+        if (oldRevision !== expectedRevision) {
+          return { ok: false as const, reason: "revision_conflict" as const, revision: oldRevision };
+        }
+
+        const currentCoinLuck = Number(ch.coinLuck ?? 0n);
+        if (currentCoinLuck < PRICE) {
+          return { ok: false as const, reason: "not_enough" as const, coinLuck: currentCoinLuck };
+        }
+
+        const updatedHeroJson = addVersioning({ ...heroJson, name: newName, coinOfLuck: currentCoinLuck - PRICE }, oldRevision);
+        const updated = await tx.character.update({
+          where: { id: ch.id },
+          data: {
+            coinLuck: { decrement: PRICE },
+            name: newName,
+            heroJson: updatedHeroJson,
+          },
+          select: { id: true, coinLuck: true, name: true, heroJson: true, level: true, exp: true, sp: true, adena: true, aa: true, updatedAt: true },
+        });
+        return { ok: true as const, updated };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") return reply.code(409).send({ error: "revision_conflict", revision: txRes.revision });
+        return reply.code(400).send({ error: "not enough coinLuck", coinLuck: txRes.coinLuck });
       }
 
-      const currentCoinLuck = Number(ch.coinLuck ?? 0);
-      if (currentCoinLuck < PRICE) {
-        return reply.code(400).send({ error: "not enough coinLuck", coinLuck: currentCoinLuck });
-      }
-
-      const updatedHeroJson = addVersioning({ ...heroJson, name: newName, coinOfLuck: currentCoinLuck - PRICE }, oldRevision);
-
-      const updated = await prisma.character.update({
-        where: { id: ch.id },
-        data: {
-          coinLuck: { decrement: PRICE },
-          name: newName,
-          heroJson: updatedHeroJson,
-        },
-        select: { id: true, coinLuck: true, name: true, heroJson: true, level: true, exp: true, sp: true, adena: true, aa: true, updatedAt: true },
-      });
-
-      return reply.send({ ok: true, character: { ...updated, exp: Number(updated.exp) } });
+      return reply.send({ ok: true, character: { ...txRes.updated, exp: Number(txRes.updated.exp) } });
     } catch (error) {
       app.log.error(error, "Error rename-nick:");
       return reply.code(500).send({

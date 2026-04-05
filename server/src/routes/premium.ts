@@ -16,7 +16,7 @@ const VALID_PACKS: PremiumPack[] = ["3h", "7h", "12h", "24h"];
 
 export async function premiumRoutes(app: FastifyInstance) {
   app.post<{
-    Body: { characterId: string; pack: string; expectedRevision?: number };
+    Body: { characterId: string; pack: string; expectedRevision: number };
   }>("/premium/buy", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -24,6 +24,9 @@ export async function premiumRoutes(app: FastifyInstance) {
     const { characterId, pack, expectedRevision } = req.body || {};
     if (!characterId || !pack) {
       return reply.code(400).send({ error: "characterId and pack required" });
+    }
+    if (!Number.isFinite(Number(expectedRevision)) || Number(expectedRevision) < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
     }
 
     const packKey = pack as PremiumPack;
@@ -33,15 +36,20 @@ export async function premiumRoutes(app: FastifyInstance) {
     const cfg = PREMIUM_PACKAGES[packKey];
 
     const result = await prisma.$transaction(async (tx) => {
-      const ch = await tx.character.findFirst({
-        where: { id: characterId, accountId: auth!.accountId },
-        select: { id: true, coinLuck: true, heroJson: true },
-      });
-      if (!ch) return { kind: "not_found" as const };
+      const locked = await tx.$queryRaw<
+        Array<{ id: string; coinLuck: bigint; heroJson: any }>
+      >`
+        SELECT "id", "coinLuck", "heroJson"
+        FROM "Character"
+        WHERE "id" = ${characterId} AND "accountId" = ${auth.accountId}
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { kind: "not_found" as const };
+      const ch = locked[0];
 
       const heroJson = (ch.heroJson ?? {}) as any;
       const oldRevision = heroJson.heroRevision ?? 0;
-      if (expectedRevision !== undefined && oldRevision !== expectedRevision) {
+      if (oldRevision !== Number(expectedRevision)) {
         return { kind: "conflict" as const, revision: oldRevision };
       }
 
@@ -50,7 +58,7 @@ export async function premiumRoutes(app: FastifyInstance) {
       const base = Math.max(oldPremiumUntil, now);
       const newPremiumUntil = base + cfg.addMs;
 
-      const currentCoinLuck = ch.coinLuck ?? 0;
+      const currentCoinLuck = Number(ch.coinLuck ?? 0n);
       if (currentCoinLuck < cfg.price) {
         return { kind: "no_money" as const, coinLuck: currentCoinLuck };
       }

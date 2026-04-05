@@ -95,7 +95,7 @@ export interface BuyPremiumResponse {
 export async function buyPremium(
   characterId: string,
   pack: PremiumPack,
-  expectedRevision?: number
+  expectedRevision: number
 ): Promise<BuyPremiumResponse> {
   const response = await apiRequest<BuyPremiumResponse>("/premium/buy", {
     method: "POST",
@@ -124,7 +124,7 @@ export interface ColorizeNickResponse {
 export async function colorizeNick(
   characterId: string,
   nickColor: string,
-  expectedRevision?: number
+  expectedRevision: number
 ): Promise<ColorizeNickResponse> {
   const response = await apiRequest<ColorizeNickResponse>(
     `/characters/${characterId}/colorize-nick`,
@@ -155,7 +155,7 @@ export interface RenameNickResponse {
 export async function renameNick(
   characterId: string,
   name: string,
-  expectedRevision?: number
+  expectedRevision: number
 ): Promise<RenameNickResponse> {
   const response = await apiRequest<RenameNickResponse>(
     `/characters/${characterId}/rename-nick`,

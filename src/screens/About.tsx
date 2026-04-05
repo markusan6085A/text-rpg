@@ -230,7 +230,16 @@ export default function About({ navigate }: { navigate: Navigate }) {
                     setIsChanging(true);
                     try {
                       const trimmedNick = newNickname.trim();
-                      const res = await renameNick(characterId, trimmedNick, (hero as any)?.heroJson?.heroRevision);
+                      const expectedRevision = Number(
+                        useHeroStore.getState().serverState?.heroRevision ??
+                        (hero as any)?.heroJson?.heroRevision ??
+                        0
+                      );
+                      const res = await renameNick(
+                        characterId,
+                        trimmedNick,
+                        Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0
+                      );
                       const { coinLuck, name: newName, heroJson: heroJsonFromRes } = res.character;
                       const newRevision = heroJsonFromRes?.heroRevision;
                       // Оновлюємо serverState (coinLuck + heroRevision) щоб PUT не відправляв застарілу ревізію

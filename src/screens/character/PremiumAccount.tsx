@@ -100,10 +100,15 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
 
     setIsBuying(true);
     try {
+      const expectedRevision = Number(
+        useHeroStore.getState().serverState?.heroRevision ??
+        (hero as any)?.heroJson?.heroRevision ??
+        0
+      );
       const res = await buyPremium(
         characterId,
         option.id as PremiumPack,
-        (hero as any)?.heroJson?.heroRevision
+        Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0
       );
       if (!res.ok || !res.character) {
         showToast("Помилка покупки преміуму", "error");
