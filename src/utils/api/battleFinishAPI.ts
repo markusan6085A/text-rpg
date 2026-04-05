@@ -33,7 +33,7 @@ export interface BattleFinishParams {
   newCp?: number;
   /** Quest item drops (client-side, validated by server) */
   questDrops?: Array<{ id: string; count: number; name?: string; kind?: string; slot?: string; icon?: string }>;
-  /** Partial heroJson patch (dailyQuestsProgress, activeQuests, kill counters, etc.) */
+  /** Partial heroJson patch (kill counters + last-kill meta only; progression is server-authoritative). */
   heroJsonPatch?: Record<string, any>;
 }
 

@@ -311,9 +311,6 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         questDrops: questDropItems.length > 0 ? questDropItems : undefined,
         heroJsonPatch: {
           mobsKilled: (updatedHero as any).mobsKilled,
-          dailyQuestsProgress: updatedHero.dailyQuestsProgress,
-          dailyQuestsCompleted: updatedHero.dailyQuestsCompleted,
-          activeQuests: updatedHero.activeQuests,
           lastKillMobId: heroJson.lastKillMobId,
           lastKillMobName: heroJson.lastKillMobName,
           lastKillZoneId: heroJson.lastKillZoneId,

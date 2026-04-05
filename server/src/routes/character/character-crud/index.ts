@@ -1964,18 +1964,22 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     newHeroJson.adena = Number(heroJson.adena ?? 0) + serverAdenaReward;
 
     // Patch only a strict allowlist with basic shape guards.
+    // Security: daily quest progression/completion is server-authoritative and must not be set directly by client payload.
+    let didAdvanceKillCounter = true;
     if (body.heroJsonPatch && typeof body.heroJsonPatch === "object") {
       const patch = body.heroJsonPatch as Record<string, any>;
       if (patch.mobsKilled != null) {
         const current = Math.max(0, Math.floor(Number(newHeroJson.mobsKilled ?? 0)));
         const incoming = Math.max(0, Math.floor(Number(patch.mobsKilled)));
-        newHeroJson.mobsKilled = Math.max(current, incoming);
-      }
-      if (patch.dailyQuestsProgress && typeof patch.dailyQuestsProgress === "object" && !Array.isArray(patch.dailyQuestsProgress)) {
-        newHeroJson.dailyQuestsProgress = patch.dailyQuestsProgress;
-      }
-      if (Array.isArray(patch.dailyQuestsCompleted)) {
-        newHeroJson.dailyQuestsCompleted = patch.dailyQuestsCompleted.slice(0, 200);
+        // One battle-finish call may advance mobsKilled by at most +1.
+        const clampedIncoming = Math.min(current + 1, incoming);
+        const next = Math.max(current, clampedIncoming);
+        didAdvanceKillCounter = next > current;
+        newHeroJson.mobsKilled = next;
+      } else {
+        const current = Math.max(0, Math.floor(Number(newHeroJson.mobsKilled ?? 0)));
+        newHeroJson.mobsKilled = current + 1;
+        didAdvanceKillCounter = true;
       }
       if (typeof patch.lastKillMobId === "string") newHeroJson.lastKillMobId = patch.lastKillMobId.slice(0, 100);
       if (typeof patch.lastKillMobName === "string") newHeroJson.lastKillMobName = patch.lastKillMobName.slice(0, 200);
@@ -1983,6 +1987,67 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       if (typeof patch.lastKillZoneName === "string") newHeroJson.lastKillZoneName = patch.lastKillZoneName.slice(0, 120);
       if (typeof patch.battleZoneId === "string") newHeroJson.battleZoneId = patch.battleZoneId.slice(0, 100);
       if (typeof patch.zoneId === "string") newHeroJson.zoneId = patch.zoneId.slice(0, 100);
+    } else {
+      const current = Math.max(0, Math.floor(Number(newHeroJson.mobsKilled ?? 0)));
+      newHeroJson.mobsKilled = current + 1;
+      didAdvanceKillCounter = true;
+    }
+
+    // Server-authoritative daily quests for battle-related metrics.
+    const DAILY_KILLS_TARGET = 1000;
+    const DAILY_KILLS_REWARD_ADENA = 150000;
+    const DAILY_KILLS_REWARD_COIN_LUCK = 1;
+    const DAILY_ADENA_TARGET = 100000;
+    const DAILY_ADENA_REWARD_SP = 50000;
+    const DAILY_ADENA_REWARD_ADENA = 100000;
+    const DAILY_ADENA_REWARD_COIN_LUCK = 1;
+    const dailyProgress =
+      newHeroJson.dailyQuestsProgress && typeof newHeroJson.dailyQuestsProgress === "object" && !Array.isArray(newHeroJson.dailyQuestsProgress)
+        ? { ...(newHeroJson.dailyQuestsProgress as Record<string, number>) }
+        : {};
+    const completedSet = new Set<string>(
+      Array.isArray(newHeroJson.dailyQuestsCompleted) ? newHeroJson.dailyQuestsCompleted.map((x: any) => String(x)) : []
+    );
+    if (didAdvanceKillCounter && !completedSet.has("daily_kills")) {
+      const prev = Math.max(0, Math.floor(Number((dailyProgress as any).daily_kills ?? 0)));
+      (dailyProgress as any).daily_kills = prev + 1;
+    }
+    if (didAdvanceKillCounter && !completedSet.has("daily_adena_farm")) {
+      const prev = Math.max(0, Math.floor(Number((dailyProgress as any).daily_adena_farm ?? 0)));
+      (dailyProgress as any).daily_adena_farm = prev + serverAdenaReward;
+    }
+    let dailyRewardAdena = 0;
+    let dailyRewardSp = 0;
+    let dailyRewardCoinLuck = 0;
+    const killsProgress = Math.max(0, Math.floor(Number((dailyProgress as any).daily_kills ?? 0)));
+    if (killsProgress >= DAILY_KILLS_TARGET && !completedSet.has("daily_kills")) {
+      completedSet.add("daily_kills");
+      dailyRewardAdena += DAILY_KILLS_REWARD_ADENA;
+      dailyRewardCoinLuck += DAILY_KILLS_REWARD_COIN_LUCK;
+    }
+    const adenaFarmProgress = Math.max(0, Math.floor(Number((dailyProgress as any).daily_adena_farm ?? 0)));
+    if (adenaFarmProgress >= DAILY_ADENA_TARGET && !completedSet.has("daily_adena_farm")) {
+      completedSet.add("daily_adena_farm");
+      dailyRewardSp += DAILY_ADENA_REWARD_SP;
+      dailyRewardAdena += DAILY_ADENA_REWARD_ADENA;
+      dailyRewardCoinLuck += DAILY_ADENA_REWARD_COIN_LUCK;
+    }
+    newHeroJson.dailyQuestsProgress = dailyProgress;
+    newHeroJson.dailyQuestsCompleted = Array.from(completedSet).slice(0, 200);
+    if (dailyRewardSp > 0) {
+      newHeroJson.sp = Math.max(0, Math.floor(Number(newHeroJson.sp ?? 0))) + dailyRewardSp;
+    }
+    if (dailyRewardAdena > 0) {
+      newHeroJson.adena = Math.max(0, Math.floor(Number(newHeroJson.adena ?? 0))) + dailyRewardAdena;
+    }
+    const currentCoinLuck = Math.max(
+      0,
+      Math.floor(Number(newHeroJson.coinOfLuck ?? heroJson.coinOfLuck ?? character.coinLuck ?? 0))
+    );
+    if (dailyRewardCoinLuck > 0) {
+      newHeroJson.coinOfLuck = currentCoinLuck + dailyRewardCoinLuck;
+    } else {
+      newHeroJson.coinOfLuck = currentCoinLuck;
     }
 
     // ── Apply zariche auto-equip ───────────────────────────────────────────
@@ -2128,6 +2193,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       lastActivityAt: new Date(),
     };
     updateData.adena = BigInt(Math.max(0, Math.floor(Number(newHeroJson.adena))));
+    updateData.sp = Math.max(0, Math.floor(Number(newHeroJson.sp ?? character.sp ?? 0)));
+    updateData.coinLuck = BigInt(Math.max(0, Math.floor(Number(newHeroJson.coinOfLuck ?? character.coinLuck ?? 0))));
 
     await prisma.character.update({ where: { id }, data: updateData });
 
