@@ -958,14 +958,18 @@ export default function QuestShop({ navigate }: QuestShopProps) {
                         return;
                       }
                       const hj: any = (hero as any).heroJson;
+                      const expectedRevisionRaw =
+                        hj != null && typeof hj.heroRevision === "number"
+                          ? Number(hj.heroRevision)
+                          : Number(useHeroStore.getState().serverState?.heroRevision ?? 0);
                       const expectedRevision =
-                        hj != null && typeof hj.heroRevision === "number" ? hj.heroRevision : undefined;
+                        Number.isFinite(expectedRevisionRaw) && expectedRevisionRaw >= 0 ? expectedRevisionRaw : 0;
                       setExchangeBusy(true);
                       try {
                         await postQuestShopExchange(characterId, {
                           kind: confirmExchange.type,
                           quantity: qty,
-                          ...(expectedRevision !== undefined ? { expectedRevision } : {}),
+                          expectedRevision,
                         });
                         const synced = await loadHeroFromAPI();
                         if (synced) setHero(synced);

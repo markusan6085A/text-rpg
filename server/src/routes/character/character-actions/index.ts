@@ -440,12 +440,16 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     const kind = body.kind;
     const qtyRaw = body.quantity;
     const qty = typeof qtyRaw === "number" ? Math.floor(qtyRaw) : Math.floor(Number(qtyRaw));
+    const expectedRevision = Number(body.expectedRevision);
 
     if (kind !== "adena" && kind !== "exp" && kind !== "sp" && kind !== "coinOfLuck") {
       return reply.code(400).send({ error: "invalid input" });
     }
     if (!Number.isFinite(qty) || qty < 1 || qty > QUEST_SHOP_EXCHANGE_MAX_QTY) {
       return reply.code(400).send({ error: "invalid input" });
+    }
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
     }
 
     try {
@@ -472,7 +476,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         const ch = locked[0];
         const heroJson = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, unknown>;
         const oldRevision = Number(heroJson.heroRevision ?? 0);
-        if (body.expectedRevision !== undefined && Number(body.expectedRevision) !== oldRevision) {
+        if (expectedRevision !== oldRevision) {
           return { ok: false as const, reason: "revision_conflict" as const, revision: oldRevision };
         }
 
