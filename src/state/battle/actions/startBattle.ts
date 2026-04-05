@@ -370,11 +370,33 @@ export const createStartBattle =
             now,
           );
           const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj as Record<string, any>, buffsForScale, now);
+          // Серверний heroJson.hp/mp ще без локального регену з міста; scalePve* лише піднімає base→buffed.
+          // Інакше HUD показував ~13k, а після кліку в бій — ~9k (різкий «провал» смуг).
+          const heroLive = store.hero;
+          const buffedCaps = computeBuffedMaxResources(
+            {
+              maxHp: Math.max(1, Math.floor(Number((hj as any).maxHp ?? 1))),
+              maxMp: Math.max(1, Math.floor(Number((hj as any).maxMp ?? 1))),
+              maxCp: Math.max(1, Math.floor(Number((hj as any).maxCp ?? 1))),
+            },
+            buffsForScale as any,
+          );
+          const mergeWithLocalRegen = (liveRaw: unknown, scaled: number, cap: number) => {
+            const c = Math.max(1, Math.floor(cap));
+            const s = Math.min(c, Math.max(0, Math.round(Number(scaled) || 0)));
+            const liveNum = Number(liveRaw);
+            if (!Number.isFinite(liveNum)) return s;
+            const liveClamped = Math.min(c, Math.max(0, Math.round(liveNum)));
+            return Math.min(c, Math.max(s, liveClamped));
+          };
+          const finalHp = mergeWithLocalRegen(heroLive?.hp, scaledRes.hp, buffedCaps.maxHp);
+          const finalMp = mergeWithLocalRegen(heroLive?.mp, scaledRes.mp, buffedCaps.maxMp);
+          const finalCp = mergeWithLocalRegen(heroLive?.cp, scaledRes.cp, buffedCaps.maxCp);
           store.applyServerSync(
             {
-              hp: scaledRes.hp,
-              mp: scaledRes.mp,
-              cp: scaledRes.cp,
+              hp: finalHp,
+              mp: finalMp,
+              cp: finalCp,
               heroJson: { ...prevHj, ...hj },
             } as any,
             {
