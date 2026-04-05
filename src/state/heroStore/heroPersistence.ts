@@ -39,7 +39,14 @@ export function syncCurrentUserAndAccountHero(username: string, hero?: Hero): vo
 let saving = false;
 let queuedHero: Hero | null = null; // Snapshot героя для відкладених збережень (не boolean!)
 let retryCount = 0;
-const MAX_RETRIES = 1; // Один GET+merge після 409; ревізія з тіла відповіді підтягується в applyHeroRevisionFrom409Body
+const MAX_RETRIES_BATTLE = 1; // У бою тримаємо мінімум retry, щоб не створювати додатковий трафік
+const MAX_RETRIES_NON_BATTLE = 2; // Поза боєм даємо ще одну тиху спробу для transient 409
+
+function isActiveBattleForHero(hero: Hero | null | undefined): boolean {
+  if (!hero?.name) return false;
+  const st = loadBattle(hero.name)?.status;
+  return st === "fighting";
+}
 
 /** PUT 409 повертає актуальний serverState.heroRevision; без цього наступний expectedRevision знову відстає (battle/heartbeat/state). */
 async function applyHeroRevisionFrom409Body(error: any): Promise<void> {
@@ -877,7 +884,8 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
 
       // Ігноруємо якщо це просто конфлікт при фоновому збереженні
       // Ми не хочемо спамити користувачу alert-ами
-      if (retryCount >= MAX_RETRIES) {
+      const maxRetries = isActiveBattleForHero(hero) ? MAX_RETRIES_BATTLE : MAX_RETRIES_NON_BATTLE;
+      if (retryCount >= maxRetries) {
         // 🔥 КРИТИЧНО: При exp error — зберігаємо хоча б inventory (куплені предмети не зникнуть після F5)
         if (isExpLevelSpDecreased) {
           const cs = useCharacterStore.getState();
@@ -896,7 +904,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         return;
       }
       retryCount++;
-      // console.log(`[saveHeroToLocalStorage] Attempting automatic retry ${retryCount}/${MAX_RETRIES} after revision conflict...`);
+      // console.log(`[saveHeroToLocalStorage] Attempting automatic retry ${retryCount}/${maxRetries} after revision conflict...`);
       
       try {
         // 1. Отримуємо актуального героя з сервера (GET /characters/:id)
@@ -1084,7 +1092,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             }
           }
           
-          retryCount = MAX_RETRIES; // Не намагаємося більше
+          retryCount = maxRetries; // Не намагаємося більше
         }
       
       // Якщо retry не вдався або досягнуто максимум - зберігаємо локальну версію як backup
