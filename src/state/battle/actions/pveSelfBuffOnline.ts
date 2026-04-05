@@ -7,6 +7,7 @@ import { cleanupBuffs } from "../helpers";
 import { loadBattle, persistBattle } from "../persist";
 import { skillDefIsToggle } from "../loadout";
 import {
+  mergePveScaledResourcesWithHudCaps,
   mergeServerAndClientBuffsForResourceScaling,
   pveSnapshotBaseCaps,
   scalePveSnapshotHpMpCpToBuffed,
@@ -73,11 +74,19 @@ export function schedulePveSelfBuffOnline(
         : cleanupBuffs(mergedBuffs, now);
       const baseCapsSelf = pveSnapshotBaseCaps(hj, heroSync ? getMaxResources(heroSync) : null);
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, now, baseCapsSelf);
+      const mergedHeroBuffsForHud = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : mergedBuffs;
+      const { scaled: scaledHud } = mergePveScaledResourcesWithHudCaps({
+        scaledRes,
+        buffsForScale,
+        baseCaps: baseCapsSelf,
+        liveHero: heroSync,
+        mergedHeroBuffs: mergedHeroBuffsForHud,
+      });
       store.applyServerSync(
         {
-          hp: scaledRes.hp,
-          mp: scaledRes.mp,
-          cp: scaledRes.cp,
+          hp: scaledHud.hp,
+          mp: scaledHud.mp,
+          cp: scaledHud.cp,
           heroJson: { ...prevHj, ...hj },
         } as any,
         {

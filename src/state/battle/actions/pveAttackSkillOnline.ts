@@ -15,6 +15,7 @@ import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
 import { applyBuffsToStats } from "../helpers";
 import {
   mergeHeroBuffsForPveResourceScaling,
+  mergePveScaledResourcesWithHudCaps,
   pveSnapshotBaseCaps,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
@@ -119,14 +120,21 @@ export function schedulePveAttackSkillOnline(args: {
       );
       const baseCapsAtk = pveSnapshotBaseCaps(hj, getMaxResources(heroForBuffMerge));
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow, baseCapsAtk);
+      const { scaled: scaledHud } = mergePveScaledResourcesWithHudCaps({
+        scaledRes,
+        buffsForScale,
+        baseCaps: baseCapsAtk,
+        liveHero: heroForBuffMerge,
+        mergedHeroBuffs: mergedHeroBuffs,
+      });
       const hjMerged = { ...hj, heroBuffs: mergedHeroBuffs };
       const invSync = Array.isArray(hj.inventory) ? hj.inventory : undefined;
       const overflowSync = Array.isArray(hj.overflowChest) ? hj.overflowChest : undefined;
       store.applyServerSync(
         {
-          hp: scaledRes.hp,
-          mp: scaledRes.mp,
-          cp: scaledRes.cp,
+          hp: scaledHud.hp,
+          mp: scaledHud.mp,
+          cp: scaledHud.cp,
           ...(invSync ? { inventory: invSync } : {}),
           ...(overflowSync ? { overflowChest: overflowSync } : {}),
           heroJson: { ...prevHj, ...hjMerged },

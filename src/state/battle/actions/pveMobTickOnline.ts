@@ -3,16 +3,12 @@ import { useCharacterStore } from "../../characterStore";
 import { useAuthStore } from "../../authStore";
 import { battleStoreRef } from "../../battleStoreRef";
 import { pveBattleTickAPI } from "../../../utils/api/characters";
-import {
-  applyBuffsToStats,
-  cleanupBuffs,
-  computeBuffedMaxResources,
-  mergeServerHeroBuffsRespectLocalToggleOff,
-} from "../helpers";
+import { applyBuffsToStats, cleanupBuffs, mergeServerHeroBuffsRespectLocalToggleOff } from "../helpers";
 import { persistBattle, loadBattle } from "../persist";
 import type { BattleState } from "../types";
 import {
   mergeHeroBuffsForPveResourceScaling,
+  mergePveScaledResourcesWithHudCaps,
   pveSnapshotBaseCaps,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
@@ -188,10 +184,13 @@ export function schedulePveMobTickOnline(): void {
         tickNow,
         baseCaps,
       );
-      const bmh = baseCaps.maxHp;
-      const bmm = baseCaps.maxMp;
-      const bmc = baseCaps.maxCp;
-      const buffedCaps = computeBuffedMaxResources({ maxHp: bmh, maxMp: bmm, maxCp: bmc }, buffsForScale as any);
+      const { scaled: scaledHud, buffedCaps } = mergePveScaledResourcesWithHudCaps({
+        scaledRes,
+        buffsForScale,
+        baseCaps,
+        liveHero,
+        mergedHeroBuffs: mergedToggleHeroBuffs,
+      });
 
       const prevBHp = Math.floor(Number(heroJsonBeforeTick.hp ?? NaN));
       const prevBMp = Math.floor(Number(heroJsonBeforeTick.mp ?? NaN));
@@ -207,7 +206,7 @@ export function schedulePveMobTickOnline(): void {
         Math.min(Math.max(1, Math.floor(cap)), Math.max(0, Math.round(Number(v) || 0)));
 
       // HP: сервер зменшив — тільки scaled; інакше не відкочувати локальний реген (live > scaled).
-      const scaledHp = clampRes(scaledRes.hp, buffedCaps.maxHp);
+      const scaledHp = clampRes(scaledHud.hp, buffedCaps.maxHp);
       let finalHp = scaledHp;
       if (unchangedHp) {
         const live = Number(liveHero?.hp);
@@ -226,8 +225,8 @@ export function schedulePveMobTickOnline(): void {
         return clampRes(live, cap);
       };
 
-      const finalMp = pickLiveOrScaled(unchangedMp, liveHero?.mp, scaledRes.mp, buffedCaps.maxMp);
-      const finalCp = pickLiveOrScaled(unchangedCp, liveHero?.cp, scaledRes.cp, buffedCaps.maxCp);
+      const finalMp = pickLiveOrScaled(unchangedMp, liveHero?.mp, scaledHud.mp, buffedCaps.maxMp);
+      const finalCp = pickLiveOrScaled(unchangedCp, liveHero?.cp, scaledHud.cp, buffedCaps.maxCp);
 
       const hjTickMerged = { ...mergedHj, heroBuffs: mergedToggleHeroBuffs };
       store.applyServerSync(

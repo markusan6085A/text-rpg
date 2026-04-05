@@ -15,7 +15,6 @@ import {
   cleanupBuffs,
   persistSnapshot,
   applyBuffsToStats,
-  computeBuffedMaxResources,
   mergeServerHeroBuffsRespectLocalToggleOff,
 } from "../helpers";
 import { getMaxResources } from "../helpers/getMaxResources";
@@ -32,6 +31,7 @@ import {
   getWorldMobHpForSlot,
 } from "../../worldMobHpStore";
 import {
+  mergePveScaledResourcesWithHudCaps,
   mergeServerAndClientBuffsForResourceScaling,
   pveSnapshotBaseCaps,
   scalePveSnapshotHpMpCpToBuffed,
@@ -414,14 +414,13 @@ export const createStartBattle =
           // Серверний heroJson.hp/mp ще без локального регену з міста; scalePve* лише піднімає base→buffed.
           // Інакше HUD показував ~13k, а після кліку в бій — ~9k (різкий «провал» смуг).
           const heroLive = store.hero;
-          const buffedCaps = computeBuffedMaxResources(
-            {
-              maxHp: baseCapsStart.maxHp,
-              maxMp: baseCapsStart.maxMp,
-              maxCp: baseCapsStart.maxCp,
-            },
-            buffsForScale as any,
-          );
+          const { scaled: scaledHud, buffedCaps } = mergePveScaledResourcesWithHudCaps({
+            scaledRes,
+            buffsForScale,
+            baseCaps: baseCapsStart,
+            liveHero: heroLive,
+            mergedHeroBuffs: buffsMergedForSync,
+          });
           const mergeWithLocalRegen = (liveRaw: unknown, scaled: number, cap: number) => {
             const c = Math.max(1, Math.floor(cap));
             const s = Math.min(c, Math.max(0, Math.round(Number(scaled) || 0)));
@@ -430,9 +429,9 @@ export const createStartBattle =
             const liveClamped = Math.min(c, Math.max(0, Math.round(liveNum)));
             return Math.min(c, Math.max(s, liveClamped));
           };
-          const finalHp = mergeWithLocalRegen(heroLive?.hp, scaledRes.hp, buffedCaps.maxHp);
-          const finalMp = mergeWithLocalRegen(heroLive?.mp, scaledRes.mp, buffedCaps.maxMp);
-          const finalCp = mergeWithLocalRegen(heroLive?.cp, scaledRes.cp, buffedCaps.maxCp);
+          const finalHp = mergeWithLocalRegen(heroLive?.hp, scaledHud.hp, buffedCaps.maxHp);
+          const finalMp = mergeWithLocalRegen(heroLive?.mp, scaledHud.mp, buffedCaps.maxMp);
+          const finalCp = mergeWithLocalRegen(heroLive?.cp, scaledHud.cp, buffedCaps.maxCp);
           store.applyServerSync(
             {
               hp: finalHp,

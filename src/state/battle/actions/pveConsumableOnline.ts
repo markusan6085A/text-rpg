@@ -10,6 +10,7 @@ import {
 import { persistBattle, loadBattle } from "../persist";
 import {
   mergeHeroBuffsForPveResourceScaling,
+  mergePveScaledResourcesWithHudCaps,
   pveSnapshotBaseCaps,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
@@ -121,15 +122,22 @@ export function schedulePveConsumableOnline(args: {
         : cleanupBuffs(forScaleRaw, tickNow);
       const baseCapsUse = pveSnapshotBaseCaps(mergedHj, hSync ? getMaxResources(hSync) : null);
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(mergedHj, buffsForScale, tickNow, baseCapsUse);
+      const { scaled: scaledHud } = mergePveScaledResourcesWithHudCaps({
+        scaledRes,
+        buffsForScale,
+        baseCaps: baseCapsUse,
+        liveHero: hSync,
+        mergedHeroBuffs: mergedToggleHeroBuffs,
+      });
 
       const inv =
         Array.isArray(mergedHj.inventory) ? mergedHj.inventory : store.hero?.inventory;
 
       store.applyServerSync(
         {
-          hp: scaledRes.hp,
-          mp: scaledRes.mp,
-          cp: scaledRes.cp,
+          hp: scaledHud.hp,
+          mp: scaledHud.mp,
+          cp: scaledHud.cp,
           ...(Array.isArray(inv) ? { inventory: inv } : {}),
           heroJson: { ...prevHj, ...mergedHj, heroBuffs: mergedToggleHeroBuffs },
         } as any,

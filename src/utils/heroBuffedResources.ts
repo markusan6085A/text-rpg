@@ -57,6 +57,65 @@ export function getHeroResourceValues(hero: Hero, inBattle: boolean) {
 }
 
 /**
+ * Якщо buffsForScaling у PvE вужчі за HUD (getHeroBuffedResourceCaps), computeBuffedMaxResources дає занижений max —
+ * hpPct * lowMax «з’їдає» тисячі HP. Лінійно піднімаємо до спільного cap із HUD.
+ */
+function alignPveScaledToBuffedCaps(
+  scaled: { hp: number; mp: number; cp: number },
+  fromScale: { maxHp: number; maxMp: number; maxCp: number },
+  target: { maxHp: number; maxMp: number; maxCp: number },
+): { hp: number; mp: number; cp: number } {
+  const one = (v: number, capLo: number, capHi: number) => {
+    const lo = Math.max(1, Math.floor(capLo));
+    const hi = Math.max(1, Math.floor(capHi));
+    if (hi <= lo) return Math.min(hi, Math.max(0, Math.round(v)));
+    return Math.min(hi, Math.max(0, Math.round((v / lo) * hi)));
+  };
+  return {
+    hp: one(scaled.hp, fromScale.maxHp, target.maxHp),
+    mp: one(scaled.mp, fromScale.maxMp, target.maxMp),
+    cp: one(scaled.cp, fromScale.maxCp, target.maxCp),
+  };
+}
+
+export type PveScaledHudBundle = {
+  scaled: { hp: number; mp: number; cp: number };
+  buffedCaps: { maxHp: number; maxMp: number; maxCp: number };
+};
+
+/**
+ * Єдиний cap для clamp після онлайн PvE: max(масштабування з вузькими бафами, той самий cap що в HUD у бою).
+ */
+export function mergePveScaledResourcesWithHudCaps(args: {
+  scaledRes: { hp: number; mp: number; cp: number };
+  buffsForScale: any[];
+  baseCaps: { maxHp: number; maxMp: number; maxCp: number };
+  liveHero: Hero | null | undefined;
+  mergedHeroBuffs: any[];
+}): PveScaledHudBundle {
+  const { scaledRes, buffsForScale, baseCaps, liveHero, mergedHeroBuffs } = args;
+  const fromScale = computeBuffedMaxResources(
+    { maxHp: baseCaps.maxHp, maxMp: baseCaps.maxMp, maxCp: baseCaps.maxCp },
+    buffsForScale as any,
+  );
+  const heroHud =
+    liveHero && (liveHero as any).name
+      ? ({
+          ...liveHero,
+          heroJson: { ...((liveHero as any).heroJson || {}), heroBuffs: mergedHeroBuffs },
+        } as Hero)
+      : null;
+  const hudCaps = heroHud ? getHeroBuffedResourceCaps(heroHud, true) : fromScale;
+  const buffedCaps = {
+    maxHp: Math.max(fromScale.maxHp, hudCaps.maxHp),
+    maxMp: Math.max(fromScale.maxMp, hudCaps.maxMp),
+    maxCp: Math.max(fromScale.maxCp, hudCaps.maxCp),
+  };
+  const scaled = alignPveScaledToBuffedCaps(scaledRes, fromScale, buffedCaps);
+  return { scaled, buffedCaps };
+}
+
+/**
  * Серверний heroBuffs може бути «урезаний» vs клієнт (місто/скроли/паті лише локально).
  * Для caps HP при PvE snapshot об’єднуємо списки (dedupe), інакше buffed max занижується → смуги «падають».
  */
