@@ -66,6 +66,17 @@ export function mergeServerAndClientBuffsForResourceScaling(
   );
 }
 
+/** Повний набір бафів для cap HP/MP при PvE snapshot (сервер + попередній heroJson + бойовий стор). */
+export function mergeHeroBuffsForPveResourceScaling(
+  serverBuffs: any[] | undefined,
+  prevHeroJsonBuffs: any[] | undefined,
+  clientBattleBuffs: any[],
+): any[] {
+  const prev = Array.isArray(prevHeroJsonBuffs) ? prevHeroJsonBuffs : [];
+  const step = mergeServerAndClientBuffsForResourceScaling(serverBuffs, prev);
+  return mergeServerAndClientBuffsForResourceScaling(step, clientBattleBuffs);
+}
+
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
 function normalizeStoredResourcePercent(raw: unknown): number {

@@ -3,11 +3,16 @@ import { useCharacterStore } from "../../characterStore";
 import { useAuthStore } from "../../authStore";
 import { battleStoreRef } from "../../battleStoreRef";
 import { pveBattleTickAPI } from "../../../utils/api/characters";
-import { applyBuffsToStats, cleanupBuffs, mergeServerHeroBuffsRespectLocalToggleOff } from "../helpers";
+import {
+  applyBuffsToStats,
+  cleanupBuffs,
+  computeBuffedMaxResources,
+  mergeServerHeroBuffsRespectLocalToggleOff,
+} from "../helpers";
 import { persistBattle, loadBattle } from "../persist";
 import type { BattleState } from "../types";
 import {
-  mergeServerAndClientBuffsForResourceScaling,
+  mergeHeroBuffsForPveResourceScaling,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
 import { filterBuffsForHeroProfession } from "../loadout";
@@ -88,6 +93,7 @@ export function schedulePveMobTickOnline(): void {
 
   void runSerializedPveMutation(async () => {
     try {
+      const heroJsonBeforeTick = ((useHeroStore.getState().hero as any)?.heroJson || {}) as Record<string, any>;
       const res = await pveBattleTickAPI(cid, {
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
         heroDefenseStats: pickDefenseStatsForServer(heroStats as any),
@@ -107,17 +113,63 @@ export function schedulePveMobTickOnline(): void {
         clientBattle,
         tickNow,
       );
-      const mergedBuffs = mergeServerAndClientBuffsForResourceScaling(mergedToggleHeroBuffs, clientBattle);
+      const forScaleRaw = mergeHeroBuffsForPveResourceScaling(
+        mergedHj.heroBuffs,
+        heroJsonBeforeTick.heroBuffs,
+        clientBattle,
+      );
       const buffsForScale = hSync
-        ? cleanupBuffs(filterBuffsForHeroProfession(hSync, mergedBuffs), tickNow)
-        : cleanupBuffs(mergedBuffs, tickNow);
+        ? cleanupBuffs(filterBuffsForHeroProfession(hSync, forScaleRaw), tickNow)
+        : cleanupBuffs(forScaleRaw, tickNow);
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(mergedHj, buffsForScale, tickNow);
+      const liveHero = store.hero;
+      const bmh = Math.max(1, Math.floor(Number(mergedHj.maxHp ?? 1)));
+      const bmm = Math.max(1, Math.floor(Number(mergedHj.maxMp ?? 1)));
+      const bmc = Math.max(1, Math.floor(Number(mergedHj.maxCp ?? 1)));
+      const buffedCaps = computeBuffedMaxResources({ maxHp: bmh, maxMp: bmm, maxCp: bmc }, buffsForScale as any);
+
+      const prevBHp = Math.floor(Number(heroJsonBeforeTick.hp ?? NaN));
+      const prevBMp = Math.floor(Number(heroJsonBeforeTick.mp ?? NaN));
+      const prevBCp = Math.floor(Number(heroJsonBeforeTick.cp ?? NaN));
+      const srvBHp = Math.floor(Number(mergedHj.hp ?? NaN));
+      const srvBMp = Math.floor(Number(mergedHj.mp ?? NaN));
+      const srvBCp = Math.floor(Number(mergedHj.cp ?? NaN));
+      const unchangedHp = Number.isFinite(prevBHp) && Number.isFinite(srvBHp) && srvBHp === prevBHp;
+      const unchangedMp = Number.isFinite(prevBMp) && Number.isFinite(srvBMp) && srvBMp === prevBMp;
+      const unchangedCp = Number.isFinite(prevBCp) && Number.isFinite(srvBCp) && srvBCp === prevBCp;
+
+      const clampRes = (v: number, cap: number) =>
+        Math.min(Math.max(1, Math.floor(cap)), Math.max(0, Math.round(Number(v) || 0)));
+
+      // HP: сервер зменшив — тільки scaled; інакше не відкочувати локальний реген (live > scaled).
+      const scaledHp = clampRes(scaledRes.hp, buffedCaps.maxHp);
+      let finalHp = scaledHp;
+      if (unchangedHp) {
+        const live = Number(liveHero?.hp);
+        if (Number.isFinite(live)) {
+          const liveH = clampRes(live, buffedCaps.maxHp);
+          if (liveH > scaledHp) finalHp = liveH;
+        }
+      }
+
+      // MP/CP на tick сервер не чіпає — live (реген, toggle drain) інакше затирається знімком після regenTick.
+      const pickLiveOrScaled = (unchanged: boolean, liveRaw: unknown, scaledVal: number, cap: number) => {
+        const s = clampRes(scaledVal, cap);
+        if (!unchanged) return s;
+        const live = Number(liveRaw);
+        if (!Number.isFinite(live)) return s;
+        return clampRes(live, cap);
+      };
+
+      const finalMp = pickLiveOrScaled(unchangedMp, liveHero?.mp, scaledRes.mp, buffedCaps.maxMp);
+      const finalCp = pickLiveOrScaled(unchangedCp, liveHero?.cp, scaledRes.cp, buffedCaps.maxCp);
+
       const hjTickMerged = { ...mergedHj, heroBuffs: mergedToggleHeroBuffs };
       store.applyServerSync(
         {
-          hp: scaledRes.hp,
-          mp: scaledRes.mp,
-          cp: scaledRes.cp,
+          hp: finalHp,
+          mp: finalMp,
+          cp: finalCp,
           heroJson: { ...prevHj, ...hjTickMerged },
         } as any,
         {

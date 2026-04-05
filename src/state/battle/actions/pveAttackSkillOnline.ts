@@ -14,7 +14,7 @@ import { createCooldownEntry } from "./useSkill/helpers";
 import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
 import { applyBuffsToStats } from "../helpers";
 import {
-  mergeServerAndClientBuffsForResourceScaling,
+  mergeHeroBuffsForPveResourceScaling,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
 import { filterBuffsForHeroProfession } from "../loadout";
@@ -109,11 +109,9 @@ export function schedulePveAttackSkillOnline(args: {
         clientBattle,
         tickNow,
       );
+      const forScaleRaw = mergeHeroBuffsForPveResourceScaling(hj.heroBuffs, prevHj.heroBuffs, clientBattle);
       const buffsForScale = cleanupBuffs(
-        filterBuffsForHeroProfession(
-          hero,
-          mergeServerAndClientBuffsForResourceScaling(mergedHeroBuffs, clientBattle),
-        ),
+        filterBuffsForHeroProfession(heroForBuffMerge, forScaleRaw),
         tickNow,
       );
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow);
@@ -158,6 +156,9 @@ export function schedulePveAttackSkillOnline(args: {
       }
 
       if (killed && state.mob && heroAfter) {
+        if (battleStoreRef.setState) {
+          battleStoreRef.setState({ mobHP: 0, mobNextAttackAt: null });
+        }
         const buffsForVictory = cleanupBuffs(
           Array.isArray((heroAfter as any).heroJson?.heroBuffs)
             ? ((heroAfter as any).heroJson.heroBuffs as any[])
