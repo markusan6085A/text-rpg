@@ -13,6 +13,33 @@ export function fixHeroProfession(hero: any): any {
   const rawProf = String(hero.profession ?? "").trim();
   const rawKlass = String(hero.klass ?? "").trim();
   const normalizedExisting = normalizeProfessionId(rawProf);
+  const normalizedFromKlass = normalizeProfessionId(rawKlass);
+  const BASE_PROFESSIONS = new Set([
+    "human_fighter",
+    "human_mystic_base",
+    "dark_fighter",
+    "dark_mystic_base",
+    "elven_fighter",
+    "elven_mystic",
+    "orc_fighter",
+    "orc_mystic_base",
+    "dwarven_fighter",
+  ]);
+
+  // Recovery: якщо професію раніше скинуло до base, але klass вже містить валідну advanced професію,
+  // повертаємо її з klass, щоб вивчені скіли не "зникали" через фільтр професії.
+  if (
+    normalizedFromKlass &&
+    getProfessionDefinition(normalizedFromKlass) &&
+    normalizedFromKlass !== normalizedExisting &&
+    (
+      !normalizedExisting ||
+      !getProfessionDefinition(normalizedExisting) ||
+      BASE_PROFESSIONS.has(normalizedExisting)
+    )
+  ) {
+    return { ...hero, profession: normalizedFromKlass };
+  }
 
   // Якщо професія вже валідна (або це валідний label/alias, що мапиться в id) —
   // НЕ робимо "авто-даунгрейд" до базової.
