@@ -5,6 +5,7 @@ import {
   QUESTS,
   QUESTS_BY_LOCATION,
   QUEST_ITEM_TURN_IN_ALIASES,
+  GLUDIO_SHADOW_WEAPON_QUEST_ID,
   ELVEN_MYSTIC_FIRST_PROF_QUEST_ID,
   ELVEN_FIGHTER_FIRST_PROF_QUEST_ID,
   HUMAN_FIGHTER_FIRST_PROF_QUEST_ID,
@@ -34,8 +35,9 @@ import { mergeActiveQuestsForUi } from "../../utils/quests/mergeActiveQuestsForU
 import { collectFarmCaptionsForItemId } from "../../utils/quests/questDropFarmHint";
 import type { Hero, HeroInventoryItem } from "../../types/Hero";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
-import { getGameSettings } from "../../state/gameSettings";
-import { getPremiumMultiplier } from "../../utils/premium/isPremiumActive";
+import { useCharacterStore } from "../../state/characterStore";
+import { getAccessToken } from "../../utils/api/core";
+import { postQuestCompleteAPI, postQuestPickRewardAPI } from "../../utils/api/characters";
 
 function questIconSrc(quest: { icon?: string }) {
   return quest.icon || "/assets/quest.png";
@@ -64,28 +66,6 @@ function countQuestTurnInInInventory(inv: HeroInventoryItem[] | undefined, quest
     if (set.has(it.id)) sum += it.count ?? 1;
   }
   return sum;
-}
-
-/** Зняти required з усіх стеків і за всіма id (канонічний + алиаси). */
-function removeQuestTurnInFromInventory(inv: HeroInventoryItem[], questItemId: string, toRemove: number): HeroInventoryItem[] {
-  const aliases = QUEST_ITEM_TURN_IN_ALIASES[questItemId];
-  const order = aliases ? [questItemId, ...aliases] : [questItemId];
-  let remaining = Math.max(0, Math.floor(toRemove));
-  const out = [...inv];
-  for (const itemId of order) {
-    for (let i = out.length - 1; i >= 0 && remaining > 0; i--) {
-      if (out[i].id !== itemId) continue;
-      const c = out[i].count ?? 1;
-      if (c <= remaining) {
-        remaining -= c;
-        out.splice(i, 1);
-      } else {
-        out[i] = { ...out[i], count: c - remaining };
-        remaining = 0;
-      }
-    }
-  }
-  return out;
 }
 
 type CharacterQuestsProps = {
@@ -130,8 +110,73 @@ function QuestResourceCraftCallout(props: {
 export default function CharacterQuests({ embedInQuestPage = false, navigate }: CharacterQuestsProps = {}) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
+
+  const applyServerCharacterSnapshot = (character: any) => {
+    if (!character || typeof character !== "object") return;
+    const store = useHeroStore.getState();
+    const currentHero = store.hero;
+    if (!currentHero) return;
+    const heroJson =
+      (character as any).heroJson && typeof (character as any).heroJson === "object"
+        ? (character as any).heroJson
+        : {};
+    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
+    const overflowChest = Array.isArray(heroJson.overflowChest)
+      ? heroJson.overflowChest
+      : currentHero.overflowChest ?? [];
+    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
+    const coinLuckFromServer = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
+    const aaFromServer = Number(
+      (character as any).aa ??
+        (character as any).ancientAdena ??
+        (character as any).ancient_adena ??
+        0
+    );
+    const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
+    const level = Number((character as any).level ?? currentHero.level ?? 1);
+    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
+    const sp = Number((character as any).sp ?? currentHero.sp ?? 0);
+    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
+    const coinsSilver =
+      (character as any).coinsSilver != null
+        ? Number((character as any).coinsSilver)
+        : Number(heroJson.coins_silver ?? (currentHero as any).coins_silver ?? 0);
+    store.applyServerSync(
+      {
+        level,
+        exp,
+        sp,
+        adena,
+        aa: Number.isFinite(aaFromServer) ? aaFromServer : Number((currentHero as any).aa ?? 0),
+        coinOfLuck: coinLuckFromServer,
+        coins_silver: coinsSilver,
+        inventory,
+        overflowChest,
+        activeDyes,
+        heroJson,
+      } as any,
+      {
+        level,
+        exp,
+        sp,
+        adena,
+        coinLuck: coinLuckFromServer,
+        heroRevision: Number.isFinite(revision) ? revision : 0,
+        updatedAt: Date.now(),
+      }
+    );
+  };
+
+  const resolveExpectedRevision = (): number => {
+    const fromServerState = Number(useHeroStore.getState().serverState?.heroRevision ?? NaN);
+    if (Number.isFinite(fromServerState) && fromServerState >= 0) return fromServerState;
+    const fromHero = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
+    return Number.isFinite(fromHero) && fromHero >= 0 ? fromHero : 0;
+  };
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [pendingWeaponPickIds, setPendingWeaponPickIds] = useState<string[] | null>(null);
+  const [pendingPickQuestId, setPendingPickQuestId] = useState<string | null>(null);
+  const [questActionBusy, setQuestActionBusy] = useState(false);
   /** У «Доступні квести» деталі лише для розгорнутого квесту. */
   const [expandedAvailableQuestId, setExpandedAvailableQuestId] = useState<string | null>(null);
   const isL2 = isWarmCityUi(getCityUiVariant());
@@ -271,157 +316,89 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
     updateHero({ activeQuests: newActiveQuests });
   };
 
-  // Функція для завершення квесту
-  const completeQuest = (questId: string) => {
+  // Здача квесту — тільки через сервер (інвентар і валюта не приймаються з клієнтського PUT).
+  const completeQuest = async (questId: string) => {
     const questDef = QUESTS.find((q) => q.id === questId);
-    if (!questDef) return;
+    if (!questDef || !hero) return;
     if (!questBelongsToCurrentCity(questDef)) return;
+    if (questActionBusy) return;
+    if (!getAccessToken()) {
+      showToast("Увійдіть онлайн, щоб здавати квести.", "error");
+      return;
+    }
+    const charId = useCharacterStore.getState().characterId;
+    if (!charId) {
+      showToast("Немає id персонажа. Оновіть сторінку.", "error");
+      return;
+    }
 
-    const hasDrops = questDef.questDrops && questDef.questDrops.length > 0;
-    const hasKills = questDef.questKillTargets && questDef.questKillTargets.length > 0;
-    if (!hasDrops && !hasKills) return;
-
-    const aqEntry = activeQuests.find((a) => a.questId === questId);
-
-    if (hasKills) {
-      for (const kt of questDef.questKillTargets!) {
-        if ((aqEntry?.progress?.[kt.progressKey] ?? 0) < kt.requiredCount) return;
+    setQuestActionBusy(true);
+    try {
+      const expectedRevision = resolveExpectedRevision();
+      const res = await postQuestCompleteAPI(charId, {
+        questId,
+        expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+      });
+      if (!res?.character) {
+        showToast("Сервер відхилив здачу квесту.", "error");
+        return;
       }
-    }
-
-    if (hasDrops) {
-      const itemsToCheck: Record<string, number> = {};
-      questDef.questDrops!.forEach((questDrop) => {
-        const need = getEffectiveQuestDropNeed(questDrop, aqEntry as any);
-        if (!itemsToCheck[questDrop.itemId] || itemsToCheck[questDrop.itemId] < need) {
-          itemsToCheck[questDrop.itemId] = need;
-        }
-      });
-      let allCollected = true;
-      Object.entries(itemsToCheck).forEach(([itemId, requiredCount]) => {
-        const itemCount = countQuestTurnInInInventory(hero.inventory, itemId);
-        if (itemCount < requiredCount) allCollected = false;
-      });
-      if (!allCollected) return;
-    }
-
-    let newInventory = [...(hero.inventory || [])];
-    if (hasDrops) {
-      const itemsToRemove: Record<string, number> = {};
-      questDef.questDrops!.forEach((questDrop) => {
-        const need = getEffectiveQuestDropNeed(questDrop, aqEntry as any);
-        if (!itemsToRemove[questDrop.itemId] || itemsToRemove[questDrop.itemId] < need) {
-          itemsToRemove[questDrop.itemId] = need;
-        }
-      });
-      for (const [itemId, requiredCount] of Object.entries(itemsToRemove)) {
-        newInventory = removeQuestTurnInFromInventory(newInventory, itemId, requiredCount);
+      applyServerCharacterSnapshot(res.character);
+      showToast("Квест здано.", "success");
+      if (res.needsRewardPick && Array.isArray(res.pickAllowedItemIds) && res.pickAllowedItemIds.length > 0) {
+        setPendingPickQuestId(questId);
+        setPendingWeaponPickIds(res.pickAllowedItemIds);
+      } else {
+        setPendingPickQuestId(null);
+        setPendingWeaponPickIds(null);
       }
-    }
-
-    const rewards = questDef.rewards || {};
-    const bonus = aqEntry?.rolledRewardBonus;
-    let newAdena = hero.adena || 0;
-    if (rewards.adena) {
-      newAdena += rewards.adena;
-    }
-    if (bonus?.adena) newAdena += bonus.adena;
-
-    const addSilver =
-      Math.max(0, Math.floor(Number(rewards.coins_silver ?? 0))) +
-      Math.max(0, Math.floor(Number(bonus?.coins_silver ?? 0)));
-    const newCoinsSilver = (hero.coins_silver ?? 0) + addSilver;
-
-    let expPayload: { exp?: number } = {};
-    const totalBaseExp = Math.max(0, Number(rewards.exp ?? 0)) + Math.max(0, Number(bonus?.exp ?? 0));
-    if (totalBaseExp > 0) {
-      const expEnabled = getGameSettings().expEnabled !== false;
-      const add = expEnabled ? Math.round(totalBaseExp * getPremiumMultiplier(hero)) : 0;
-      expPayload = { exp: Math.floor(Number(hero.exp ?? 0)) + add };
-    }
-
-    let spPayload: { sp?: number } = {};
-    if (rewards.sp != null && Number(rewards.sp) > 0) {
-      spPayload = { sp: Math.floor(Number(hero.sp ?? 0)) + Math.floor(Number(rewards.sp)) };
-    }
-
-    // Додаємо предмети-нагороди
-    if (rewards.items) {
-      rewards.items.forEach((rewardItem) => {
-        const itemDef = itemsDB[rewardItem.id];
-        if (itemDef) {
-          const existingItemIndex = newInventory.findIndex((item) => item.id === rewardItem.id);
-          if (existingItemIndex >= 0) {
-            const existingItem = newInventory[existingItemIndex];
-            newInventory[existingItemIndex] = {
-              ...existingItem,
-              count: (existingItem.count || 1) + rewardItem.count,
-            };
-          } else {
-            newInventory.push({
-              id: itemDef.id,
-              name: itemDef.name,
-              type: itemDef.kind,
-              slot: itemDef.slot,
-              icon: itemDef.icon,
-              description: itemDef.description,
-              stats: itemDef.stats,
-              count: rewardItem.count,
-            });
-          }
-        }
-      });
-    }
-
-    // Оновлюємо героя
-    const newActiveQuests = activeQuests.filter((aq) => aq.questId !== questId);
-    const newCompletedQuests = [...completedQuests, questId];
-
-    updateHero({
-      activeQuests: newActiveQuests,
-      completedQuests: newCompletedQuests,
-      inventory: newInventory,
-      adena: newAdena,
-      ...(addSilver > 0 ? { coins_silver: newCoinsSilver } : {}),
-      ...expPayload,
-      ...spPayload,
-    });
-
-    if (questDef.rewardPickOneItemId?.length) {
-      setPendingWeaponPickIds([...questDef.rewardPickOneItemId]);
+    } catch (e: any) {
+      const msg =
+        e?.status === 409
+          ? "Дані змінились на сервері. Оновіть сторінку."
+          : e?.body?.reason || e?.body?.error || e?.message || "Не вдалося здати квест.";
+      showToast(String(msg), "error");
+    } finally {
+      setQuestActionBusy(false);
     }
   };
 
-  const confirmShadowWeaponPick = (itemId: string) => {
+  const confirmShadowWeaponPick = async (itemId: string) => {
     const def = itemsDB[itemId];
     if (!def || !hero) {
       setPendingWeaponPickIds(null);
+      setPendingPickQuestId(null);
       return;
     }
-    updateHero((prev) => {
-      if (!prev) return {};
-      const inv = [...(prev.inventory || [])];
-      const idx = inv.findIndex((x) => x.id === itemId && !(x as any).meta?.hasLSPassive);
-      if (idx >= 0) {
-        const row = inv[idx]!;
-        inv[idx] = { ...row, count: (row.count ?? 1) + 1 };
-      } else {
-        inv.push({
-          id: def.id,
-          name: def.name,
-          type: def.kind,
-          slot: def.slot,
-          icon: def.icon,
-          description: def.description,
-          stats: def.stats,
-          count: 1,
-          grade: def.grade,
-        } as HeroInventoryItem);
+    if (!getAccessToken()) {
+      showToast("Увійдіть онлайн.", "error");
+      return;
+    }
+    const charId = useCharacterStore.getState().characterId;
+    if (!charId) return;
+
+    const questIdForPick = pendingPickQuestId ?? GLUDIO_SHADOW_WEAPON_QUEST_ID;
+    setQuestActionBusy(true);
+    try {
+      const expectedRevision = resolveExpectedRevision();
+      const res = await postQuestPickRewardAPI(charId, {
+        questId: questIdForPick,
+        itemId,
+        expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+      });
+      if (!res?.character) {
+        showToast("Не вдалося забрати нагороду.", "error");
+        return;
       }
-      return { inventory: inv };
-    });
-    showToast(`Выбрано: ${def.name}`);
-    setPendingWeaponPickIds(null);
+      applyServerCharacterSnapshot(res.character);
+      showToast(`Выбрано: ${def.name}`);
+      setPendingWeaponPickIds(null);
+      setPendingPickQuestId(null);
+    } catch (e: any) {
+      showToast(String(e?.body?.reason || e?.body?.error || e?.message || "Помилка"), "error");
+    } finally {
+      setQuestActionBusy(false);
+    }
   };
 
   // Функція для оновлення прогресу квесту (викликається при зборі предметів)
@@ -789,12 +766,14 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
                   {/* Кнопка завершення */}
                   {canComplete && (
                     <button
+                      type="button"
+                      disabled={questActionBusy}
                       className={
                         isL2
-                          ? "mt-2 px-3 py-1 text-[10px] bg-gradient-to-b from-[#2e2619] to-[#14110c] text-green-400 border border-[#5c4a32]/70 rounded-md hover:border-[#c7ad80]/40 hover:brightness-110"
-                          : "mt-2 px-3 py-1 text-[10px] bg-[#0f0a06] text-green-400 border border-white/50 rounded-md hover:bg-[#1a1208]"
+                          ? "mt-2 px-3 py-1 text-[10px] bg-gradient-to-b from-[#2e2619] to-[#14110c] text-green-400 border border-[#5c4a32]/70 rounded-md hover:border-[#c7ad80]/40 hover:brightness-110 disabled:opacity-50"
+                          : "mt-2 px-3 py-1 text-[10px] bg-[#0f0a06] text-green-400 border border-white/50 rounded-md hover:bg-[#1a1208] disabled:opacity-50"
                       }
-                      onClick={() => completeQuest(quest.id)}
+                      onClick={() => void completeQuest(quest.id)}
                     >
                       Завершити квест
                     </button>

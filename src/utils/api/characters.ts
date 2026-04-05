@@ -312,3 +312,30 @@ export async function postQuestShopExchange(
   });
 }
 
+/** Здача квесту в місті (сервер: інвентар, валюта, журнал). */
+export async function postQuestCompleteAPI(
+  characterId: string,
+  body: { questId: string; expectedRevision: number }
+): Promise<{
+  ok: boolean;
+  character: Character;
+  needsRewardPick?: boolean;
+  pickAllowedItemIds?: string[];
+}> {
+  return apiRequest(`/characters/${encodeURIComponent(characterId)}/quests/complete`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/** Вибір нагороди після здачі (тіньова зброя тощо). */
+export async function postQuestPickRewardAPI(
+  characterId: string,
+  body: { questId: string; itemId: string; expectedRevision: number }
+): Promise<{ ok: boolean; character: Character }> {
+  return apiRequest(`/characters/${encodeURIComponent(characterId)}/quests/pick-reward`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+

@@ -27,6 +27,7 @@ import {
 import { calculateServerDrops } from "../../../utils/serverDropCalculator";
 import { EXP_TABLE, MAX_LEVEL } from "../../../expTable";
 import shopCatalogRaw from "../../../data/shopCatalog.generated.json";
+import { runQuestCompleteMutation, runQuestPickRewardMutation } from "../../../quest/questCompleteServer";
 
 function getExpToNext(level: number): number {
   const lvl = Math.max(1, Math.min(MAX_LEVEL, Number(level) || 1));
@@ -315,6 +316,7 @@ const CLIENT_PUT_HEROJSON_ALLOWLIST = new Set<string>([
   "heroBuffs",
   "activeQuests",
   "completedQuests",
+  "questRewardPickPending",
   "questProgress",
   "dailyQuestsProgress",
   "dailyQuestsCompleted",
@@ -486,116 +488,6 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       error: "inventory_snapshot_put_disabled",
       message: "Use server-authoritative mutation endpoints instead of inventory snapshot PUT.",
     });
-
-    const existing = await prisma.character.findFirst({
-      where: { id, accountId: auth.accountId },
-    });
-    if (!existing) return reply.code(404).send({ error: "character not found" });
-
-    const oldHeroJson = (existing.heroJson as any) || {};
-    const baseJson = {
-      name: oldHeroJson.name || existing.name,
-      race: oldHeroJson.race || existing.race,
-      classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
-      klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
-      level: oldHeroJson.level ?? existing.level ?? 1,
-    };
-    const newHeroJsonRaw = {
-      ...baseJson,
-      ...oldHeroJson,
-      ...(inventory !== undefined ? { inventory } : {}),
-      ...(overflowChest !== undefined ? { overflowChest } : {}),
-    };
-    const newHeroJson = mergeHeroJsonForClientPut(oldHeroJson, newHeroJsonRaw);
-    const validation = validateHeroJson(newHeroJson);
-    if (!validation.valid) {
-      return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
-    }
-
-    try {
-      const txRes = await prisma.$transaction(async (tx) => {
-        const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date }>>`
-          SELECT "heroJson", "updatedAt"
-          FROM "Character"
-          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
-          FOR UPDATE
-        `;
-
-        if (locked.length === 0) {
-          return { ok: false as const, reason: "not_found" as const };
-        }
-        const lockedHeroJson = (locked[0].heroJson as any) || {};
-        const currentRevision = Number(lockedHeroJson.heroRevision ?? 0);
-        if (currentRevision !== expectedRevision) {
-          return {
-            ok: false as const,
-            reason: "revision_conflict" as const,
-            currentRevision,
-            updatedAt: locked[0].updatedAt,
-          };
-        }
-
-        const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
-        const updated = await tx.character.update({
-          where: { id },
-          data: {
-            heroJson: versionedHeroJson as any,
-            lastActivityAt: new Date(),
-          },
-          select: {
-            id: true, name: true, race: true, classId: true, sex: true,
-            level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true,
-            heroJson: true, createdAt: true, updatedAt: true,
-          },
-        });
-        return { ok: true as const, updated };
-      });
-      if (!txRes.ok) {
-        if (txRes.reason === "not_found") {
-          return reply.code(404).send({ error: "character not found" });
-        }
-        return reply.code(409).send({
-          error: "revision_conflict",
-          message: "Character was modified by another session. Please reload and try again.",
-          currentRevision: txRes.currentRevision ?? 0,
-          updatedAt: txRes.updatedAt?.toISOString(),
-          serverState: {
-            heroRevision: txRes.currentRevision ?? 0,
-            updatedAt: txRes.updatedAt?.toISOString(),
-          },
-        });
-      }
-      const updated = txRes.updated;
-
-      const serialized = {
-        ...updated,
-        exp: Number(updated.exp),
-        adena: Number(updated.adena ?? 0),
-        aa: Number(updated.aa ?? 0),
-        coinLuck: Number(updated.coinLuck ?? 0),
-      };
-
-      app.log.info({ accountId: auth.accountId, characterId: id, invLen: inventory?.length ?? 0 }, "[PUT /characters/:id/inventory] Inventory updated");
-
-      enqueuePlayerActivityLog({
-        accountId: auth.accountId,
-        characterId: id,
-        characterName: existing.name,
-        action: "inventory.update",
-        metadata: {
-          inventoryLen: inventory !== undefined ? inventory.length : undefined,
-          overflowLen: overflowChest !== undefined ? overflowChest.length : undefined,
-          prevInvLen: Array.isArray(oldHeroJson.inventory) ? oldHeroJson.inventory.length : 0,
-          prevOverflowLen: Array.isArray(oldHeroJson.overflowChest) ? oldHeroJson.overflowChest.length : 0,
-        },
-        clientIp: getClientIp(req),
-      });
-
-      return { ok: true, character: serialized };
-    } catch (e: any) {
-      app.log.error(e, `[PUT /characters/:id/inventory] Error for character ${id}`);
-      return reply.code(500).send({ error: e.message || "Internal server error" });
-    }
   });
 
   // POST /characters/:id/sell — server-authoritative item selling (atomic inventory + adena)
@@ -631,6 +523,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "too many operations" });
     }
 
+    const sellOperations = body.operations;
+
     const txRes = await prisma.$transaction(async (tx) => {
       const locked = await tx.$queryRaw<Array<{ heroJson: any; adena: bigint; updatedAt: Date; name: string }>>`
         SELECT "heroJson", "adena", "updatedAt", "name"
@@ -654,7 +548,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
       const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
       const overflowChest: any[] = Array.isArray(heroJson.overflowChest) ? [...heroJson.overflowChest] : [];
-      const sortedOps = [...body.operations]
+      const sortedOps = [...sellOperations]
         .map((op) => ({
           inventoryIndex: Math.floor(Number(op?.inventoryIndex ?? -1)),
           amount: Math.floor(Number(op?.amount ?? 0)),
@@ -780,7 +674,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       action: "inventory.sell",
       metadata: {
         payoutAdena: txRes.payoutTotal,
-        operationsCount: Array.isArray(body.operations) ? body.operations.length : 0,
+        operationsCount: sellOperations.length,
       },
       clientIp: getClientIp(req),
     });
@@ -790,6 +684,264 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       payoutAdena: txRes.payoutTotal,
       character: serialized,
     });
+  });
+
+  // POST /characters/:id/quests/complete — здача квесту в місті (інвентар, adena/exp/sp, active/completed)
+  app.post("/characters/:id/quests/complete", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const params = req.params as { id?: string };
+    const id = params.id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    const body = req.body as { questId?: string; expectedRevision?: number };
+    const questId = String(body.questId ?? "").trim();
+    const expectedRevision = Number(body.expectedRevision);
+    if (!questId) return reply.code(400).send({ error: "questId required" });
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<
+        Array<{
+          id: string;
+          name: string;
+          level: number;
+          exp: bigint;
+          sp: number;
+          adena: bigint;
+          coinLuck: bigint;
+          coinsSilver: bigint;
+          heroJson: any;
+          updatedAt: Date;
+        }>
+      >`
+        SELECT "id", "name", "level", "exp", "sp", "adena", "coinLuck", "coinsSilver", "heroJson", "updatedAt"
+        FROM "Character"
+        WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+
+      const row = locked[0];
+      const out = runQuestCompleteMutation(
+        {
+          id: row.id,
+          name: row.name,
+          level: Number(row.level ?? 1),
+          exp: row.exp,
+          sp: Number(row.sp ?? 0),
+          adena: row.adena,
+          coinLuck: row.coinLuck,
+          coinsSilver: row.coinsSilver,
+          heroJson: row.heroJson,
+          updatedAt: row.updatedAt,
+        },
+        { questId, expectedRevision }
+      );
+      if (!out.ok) return out;
+
+      const u = out.updated;
+      const updated = await tx.character.update({
+        where: { id },
+        data: {
+          level: u.level,
+          exp: u.exp,
+          sp: u.sp,
+          adena: u.adena,
+          coinLuck: u.coinLuck,
+          coinsSilver: u.coinsSilver,
+          heroJson: u.heroJson,
+          lastActivityAt: new Date(),
+        },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+      return {
+        ok: true as const,
+        updated,
+        needsRewardPick: out.needsRewardPick,
+        pickAllowedItemIds: out.pickAllowedItemIds,
+      };
+    });
+
+    if (!txRes || typeof txRes !== "object" || !("ok" in txRes)) {
+      return reply.code(500).send({ error: "Internal Server Error" });
+    }
+    if (!txRes.ok) {
+      if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+      if (txRes.reason === "revision_conflict") {
+        return reply.code(409).send({
+          error: "revision_conflict",
+          currentRevision: txRes.currentRevision ?? 0,
+          updatedAt: txRes.updatedAt?.toISOString(),
+        });
+      }
+      if (txRes.reason === "wrong_hero") {
+        return reply.code(403).send({ error: "forbidden", reason: txRes.reason });
+      }
+      return reply.code(400).send({ error: "invalid input", reason: txRes.reason });
+    }
+
+    const updated = txRes.updated;
+    const serialized = {
+      ...updated,
+      exp: Number(updated.exp),
+      adena: Number(updated.adena ?? 0),
+      aa: Number(updated.aa ?? 0),
+      coinLuck: Number(updated.coinLuck ?? 0),
+      coinsSilver: Number(updated.coinsSilver ?? 0),
+    };
+
+    enqueuePlayerActivityLog({
+      accountId: auth.accountId,
+      characterId: id,
+      characterName: updated.name,
+      action: "quest.complete",
+      metadata: { questId },
+      clientIp: getClientIp(req),
+    });
+
+    return reply.send({
+      ok: true,
+      character: serialized,
+      needsRewardPick: txRes.needsRewardPick,
+      pickAllowedItemIds: txRes.pickAllowedItemIds,
+    });
+  });
+
+  // POST /characters/:id/quests/pick-reward — вибір нагороди (тіньова зброя тощо) після здачі
+  app.post("/characters/:id/quests/pick-reward", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const params = req.params as { id?: string };
+    const id = params.id;
+    if (!id) return reply.code(400).send({ error: "character id required" });
+
+    const body = req.body as { questId?: string; itemId?: string; expectedRevision?: number };
+    const questId = String(body.questId ?? "").trim();
+    const itemId = String(body.itemId ?? "").trim();
+    const expectedRevision = Number(body.expectedRevision);
+    if (!questId || !itemId) return reply.code(400).send({ error: "questId and itemId required" });
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<
+        Array<{
+          id: string;
+          name: string;
+          level: number;
+          exp: bigint;
+          sp: number;
+          adena: bigint;
+          coinLuck: bigint;
+          coinsSilver: bigint;
+          heroJson: any;
+          updatedAt: Date;
+        }>
+      >`
+        SELECT "id", "name", "level", "exp", "sp", "adena", "coinLuck", "coinsSilver", "heroJson", "updatedAt"
+        FROM "Character"
+        WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+
+      const row = locked[0];
+      const out = runQuestPickRewardMutation(row, { questId, itemId, expectedRevision });
+      if (!out.ok) return out;
+
+      const u = out.updated;
+      const updated = await tx.character.update({
+        where: { id },
+        data: {
+          heroJson: u.heroJson,
+          lastActivityAt: new Date(),
+        },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+      return { ok: true as const, updated };
+    });
+
+    if (!txRes || typeof txRes !== "object" || !("ok" in txRes)) {
+      return reply.code(500).send({ error: "Internal Server Error" });
+    }
+    if (!txRes.ok) {
+      if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+      if (txRes.reason === "revision_conflict") {
+        return reply.code(409).send({
+          error: "revision_conflict",
+          currentRevision: txRes.currentRevision ?? 0,
+          updatedAt: txRes.updatedAt?.toISOString(),
+        });
+      }
+      return reply.code(400).send({ error: "invalid input", reason: txRes.reason });
+    }
+
+    const updated = txRes.updated;
+    const serialized = {
+      ...updated,
+      exp: Number(updated.exp),
+      adena: Number(updated.adena ?? 0),
+      aa: Number(updated.aa ?? 0),
+      coinLuck: Number(updated.coinLuck ?? 0),
+      coinsSilver: Number(updated.coinsSilver ?? 0),
+    };
+
+    enqueuePlayerActivityLog({
+      accountId: auth.accountId,
+      characterId: id,
+      characterName: updated.name,
+      action: "quest.pick_reward",
+      metadata: { questId, itemId },
+      clientIp: getClientIp(req),
+    });
+
+    return reply.send({ ok: true, character: serialized });
   });
 
   // POST /characters/:id/inventory/delete — server-authoritative item delete (atomic inventory mutation)
