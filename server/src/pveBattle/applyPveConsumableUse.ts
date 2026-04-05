@@ -242,17 +242,23 @@ export function applyPveConsumableUseSnapshot(args: {
 
   if (def.hp != null) {
     const baseRestore = def.hp;
-    const maxHealBuffed = Math.round(
-      baseRestore * (1 + Math.min(200, healRecv) / 100) * (spirit ? 2 : 1)
+    // Клієнт: restoreHp × (1+healReceivedBonus) × spiritshot; battleStats у heroJson на API часто відсутні —
+    // тоді healRecv з бафів занижений і spirit на сервері може розійтися з панеллю. Не відхиляти легітний хіл.
+    const fromBuffsAndStats = Math.round(
+      baseRestore * (1 + Math.min(250, healRecv) / 100) * (spirit ? 2 : 1)
     );
-    if (amountIn > maxHealBuffed + 2) {
+    // Стеля «як у каталозі»: до 4× базового відновлення у buffed-одиницях ×2 при spirit (≈ до ×8 від restoreHp).
+    const generousCeil = Math.max(fromBuffsAndStats, Math.round(baseRestore * 4 * (spirit ? 2 : 1)));
+    const ABSURD_HEAL_MULT = 15;
+    if (amountIn > Math.round(baseRestore * ABSURD_HEAL_MULT)) {
       return { ok: false, code: "invalid_heal", message: "Heal amount exceeds server cap" };
     }
+    const appliedBuffed = Math.min(amountIn, generousCeil);
     const buffedCap = Math.floor(Number(args.body.buffedMaxHp));
     if (!Number.isFinite(buffedCap) || buffedCap < baseMaxHp || buffedCap > baseMaxHp * 5) {
       return { ok: false, code: "invalid_input", message: "buffedMaxHp out of range" };
     }
-    const deltaBase = Math.max(0, Math.round((Math.min(amountIn, maxHealBuffed) * baseMaxHp) / Math.max(1, buffedCap)));
+    const deltaBase = Math.max(0, Math.round((appliedBuffed * baseMaxHp) / Math.max(1, buffedCap)));
     const curHp = clampPveResource(Math.floor(Number(hj.hp ?? baseMaxHp)), 0, baseMaxHp);
     const nextHp = clampPveResource(curHp + deltaBase, 0, baseMaxHp);
     hj.hp = nextHp;
@@ -261,7 +267,7 @@ export function applyPveConsumableUseSnapshot(args: {
     return {
       ok: true,
       nextHeroJson: hj,
-      logLine: `Ви використали предмет (+${Math.min(amountIn, maxHealBuffed)} HP)`,
+      logLine: `Ви використали предмет (+${appliedBuffed} HP)`,
       heroHpAfter,
     };
   }
@@ -272,17 +278,19 @@ export function applyPveConsumableUseSnapshot(args: {
       return { ok: false, code: "invalid_input", message: "buffedMaxMp out of range" };
     }
     const capRestore = def.mp;
-    if (amountIn > capRestore + 1) {
+    const mpCeil = Math.round(capRestore * 4);
+    if (amountIn > Math.round(capRestore * 15)) {
       return { ok: false, code: "invalid_restore", message: "MP restore exceeds server cap" };
     }
-    const deltaBase = Math.max(0, Math.round((Math.min(amountIn, capRestore) * baseMaxMp) / Math.max(1, maxMpBuffed)));
+    const appliedMp = Math.min(amountIn, mpCeil);
+    const deltaBase = Math.max(0, Math.round((appliedMp * baseMaxMp) / Math.max(1, maxMpBuffed)));
     const curMp = clampPveResource(Math.floor(Number(hj.mp ?? baseMaxMp)), 0, baseMaxMp);
     hj.mp = clampPveResource(curMp + deltaBase, 0, baseMaxMp);
     syncHeroJsonResourcePercentsToAbsolutes(hj);
     return {
       ok: true,
       nextHeroJson: hj,
-      logLine: `Ви використали предмет (+${Math.min(amountIn, capRestore)} MP)`,
+      logLine: `Ви використали предмет (+${appliedMp} MP)`,
       heroMpAfter: Math.max(0, Math.floor(Number(hj.mp ?? 0))),
     };
   }
@@ -293,17 +301,19 @@ export function applyPveConsumableUseSnapshot(args: {
       return { ok: false, code: "invalid_input", message: "buffedMaxCp out of range" };
     }
     const capRestore = def.cp;
-    if (amountIn > capRestore + 1) {
+    const cpCeil = Math.round(capRestore * 4);
+    if (amountIn > Math.round(capRestore * 15)) {
       return { ok: false, code: "invalid_restore", message: "CP restore exceeds server cap" };
     }
-    const deltaBase = Math.max(0, Math.round((Math.min(amountIn, capRestore) * baseMaxCp) / Math.max(1, maxCpBuffed)));
+    const appliedCp = Math.min(amountIn, cpCeil);
+    const deltaBase = Math.max(0, Math.round((appliedCp * baseMaxCp) / Math.max(1, maxCpBuffed)));
     const curCp = clampPveResource(Math.floor(Number(hj.cp ?? baseMaxCp)), 0, baseMaxCp);
     hj.cp = clampPveResource(curCp + deltaBase, 0, baseMaxCp);
     syncHeroJsonResourcePercentsToAbsolutes(hj);
     return {
       ok: true,
       nextHeroJson: hj,
-      logLine: `Ви використали предмет (+${Math.min(amountIn, capRestore)} CP)`,
+      logLine: `Ви використали предмет (+${appliedCp} CP)`,
       heroCpAfter: Math.max(0, Math.floor(Number(hj.cp ?? 0))),
     };
   }
