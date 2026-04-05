@@ -24,6 +24,7 @@ import {
   getWorldMobHpForSlot,
 } from "../../worldMobHpStore";
 import {
+  mergeHeroBuffsForPveResourceScaling,
   mergeServerAndClientBuffsForResourceScaling,
   scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
@@ -366,10 +367,21 @@ export const createStartBattle =
           const hj = (ch as any)?.heroJson && typeof (ch as any).heroJson === "object" ? (ch as any).heroJson : {};
           const store = useHeroStore.getState();
           const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
+          // Як у pveMobTickOnline: серверний snapshot + попередній heroJson + бойова панель (live + з файлу).
+          // Інакше buffedCaps.maxHp занижується → mergeWithLocalRegen ріже живе HP до «бази» і HUD показує ~половину смуги.
+          const clientBattleMerged = mergeServerAndClientBuffsForResourceScaling(
+            Array.isArray(prevState.heroBuffs) ? prevState.heroBuffs : [],
+            Array.isArray(saved?.heroBuffs) ? saved.heroBuffs : [],
+          );
+          const buffsCore = mergeHeroBuffsForPveResourceScaling(
+            (hj as any).heroBuffs,
+            prevHj.heroBuffs,
+            clientBattleMerged,
+          );
           const buffsForScale = cleanupBuffs(
             filterBuffsForHeroProfession(
               hero,
-              mergeServerAndClientBuffsForResourceScaling((hj as any).heroBuffs, savedBuffs),
+              mergeServerAndClientBuffsForResourceScaling(buffsCore, savedBuffs),
             ),
             now,
           );
