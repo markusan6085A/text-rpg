@@ -57,7 +57,13 @@ export function applyPveMobTickSnapshot(args: {
   }
 
   const tickNow = Date.now();
-  const toggleLogLines = applyServerToggleResourceTicks(hj, tickNow);
+  const sessStarted = Number(sess.startedAt) || 0;
+  const youngBattle = sessStarted > 0 && tickNow - sessStarted < 15_000;
+  const toggleLogLines = applyServerToggleResourceTicks(
+    hj,
+    tickNow,
+    youngBattle ? { maxTickCatchup: 2 } : undefined
+  );
 
   const maxHp = Math.max(1, Math.floor(Number(hj.maxHp ?? hj.hp ?? 1)));
   const curHp = clampPveResource(Math.floor(Number(hj.hp ?? maxHp)), 0, maxHp);

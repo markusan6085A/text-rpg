@@ -172,7 +172,9 @@ export function applyPveMobDebuffSnapshot(args: {
 
   const mpCost = Math.max(0, Number(levelRow.mpCost ?? 0) || 0);
 
-  applyServerToggleResourceTicks(hj, now);
+  const sessStarted = Number(sess.startedAt) || 0;
+  const youngBattle = sessStarted > 0 && now - sessStarted < 15_000;
+  applyServerToggleResourceTicks(hj, now, youngBattle ? { maxTickCatchup: 2 } : undefined);
   const mpAfterToggle = Number(hj.mp ?? 0);
   if (mpAfterToggle < mpCost) {
     return { ok: false, code: "not_enough_mp", message: "Not enough MP" };

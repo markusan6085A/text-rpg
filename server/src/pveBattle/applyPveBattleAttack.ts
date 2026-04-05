@@ -195,7 +195,13 @@ export function applyPveBattleAttackSnapshot(args: {
 
   syncMobCombatFromSessionBuffs(sess, now);
 
-  const toggleLogLines = applyServerToggleResourceTicks(hj, now);
+  const sessStarted = Number(sess.startedAt) || 0;
+  const youngBattle = sessStarted > 0 && now - sessStarted < 15_000;
+  const toggleLogLines = applyServerToggleResourceTicks(
+    hj,
+    now,
+    youngBattle ? { maxTickCatchup: 2 } : undefined
+  );
 
   if (!professionAllowsSkill(skillId, hj, String(args.classId ?? ""))) {
     return { ok: false, code: "forbidden_skill", message: "Skill not allowed for this profession" };

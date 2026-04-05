@@ -1,6 +1,7 @@
 import { lookupMobRegistry } from "../utils/serverDropCalculator";
 import { mobDefenseFromLevel, resolveMobMaxHp } from "./pveDamage";
 import { isValidRaidAiProfileId } from "./raidBossAIServer";
+import { resyncPveToggleClocksForSessionStart } from "./applyServerToggleTicks";
 
 function isChampionMobName(name: string): boolean {
   if (!name) return false;
@@ -115,9 +116,12 @@ export function applyPveBattleStartSnapshot(args: { heroJson: any; body: PveBatt
     earthResist: 0,
     holyResist: 0,
     darkResist: 0,
-    startedAt: Date.now(),
+    startedAt: 0,
   };
 
+  const sessionNow = Date.now();
+  session.startedAt = sessionNow;
+  resyncPveToggleClocksForSessionStart(hj, sessionNow);
   hj.battleSession = session;
   return { ok: true, nextHeroJson: hj, sessionMobHp: mobMaxHp, sessionMobMaxHp: mobMaxHp };
 }

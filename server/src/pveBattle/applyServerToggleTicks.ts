@@ -6,6 +6,31 @@ import { clampPveResource } from "./pveHeroResourceSync";
 
 const MAX_CATCHUP_DEFAULT = 10;
 
+/**
+ * На старті PvE в БД часто лежить застарілий lastTickAt (клієнт у місті вже крутив toggle локально).
+ * Інакше перший pve-battle-tick злітає в catch-up (до 10 інтервалів), зносить MP і знімає аури —
+ * гравець бачить «перший удар забрав пів HP/CP», хоча в логу лише десятки урону.
+ */
+export function resyncPveToggleClocksForSessionStart(heroJson: any, now: number): void {
+  const hj = heroJson;
+  if (!hj || typeof hj !== "object") return;
+  const raw = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
+  hj.heroBuffs = raw.map((buff: any) => {
+    if (!buff || typeof buff !== "object") return buff;
+    const exp = Number(buff.expiresAt);
+    if (exp !== Number.MAX_SAFE_INTEGER) return buff;
+    const mpPerTick = buff.mpPerTick != null ? Number(buff.mpPerTick) : 0;
+    const hpPerTick = buff.hpPerTick != null ? Number(buff.hpPerTick) : 0;
+    if (!mpPerTick && !hpPerTick) return buff;
+    const st = Number(buff.startedAt);
+    return {
+      ...buff,
+      lastTickAt: now,
+      startedAt: Number.isFinite(st) && st > 0 ? st : now,
+    };
+  });
+}
+
 export function applyServerToggleResourceTicks(
   heroJson: any,
   now: number,
