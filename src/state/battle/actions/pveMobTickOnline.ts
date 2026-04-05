@@ -102,6 +102,10 @@ export function schedulePveMobTickOnline(): void {
       if (!res?.ok || !(res as any).character) return;
       const ch = (res as any).character;
       const mergedHj = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, any>;
+      const srvHpAfter = Math.floor(Number((res as any).heroHpAfter));
+      if (Number.isFinite(srvHpAfter) && srvHpAfter >= 0) {
+        mergedHj.hp = srvHpAfter;
+      }
       const store = useHeroStore.getState();
       const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
       const tickNow = Date.now();

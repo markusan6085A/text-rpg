@@ -17,10 +17,17 @@ export function getCombinedHeroBuffs(
   const battleBuffs = cleanupBuffs(useBattleStore.getState().heroBuffs || [], now);
   const heroJson = (hero as any)?.heroJson || {};
   const heroJsonBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
-  const activeHeroJsonBuffs = heroJsonBuffs.filter((b: any) => b?.expiresAt && b.expiresAt > now);
 
-  const baseBuffs = inBattleNow ? battleBuffs : savedBuffs;
-  const all = [...baseBuffs, ...activeHeroJsonBuffs];
+  /** У бою: merge як у scalePve (heroJson → battle, dedupe з пріоритетом json). Інакше maxHp у HUD був вищий за max
+   * у scalePveSnapshot — той самий hero.hp виглядав як «мінус пів смуги» при дрібному уроні в логу.
+   */
+  if (inBattleNow) {
+    const merged = mergeServerAndClientBuffsForResourceScaling(heroJsonBuffs, battleBuffs);
+    return filterBuffsForHeroProfession(hero, cleanupBuffs(merged, now));
+  }
+
+  const activeHeroJsonBuffs = heroJsonBuffs.filter((b: any) => b?.expiresAt && b.expiresAt > now);
+  const all = [...savedBuffs, ...activeHeroJsonBuffs];
   const deduped = all.filter((buff, index, self) =>
     index ===
     self.findIndex((b) =>
