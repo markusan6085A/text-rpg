@@ -1,0 +1,27 @@
+# Приклад systemd (скопіюй у /etc/systemd/system/text-rpg-api.service, поправ шляхи):
+#
+#   sudo cp scripts/text-rpg-api.service.example /etc/systemd/system/text-rpg-api.service
+#   sudo nano /etc/systemd/system/text-rpg-api.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now text-rpg-api
+#
+# Файл з секретами (chmod 600):
+#   /opt/text-rpg/server/.env
+#   вміст: DATABASE_URL=... DIRECT_URL=... JWT_SECRET=... PORT=3000
+
+[Unit]
+Description=text-rpg API (Fastify)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/text-rpg/server
+ExecStart=/usr/bin/node dist/index.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+EnvironmentFile=/opt/text-rpg/server/.env
+
+[Install]
+WantedBy=multi-user.target
