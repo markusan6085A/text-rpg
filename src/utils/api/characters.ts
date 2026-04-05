@@ -234,18 +234,27 @@ export async function resurrectCharacter(
   return response.character;
 }
 
-/** Атомарно зберегти heroBuffs (CAS); звичайний PUT персонажа не приймає heroBuffs з клієнта. */
+/** Атомарно зберегти heroBuffs (CAS). Спочатку POST .../hero-buffs-sync; при 404 (старий API) — PUT з syncHeroBuffs. */
 export async function syncHeroBuffsAPI(
   characterId: string,
   data: { heroBuffs: any[]; expectedRevision: number }
 ): Promise<{ ok: boolean; heroJson: any }> {
-  return apiRequest<{ ok: boolean; heroJson: any }>(
-    `/characters/${encodeURIComponent(characterId)}/hero-buffs-sync`,
-    {
-      method: "POST",
-      body: JSON.stringify(data),
-    }
-  );
+  try {
+    return await apiRequest<{ ok: boolean; heroJson: any }>(
+      `/characters/${encodeURIComponent(characterId)}/hero-buffs-sync`,
+      {
+        method: "POST",
+        body: JSON.stringify({ heroBuffs: data.heroBuffs, expectedRevision: data.expectedRevision }),
+      }
+    );
+  } catch (e: any) {
+    if (e?.status !== 404) throw e;
+    const character = await updateCharacter(characterId, {
+      syncHeroBuffs: data.heroBuffs,
+      expectedRevision: data.expectedRevision,
+    });
+    return { ok: true, heroJson: (character as any)?.heroJson ?? {} };
+  }
 }
 
 // Player Admin API

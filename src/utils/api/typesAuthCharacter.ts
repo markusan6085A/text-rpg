@@ -58,6 +58,8 @@ export interface UpdateCharacterRequest {
   coinLuck?: number;
   coinsSilver?: number;
   expectedRevision?: number; // Для optimistic locking
+  /** Тільки оновлення heroJson.heroBuffs (CAS). Сервер приймає через PUT, якщо ще немає POST .../hero-buffs-sync. */
+  syncHeroBuffs?: any[];
 }
 
 export interface CharactersResponse {

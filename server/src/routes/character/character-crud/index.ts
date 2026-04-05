@@ -1674,6 +1674,114 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
     if (!existing) return reply.code(404).send({ error: "character not found" });
 
+    // Лише sync бафів (той самий CAS + sanitize що POST .../hero-buffs-sync). Якщо прод ще без нового POST — клієнт шле PUT з syncHeroBuffs.
+    if (Object.prototype.hasOwnProperty.call(req.body as object, "syncHeroBuffs")) {
+      const bodySync = req.body as { syncHeroBuffs?: unknown; expectedRevision?: number };
+      const expectedRevisionSync = Number(bodySync.expectedRevision);
+      if (!Number.isFinite(expectedRevisionSync) || expectedRevisionSync < 0) {
+        return reply.code(400).send({ error: "expectedRevision required" });
+      }
+      const sanitizedBuffs = sanitizeBattleFinishHeroBuffs(bodySync.syncHeroBuffs);
+      try {
+        const syncTx = await prisma.$transaction(async (tx) => {
+          const locked = await tx.$queryRaw<
+            Array<{
+              id: string;
+              name: string;
+              race: string;
+              classId: string;
+              heroJson: any;
+              updatedAt: Date;
+            }>
+          >`
+            SELECT "id", "name", "race", "classId", "heroJson", "updatedAt"
+            FROM "Character"
+            WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+            FOR UPDATE
+          `;
+          if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+          const row0 = locked[0];
+          const oldHj = (row0.heroJson as any) || {};
+          const currentRev = Number(oldHj.heroRevision ?? 0);
+          if (currentRev !== expectedRevisionSync) {
+            return {
+              ok: false as const,
+              reason: "revision_conflict" as const,
+              currentRevision: currentRev,
+              updatedAt: row0.updatedAt,
+            };
+          }
+          const mergedHj = {
+            ...oldHj,
+            heroBuffs: sanitizedBuffs,
+          };
+          const validation = validateHeroJson(mergedHj);
+          if (!validation.valid) {
+            return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
+          }
+          const versionedHeroJson = addVersioning(mergedHj, currentRev);
+          await tx.character.update({
+            where: { id },
+            data: {
+              heroJson: versionedHeroJson as any,
+              lastActivityAt: new Date(),
+            },
+          });
+          return { ok: true as const };
+        });
+
+        if (!syncTx.ok) {
+          if (syncTx.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+          if (syncTx.reason === "invalid_hero_json") {
+            return reply.code(400).send({ error: "invalid_hero_json", errors: syncTx.errors });
+          }
+          return reply.code(409).send({
+            error: "revision_conflict",
+            message: "Character was modified by another session. Please reload and try again.",
+            currentRevision: syncTx.currentRevision ?? 0,
+            updatedAt: syncTx.updatedAt?.toISOString(),
+            serverState: {
+              heroRevision: syncTx.currentRevision ?? 0,
+              updatedAt: syncTx.updatedAt?.toISOString(),
+            },
+          });
+        }
+
+        const updatedAfterSync = await prisma.character.findFirst({
+          where: { id, accountId: auth.accountId },
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            coinsSilver: true,
+            heroJson: true,
+            updatedAt: true,
+          },
+        });
+        if (!updatedAfterSync) return reply.code(404).send({ error: "character not found" });
+        const serializedSync = {
+          ...updatedAfterSync,
+          exp: Number(updatedAfterSync.exp),
+          adena: Number((updatedAfterSync as any).adena ?? 0),
+          aa: Number((updatedAfterSync as any).aa ?? 0),
+          coinLuck: Number((updatedAfterSync as any).coinLuck ?? 0),
+          coinsSilver: Number((updatedAfterSync as any).coinsSilver ?? 0),
+        };
+        return { ok: true, character: serializedSync };
+      } catch (e) {
+        app.log.error(e, "[PUT /characters/:id] syncHeroBuffs");
+        return reply.code(500).send({ error: "internal_error" });
+      }
+    }
+
     const heroJsonSnapshotForLog = JSON.parse(JSON.stringify(existing.heroJson || {})) as Record<
       string,
       unknown
