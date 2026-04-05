@@ -19,6 +19,12 @@ export function scheduleHeroBuffsSync(heroBuffs: any[]): void {
   })
     .then((res) => {
       if (!res?.ok || !res.heroJson) return;
+      const prevRev = Number(
+        st.serverState?.heroRevision ?? (st.hero as any)?.heroJson?.heroRevision ?? 0
+      );
+      const nextRev = Number(res.heroJson.heroRevision ?? 0);
+      // Якщо бекенд ще без sync — PUT нічого не змінить, revision не виросте; не відкочувати локальні бафи зі старого snapshot.
+      if (!Number.isFinite(nextRev) || nextRev <= prevRev) return;
       st.applyServerSync(
         {
           heroJson: {
