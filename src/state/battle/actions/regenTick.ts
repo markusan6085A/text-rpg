@@ -13,6 +13,7 @@ import type { BattleState } from "../types";
 import { processSummonAttack } from "./summons";
 import { processMobBleedTicks } from "./aggressiveMobSkills";
 import { processToggleTicks } from "./toggleTicks";
+import { shouldUsePveServerMobTick } from "./pveMobTickOnline";
 import { cleanupSummonBuffs, computeBuffedSummonStats } from "../helpers/summonBuffs";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
 import { applyPercentDamageTakenReduction } from "../../../utils/stats/incomingDamageReduction";
@@ -60,15 +61,18 @@ export const createRegenTick =
     const cleanedBuffs = cleanupBuffs(rawHeroBuffs, now);
     const cleanedSummonBuffs = cleanupSummonBuffs(state.summonBuffs || [], now);
 
-    // Обробляємо toggle tick ефекти (споживання MP/HP для активних toggle скілів)
+    // Toggle drain для онлайн-PvE робить сервер (pve-battle-tick / pve-battle-attack); інакше подвійне списання MP.
     const heroStore = useHeroStore.getState();
     const updateHero = heroStore.updateHero;
-    const { updatedBuffs: buffsAfterTicks, logMessages: tickLogMessages } = processToggleTicks(
-      { ...state, heroBuffs: cleanedBuffs },
-      now,
-      updateHero,
-      () => {} // updateBuffs буде викликано через set
-    );
+    const pveServerTick = shouldUsePveServerMobTick();
+    const { updatedBuffs: buffsAfterTicks, logMessages: tickLogMessages } = pveServerTick
+      ? { updatedBuffs: cleanedBuffs, logMessages: [] as string[] }
+      : processToggleTicks(
+          { ...state, heroBuffs: cleanedBuffs },
+          now,
+          updateHero,
+          () => {}
+        );
 
     // Фікс №1: не перезаписувати heroBuffs тим, що повернув processToggleTicks (може бути тільки toggle-бафи).
     // Мерджимо cleanedBuffs + buffsAfterTicks з dedup — інакше бафи статуї (source=buffer) зникають.

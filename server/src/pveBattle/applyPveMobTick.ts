@@ -1,26 +1,8 @@
 /** Удар моба по герою: зональний РБ з фазами AI (як у client processMobAttack); ефірні РБ без ×2.25. */
 
 import { getRaidBossAIProfile, type RaidBossPhase } from "./raidBossAIServer";
-
-function clamp(n: number, lo: number, hi: number) {
-  return Math.min(hi, Math.max(lo, n));
-}
-
-/** heroJson.hpPercent/mpPercent/cpPercent мають відповідати абсолютам інакше клієнт попередніх версій «різав» MP/CP по застарілому %. */
-function syncResourcePercentsToAbsolutes(hj: any) {
-  const mh = Math.max(1, Math.floor(Number(hj.maxHp ?? 1)));
-  const mm = Math.max(1, Math.floor(Number(hj.maxMp ?? 1)));
-  const mc = Math.max(1, Math.floor(Number(hj.maxCp ?? 1)));
-  const ch = clamp(Math.floor(Number(hj.hp ?? 0)), 0, mh);
-  const cm = clamp(Math.floor(Number(hj.mp ?? 0)), 0, mm);
-  const cc = clamp(Math.floor(Number(hj.cp ?? 0)), 0, mc);
-  hj.hp = ch;
-  hj.mp = cm;
-  hj.cp = cc;
-  hj.hpPercent = mh > 0 ? ch / mh : 0;
-  hj.mpPercent = mm > 0 ? cm / mm : 0;
-  hj.cpPercent = mc > 0 ? cc / mc : 0;
-}
+import { applyServerToggleResourceTicks } from "./applyServerToggleTicks";
+import { clampPveResource, syncHeroJsonResourcePercentsToAbsolutes } from "./pveHeroResourceSync";
 
 function mitigation(raw: number, mobAtkStat: number, heroDefense: number): number {
   const atk = Math.max(1, mobAtkStat);
@@ -74,21 +56,24 @@ export function applyPveMobTickSnapshot(args: {
     return { ok: false, code: "mob_dead", message: "Mob already defeated" };
   }
 
-  const maxHp = Math.max(1, Math.floor(Number(hj.maxHp ?? hj.hp ?? 1)));
-  const curHp = clamp(Math.floor(Number(hj.hp ?? maxHp)), 0, maxHp);
+  const tickNow = Date.now();
+  const toggleLogLines = applyServerToggleResourceTicks(hj, tickNow);
 
-  const pDef = clamp(Math.floor(Number(args.heroDefenseStats.pDef ?? 0)), 0, 50000);
-  const mDef = clamp(Math.floor(Number(args.heroDefenseStats.mDef ?? 0)), 0, 50000);
-  const evasion = clamp(Math.floor(Number(args.heroDefenseStats.evasion ?? 0)), 0, 80);
+  const maxHp = Math.max(1, Math.floor(Number(hj.maxHp ?? hj.hp ?? 1)));
+  const curHp = clampPveResource(Math.floor(Number(hj.hp ?? maxHp)), 0, maxHp);
+
+  const pDef = clampPveResource(Math.floor(Number(args.heroDefenseStats.pDef ?? 0)), 0, 50000);
+  const mDef = clampPveResource(Math.floor(Number(args.heroDefenseStats.mDef ?? 0)), 0, 50000);
+  const evasion = clampPveResource(Math.floor(Number(args.heroDefenseStats.evasion ?? 0)), 0, 80);
   const invulnerable = Number(args.heroDefenseStats.invulnerable ?? 0) > 0;
-  const dmgRed = clamp(Number(args.heroDefenseStats.damageTakenReduction ?? 0), 0, 95);
+  const dmgRed = clampPveResource(Number(args.heroDefenseStats.damageTakenReduction ?? 0), 0, 95);
 
   if (invulnerable || curHp <= 0) {
-    syncResourcePercentsToAbsolutes(hj);
+    syncHeroJsonResourcePercentsToAbsolutes(hj);
     return {
       ok: true,
       nextHeroJson: hj,
-      logLines: ["Монстр б’є, але ви невразливі."],
+      logLines: [...toggleLogLines, "Монстр б’є, але ви невразливі."],
       heroHpAfter: curHp,
       killedHero: false,
     };
@@ -96,11 +81,11 @@ export function applyPveMobTickSnapshot(args: {
 
   const isMiss = Math.random() * 100 < evasion;
   if (isMiss) {
-    syncResourcePercentsToAbsolutes(hj);
+    syncHeroJsonResourcePercentsToAbsolutes(hj);
     return {
       ok: true,
       nextHeroJson: hj,
-      logLines: ["Ви ухилилися від атаки монстра."],
+      logLines: [...toggleLogLines, "Ви ухилилися від атаки монстра."],
       heroHpAfter: curHp,
       killedHero: false,
     };
@@ -178,13 +163,13 @@ export function applyPveMobTickSnapshot(args: {
     logLines.push("Ви мертві.");
   }
 
-  syncResourcePercentsToAbsolutes(hj);
+  syncHeroJsonResourcePercentsToAbsolutes(hj);
   const heroHpAfter = Math.max(0, Math.floor(Number(hj.hp ?? 0)));
 
   return {
     ok: true,
     nextHeroJson: hj,
-    logLines,
+    logLines: [...toggleLogLines, ...logLines],
     heroHpAfter,
     killedHero,
     battleControl: Object.keys(battleControl).length > 0 ? battleControl : undefined,

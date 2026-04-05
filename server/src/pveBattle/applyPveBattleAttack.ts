@@ -17,6 +17,8 @@ import {
   FOCUSED_FORCE_COST,
   FOCUSED_FORCE_ID,
 } from "./pveSonicConstants";
+import { applyServerToggleResourceTicks } from "./applyServerToggleTicks";
+import { syncHeroJsonResourcePercentsToAbsolutes } from "./pveHeroResourceSync";
 
 type SkillMetaRow = {
   id: number;
@@ -216,6 +218,8 @@ export function applyPveBattleAttackSnapshot(args: {
     applyMobBuffsToSession(sess, cleaned, now);
   }
 
+  const toggleLogLines = applyServerToggleResourceTicks(hj, now);
+
   if (!professionAllowsSkill(skillId, hj, String(args.classId ?? ""))) {
     return { ok: false, code: "forbidden_skill", message: "Skill not allowed for this profession" };
   }
@@ -293,17 +297,20 @@ export function applyPveBattleAttackSnapshot(args: {
   const skillNameForLog = skillId === 0 ? "Attack" : String(args.skillNameFallback || `Skill ${skillId}`);
 
   if (!landed) {
-    hj.mp = heroMp;
     hj.battleSession = {
       ...sess,
       lastSkillId: skillId,
       lastDamage: 0,
       lastAt: Date.now(),
     };
+    syncHeroJsonResourcePercentsToAbsolutes(hj);
     return {
       ok: true,
       nextHeroJson: hj,
-      logLines: [`Ви промахнулись [${skillNameForLog}] (шанс влучання ${hitPct}%).`],
+      logLines: [
+        ...toggleLogLines,
+        `Ви промахнулись [${skillNameForLog}] (шанс влучання ${hitPct}%).`,
+      ],
       damage: 0,
       isCrit: false,
       mobHpAfter: mobHpBefore,
@@ -404,10 +411,11 @@ export function applyPveBattleAttackSnapshot(args: {
           isCrit ? `Ви наносите ${damage} урону. (Крит!)` : `Ви наносите ${damage} урону.`,
         ];
 
+  syncHeroJsonResourcePercentsToAbsolutes(hj);
   return {
     ok: true,
     nextHeroJson: hj,
-    logLines,
+    logLines: [...toggleLogLines, ...logLines],
     damage,
     isCrit,
     mobHpAfter: nextSession.mobHP,
