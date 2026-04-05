@@ -137,18 +137,28 @@ export async function resurrectCharacter(id: string, ratio?: number): Promise<Ch
   return response.character;
 }
 // Player Admin API
-export async function healPlayer(characterId: string, skillId: number, power: number): Promise<{ ok: boolean; healedHp?: number; currentHp?: number }> {
+export async function healPlayer(
+  characterId: string,
+  skillId: number,
+  power: number,
+  expectedRevision: number
+): Promise<{ ok: boolean; healedHp?: number; currentHp?: number }> {
   const response = await apiRequest<{ ok: boolean; healedHp?: number; currentHp?: number }>(`/characters/${characterId}/heal`, {
     method: 'POST',
-    body: JSON.stringify({ skillId, power }),
+    body: JSON.stringify({ skillId, power, expectedRevision }),
   });
   return response;
 }
 
-export async function buffPlayer(characterId: string, skillId: number, buffData: any): Promise<{ ok: boolean; message?: string }> {
+export async function buffPlayer(
+  characterId: string,
+  skillId: number,
+  buffData: any,
+  expectedRevision: number
+): Promise<{ ok: boolean; message?: string }> {
   const response = await apiRequest<{ ok: boolean; message?: string }>(`/characters/${characterId}/buff`, {
     method: 'POST',
-    body: JSON.stringify({ skillId, buffData }),
+    body: JSON.stringify({ skillId, buffData, expectedRevision }),
   });
   return response;
 }

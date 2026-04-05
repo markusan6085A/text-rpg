@@ -202,7 +202,12 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         buffGroup: buffSkill.skillDef.buffGroup,
         stackType: buffSkill.skillDef.stackType,
       };
-      const result = await buffPlayer(character.id, buffSkillId, buffData);
+      const expectedRevision = Number(
+        (useHeroStore.getState() as any).serverState?.heroRevision ??
+        (hero as any)?.heroJson?.heroRevision ??
+        0
+      );
+      const result = await buffPlayer(character.id, buffSkillId, buffData, expectedRevision);
       if (result.ok) {
         showToast(`Баф "${buffSkill.name}" застосовано до ${character.name}`, "success");
         loadPlayerProfile();

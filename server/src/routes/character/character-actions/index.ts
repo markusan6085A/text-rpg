@@ -166,10 +166,11 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const targetId = (req.params as any).id;
-    const body = req.body as { skillId: number; power: number };
+    const body = req.body as { skillId: number; power: number; expectedRevision?: number };
 
-    if (!body.skillId || !body.power) {
-      return reply.code(400).send({ error: "skillId and power are required" });
+    const expectedRevision = Number(body?.expectedRevision);
+    if (!body.skillId || !body.power || !Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "skillId, power and expectedRevision are required" });
     }
 
     try {
@@ -183,6 +184,10 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         if (!targetChar) throw new Error("target character not found");
 
         const heroJson = (targetChar.heroJson as any) || {};
+        const currentRevision = Number(heroJson.heroRevision ?? 0) || 0;
+        if (currentRevision !== expectedRevision) {
+          return { revisionConflict: true as const, currentRevision };
+        }
         const rawMaxHp = Number(
           heroJson.maxHp ?? heroJson.maxHP ?? heroJson.max_hp ??
           heroJson?.resources?.maxHp ?? heroJson?.battleStats?.maxHp ?? 0
@@ -201,8 +206,17 @@ export async function characterActionsRoutes(app: FastifyInstance) {
           data: { heroJson: updatedHeroJson },
         });
 
-        return { healedHp: newHp - currentHp, currentHp: newHp };
+        return { revisionConflict: false as const, healedHp: newHp - currentHp, currentHp: newHp };
       });
+
+      if (result.revisionConflict) {
+        return reply.code(409).send({
+          error: "revision_conflict",
+          message: "Character was modified by another session. Please reload and try again.",
+          currentRevision: result.currentRevision ?? 0,
+          serverState: { heroRevision: result.currentRevision ?? 0 },
+        });
+      }
 
       return reply.send({ ok: true, healedHp: result.healedHp, currentHp: result.currentHp });
     } catch (error) {
@@ -224,12 +238,13 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const targetId = (req.params as any).id;
-    const body = req.body as { skillId: number; buffData: any };
+    const body = req.body as { skillId: number; buffData: any; expectedRevision?: number };
 
     app.log.info(`[POST /characters/:id/buff] targetId: ${targetId}, skillId: ${body?.skillId}`);
 
-    if (!body.skillId || !body.buffData) {
-      return reply.code(400).send({ error: "skillId and buffData are required" });
+    const expectedRevision = Number(body?.expectedRevision);
+    if (!body.skillId || !body.buffData || !Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "skillId, buffData and expectedRevision are required" });
     }
 
     try {
@@ -243,6 +258,10 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         if (!targetChar) throw new Error("target character not found");
 
         const heroJson = (targetChar.heroJson as any) || {};
+        const currentRevision = Number(heroJson.heroRevision ?? 0) || 0;
+        if (currentRevision !== expectedRevision) {
+          return { skipped: false, revisionConflict: true as const, currentRevision };
+        }
         const currentBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
 
         const newBuff = {
@@ -299,7 +318,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
               },
               "[POST /characters/:id/buff] Keeping existing buff (better than new)"
             );
-            return { skipped: true };
+            return { skipped: true, revisionConflict: false as const };
           }
 
           app.log.info(
@@ -323,8 +342,17 @@ export async function characterActionsRoutes(app: FastifyInstance) {
           data: { heroJson: updatedHeroJson },
         });
 
-        return { skipped: false, updatedBuffs, newBuff };
+        return { skipped: false, revisionConflict: false as const, updatedBuffs, newBuff };
       });
+
+      if (result.revisionConflict) {
+        return reply.code(409).send({
+          error: "revision_conflict",
+          message: "Character was modified by another session. Please reload and try again.",
+          currentRevision: result.currentRevision ?? 0,
+          serverState: { heroRevision: result.currentRevision ?? 0 },
+        });
+      }
 
       if (result.skipped) {
         return reply.code(200).send({ ok: true, message: "Existing buff is better, keeping it" });

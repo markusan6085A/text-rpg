@@ -284,8 +284,13 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
     if (!character || !hero) return;
     
     try {
+      const expectedRevision = Number(
+        (useHeroStore.getState() as any).serverState?.heroRevision ??
+        (hero as any)?.heroJson?.heroRevision ??
+        0
+      );
       const result = await import("../utils/api").then(({ healPlayer }) => 
-        healPlayer(character.id, healSkillId, healPower)
+        healPlayer(character.id, healSkillId, healPower, expectedRevision)
       );
       
       if (result.ok) {
@@ -320,8 +325,13 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
         stackType: buffSkill.skillDef.stackType,
       };
 
+      const expectedRevision = Number(
+        (useHeroStore.getState() as any).serverState?.heroRevision ??
+        (hero as any)?.heroJson?.heroRevision ??
+        0
+      );
       const result = await import("../utils/api").then(({ buffPlayer }) => 
-        buffPlayer(character.id, buffSkillId, buffData)
+        buffPlayer(character.id, buffSkillId, buffData, expectedRevision)
       );
       
       if (result.ok) {
