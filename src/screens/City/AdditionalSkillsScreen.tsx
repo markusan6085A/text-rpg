@@ -219,8 +219,13 @@ export default function AdditionalSkillsScreen({
     }
 
     if (characterId) {
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+      if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+        showToast("Не вдалося визначити revision персонажа. Оновіть сторінку.", "error");
+        return;
+      }
       try {
-        await postLearnAdditionalSkill(characterId, { skillId });
+        await postLearnAdditionalSkill(characterId, { skillId, expectedRevision });
         const synced = await loadHeroFromAPI();
         if (synced) setHero(synced);
         showToast("Навык изучен.", "success");

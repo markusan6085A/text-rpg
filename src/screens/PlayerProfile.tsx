@@ -293,7 +293,8 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     if (!cidUse || !hero) return;
     setResurrectInProgress(true);
     try {
-      const char = await resurrectCharacter(cidUse, 0.7);
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+      const char = await resurrectCharacter(cidUse, 0.7, expectedRevision);
       const hj = (char as any)?.heroJson;
       if (hero.name) clearDeathGate(cidUse, hero.name);
       if (hj) {

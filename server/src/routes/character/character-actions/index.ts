@@ -400,6 +400,10 @@ export async function characterActionsRoutes(app: FastifyInstance) {
 
     const body = (req.body as any) || {};
     const ratio = Math.max(0, Math.min(1, Number(body.ratio) ?? 1));
+    const expectedRevision = Number(body.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
 
     try {
       const txRes = await prisma.$transaction(async (tx) => {
@@ -415,6 +419,14 @@ export async function characterActionsRoutes(app: FastifyInstance) {
 
         const ch = locked[0];
         const heroJson = (ch.heroJson ?? {}) as any;
+        const currentRevision = Number(heroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+          };
+        }
         const maxHp = Math.max(1, Number(heroJson.maxHp) || 100);
         const maxMp = Math.max(1, Number(heroJson.maxMp) || 50);
         const maxCp = Math.max(1, Number(heroJson.maxCp) || Math.round(maxHp * 0.6));
@@ -453,7 +465,12 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         return { ok: true as const, updated };
       });
 
-      if (!txRes.ok) return reply.code(404).send({ error: "character not found" });
+      if (!txRes.ok) {
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({ error: "revision_conflict", revision: txRes.currentRevision ?? 0 });
+        }
+        return reply.code(404).send({ error: "character not found" });
+      }
       return reply.send({ ok: true, character: { ...txRes.updated, exp: Number(txRes.updated.exp) } });
     } catch (error) {
       app.log.error(error, "Error resurrect character:");

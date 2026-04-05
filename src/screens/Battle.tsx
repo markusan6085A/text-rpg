@@ -76,7 +76,8 @@ export default function Battle({ navigate }: BattleProps) {
     setResurrecting(true);
     setResurrectInProgress(true);
     try {
-      const char = await resurrectCharacter(characterId, 0.7);
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+      const char = await resurrectCharacter(characterId, 0.7, expectedRevision);
       const hj = (char as any)?.heroJson;
       if (hero?.name) clearDeathGate(characterId, hero.name);
       if (hj) {

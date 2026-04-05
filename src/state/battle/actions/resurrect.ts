@@ -75,7 +75,8 @@ export const createResurrect =
 
     const characterId = useCharacterStore.getState().characterId;
     if (characterId) {
-      resurrectCharacter(characterId)
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+      resurrectCharacter(characterId, undefined, expectedRevision)
         .then((raw) => {
           // API повертає { ok, character }; resurrectCharacter() віддає response.character — підстраховуємо обидві форми
           const char = (raw as any)?.character ?? raw;

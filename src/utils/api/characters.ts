@@ -128,11 +128,19 @@ export async function postCharacterGkTeleport(
 }
 
 /** Resurrect: сервер атомарно скидає isDead/deadAt, ставить hp/mp/cp на max, heroBuffs=[]. Повертає оновленого character. */
-export async function resurrectCharacter(id: string, ratio?: number): Promise<Character> {
-  const body = ratio != null && ratio < 1 ? { ratio } : {};
+export async function resurrectCharacter(
+  id: string,
+  ratio?: number,
+  expectedRevision?: number
+): Promise<Character> {
+  const body: Record<string, unknown> = {};
+  if (ratio != null && ratio < 1) body.ratio = ratio;
+  if (Number.isFinite(Number(expectedRevision)) && Number(expectedRevision) >= 0) {
+    body.expectedRevision = Number(expectedRevision);
+  }
   const response = await apiRequest<CharacterResponse>(`/characters/${id}/resurrect`, {
     method: 'POST',
-    body: Object.keys(body).length ? JSON.stringify(body) : undefined,
+    body: JSON.stringify(body),
   });
   return response.character;
 }
@@ -166,7 +174,7 @@ export async function buffPlayer(
 /** Здати книгу заклинання в гільдії магів (сервер знімає предмет і ставить heroJson.spellbookGuild). */
 export async function postMageSpellbookTurnIn(
   characterId: string,
-  body: { skillId: number }
+  body: { skillId: number; expectedRevision: number }
 ): Promise<{ ok: boolean; character: Character; guildKey?: string }> {
   return apiRequest(`/characters/${encodeURIComponent(characterId)}/mage-spellbook/turn-in`, {
     method: "POST",
@@ -177,7 +185,7 @@ export async function postMageSpellbookTurnIn(
 /** Серверне вивчення скілу гільдії за SP (whitelist професії + книга для містика). */
 export async function postLearnSkill(
   characterId: string,
-  body: { skillId: number }
+  body: { skillId: number; expectedRevision: number }
 ): Promise<{ ok: boolean; character: Character }> {
   return apiRequest(`/characters/${encodeURIComponent(characterId)}/learn-skill`, {
     method: "POST",
@@ -188,15 +196,19 @@ export async function postLearnSkill(
 /** Додатковий скіл за адену — сума та whitelist лише на сервері. */
 export async function postLearnAdditionalSkill(
   characterId: string,
-  body: { skillId: number }
+  body: { skillId: number; expectedRevision: number }
 ): Promise<{ ok: boolean; character: Character }> {
   const skillId = Math.trunc(Number(body.skillId));
+  const expectedRevision = Math.trunc(Number(body.expectedRevision));
   if (!Number.isFinite(skillId) || skillId <= 0 || !Number.isInteger(skillId)) {
     return Promise.reject(new Error("invalid skill id"));
   }
+  if (!Number.isFinite(expectedRevision) || expectedRevision < 0 || !Number.isInteger(expectedRevision)) {
+    return Promise.reject(new Error("expectedRevision required"));
+  }
   return apiRequest(`/characters/${encodeURIComponent(characterId)}/learn-additional-skill`, {
     method: "POST",
-    body: JSON.stringify({ skillId }),
+    body: JSON.stringify({ skillId, expectedRevision }),
   });
 }
 

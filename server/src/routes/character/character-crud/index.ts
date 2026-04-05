@@ -1219,100 +1219,140 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       const id = params.id;
       if (!id) return reply.code(400).send({ error: "character id required" });
 
-      const body = req.body as { skillId?: unknown };
+      const body = req.body as { skillId?: unknown; expectedRevision?: number };
       const skillId = Number(body.skillId);
       if (!Number.isInteger(skillId) || skillId <= 0) {
         return reply.code(400).send({ error: "invalid input" });
       }
+      const expectedRevision = Number(body.expectedRevision);
+      if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+        return reply.code(400).send({ error: "expectedRevision required" });
+      }
 
       const spec = MYSTIC_SPELLBOOK_TURNIN[skillId];
       if (!spec) return reply.code(400).send({ error: "invalid input" });
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{ id: string; name: string; race: string; classId: string; level: number; heroJson: any; updatedAt: Date }>
+        >`
+          SELECT "id", "name", "race", "classId", "level", "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+        const existing = locked[0];
 
-      const existing = await prisma.character.findFirst({
-        where: { id, accountId: auth.accountId },
+        const oldHeroJson = (existing.heroJson as any) || {};
+        const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: existing.updatedAt,
+          };
+        }
+        if (!heroLooksMystic(oldHeroJson)) {
+          return { ok: false as const, reason: "forbidden" as const };
+        }
+
+        const skills = Array.isArray(oldHeroJson.skills) ? oldHeroJson.skills : [];
+        const row = skills.find((s: any) => Number(s?.id) === skillId);
+        const cur = row ? Number(row.level) || 0 : 0;
+        if (cur !== 0) return { ok: false as const, reason: "invalid_input" as const };
+
+        const guildKey = mysticSpellbookGuildKey(skillId, spec.targetLevel);
+        const prevGuild =
+          oldHeroJson.spellbookGuild && typeof oldHeroJson.spellbookGuild === "object"
+            ? oldHeroJson.spellbookGuild
+            : {};
+        if (prevGuild[guildKey]) {
+          return { ok: false as const, reason: "invalid_input" as const };
+        }
+
+        const inventory = Array.isArray(oldHeroJson.inventory) ? [...oldHeroJson.inventory] : [];
+        let newInventory: any[];
+        try {
+          newInventory = removeOneStackFromInventory(inventory, spec.bookItemId).newInventory;
+        } catch {
+          return { ok: false as const, reason: "invalid_input" as const };
+        }
+
+        const mergedBase = {
+          name: oldHeroJson.name || existing.name,
+          race: oldHeroJson.race || existing.race,
+          classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
+          klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
+          level: oldHeroJson.level ?? existing.level ?? 1,
+        };
+
+        const newHeroJsonRaw = {
+          ...mergedBase,
+          ...oldHeroJson,
+          inventory: newInventory,
+          spellbookGuild: { ...prevGuild, [guildKey]: true },
+        };
+        const newHeroJson = mergeHeroJsonForClientPut(oldHeroJson, newHeroJsonRaw);
+        const validation = validateHeroJson(newHeroJson);
+        if (!validation.valid) {
+          return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
+        }
+
+        const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+
+        const updated = await tx.character.update({
+          where: { id },
+          data: {
+            heroJson: versionedHeroJson as any,
+            lastActivityAt: new Date(),
+          },
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            heroJson: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated, guildKey };
       });
-      if (!existing) return reply.code(404).send({ error: "character not found" });
 
-      const oldHeroJson = (existing.heroJson as any) || {};
-      if (!heroLooksMystic(oldHeroJson)) {
-        return reply.code(403).send({ error: "forbidden" });
-      }
-
-      const skills = Array.isArray(oldHeroJson.skills) ? oldHeroJson.skills : [];
-      const row = skills.find((s: any) => Number(s?.id) === skillId);
-      const cur = row ? Number(row.level) || 0 : 0;
-      if (cur !== 0) return reply.code(400).send({ error: "invalid input" });
-
-      const guildKey = mysticSpellbookGuildKey(skillId, spec.targetLevel);
-      const prevGuild = oldHeroJson.spellbookGuild && typeof oldHeroJson.spellbookGuild === "object" ? oldHeroJson.spellbookGuild : {};
-      if (prevGuild[guildKey]) {
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+          });
+        }
+        if (txRes.reason === "forbidden") return reply.code(403).send({ error: "forbidden" });
+        if (txRes.reason === "invalid_hero_json") {
+          return reply.code(400).send({ error: "invalid_hero_json", errors: txRes.errors });
+        }
         return reply.code(400).send({ error: "invalid input" });
       }
-
-      const inventory = Array.isArray(oldHeroJson.inventory) ? [...oldHeroJson.inventory] : [];
-      let newInventory: any[];
-      try {
-        newInventory = removeOneStackFromInventory(inventory, spec.bookItemId).newInventory;
-      } catch {
-        return reply.code(400).send({ error: "invalid input" });
-      }
-
-      const mergedBase = {
-        name: oldHeroJson.name || existing.name,
-        race: oldHeroJson.race || existing.race,
-        classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
-        klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
-        level: oldHeroJson.level ?? existing.level ?? 1,
-      };
-
-      const newHeroJsonRaw = {
-        ...mergedBase,
-        ...oldHeroJson,
-        inventory: newInventory,
-        spellbookGuild: { ...prevGuild, [guildKey]: true },
-      };
-      const newHeroJson = mergeHeroJsonForClientPut(oldHeroJson, newHeroJsonRaw);
-      const validation = validateHeroJson(newHeroJson);
-      if (!validation.valid) {
-        return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
-      }
-
-      const oldRevision = oldHeroJson.heroRevision || 0;
-      const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
-
-      const updated = await prisma.character.update({
-        where: { id },
-        data: {
-          heroJson: versionedHeroJson as any,
-          lastActivityAt: new Date(),
-        },
-        select: {
-          id: true,
-          name: true,
-          race: true,
-          classId: true,
-          sex: true,
-          level: true,
-          exp: true,
-          sp: true,
-          adena: true,
-          aa: true,
-          coinLuck: true,
-          heroJson: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      });
 
       const serialized = {
-        ...updated,
-        exp: Number(updated.exp),
-        adena: Number(updated.adena ?? 0),
-        aa: Number(updated.aa ?? 0),
-        coinLuck: Number(updated.coinLuck ?? 0),
+        ...txRes.updated,
+        exp: Number(txRes.updated.exp),
+        adena: Number(txRes.updated.adena ?? 0),
+        aa: Number(txRes.updated.aa ?? 0),
+        coinLuck: Number(txRes.updated.coinLuck ?? 0),
       };
 
-      return reply.send({ ok: true, character: serialized, guildKey });
+      return reply.send({ ok: true, character: serialized, guildKey: txRes.guildKey });
     }
   );
 
@@ -1337,79 +1377,122 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "invalid input" });
       }
 
-      const existing = await prisma.character.findFirst({
-        where: { id, accountId: auth.accountId },
-      });
-      if (!existing) return reply.code(404).send({ error: "character not found" });
-
-      const computed = computeProfessionSkillLearn(
-        {
-          level: existing.level,
-          sp: Number((existing as any).sp ?? 0),
-          heroJson: existing.heroJson,
-          classId: existing.classId,
-        },
-        skillId
-      );
-      if (!computed.ok) {
-        return reply.code(computed.status).send({ error: computed.status === 403 ? "forbidden" : "invalid input" });
+      const body = req.body as { skillId?: unknown; expectedRevision?: number };
+      const expectedRevision = Number(body.expectedRevision);
+      if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+        return reply.code(400).send({ error: "expectedRevision required" });
       }
 
-      const oldHeroJson = (existing.heroJson as any) || {};
-      const mergedBase = {
-        name: oldHeroJson.name || existing.name,
-        race: oldHeroJson.race || existing.race,
-        classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
-        klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
-        level: oldHeroJson.level ?? existing.level ?? 1,
-      };
-      const newHeroJsonRaw = {
-        ...mergedBase,
-        ...oldHeroJson,
-        ...computed.mergedHeroJsonRaw,
-      };
-      const newHeroJson = mergeHeroJsonForClientPut(oldHeroJson, newHeroJsonRaw);
-      const validation = validateHeroJson(newHeroJson);
-      if (!validation.valid) {
-        return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
-      }
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{ id: string; name: string; race: string; classId: string; level: number; sp: number; heroJson: any; updatedAt: Date }>
+        >`
+          SELECT "id", "name", "race", "classId", "level", "sp", "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+        const existing = locked[0];
+        const oldHeroJson = (existing.heroJson as any) || {};
+        const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: existing.updatedAt,
+          };
+        }
 
-      const oldRevision = oldHeroJson.heroRevision || 0;
-      const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+        const computed = computeProfessionSkillLearn(
+          {
+            level: existing.level,
+            sp: Number(existing.sp ?? 0),
+            heroJson: existing.heroJson,
+            classId: existing.classId,
+          },
+          skillId
+        );
+        if (!computed.ok) {
+          return {
+            ok: false as const,
+            reason: computed.status === 403 ? ("forbidden" as const) : ("invalid_input" as const),
+          };
+        }
 
-      const updated = await prisma.character.update({
-        where: { id },
-        data: {
-          sp: computed.newSp,
-          heroJson: versionedHeroJson as any,
-          lastActivityAt: new Date(),
-        },
-        select: {
-          id: true,
-          name: true,
-          race: true,
-          classId: true,
-          sex: true,
-          level: true,
-          exp: true,
-          sp: true,
-          adena: true,
-          aa: true,
-          coinLuck: true,
-          coinsSilver: true,
-          heroJson: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        const mergedBase = {
+          name: oldHeroJson.name || existing.name,
+          race: oldHeroJson.race || existing.race,
+          classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
+          klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
+          level: oldHeroJson.level ?? existing.level ?? 1,
+        };
+        const newHeroJsonRaw = {
+          ...mergedBase,
+          ...oldHeroJson,
+          ...computed.mergedHeroJsonRaw,
+        };
+        const newHeroJson = mergeHeroJsonForClientPut(oldHeroJson, newHeroJsonRaw);
+        const validation = validateHeroJson(newHeroJson);
+        if (!validation.valid) {
+          return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
+        }
+
+        const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+
+        const updated = await tx.character.update({
+          where: { id },
+          data: {
+            sp: computed.newSp,
+            heroJson: versionedHeroJson as any,
+            lastActivityAt: new Date(),
+          },
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            coinsSilver: true,
+            heroJson: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated };
       });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+          });
+        }
+        if (txRes.reason === "forbidden") return reply.code(403).send({ error: "forbidden" });
+        if (txRes.reason === "invalid_hero_json") {
+          return reply.code(400).send({ error: "invalid_hero_json", errors: txRes.errors });
+        }
+        return reply.code(400).send({ error: "invalid input" });
+      }
 
       const serialized = {
-        ...updated,
-        exp: Number(updated.exp),
-        adena: Number(updated.adena ?? 0),
-        aa: Number(updated.aa ?? 0),
-        coinLuck: Number(updated.coinLuck ?? 0),
-        coinsSilver: Number((updated as any).coinsSilver ?? 0),
+        ...txRes.updated,
+        exp: Number(txRes.updated.exp),
+        adena: Number(txRes.updated.adena ?? 0),
+        aa: Number(txRes.updated.aa ?? 0),
+        coinLuck: Number(txRes.updated.coinLuck ?? 0),
+        coinsSilver: Number((txRes.updated as any).coinsSilver ?? 0),
       };
 
       return reply.send({ ok: true, character: serialized });
@@ -1437,79 +1520,122 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "invalid input" });
       }
 
-      const existing = await prisma.character.findFirst({
-        where: { id, accountId: auth.accountId },
-      });
-      if (!existing) return reply.code(404).send({ error: "character not found" });
-
-      const computed = computeAdditionalSkillLearn(
-        {
-          adena: (existing as any).adena ?? 0n,
-          level: existing.level,
-          heroJson: existing.heroJson,
-          classId: existing.classId,
-        },
-        skillId
-      );
-      if (!computed.ok) {
-        return reply.code(computed.status).send({ error: computed.status === 403 ? "forbidden" : "invalid input" });
+      const body = req.body as { skillId?: unknown; expectedRevision?: number };
+      const expectedRevision = Number(body.expectedRevision);
+      if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+        return reply.code(400).send({ error: "expectedRevision required" });
       }
 
-      const oldHeroJson = (existing.heroJson as any) || {};
-      const mergedBase = {
-        name: oldHeroJson.name || existing.name,
-        race: oldHeroJson.race || existing.race,
-        classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
-        klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
-        level: oldHeroJson.level ?? existing.level ?? 1,
-      };
-      const newHeroJsonRaw = {
-        ...mergedBase,
-        ...oldHeroJson,
-        ...computed.mergedHeroJsonRaw,
-      };
-      const newHeroJson = mergeHeroJsonForClientPut(oldHeroJson, newHeroJsonRaw);
-      const validation = validateHeroJson(newHeroJson);
-      if (!validation.valid) {
-        return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
-      }
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{ id: string; name: string; race: string; classId: string; level: number; adena: bigint; heroJson: any; updatedAt: Date }>
+        >`
+          SELECT "id", "name", "race", "classId", "level", "adena", "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+        const existing = locked[0];
+        const oldHeroJson = (existing.heroJson as any) || {};
+        const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: existing.updatedAt,
+          };
+        }
 
-      const oldRevision = oldHeroJson.heroRevision || 0;
-      const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+        const computed = computeAdditionalSkillLearn(
+          {
+            adena: existing.adena ?? 0n,
+            level: existing.level,
+            heroJson: existing.heroJson,
+            classId: existing.classId,
+          },
+          skillId
+        );
+        if (!computed.ok) {
+          return {
+            ok: false as const,
+            reason: computed.status === 403 ? ("forbidden" as const) : ("invalid_input" as const),
+          };
+        }
 
-      const updated = await prisma.character.update({
-        where: { id },
-        data: {
-          adena: computed.newAdena,
-          heroJson: versionedHeroJson as any,
-          lastActivityAt: new Date(),
-        },
-        select: {
-          id: true,
-          name: true,
-          race: true,
-          classId: true,
-          sex: true,
-          level: true,
-          exp: true,
-          sp: true,
-          adena: true,
-          aa: true,
-          coinLuck: true,
-          coinsSilver: true,
-          heroJson: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        const mergedBase = {
+          name: oldHeroJson.name || existing.name,
+          race: oldHeroJson.race || existing.race,
+          classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
+          klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
+          level: oldHeroJson.level ?? existing.level ?? 1,
+        };
+        const newHeroJsonRaw = {
+          ...mergedBase,
+          ...oldHeroJson,
+          ...computed.mergedHeroJsonRaw,
+        };
+        const newHeroJson = mergeHeroJsonForClientPut(oldHeroJson, newHeroJsonRaw);
+        const validation = validateHeroJson(newHeroJson);
+        if (!validation.valid) {
+          return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
+        }
+
+        const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+
+        const updated = await tx.character.update({
+          where: { id },
+          data: {
+            adena: computed.newAdena,
+            heroJson: versionedHeroJson as any,
+            lastActivityAt: new Date(),
+          },
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            coinsSilver: true,
+            heroJson: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated };
       });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+          });
+        }
+        if (txRes.reason === "forbidden") return reply.code(403).send({ error: "forbidden" });
+        if (txRes.reason === "invalid_hero_json") {
+          return reply.code(400).send({ error: "invalid_hero_json", errors: txRes.errors });
+        }
+        return reply.code(400).send({ error: "invalid input" });
+      }
 
       const serialized = {
-        ...updated,
-        exp: Number(updated.exp),
-        adena: Number(updated.adena ?? 0),
-        aa: Number(updated.aa ?? 0),
-        coinLuck: Number(updated.coinLuck ?? 0),
-        coinsSilver: Number((updated as any).coinsSilver ?? 0),
+        ...txRes.updated,
+        exp: Number(txRes.updated.exp),
+        adena: Number(txRes.updated.adena ?? 0),
+        aa: Number(txRes.updated.aa ?? 0),
+        coinLuck: Number(txRes.updated.coinLuck ?? 0),
+        coinsSilver: Number((txRes.updated as any).coinsSilver ?? 0),
       };
 
       return reply.send({ ok: true, character: serialized });

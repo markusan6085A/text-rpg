@@ -94,9 +94,14 @@ export default function GuildScreen({
       showToast("Нужна сессия персонажа (войдите в игру онлайн).", "error");
       return;
     }
+    const expectedRevision = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      showToast("Не вдалося визначити revision персонажа. Оновіть сторінку.", "error");
+      return;
+    }
     setTurnInBusyId(skillId);
     try {
-      const res = await postMageSpellbookTurnIn(characterId, { skillId });
+      const res = await postMageSpellbookTurnIn(characterId, { skillId, expectedRevision });
       const gk = res.guildKey;
       if (gk) {
         const h = useHeroStore.getState().hero;
@@ -134,8 +139,13 @@ export default function GuildScreen({
     }
 
     if (characterId) {
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+      if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+        showToast("Не вдалося визначити revision персонажа. Оновіть сторінку.", "error");
+        return;
+      }
       try {
-        await postLearnSkill(characterId, { skillId });
+        await postLearnSkill(characterId, { skillId, expectedRevision });
         try {
           sessionStorage.removeItem(ONBOARDING_GUILD_NEED_SP_KEY);
         } catch {
