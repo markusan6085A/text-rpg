@@ -32,6 +32,8 @@ export function getWeaponTypeFromEquipment(equipment: any): "bow" | "other" {
 export function weaponGradeFromId(itemId: string | null | undefined): Grade | null {
   if (!itemId) return null;
   const id = normId(itemId);
+  // S-grade у itemsDB: quest_weapon_s_*, shop_weapon_s_* (не закінчується на _s — інакше null і «грейд лука»)
+  if (id.includes("weapon_s_")) return "S";
   if (id.endsWith("_ng")) return "NG";
   if (id.endsWith("_d") && !id.endsWith("_rod")) return "D";
   if (id.endsWith("_c")) return "C";
@@ -44,7 +46,8 @@ export function weaponGradeFromId(itemId: string | null | undefined): Grade | nu
 export function canAttackWithBowServer(heroJson: any): { ok: boolean; message?: string; grade?: Grade | null } {
   const eq = heroJson?.equipment;
   if (getWeaponTypeFromEquipment(eq) !== "bow") return { ok: true, grade: null };
-  const g = weaponGradeFromId(eq?.weapon);
+  const bowItemId = eq?.weapon ?? eq?.lrhand;
+  const g = weaponGradeFromId(bowItemId);
   if (!g) return { ok: false, message: "Не удалось определить грейд лука." };
   const arrowId = ARROW_BY_GRADE[g];
   const inv = Array.isArray(heroJson?.inventory) ? heroJson.inventory : [];

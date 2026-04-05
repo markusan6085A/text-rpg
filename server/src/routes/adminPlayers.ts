@@ -392,11 +392,23 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       const before = { id: rowId, enchant: rowEnc, count: rowCnt };
       inventory[index] = { ...row, enchantLevel: level, count: rowCnt };
 
+      // Якщо той самий id зараз одягнений — UI бере заточку з equipmentEnchantLevels, не з рядка інвентаря
+      const equipment: Record<string, unknown> = { ...(heroJson.equipment || {}) };
+      const nextEnch: Record<string, number> = { ...(heroJson.equipmentEnchantLevels || {}) };
+      const normRow = String(rowId).replace(/^shop_/i, "").toLowerCase();
+      for (const slot of Object.keys(equipment)) {
+        const rawEq = equipment[slot];
+        if (rawEq == null || typeof rawEq !== "string") continue;
+        const sid = String(rawEq).replace(/^shop_/i, "").toLowerCase();
+        if (sid === normRow) nextEnch[slot] = level;
+      }
+
       const oldRev = Number(heroJson.heroRevision ?? 0) || 0;
       const updatedHeroJson = addVersioning(
         {
           ...heroJson,
           inventory,
+          equipmentEnchantLevels: nextEnch,
         },
         oldRev
       );
