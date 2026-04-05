@@ -441,10 +441,9 @@ export function handleBuffSkill(
       ? { battleStats: recalculated.baseFinalStats }
       : {}),
   });
-  if (isToggle && buffWasAdded) {
-    void import("../../../../utils/api/heroBuffsSync")
-      .then(({ scheduleHeroBuffsSync }) => scheduleHeroBuffsSync(newBuffs))
-      .catch(() => {});
-  }
+  // Усі зміни heroBuffs (не лише тогл): інакше PUT ігнорує бафи, а в профілі інших гравців бафи зʼявляються лише після kill/battle-finish.
+  void import("../../../../utils/api/heroBuffsSync")
+    .then(({ scheduleHeroBuffsSync }) => scheduleHeroBuffsSync(newBuffs))
+    .catch(() => {});
   return true;
 }
