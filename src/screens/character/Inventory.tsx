@@ -27,6 +27,7 @@ import { adminGetPlayerInventory, adminSetInventoryEnchant } from "../../utils/a
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { useAuthStore } from "../../state/authStore";
 import { useBattleStore } from "../../state/battle/store";
+import { commitEquipStateAPI } from "../../utils/api/equipAPI";
 
 const ITEMS_PER_PAGE = 25;
 // Валюта в полях героя — у списку інвентаря не дублюємо. Ancient Adena лише в інвентарі (стек) — показуємо.
@@ -245,6 +246,32 @@ export default function Inventory() {
     );
   };
 
+  const applyServerHeroJsonSnapshot = (serverHeroJson: any) => {
+    const store = useHeroStore.getState();
+    const liveHero = store.hero;
+    if (!liveHero || !serverHeroJson || typeof serverHeroJson !== "object") return;
+    const inventory = Array.isArray(serverHeroJson.inventory) ? serverHeroJson.inventory : liveHero.inventory ?? [];
+    const overflowChest = Array.isArray(serverHeroJson.overflowChest)
+      ? serverHeroJson.overflowChest
+      : liveHero.overflowChest ?? [];
+    const activeDyes = Array.isArray(serverHeroJson.activeDyes)
+      ? serverHeroJson.activeDyes
+      : liveHero.activeDyes ?? [];
+    const revision = Number(serverHeroJson.heroRevision ?? (liveHero as any)?.heroJson?.heroRevision ?? 0);
+    store.applyServerSync(
+      {
+        inventory,
+        overflowChest,
+        activeDyes,
+        heroJson: serverHeroJson,
+      } as any,
+      {
+        heroRevision: Number.isFinite(revision) ? revision : 0,
+        updatedAt: Date.now(),
+      }
+    );
+  };
+
   const confirmDelete = async () => {
     if (!hero || !deleteConfirmItem) return;
     if (deleteConfirmItem.item?.id === OVERFLOW_CHEST_ID) {
@@ -337,6 +364,40 @@ export default function Inventory() {
       setSelectedItem(null);
       setDeleteConfirmItem(null);
     } catch (e: any) {
+      const isNotFound = e?.status === 404 || String(e?.message || "").toLowerCase().includes("not found");
+      if (isNotFound) {
+        try {
+          // Backward compatibility: older backend may not have /inventory/delete yet.
+          // Reuse existing /equip-commit transaction with unchanged equipment and reduced inventory row.
+          const live = useHeroStore.getState().hero;
+          if (!live) throw new Error("hero not loaded");
+          const inv = [...(live.inventory ?? [])];
+          if (itemIndex < 0 || itemIndex >= inv.length) throw new Error("item not found in live inventory");
+          const row = inv[itemIndex] as any;
+          const rowCount = Math.max(1, Number(row?.count ?? 1));
+          const delAmount = Math.max(1, Math.floor(Number(amount) || 1));
+          if (delAmount >= rowCount) inv.splice(itemIndex, 1);
+          else inv[itemIndex] = { ...row, count: rowCount - delAmount };
+          const expectedRevision = Number(
+            useHeroStore.getState().serverState?.heroRevision ??
+            (live as any)?.heroJson?.heroRevision ??
+            0
+          );
+          const legacyRes = await commitEquipStateAPI({
+            equipment: (live as any).equipment ?? {},
+            inventory: inv,
+            equipmentEnchantLevels: (live as any).equipmentEnchantLevels ?? {},
+            expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+          });
+          applyServerHeroJsonSnapshot((legacyRes as any).heroJson);
+          setSelectedItem(null);
+          setDeleteConfirmItem(null);
+          return;
+        } catch (legacyErr: any) {
+          showToast(legacyErr?.message || "Сервер не підтримує видалення предмета в цій версії.", "error");
+          return;
+        }
+      }
       if (e?.status === 409) {
         showToast("Інвентар змінився в іншій сесії. Оновіть стан і спробуйте ще.", "error");
         return;
