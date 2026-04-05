@@ -64,7 +64,6 @@ async function resyncHeroSilently(): Promise<void> {
 
 export default function Warehouse({ navigate }: WarehouseProps) {
   const hero = useHeroStore((s) => s.hero);
-  const updateHero = useHeroStore((s) => s.updateHero);
   const characterId = useCharacterStore((s) => s.characterId);
   const activeCharacterId = characterId || hero?.id || null;
 
@@ -193,6 +192,60 @@ export default function Warehouse({ navigate }: WarehouseProps) {
   // Кількість зайнятих СЛОТІВ (не кількість предметів): кожен слот = 1, незалежно від item.count
   const warehouseUsed = warehouseArr.filter(Boolean).length;
 
+  const applyServerCharacterSnapshot = (character: any) => {
+    const store = useHeroStore.getState();
+    const currentHero = store.hero;
+    if (!currentHero) return;
+
+    const serverHeroJson = (character as any)?.heroJson ?? {};
+    const nextInventory = Array.isArray(serverHeroJson.inventory)
+      ? serverHeroJson.inventory
+      : (currentHero.inventory ?? []);
+    const nextOverflow = Array.isArray(serverHeroJson.overflowChest)
+      ? serverHeroJson.overflowChest
+      : (currentHero.overflowChest ?? []);
+    const nextWarehouse = Array.isArray(serverHeroJson.warehouseSlots)
+      ? serverHeroJson.warehouseSlots
+      : ((currentHero as any)?.heroJson?.warehouseSlots ?? []);
+    const heroRevision = Number(
+      serverHeroJson.heroRevision ?? (character as any)?.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0
+    );
+    const nextAdena = Number((character as any)?.adena ?? currentHero.adena ?? 0);
+    const nextLevel = Number((character as any)?.level ?? currentHero.level ?? 1);
+    const nextExp = Number((character as any)?.exp ?? currentHero.exp ?? 0);
+    const nextSp = Number((character as any)?.sp ?? currentHero.sp ?? 0);
+    const nextCoinLuck = Number((character as any)?.coinLuck ?? currentHero.coinOfLuck ?? 0);
+
+    store.applyServerSync(
+      {
+        level: nextLevel,
+        exp: nextExp,
+        sp: nextSp,
+        adena: nextAdena,
+        coinOfLuck: nextCoinLuck,
+        inventory: nextInventory,
+        overflowChest: nextOverflow,
+        heroJson: {
+          ...((currentHero as any)?.heroJson ?? {}),
+          ...serverHeroJson,
+          inventory: nextInventory,
+          overflowChest: nextOverflow,
+          warehouseSlots: nextWarehouse,
+          heroRevision,
+        },
+      } as any,
+      {
+        level: nextLevel,
+        exp: nextExp,
+        sp: nextSp,
+        adena: nextAdena,
+        coinLuck: nextCoinLuck,
+        heroRevision,
+        updatedAt: Date.now(),
+      }
+    );
+  };
+
   // Функція для покладення предмета на склад
   const handlePutToWarehouse = async (item: HeroInventoryItem, inventoryIndex: number, count?: number) => {
     if (!activeCharacterId) return;
@@ -219,14 +272,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
           inventoryIndex,
           count: itemCount,
         });
-        const hj = (updated as any)?.heroJson ?? {};
-        if (Array.isArray(hj.inventory)) {
-          updateHero({ inventory: hj.inventory, heroJson: hj } as any);
-        } else {
-          updateHero({ heroJson: hj } as any);
-        }
-        const slots = Array.isArray(hj.warehouseSlots) ? hj.warehouseSlots : emptyWarehouse();
-        setWarehouse(slots);
+        applyServerCharacterSnapshot(updated);
         addLogEntry(`Положено на склад: ${item.name} x${itemCount}`);
         setQuantityModal(null);
         setQuantityInput("1");
@@ -282,14 +328,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
           slotIndex,
           count: Math.max(1, Number(item.count || 1)),
         });
-        const hj = (updated as any)?.heroJson ?? {};
-        if (Array.isArray(hj.inventory)) {
-          updateHero({ inventory: hj.inventory, heroJson: hj } as any);
-        } else {
-          updateHero({ heroJson: hj } as any);
-        }
-        const slots = Array.isArray(hj.warehouseSlots) ? hj.warehouseSlots : emptyWarehouse();
-        setWarehouse(slots);
+        applyServerCharacterSnapshot(updated);
         addLogEntry(`Взято со склада: ${item.name} x${item.count || 1}`);
         return;
       } catch (err: any) {

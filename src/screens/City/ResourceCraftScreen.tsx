@@ -179,7 +179,6 @@ function RecipeCard(props: {
 
 export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenProps) {
   const hero = useHeroStore((s) => s.hero);
-  const updateHero = useHeroStore((s) => s.updateHero);
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;
 
@@ -221,6 +220,56 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
     if (craftModal) setCraftQtyInput("1");
   }, [craftModal]);
 
+  const applyServerCharacterSnapshot = React.useCallback((character: any) => {
+    const store = useHeroStore.getState();
+    const currentHero = store.hero;
+    if (!currentHero) return;
+
+    const serverHeroJson = (character as any)?.heroJson ?? {};
+    const nextInventory = Array.isArray(serverHeroJson.inventory)
+      ? serverHeroJson.inventory
+      : (currentHero.inventory ?? []);
+    const nextOverflow = Array.isArray(serverHeroJson.overflowChest)
+      ? serverHeroJson.overflowChest
+      : (currentHero.overflowChest ?? []);
+    const heroRevision = Number(
+      serverHeroJson.heroRevision ?? (character as any)?.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0
+    );
+    const nextAdena = Number((character as any)?.adena ?? currentHero.adena ?? 0);
+    const nextLevel = Number((character as any)?.level ?? currentHero.level ?? 1);
+    const nextExp = Number((character as any)?.exp ?? currentHero.exp ?? 0);
+    const nextSp = Number((character as any)?.sp ?? currentHero.sp ?? 0);
+    const nextCoinLuck = Number((character as any)?.coinLuck ?? currentHero.coinOfLuck ?? 0);
+
+    store.applyServerSync(
+      {
+        level: nextLevel,
+        exp: nextExp,
+        sp: nextSp,
+        adena: nextAdena,
+        coinOfLuck: nextCoinLuck,
+        inventory: nextInventory,
+        overflowChest: nextOverflow,
+        heroJson: {
+          ...((currentHero as any)?.heroJson ?? {}),
+          ...serverHeroJson,
+          inventory: nextInventory,
+          overflowChest: nextOverflow,
+          heroRevision,
+        },
+      } as any,
+      {
+        level: nextLevel,
+        exp: nextExp,
+        sp: nextSp,
+        adena: nextAdena,
+        coinLuck: nextCoinLuck,
+        heroRevision,
+        updatedAt: Date.now(),
+      }
+    );
+  }, []);
+
   const commitModalCraft = React.useCallback(async () => {
     if (!hero || !craftModal || !modalRecipe) return;
     const raw = parseInt(craftQtyInput.trim(), 10);
@@ -240,12 +289,7 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
           recipeIndex: craftModal.idx,
           quantity: qty,
         });
-        const serverHeroJson = (updated as any)?.heroJson ?? {};
-        if (Array.isArray(serverHeroJson.inventory)) {
-          updateHero({ inventory: serverHeroJson.inventory, heroJson: serverHeroJson } as any);
-        } else {
-          updateHero({ heroJson: serverHeroJson } as any);
-        }
+        applyServerCharacterSnapshot(updated);
         const name = displayCraftResourceName(modalRecipe.outputId);
         showToast(`Скрафчено: ${name} ×${qty}`, "success");
         setCraftModal(null);
@@ -266,7 +310,7 @@ export default function ResourceCraftScreen({ navigate }: ResourceCraftScreenPro
     modalRecipe,
     craftQtyInput,
     modalMaxCraft,
-    updateHero,
+    applyServerCharacterSnapshot,
     setCraftModal,
   ]);
 
