@@ -1,6 +1,6 @@
 // src/screens/character/PremiumAccount.tsx
 import React, { useState, useEffect } from "react";
-import { useHeroStore } from "../../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
 import { buyPremium, type PremiumPack } from "../../utils/api";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
@@ -36,51 +36,6 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
 
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;
-
-  const applyServerCharacterSnapshot = (character: any) => {
-    if (!character || typeof character !== "object") return;
-    const store = useHeroStore.getState();
-    const currentHero = store.hero;
-    if (!currentHero) return;
-    const heroJson =
-      (character as any).heroJson && typeof (character as any).heroJson === "object"
-        ? (character as any).heroJson
-        : {};
-    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
-    const overflowChest = Array.isArray(heroJson.overflowChest)
-      ? heroJson.overflowChest
-      : currentHero.overflowChest ?? [];
-    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
-    const coinLuck = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
-    const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
-    const level = Number((character as any).level ?? currentHero.level ?? 1);
-    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
-    const sp = Number((character as any).sp ?? currentHero.sp ?? 0);
-    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
-    store.applyServerSync(
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        premiumUntil: Number((heroJson as any).premiumUntil ?? currentHero.premiumUntil ?? 0) || undefined,
-        coinOfLuck: coinLuck,
-        inventory,
-        overflowChest,
-        activeDyes,
-        heroJson,
-      } as any,
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        coinLuck,
-        heroRevision: Number.isFinite(revision) ? revision : 0,
-        updatedAt: Date.now(),
-      }
-    );
-  };
 
   useEffect(() => {
     if (!hero?.premiumUntil) {
@@ -159,7 +114,7 @@ export default function PremiumAccount({ navigate }: { navigate: Navigate }) {
         showToast("Помилка покупки преміуму", "error");
         return;
       }
-      applyServerCharacterSnapshot(res.character);
+      applyCharacterSnapshotFromApi(res.character);
       setSelectedOption(null);
       showToast(`Поздравляю! Вы купили премиум на ${option.label}!`, "success");
     } catch (err: any) {

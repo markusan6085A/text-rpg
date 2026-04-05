@@ -1,5 +1,5 @@
 import React from "react";
-import { useHeroStore } from "../../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../../state/heroStore";
 import { learnSkillLogic } from "../../state/heroStore/heroSkills";
 import {
   getDefaultProfessionForKlass,
@@ -66,50 +66,6 @@ export default function AdditionalSkillsScreen({
   const statPanelL2 =
     "rounded-md border border-[#5c4a32]/55 bg-black/30 p-2.5 shadow-[inset_0_1px_0_rgba(199,173,128,0.06)]";
   const statPanelClassic = "rounded-md border border-white/20 bg-black/25 p-2.5";
-
-  const applyServerCharacterSnapshot = (character: any) => {
-    if (!character || typeof character !== "object") return;
-    const store = useHeroStore.getState();
-    const currentHero = store.hero;
-    if (!currentHero) return;
-    const heroJson =
-      (character as any).heroJson && typeof (character as any).heroJson === "object"
-        ? (character as any).heroJson
-        : {};
-    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
-    const overflowChest = Array.isArray(heroJson.overflowChest)
-      ? heroJson.overflowChest
-      : currentHero.overflowChest ?? [];
-    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
-    const coinLuck = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
-    const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
-    const level = Number((character as any).level ?? currentHero.level ?? 1);
-    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
-    const sp = Number((character as any).sp ?? currentHero.sp ?? 0);
-    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
-    store.applyServerSync(
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        coinOfLuck: coinLuck,
-        inventory,
-        overflowChest,
-        activeDyes,
-        heroJson,
-      } as any,
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        coinLuck,
-        heroRevision: Number.isFinite(revision) ? revision : 0,
-        updatedAt: Date.now(),
-      }
-    );
-  };
 
   if (!hero) {
     return (
@@ -268,7 +224,7 @@ export default function AdditionalSkillsScreen({
       }
       try {
         const res = await postLearnAdditionalSkill(characterId, { skillId, expectedRevision });
-        applyServerCharacterSnapshot((res as any).character);
+        applyCharacterSnapshotFromApi((res as any).character);
         showToast("Навык изучен.", "success");
       } catch (e: any) {
         if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {

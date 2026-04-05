@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHeroStore } from "../../../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../../../state/heroStore";
 import { type Clan } from "../../../utils/api";
 import { depositClanWarehouseItem } from "../../../utils/api";
 import { CATEGORIES } from "../../character/InventoryFilters";
@@ -34,46 +34,6 @@ export default function DepositItemsModal({
   const isL2 = clanModalIsL2();
   const subLbl = isL2 ? "text-[12px] text-[#a89470] mb-2" : "text-[12px] text-[#c7ad80] mb-2";
 
-  const applyServerCharacterSnapshot = (character: any) => {
-    if (!character || typeof character !== "object") return;
-    const heroJson = (character as any).heroJson && typeof (character as any).heroJson === "object"
-      ? (character as any).heroJson
-      : {};
-    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
-    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : [];
-    const aaFromServer = Number(
-      (character as any).aa ??
-      (character as any).ancientAdena ??
-      (character as any).ancient_adena ??
-      0
-    );
-    const coinLuckFromServer = Number(
-      (character as any).coinLuck ??
-      (character as any).coinOfLuck ??
-      0
-    );
-    const revision = Number(heroJson.heroRevision ?? 0);
-    useHeroStore.getState().applyServerSync({
-      level: Number((character as any).level ?? 1),
-      exp: Number((character as any).exp ?? 0),
-      sp: Number((character as any).sp ?? 0),
-      adena: Number((character as any).adena ?? 0),
-      aa: Number.isFinite(aaFromServer) ? aaFromServer : 0,
-      coinOfLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : 0,
-      inventory,
-      activeDyes,
-      heroJson,
-    }, {
-      level: Number((character as any).level ?? 1),
-      exp: Number((character as any).exp ?? 0),
-      sp: Number((character as any).sp ?? 0),
-      adena: Number((character as any).adena ?? 0),
-      coinLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : 0,
-      heroRevision: Number.isFinite(revision) ? revision : 0,
-      updatedAt: Date.now(),
-    });
-  };
-
   const handleDeposit = async (item: any) => {
     if (!clan) return;
     try {
@@ -87,7 +47,7 @@ export default function DepositItemsModal({
         expectedRevision
       );
       if (response.ok) {
-        applyServerCharacterSnapshot((response as any).character);
+        applyCharacterSnapshotFromApi((response as any).character);
         onClose();
         onDepositSuccess();
       }

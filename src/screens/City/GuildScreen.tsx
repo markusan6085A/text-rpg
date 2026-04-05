@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useHeroStore } from "../../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../../state/heroStore";
 import { showToast } from "../../state/toastStore";
 import {
   getDefaultProfessionForKlass,
@@ -87,57 +87,6 @@ export default function GuildScreen({
   const learnOpts = spellbookMode ? { mageGuildSpellbooks: true as const } : undefined;
   const updateHero = useHeroStore((s) => s.updateHero);
 
-  const applyServerCharacterSnapshot = (character: any) => {
-    if (!character || typeof character !== "object") return;
-    const store = useHeroStore.getState();
-    const currentHero = store.hero;
-    if (!currentHero) return;
-    const heroJson =
-      (character as any).heroJson && typeof (character as any).heroJson === "object"
-        ? (character as any).heroJson
-        : {};
-    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
-    const overflowChest = Array.isArray(heroJson.overflowChest)
-      ? heroJson.overflowChest
-      : currentHero.overflowChest ?? [];
-    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
-    const coinLuckFromServer = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
-    const aaFromServer = Number(
-      (character as any).aa ??
-      (character as any).ancientAdena ??
-      (character as any).ancient_adena ??
-      0
-    );
-    const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
-    const level = Number((character as any).level ?? currentHero.level ?? 1);
-    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
-    const sp = Number((character as any).sp ?? currentHero.sp ?? 0);
-    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
-    store.applyServerSync(
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        aa: Number.isFinite(aaFromServer) ? aaFromServer : Number((currentHero as any).aa ?? 0),
-        coinOfLuck: coinLuckFromServer,
-        inventory,
-        overflowChest,
-        activeDyes,
-        heroJson,
-      } as any,
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        coinLuck: coinLuckFromServer,
-        heroRevision: Number.isFinite(revision) ? revision : 0,
-        updatedAt: Date.now(),
-      }
-    );
-  };
-
   const handleTurnInSpellbook = async (skillId: number) => {
     if (!characterId) {
       showToast("Нужна сессия персонажа (войдите в игру онлайн).", "error");
@@ -151,7 +100,7 @@ export default function GuildScreen({
     setTurnInBusyId(skillId);
     try {
       const res = await postMageSpellbookTurnIn(characterId, { skillId, expectedRevision });
-      applyServerCharacterSnapshot((res as any).character);
+      applyCharacterSnapshotFromApi((res as any).character);
       showToast("Книга сдана гильдии. Теперь можно выучить уровень за SP.", "success");
     } catch {
       showToast("Не удалось сдать книгу. Проверьте, что книга в инвентаре.", "error");
@@ -187,7 +136,7 @@ export default function GuildScreen({
         } catch {
           /* ignore */
         }
-        applyServerCharacterSnapshot((res as any).character);
+        applyCharacterSnapshotFromApi((res as any).character);
       } catch (e: any) {
         if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {
           console.warn("Ігноруємо revision conflict при вивченні скіла");

@@ -1,6 +1,6 @@
 // src/screens/TattooArtist.tsx
 import React, { useState } from "react";
-import { useHeroStore } from "../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 import { GM_SHOP_ITEMS, type DyeItem } from "./GMShop";
 import { recalculateAllStats } from "../utils/stats/recalculateAllStats";
@@ -76,54 +76,6 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     };
   }).filter(item => item.dyeInfo && (item.count || 0) >= 1);
 
-  const applyServerCharacterSnapshot = (character: any) => {
-    const store = useHeroStore.getState();
-    const currentHero = store.hero;
-    if (!currentHero) return;
-
-    const serverHeroJson = (character as any)?.heroJson ?? {};
-    const nextInventory = Array.isArray(serverHeroJson.inventory)
-      ? serverHeroJson.inventory
-      : (currentHero.inventory ?? []);
-    const heroRevision = Number(
-      serverHeroJson.heroRevision ?? (character as any)?.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0
-    );
-    const nextAdena = Number((character as any)?.adena ?? currentHero.adena ?? 0);
-    const nextLevel = Number((character as any)?.level ?? currentHero.level ?? 1);
-    const nextExp = Number((character as any)?.exp ?? currentHero.exp ?? 0);
-    const nextSp = Number((character as any)?.sp ?? currentHero.sp ?? 0);
-    const nextCoinLuck = Number((character as any)?.coinLuck ?? currentHero.coinOfLuck ?? 0);
-    const nextAA = Number((character as any)?.aa ?? (currentHero as any)?.aa ?? 0);
-
-    store.applyServerSync(
-      {
-        level: nextLevel,
-        exp: nextExp,
-        sp: nextSp,
-        adena: nextAdena,
-        coinOfLuck: nextCoinLuck,
-        aa: nextAA,
-        inventory: nextInventory,
-        activeDyes: Array.isArray(serverHeroJson.activeDyes) ? serverHeroJson.activeDyes : (currentHero.activeDyes ?? []),
-        heroJson: {
-          ...((currentHero as any)?.heroJson ?? {}),
-          ...serverHeroJson,
-          inventory: nextInventory,
-          heroRevision,
-        },
-      } as any,
-      {
-        level: nextLevel,
-        exp: nextExp,
-        sp: nextSp,
-        adena: nextAdena,
-        coinLuck: nextCoinLuck,
-        heroRevision,
-        updatedAt: Date.now(),
-      }
-    );
-  };
-
   // Обробка нанесення тату
   const handleApplyDye = async (dyeItem: typeof dyesWithInfo[0]) => {
     if (!dyeItem.dyeInfo) return;
@@ -177,7 +129,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
         expectedRevision,
         dyeItemId: dyeItem.dyeInfo.itemId,
       });
-      applyServerCharacterSnapshot(updated);
+      applyCharacterSnapshotFromApi(updated);
       setShowApplyModal(false);
       showToast(`Нанесено: ${dyeItem.dyeInfo.name}`, "success");
     } catch (e: any) {
@@ -210,7 +162,7 @@ export default function TattooArtist({ navigate }: TattooArtistProps) {
     const expectedRevision = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
     try {
       const updated = await postTattooRemove(activeCharacterId, { expectedRevision, index });
-      applyServerCharacterSnapshot(updated);
+      applyCharacterSnapshotFromApi(updated);
       setShowRemoveModal(false);
       showToast("Татуировка снята", "success");
     } catch (e: any) {

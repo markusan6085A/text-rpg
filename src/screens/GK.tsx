@@ -8,7 +8,7 @@ import {
 } from "../data/world";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import type { Zone } from "../data/world/types";
-import { useHeroStore } from "../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../state/heroStore";
 import { showToast } from "../state/toastStore";
 import { savePreviousLocation, savePreviousCity, getPreviousCity, clearPreviousLocation } from "../utils/locationNavigation";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
@@ -77,50 +77,6 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
 
   const zones = selectedCity ? getZonesByCity(selectedCity.id) : [];
 
-  const applyServerCharacterSnapshot = (character: any) => {
-    if (!character || typeof character !== "object") return;
-    const store = useHeroStore.getState();
-    const currentHero = store.hero;
-    if (!currentHero) return;
-    const heroJson =
-      (character as any).heroJson && typeof (character as any).heroJson === "object"
-        ? (character as any).heroJson
-        : {};
-    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
-    const overflowChest = Array.isArray(heroJson.overflowChest)
-      ? heroJson.overflowChest
-      : currentHero.overflowChest ?? [];
-    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
-    const coinLuckFromServer = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
-    const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
-    const level = Number((character as any).level ?? currentHero.level ?? 1);
-    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
-    const sp = Number((character as any).sp ?? currentHero.sp ?? 0);
-    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
-    store.applyServerSync(
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        coinOfLuck: coinLuckFromServer,
-        inventory,
-        overflowChest,
-        activeDyes,
-        heroJson,
-      } as any,
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        coinLuck: coinLuckFromServer,
-        heroRevision: Number.isFinite(revision) ? revision : 0,
-        updatedAt: Date.now(),
-      }
-    );
-  };
-
   const heroLevel = Math.max(1, Math.floor(Number(hero?.level ?? 1)));
   const tpFreeThrough40 = heroLevel <= GK_FREE_TELEPORT_MAX_LEVEL;
 
@@ -155,7 +111,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
           targetId: cityId,
           expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
         });
-        applyServerCharacterSnapshot((res as any).character);
+        applyCharacterSnapshotFromApi((res as any).character);
       } catch (e: unknown) {
         const msg = (e as Error)?.message || "";
         showToast(
@@ -207,7 +163,7 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
           targetId: zoneId,
           expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
         });
-        applyServerCharacterSnapshot((res as any).character);
+        applyCharacterSnapshotFromApi((res as any).character);
       } catch (e: unknown) {
         const msg = (e as Error)?.message || "";
         showToast(

@@ -1,7 +1,12 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { useHeroStore } from "../../state/heroStore";
+import {
+  useHeroStore,
+  getInventoryMax,
+  OVERFLOW_CHEST_ID,
+  applyCharacterSnapshotFromApi,
+  applyHeroJsonSnapshotFromApi,
+} from "../../state/heroStore";
 import { useAdminStore } from "../../state/adminStore";
-import { getInventoryMax, OVERFLOW_CHEST_ID } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
 import { clearInventoryAPI, deleteInventoryItemAPI } from "../../utils/api";
 import Equipment from "./Equipment";
@@ -203,75 +208,6 @@ export default function Inventory() {
   };
 
   // Функція підтвердження видалення
-  const applyServerCharacterSnapshot = (updated: any) => {
-    const store = useHeroStore.getState();
-    const liveHero = store.hero;
-    if (!liveHero || !updated) return;
-    const heroJson =
-      (updated as any)?.heroJson && typeof (updated as any).heroJson === "object"
-        ? (updated as any).heroJson
-        : {};
-    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : liveHero.inventory ?? [];
-    const overflowChest = Array.isArray(heroJson.overflowChest) ? heroJson.overflowChest : liveHero.overflowChest ?? [];
-    const activeDyes = Array.isArray(heroJson.activeDyes)
-      ? heroJson.activeDyes
-      : liveHero.activeDyes ?? [];
-    const revision = Number(heroJson.heroRevision ?? (liveHero as any)?.heroJson?.heroRevision ?? 0);
-    const nextCoinLuck = Number((updated as any).coinLuck ?? liveHero.coinOfLuck ?? 0);
-    const nextLevel = Number((updated as any).level ?? liveHero.level ?? 1);
-    const nextExp = Number((updated as any).exp ?? liveHero.exp ?? 0);
-    const nextSp = Number((updated as any).sp ?? liveHero.sp ?? 0);
-    const nextAdena = Number((updated as any).adena ?? liveHero.adena ?? 0);
-    store.applyServerSync(
-      {
-        level: nextLevel,
-        exp: nextExp,
-        sp: nextSp,
-        adena: nextAdena,
-        coinOfLuck: nextCoinLuck,
-        inventory,
-        overflowChest,
-        activeDyes,
-        heroJson,
-      } as any,
-      {
-        level: nextLevel,
-        exp: nextExp,
-        sp: nextSp,
-        adena: nextAdena,
-        coinLuck: nextCoinLuck,
-        heroRevision: Number.isFinite(revision) ? revision : 0,
-        updatedAt: Date.now(),
-      }
-    );
-  };
-
-  const applyServerHeroJsonSnapshot = (serverHeroJson: any) => {
-    const store = useHeroStore.getState();
-    const liveHero = store.hero;
-    if (!liveHero || !serverHeroJson || typeof serverHeroJson !== "object") return;
-    const inventory = Array.isArray(serverHeroJson.inventory) ? serverHeroJson.inventory : liveHero.inventory ?? [];
-    const overflowChest = Array.isArray(serverHeroJson.overflowChest)
-      ? serverHeroJson.overflowChest
-      : liveHero.overflowChest ?? [];
-    const activeDyes = Array.isArray(serverHeroJson.activeDyes)
-      ? serverHeroJson.activeDyes
-      : liveHero.activeDyes ?? [];
-    const revision = Number(serverHeroJson.heroRevision ?? (liveHero as any)?.heroJson?.heroRevision ?? 0);
-    store.applyServerSync(
-      {
-        inventory,
-        overflowChest,
-        activeDyes,
-        heroJson: serverHeroJson,
-      } as any,
-      {
-        heroRevision: Number.isFinite(revision) ? revision : 0,
-        updatedAt: Date.now(),
-      }
-    );
-  };
-
   const confirmDelete = async () => {
     if (!hero || !deleteConfirmItem) return;
     if (deleteConfirmItem.item?.id === OVERFLOW_CHEST_ID) {
@@ -360,7 +296,7 @@ export default function Inventory() {
         expectedItemId,
         expectedEnchantLevel: Math.max(0, Math.floor(Number((row as any)?.enchantLevel ?? 0))),
       });
-      applyServerCharacterSnapshot((res as any).character);
+      applyCharacterSnapshotFromApi((res as any).character);
       setSelectedItem(null);
       setDeleteConfirmItem(null);
     } catch (e: any) {
@@ -389,7 +325,7 @@ export default function Inventory() {
             equipmentEnchantLevels: (live as any).equipmentEnchantLevels ?? {},
             expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
           });
-          applyServerHeroJsonSnapshot((legacyRes as any).heroJson);
+          applyHeroJsonSnapshotFromApi((legacyRes as any).heroJson);
           setSelectedItem(null);
           setDeleteConfirmItem(null);
           return;

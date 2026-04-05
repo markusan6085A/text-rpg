@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
+import { useHeroStore, getRateLimitRemainingMs, applyCharacterSnapshotFromApi } from "../state/heroStore";
 import {
   getClan,
   deleteClan,
@@ -79,46 +79,6 @@ export default function Clan({ navigate, clanId }: ClanProps) {
   const [showApplicationsModal, setShowApplicationsModal] = useState(false);
   const [applications, setApplications] = useState<ClanApplication[]>([]);
   const [confirm, setConfirm] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
-
-  const applyServerCharacterSnapshot = (character: any) => {
-    if (!character || typeof character !== "object") return;
-    const heroJson = (character as any).heroJson && typeof (character as any).heroJson === "object"
-      ? (character as any).heroJson
-      : {};
-    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
-    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : [];
-    const aaFromServer = Number(
-      (character as any).aa ??
-      (character as any).ancientAdena ??
-      (character as any).ancient_adena ??
-      0
-    );
-    const coinLuckFromServer = Number(
-      (character as any).coinLuck ??
-      (character as any).coinOfLuck ??
-      0
-    );
-    const revision = Number(heroJson.heroRevision ?? 0);
-    useHeroStore.getState().applyServerSync({
-      level: Number((character as any).level ?? 1),
-      exp: Number((character as any).exp ?? 0),
-      sp: Number((character as any).sp ?? 0),
-      adena: Number((character as any).adena ?? 0),
-      aa: Number.isFinite(aaFromServer) ? aaFromServer : 0,
-      coinOfLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : 0,
-      inventory,
-      activeDyes,
-      heroJson,
-    }, {
-      level: Number((character as any).level ?? 1),
-      exp: Number((character as any).exp ?? 0),
-      sp: Number((character as any).sp ?? 0),
-      adena: Number((character as any).adena ?? 0),
-      coinLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : 0,
-      heroRevision: Number.isFinite(revision) ? revision : 0,
-      updatedAt: Date.now(),
-    });
-  };
 
   // 🔥 КРИТИЧНО: Використовуємо useCallback для стабілізації функцій
   const loadChatMessages = useCallback(async () => {
@@ -303,7 +263,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       const response = await depositClanAdena(clan.id, amount, expectedRevision);
       if (response.ok) {
         setDepositAmount("");
-        applyServerCharacterSnapshot((response as any).character);
+        applyCharacterSnapshotFromApi((response as any).character);
         loadClan(); // Оновлюємо дані клану
       }
     } catch (err: any) {
@@ -330,7 +290,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       const response = await withdrawClanAdena(clan.id, amount, expectedRevision);
       if (response.ok) {
         setWithdrawAdenaAmount("");
-        applyServerCharacterSnapshot((response as any).character);
+        applyCharacterSnapshotFromApi((response as any).character);
         loadClan(); // Оновлюємо дані клану
       }
     } catch (err: any) {
@@ -358,7 +318,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
         const response = await depositClanCoinLuck(clan.id, amount, expectedRevision);
         if (response.ok) {
           setCoinLuckAmount("");
-          applyServerCharacterSnapshot((response as any).character);
+          applyCharacterSnapshotFromApi((response as any).character);
           loadClan(); // Оновлюємо дані клану
         }
       } catch (err: any) {
@@ -376,7 +336,7 @@ export default function Clan({ navigate, clanId }: ClanProps) {
         const response = await withdrawClanCoinLuck(clan.id, amount, expectedRevision);
         if (response.ok) {
           setCoinLuckAmount("");
-          applyServerCharacterSnapshot((response as any).character);
+          applyCharacterSnapshotFromApi((response as any).character);
           loadClan(); // Оновлюємо дані клану
         }
       } catch (err: any) {

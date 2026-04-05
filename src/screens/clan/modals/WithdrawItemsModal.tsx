@@ -1,5 +1,5 @@
 import React from "react";
-import { useHeroStore } from "../../../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../../../state/heroStore";
 import { type Clan, type ClanWarehouseItem } from "../../../utils/api";
 import { withdrawClanWarehouseItem } from "../../../utils/api";
 import { itemsDB, itemsDBWithStarter } from "../../../data/items/itemsDB";
@@ -31,53 +31,13 @@ export default function WithdrawItemsModal({
   const heroStore = useHeroStore();
   const enchantCls = clanModalEnchantClass();
 
-  const applyServerCharacterSnapshot = (character: any) => {
-    if (!character || typeof character !== "object") return;
-    const heroJson = (character as any).heroJson && typeof (character as any).heroJson === "object"
-      ? (character as any).heroJson
-      : {};
-    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
-    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : [];
-    const aaFromServer = Number(
-      (character as any).aa ??
-      (character as any).ancientAdena ??
-      (character as any).ancient_adena ??
-      0
-    );
-    const coinLuckFromServer = Number(
-      (character as any).coinLuck ??
-      (character as any).coinOfLuck ??
-      0
-    );
-    const revision = Number(heroJson.heroRevision ?? 0);
-    useHeroStore.getState().applyServerSync({
-      level: Number((character as any).level ?? 1),
-      exp: Number((character as any).exp ?? 0),
-      sp: Number((character as any).sp ?? 0),
-      adena: Number((character as any).adena ?? 0),
-      aa: Number.isFinite(aaFromServer) ? aaFromServer : 0,
-      coinOfLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : 0,
-      inventory,
-      activeDyes,
-      heroJson,
-    }, {
-      level: Number((character as any).level ?? 1),
-      exp: Number((character as any).exp ?? 0),
-      sp: Number((character as any).sp ?? 0),
-      adena: Number((character as any).adena ?? 0),
-      coinLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : 0,
-      heroRevision: Number.isFinite(revision) ? revision : 0,
-      updatedAt: Date.now(),
-    });
-  };
-
   const handleWithdraw = async (item: ClanWarehouseItem) => {
     if (!clan) return;
     try {
       const expectedRevision = Number((heroStore.hero as any)?.heroJson?.heroRevision ?? 0);
       const response = await withdrawClanWarehouseItem(clan.id, item.id, expectedRevision);
       if (response.ok) {
-        applyServerCharacterSnapshot((response as any).character);
+        applyCharacterSnapshotFromApi((response as any).character);
         onClose();
         onWithdrawSuccess();
       }

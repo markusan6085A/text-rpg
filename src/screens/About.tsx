@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getOnlinePlayers, renameNick } from "../utils/api";
-import { useHeroStore, getRateLimitRemainingMs } from "../state/heroStore";
+import { useHeroStore, getRateLimitRemainingMs, applyCharacterSnapshotFromApi } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 import { useOnlineCountStore } from "../state/onlineCountStore";
 import { showToast } from "../state/toastStore";
@@ -54,51 +54,6 @@ export default function About({ navigate }: { navigate: Navigate }) {
   const rowBase = isL2
     ? "text-left transition-colors text-[10px] py-2 w-full border-b border-[#5c4a32]/35 hover:bg-black/20"
     : "text-left transition-colors text-[10px] py-2 border-b border-solid border-white/50 w-full";
-
-  const applyServerCharacterSnapshot = (character: any) => {
-    if (!character || typeof character !== "object") return;
-    const store = useHeroStore.getState();
-    const currentHero = store.hero;
-    if (!currentHero) return;
-    const heroJson =
-      (character as any).heroJson && typeof (character as any).heroJson === "object"
-        ? (character as any).heroJson
-        : {};
-    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
-    const overflowChest = Array.isArray(heroJson.overflowChest)
-      ? heroJson.overflowChest
-      : currentHero.overflowChest ?? [];
-    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
-    const coinLuck = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
-    const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
-    const level = Number((character as any).level ?? currentHero.level ?? 1);
-    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
-    const sp = Number((character as any).sp ?? currentHero.sp ?? 0);
-    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
-    store.applyServerSync(
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        name: String((character as any).name ?? currentHero.name ?? ""),
-        coinOfLuck: coinLuck,
-        inventory,
-        overflowChest,
-        activeDyes,
-        heroJson,
-      } as any,
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        coinLuck,
-        heroRevision: Number.isFinite(revision) ? revision : 0,
-        updatedAt: Date.now(),
-      }
-    );
-  };
 
   return (
     <>
@@ -284,7 +239,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
                         trimmedNick,
                         Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0
                       );
-                      applyServerCharacterSnapshot((res as any).character);
+                      applyCharacterSnapshotFromApi((res as any).character);
                       setShowChangeNickModal(false);
                       setNewNickname("");
                       showToast(`Поздравляю! Вы изменили ник на "${trimmedNick}"!`, "success");

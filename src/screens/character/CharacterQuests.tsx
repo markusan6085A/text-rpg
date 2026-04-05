@@ -1,6 +1,6 @@
 // src/screens/character/CharacterQuests.tsx
 import React, { useState, useEffect } from "react";
-import { useHeroStore } from "../../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../../state/heroStore";
 import {
   QUESTS,
   QUESTS_BY_LOCATION,
@@ -110,62 +110,6 @@ function QuestResourceCraftCallout(props: {
 export default function CharacterQuests({ embedInQuestPage = false, navigate }: CharacterQuestsProps = {}) {
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
-
-  const applyServerCharacterSnapshot = (character: any) => {
-    if (!character || typeof character !== "object") return;
-    const store = useHeroStore.getState();
-    const currentHero = store.hero;
-    if (!currentHero) return;
-    const heroJson =
-      (character as any).heroJson && typeof (character as any).heroJson === "object"
-        ? (character as any).heroJson
-        : {};
-    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
-    const overflowChest = Array.isArray(heroJson.overflowChest)
-      ? heroJson.overflowChest
-      : currentHero.overflowChest ?? [];
-    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
-    const coinLuckFromServer = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
-    const aaFromServer = Number(
-      (character as any).aa ??
-        (character as any).ancientAdena ??
-        (character as any).ancient_adena ??
-        0
-    );
-    const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
-    const level = Number((character as any).level ?? currentHero.level ?? 1);
-    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
-    const sp = Number((character as any).sp ?? currentHero.sp ?? 0);
-    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
-    const coinsSilver =
-      (character as any).coinsSilver != null
-        ? Number((character as any).coinsSilver)
-        : Number(heroJson.coins_silver ?? (currentHero as any).coins_silver ?? 0);
-    store.applyServerSync(
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        aa: Number.isFinite(aaFromServer) ? aaFromServer : Number((currentHero as any).aa ?? 0),
-        coinOfLuck: coinLuckFromServer,
-        coins_silver: coinsSilver,
-        inventory,
-        overflowChest,
-        activeDyes,
-        heroJson,
-      } as any,
-      {
-        level,
-        exp,
-        sp,
-        adena,
-        coinLuck: coinLuckFromServer,
-        heroRevision: Number.isFinite(revision) ? revision : 0,
-        updatedAt: Date.now(),
-      }
-    );
-  };
 
   const resolveExpectedRevision = (): number => {
     const fromServerState = Number(useHeroStore.getState().serverState?.heroRevision ?? NaN);
@@ -343,7 +287,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
         showToast("Сервер відхилив здачу квесту.", "error");
         return;
       }
-      applyServerCharacterSnapshot(res.character);
+      applyCharacterSnapshotFromApi(res.character);
       showToast("Квест здано.", "success");
       if (res.needsRewardPick && Array.isArray(res.pickAllowedItemIds) && res.pickAllowedItemIds.length > 0) {
         setPendingPickQuestId(questId);
@@ -390,7 +334,7 @@ export default function CharacterQuests({ embedInQuestPage = false, navigate }: 
         showToast("Не вдалося забрати нагороду.", "error");
         return;
       }
-      applyServerCharacterSnapshot(res.character);
+      applyCharacterSnapshotFromApi(res.character);
       showToast(`Выбрано: ${def.name}`);
       setPendingWeaponPickIds(null);
       setPendingPickQuestId(null);

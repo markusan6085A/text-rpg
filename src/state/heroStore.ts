@@ -783,3 +783,141 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     get().updateHero({ inventory: newInventory });
   },
 }));
+
+export type ApplyCharacterSnapshotOptions = {
+  /** Поля, що додаються до heroJson після snapshot сервера (наприклад fishingSession). */
+  heroJsonExtra?: Record<string, unknown>;
+  /** Якщо API не повернув nickColor (колір обрано в UI). */
+  nickColorFallback?: string;
+};
+
+/**
+ * Після успішної онлайн-мутації: повний `character` з відповіді API → `applyServerSync`.
+ * Єдина згоджена точка входу для миттєвого UI (skills, валюта, інвентар, revision).
+ */
+export function applyCharacterSnapshotFromApi(character: unknown, opts?: ApplyCharacterSnapshotOptions): void {
+  if (!character || typeof character !== "object") return;
+  const c = character as Record<string, any>;
+  const store = useHeroStore.getState();
+  const currentHero = store.hero;
+  if (!currentHero) return;
+
+  const prevHj = ((currentHero as any).heroJson || {}) as Record<string, any>;
+  const serverHj =
+    c.heroJson && typeof c.heroJson === "object" ? ({ ...c.heroJson } as Record<string, any>) : {};
+  const heroJson: Record<string, any> = {
+    ...prevHj,
+    ...serverHj,
+    ...((opts?.heroJsonExtra || {}) as Record<string, any>),
+  };
+
+  const inventory = Array.isArray(serverHj.inventory)
+    ? serverHj.inventory
+    : Array.isArray(heroJson.inventory)
+      ? heroJson.inventory
+      : currentHero.inventory ?? [];
+  const overflowChest = Array.isArray(serverHj.overflowChest)
+    ? serverHj.overflowChest
+    : Array.isArray(heroJson.overflowChest)
+      ? heroJson.overflowChest
+      : currentHero.overflowChest ?? [];
+  const activeDyes = Array.isArray(serverHj.activeDyes)
+    ? serverHj.activeDyes
+    : Array.isArray(heroJson.activeDyes)
+      ? heroJson.activeDyes
+      : currentHero.activeDyes ?? [];
+
+  heroJson.inventory = inventory;
+  heroJson.overflowChest = overflowChest;
+  heroJson.activeDyes = activeDyes;
+
+  const coinLuckFromServer = Number(c.coinLuck ?? currentHero.coinOfLuck ?? 0);
+  const aaFromServer = Number(
+    c.aa ?? c.ancientAdena ?? c.ancient_adena ?? (currentHero as any).aa ?? 0
+  );
+  const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
+  const level = Number(c.level ?? currentHero.level ?? 1);
+  const exp = Number(c.exp ?? currentHero.exp ?? 0);
+  const sp = Number(c.sp ?? currentHero.sp ?? 0);
+  const adena = Number(c.adena ?? currentHero.adena ?? 0);
+  const coinsSilver =
+    c.coinsSilver != null
+      ? Number(c.coinsSilver)
+      : Number(heroJson.coins_silver ?? (currentHero as any).coins_silver ?? 0);
+
+  const updatedAtRaw = c.updatedAt;
+  const updatedAtMs =
+    updatedAtRaw != null &&
+    (typeof updatedAtRaw === "string" ||
+      typeof updatedAtRaw === "number" ||
+      updatedAtRaw instanceof Date)
+      ? new Date(updatedAtRaw as string | number | Date).getTime()
+      : Date.now();
+
+  const partial: any = {
+    level,
+    exp,
+    sp,
+    adena,
+    aa: Number.isFinite(aaFromServer) ? aaFromServer : Number((currentHero as any).aa ?? 0),
+    coinOfLuck: coinLuckFromServer,
+    coins_silver: Number.isFinite(coinsSilver) ? coinsSilver : Number((currentHero as any).coins_silver ?? 0),
+    inventory,
+    overflowChest,
+    activeDyes,
+    heroJson,
+  };
+
+  if (typeof c.name === "string" && c.name.trim()) {
+    partial.name = c.name.trim();
+    heroJson.name = partial.name;
+  }
+
+  const premRaw = c.premiumUntil ?? heroJson.premiumUntil;
+  if (premRaw != null && premRaw !== "") {
+    const p = Number(premRaw);
+    if (Number.isFinite(p)) {
+      partial.premiumUntil = p > 0 ? p : undefined;
+      heroJson.premiumUntil = p > 0 ? p : 0;
+    }
+  }
+
+  const nickFromChar = c.nickColor != null ? String(c.nickColor).trim() : "";
+  const nickFromHj =
+    heroJson.nickColor != null && heroJson.nickColor !== ""
+      ? String(heroJson.nickColor).trim()
+      : "";
+  const nickFb = opts?.nickColorFallback != null ? String(opts.nickColorFallback).trim() : "";
+  const nextNick = nickFromChar || nickFromHj || nickFb;
+  if (nextNick) {
+    partial.nickColor = nextNick;
+    heroJson.nickColor = nextNick;
+  }
+
+  store.applyServerSync(partial, {
+    level,
+    exp,
+    sp,
+    adena,
+    coinLuck: coinLuckFromServer,
+    heroRevision: Number.isFinite(revision) ? revision : 0,
+    updatedAt: Number.isFinite(updatedAtMs) ? updatedAtMs : Date.now(),
+  });
+}
+
+/** Коли API повертає лише оновлений heroJson (legacy), будуємо мінімальний character з поточного героя. */
+export function applyHeroJsonSnapshotFromApi(serverHeroJson: unknown): void {
+  const h = useHeroStore.getState().hero;
+  if (!h || !serverHeroJson || typeof serverHeroJson !== "object") return;
+  applyCharacterSnapshotFromApi({
+    level: h.level,
+    exp: h.exp,
+    sp: h.sp,
+    adena: h.adena,
+    coinLuck: (h as any).coinOfLuck,
+    aa: (h as any).aa,
+    coinsSilver: (h as any).coins_silver,
+    name: h.name,
+    heroJson: serverHeroJson,
+  } as any);
+}
