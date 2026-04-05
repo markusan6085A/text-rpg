@@ -1870,6 +1870,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const id = (req.params as any).id;
     const body = req.body as {
       mobId?: string;
+      finishNonce?: string;
       /** true = hero used Sweep/Auto Spoil before this kill */
       spoiled?: boolean;
       /** Zone where the mob was killed — used for server-side drop table lookup */
@@ -1901,6 +1902,22 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (!character) return reply.code(404).send({ error: "character not found" });
 
     const heroJson: any = (character.heroJson as any) || {};
+    const finishNonce =
+      typeof body.finishNonce === "string" ? body.finishNonce.trim().slice(0, 120) : "";
+    if (finishNonce && String(heroJson.lastBattleFinishNonce ?? "") === finishNonce) {
+      return reply.send({
+        ok: true,
+        heroJson,
+        serverDrops: {
+          items: [],
+          adena: 0,
+          messages: ["duplicate_finish_ignored"],
+          questProgressUpdates: [],
+          zaricheEquipped: false,
+          zaricheEquippedUntil: undefined,
+        },
+      });
+    }
 
     // ── Server-side drop calculation ───────────────────────────────────────
     const mobId = String(body.mobId ?? "");
@@ -2048,6 +2065,10 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       newHeroJson.coinOfLuck = currentCoinLuck + dailyRewardCoinLuck;
     } else {
       newHeroJson.coinOfLuck = currentCoinLuck;
+    }
+    if (finishNonce) {
+      newHeroJson.lastBattleFinishNonce = finishNonce;
+      newHeroJson.lastBattleFinishAt = Date.now();
     }
 
     // ── Apply zariche auto-equip ───────────────────────────────────────────

@@ -293,9 +293,12 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
       // Quest items that need to be in inventory: the server's heroJson.inventory
       // will include them after next loadHeroFromAPI (server merges with client state).
       const questDropItems: Array<{ id: string; count: number; name?: string; kind?: string; slot?: string; icon?: string }> = [];
+      // Idempotency key: retry of the same kill must not duplicate server rewards/progress.
+      const finishNonce = `${Date.now()}_${Math.floor(Math.random() * 1_000_000_000)}`;
 
       const finishPayload = {
         mobId: String(mob.id ?? ""),
+        finishNonce,
         spoiled: mobSpoiled,
         zoneId: zoneId,
         earnedExp: displayExp,
