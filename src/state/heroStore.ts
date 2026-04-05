@@ -497,7 +497,15 @@ export const useHeroStore = create<HeroState>((set, get) => ({
   applyServerSync: (partial, server) => {
     const prev = get().hero;
     if (!prev) return;
-    const merged = hydrateHero({ ...prev, ...partial } as any) ?? ({ ...prev, ...partial } as Hero);
+    // Після POST learn-skill / learn-additional-skill у partial приходить свіжий heroJson.skills, але hydrateHero
+    // інакше лишає старий hero.skills (якщо масив непорожній) — UI не показує новий рівень. Тягнемо skills з snapshot.
+    const hjPartial = (partial as any)?.heroJson;
+    const effectivePartial: any =
+      hjPartial && typeof hjPartial === "object" && Array.isArray(hjPartial.skills)
+        ? { ...(partial as any), skills: hjPartial.skills }
+        : partial;
+    const merged =
+      hydrateHero({ ...prev, ...effectivePartial } as any) ?? ({ ...prev, ...effectivePartial } as Hero);
     const prevLv = Number(prev.level ?? 1);
     const nextLv = Number((merged as any).level ?? prevLv);
     const prevHj = (prev as any).heroJson || {};
@@ -567,14 +575,18 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       }
       (merged as any).heroRevision = mergeHeroRevisionMonotonic(r, (merged as any).heroRevision);
     }
-    set({ hero: merged });
-    syncLoadoutDeferred(prev, merged);
+    let heroForStore: Hero = merged as Hero;
+    if (hjPartial && typeof hjPartial === "object" && Array.isArray(hjPartial.skills)) {
+      heroForStore = updateHeroLogic(merged as Hero, { skills: (merged as Hero).skills });
+    }
+    set({ hero: heroForStore });
+    syncLoadoutDeferred(prev, heroForStore);
     const current = get().serverState;
     const nextHeroRev = mergeHeroRevisionMonotonic(server.heroRevision, current?.heroRevision);
     set({
       serverState: {
-        exp: (merged as any).exp ?? server.exp ?? current?.exp ?? 0,
-        level: Number((merged as any).level ?? server.level ?? current?.level ?? 1),
+        exp: (heroForStore as any).exp ?? server.exp ?? current?.exp ?? 0,
+        level: Number((heroForStore as any).level ?? server.level ?? current?.level ?? 1),
         sp: server.sp ?? current?.sp ?? 0,
         adena: (server as any).adena !== undefined ? Number((server as any).adena) : current?.adena,
         coinLuck: (server as any).coinLuck ?? current?.coinLuck,
@@ -584,7 +596,7 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     });
     if (!resurrectInProgress) {
       // Бафи: saveHeroToLocalStorageOnly мерджить heroJson.heroBuffs + loadBattle().heroBuffs — залізобетон як раніше
-      saveHeroToLocalStorageOnly(merged);
+      saveHeroToLocalStorageOnly(heroForStore);
     }
   },
 
