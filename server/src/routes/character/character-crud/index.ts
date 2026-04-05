@@ -1896,28 +1896,50 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const earnedAdena = Math.max(0, Math.min(MAX_ADENA_PER_KILL, Number(body.earnedAdena ?? 0)));
     const earnedSp = Math.max(0, Math.min(MAX_SP_PER_KILL, Number(body.earnedSp ?? 0)));
 
-    const character = await prisma.character.findFirst({
-      where: { id, accountId: auth.accountId },
-    });
-    if (!character) return reply.code(404).send({ error: "character not found" });
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<
+        Array<{
+          heroJson: any;
+          level: number;
+          exp: bigint;
+          sp: number;
+          coinLuck: bigint;
+          name: string;
+        }>
+      >`
+        SELECT "heroJson", "level", "exp", "sp", "coinLuck", "name"
+        FROM "Character"
+        WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+      const row = locked[0];
+      const character = {
+        level: Number(row.level ?? 1),
+        exp: Number(row.exp ?? 0n),
+        sp: Number(row.sp ?? 0),
+        coinLuck: Number(row.coinLuck ?? 0n),
+        name: String(row.name ?? ""),
+      };
 
-    const heroJson: any = (character.heroJson as any) || {};
-    const finishNonce =
-      typeof body.finishNonce === "string" ? body.finishNonce.trim().slice(0, 120) : "";
-    if (finishNonce && String(heroJson.lastBattleFinishNonce ?? "") === finishNonce) {
-      return reply.send({
-        ok: true,
-        heroJson,
-        serverDrops: {
-          items: [],
-          adena: 0,
-          messages: ["duplicate_finish_ignored"],
-          questProgressUpdates: [],
-          zaricheEquipped: false,
-          zaricheEquippedUntil: undefined,
-        },
-      });
-    }
+      const heroJson: any = (row.heroJson as any) || {};
+      const finishNonce =
+        typeof body.finishNonce === "string" ? body.finishNonce.trim().slice(0, 120) : "";
+      if (finishNonce && String(heroJson.lastBattleFinishNonce ?? "") === finishNonce) {
+        return {
+          ok: true as const,
+          duplicate: true as const,
+          heroJson,
+          serverDrops: {
+            items: [],
+            adena: 0,
+            messages: ["duplicate_finish_ignored"],
+            questProgressUpdates: [],
+            zaricheEquipped: false,
+            zaricheEquippedUntil: undefined,
+          },
+        };
+      }
 
     // ── Server-side drop calculation ───────────────────────────────────────
     const mobId = String(body.mobId ?? "");
@@ -2217,38 +2239,65 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     updateData.sp = Math.max(0, Math.floor(Number(newHeroJson.sp ?? character.sp ?? 0)));
     updateData.coinLuck = BigInt(Math.max(0, Math.floor(Number(newHeroJson.coinOfLuck ?? character.coinLuck ?? 0))));
 
-    await prisma.character.update({ where: { id }, data: updateData });
+      await tx.character.update({
+        where: { id },
+        data: updateData,
+      });
 
-    enqueuePlayerActivityLog({
-      accountId: auth.accountId,
-      characterId: id,
-      characterName: String((character.heroJson as any)?.name ?? character.name ?? ""),
-      action: "battle.finish",
-      metadata: {
-        mobId: mobId || null,
-        earnedExp,
-        earnedSp,
-        earnedAdena: serverAdenaReward,
-        newLevel: newHeroJson.level ?? null,
-        serverDrops: serverDropResult.items.length,
-        serverDropAdena: serverDropResult.adena,
-        questDrops: serverDropResult.questProgressUpdates.length,
-        zaricheEquipped: !!serverDropResult.zaricheEquip,
-      },
-      clientIp: getClientIp(req),
+      return {
+        ok: true as const,
+        duplicate: false as const,
+        heroJson: versionedHeroJson,
+        serverDrops: {
+          items: serverDropResult.items,
+          adena: serverDropResult.adena,
+          messages: serverDropResult.messages,
+          questProgressUpdates: serverDropResult.questProgressUpdates,
+          zaricheEquipped: !!serverDropResult.zaricheEquip,
+          zaricheEquippedUntil: serverDropResult.zaricheEquip?.zaricheEquippedUntil,
+        },
+        activity: {
+          characterName: String(heroJson.name ?? character.name ?? ""),
+          mobId: mobId || null,
+          earnedExp,
+          earnedSp,
+          earnedAdena: serverAdenaReward,
+          newLevel: newHeroJson.level ?? null,
+          serverDrops: serverDropResult.items.length,
+          serverDropAdena: serverDropResult.adena,
+          questDrops: serverDropResult.questProgressUpdates.length,
+          zaricheEquipped: !!serverDropResult.zaricheEquip,
+        },
+      };
     });
+
+    if (!txRes.ok) return reply.code(404).send({ error: "character not found" });
+
+    if (!txRes.duplicate) {
+      enqueuePlayerActivityLog({
+        accountId: auth.accountId,
+        characterId: id,
+        characterName: txRes.activity.characterName,
+        action: "battle.finish",
+        metadata: {
+          mobId: txRes.activity.mobId,
+          earnedExp: txRes.activity.earnedExp,
+          earnedSp: txRes.activity.earnedSp,
+          earnedAdena: txRes.activity.earnedAdena,
+          newLevel: txRes.activity.newLevel,
+          serverDrops: txRes.activity.serverDrops,
+          serverDropAdena: txRes.activity.serverDropAdena,
+          questDrops: txRes.activity.questDrops,
+          zaricheEquipped: txRes.activity.zaricheEquipped,
+        },
+        clientIp: getClientIp(req),
+      });
+    }
 
     return reply.send({
       ok: true,
-      heroJson: versionedHeroJson,
-      serverDrops: {
-        items: serverDropResult.items,
-        adena: serverDropResult.adena,
-        messages: serverDropResult.messages,
-        questProgressUpdates: serverDropResult.questProgressUpdates,
-        zaricheEquipped: !!serverDropResult.zaricheEquip,
-        zaricheEquippedUntil: serverDropResult.zaricheEquip?.zaricheEquippedUntil,
-      },
+      heroJson: txRes.heroJson,
+      serverDrops: txRes.serverDrops,
     });
   });
 
