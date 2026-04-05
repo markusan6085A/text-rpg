@@ -7,12 +7,10 @@ import { cleanupBuffs } from "../helpers";
 import { loadBattle, persistBattle } from "../persist";
 import { skillDefIsToggle } from "../loadout";
 import {
-  mergePveScaledResourcesWithHudCaps,
+  buffedResourcesFromPveServerSnapshot,
+  logPveBuffedResourceDebug,
   mergeServerAndClientBuffsForResourceScaling,
-  pveSnapshotBaseCaps,
-  scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
-import { filterBuffsForHeroProfession } from "../loadout";
 import { applyRevisionConflictFromApiError } from "../../heroStore";
 import { runSerializedPveMutation } from "./pveMutationQueue";
 import { getMaxResources } from "../helpers/getMaxResources";
@@ -69,24 +67,24 @@ export function schedulePveSelfBuffOnline(
       const clientBattle = cleanupBuffs(battleStoreRef.getState()?.heroBuffs || [], now);
       const heroSync = store.hero;
       const mergedBuffs = mergeServerAndClientBuffsForResourceScaling(hj.heroBuffs, clientBattle);
-      const buffsForScale = heroSync
-        ? cleanupBuffs(filterBuffsForHeroProfession(heroSync, mergedBuffs), now)
-        : cleanupBuffs(mergedBuffs, now);
-      const baseCapsSelf = pveSnapshotBaseCaps(hj, heroSync ? getMaxResources(heroSync) : null);
-      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, now, baseCapsSelf);
       const mergedHeroBuffsForHud = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : mergedBuffs;
-      const { scaled: scaledHud } = mergePveScaledResourcesWithHudCaps({
-        scaledRes,
-        buffsForScale,
-        baseCaps: baseCapsSelf,
+      const br = buffedResourcesFromPveServerSnapshot({
+        hj,
         liveHero: heroSync,
         mergedHeroBuffs: mergedHeroBuffsForHud,
+        fallbackBase: heroSync ? getMaxResources(heroSync) : null,
+      });
+      logPveBuffedResourceDebug("pve-self-buff", {
+        serverBaseHp: br.rawBase.hp,
+        serverBaseMaxHp: br.baseCaps.maxHp,
+        buffedMaxHp: br.buffedCaps.maxHp,
+        computedBuffedHp: br.hp,
       });
       store.applyServerSync(
         {
-          hp: scaledHud.hp,
-          mp: scaledHud.mp,
-          cp: scaledHud.cp,
+          hp: br.hp,
+          mp: br.mp,
+          cp: br.cp,
           heroJson: { ...prevHj, ...hj },
         } as any,
         {

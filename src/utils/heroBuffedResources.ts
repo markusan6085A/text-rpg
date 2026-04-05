@@ -57,62 +57,83 @@ export function getHeroResourceValues(hero: Hero, inBattle: boolean) {
 }
 
 /**
- * Якщо buffsForScaling у PvE вужчі за HUD (getHeroBuffedResourceCaps), computeBuffedMaxResources дає занижений max —
- * hpPct * lowMax «з’їдає» тисячі HP. Лінійно піднімаємо до спільного cap із HUD.
+ * У консолі: serverBaseHp, serverBaseMaxHp, buffedMaxHp (+ computedBuffedHp).
+ * Увімкнути в проді: `localStorage.setItem("debugPveHp","1")` або `sessionStorage` з тим самим ключем, потім F5.
  */
-function alignPveScaledToBuffedCaps(
-  scaled: { hp: number; mp: number; cp: number },
-  fromScale: { maxHp: number; maxMp: number; maxCp: number },
-  target: { maxHp: number; maxMp: number; maxCp: number },
-): { hp: number; mp: number; cp: number } {
-  const one = (v: number, capLo: number, capHi: number) => {
-    const lo = Math.max(1, Math.floor(capLo));
-    const hi = Math.max(1, Math.floor(capHi));
-    if (hi <= lo) return Math.min(hi, Math.max(0, Math.round(v)));
-    return Math.min(hi, Math.max(0, Math.round((v / lo) * hi)));
-  };
-  return {
-    hp: one(scaled.hp, fromScale.maxHp, target.maxHp),
-    mp: one(scaled.mp, fromScale.maxMp, target.maxMp),
-    cp: one(scaled.cp, fromScale.maxCp, target.maxCp),
-  };
+export function logPveBuffedResourceDebug(tag: string, info: Record<string, unknown>): void {
+  try {
+    if (typeof window === "undefined") return;
+    const on =
+      import.meta.env.DEV ||
+      localStorage.getItem("debugPveHp") === "1" ||
+      sessionStorage.getItem("debugPveHp") === "1";
+    if (!on) return;
+    console.log(`[PVE HP] ${tag}`, info);
+  } catch {
+    /* ignore */
+  }
 }
 
-export type PveScaledHudBundle = {
-  scaled: { hp: number; mp: number; cp: number };
+export type PveBuffedFromServerResult = {
+  hp: number;
+  mp: number;
+  cp: number;
   buffedCaps: { maxHp: number; maxMp: number; maxCp: number };
+  baseCaps: { maxHp: number; maxMp: number; maxCp: number };
+  rawBase: { hp: number; mp: number; cp: number };
 };
 
 /**
- * Єдиний cap для clamp після онлайн PvE: max(масштабування з вузькими бафами, той самий cap що в HUD у бою).
+ * Один шлях після онлайн PvE: base hp/mp/cp і base max з heroJson сервера → buffed абсолюти через **той самий**
+ * getHeroBuffedResourceCaps, що й StatusBars (inBattle). Без окремих списків buffsForScale / computeBuffedMaxResources(recalc).
  */
-export function mergePveScaledResourcesWithHudCaps(args: {
-  scaledRes: { hp: number; mp: number; cp: number };
-  buffsForScale: any[];
-  baseCaps: { maxHp: number; maxMp: number; maxCp: number };
+export function buffedResourcesFromPveServerSnapshot(args: {
+  hj: Record<string, any>;
   liveHero: Hero | null | undefined;
   mergedHeroBuffs: any[];
-}): PveScaledHudBundle {
-  const { scaledRes, buffsForScale, baseCaps, liveHero, mergedHeroBuffs } = args;
-  const fromScale = computeBuffedMaxResources(
-    { maxHp: baseCaps.maxHp, maxMp: baseCaps.maxMp, maxCp: baseCaps.maxCp },
-    buffsForScale as any,
-  );
+  fallbackBase?: { maxHp: number; maxMp: number; maxCp: number } | null;
+}): PveBuffedFromServerResult {
+  const h = args.hj && typeof args.hj === "object" ? args.hj : {};
+  const fallback = args.fallbackBase ?? (args.liveHero ? getMaxResources(args.liveHero) : null);
+  const baseCaps = pveSnapshotBaseCaps(h, fallback);
   const heroHud =
-    liveHero && (liveHero as any).name
+    args.liveHero && (args.liveHero as any).name
       ? ({
-          ...liveHero,
-          heroJson: { ...((liveHero as any).heroJson || {}), heroBuffs: mergedHeroBuffs },
+          ...args.liveHero,
+          heroJson: { ...((args.liveHero as any).heroJson || {}), heroBuffs: args.mergedHeroBuffs },
         } as Hero)
       : null;
-  const hudCaps = heroHud ? getHeroBuffedResourceCaps(heroHud, true) : fromScale;
-  const buffedCaps = {
-    maxHp: Math.max(fromScale.maxHp, hudCaps.maxHp),
-    maxMp: Math.max(fromScale.maxMp, hudCaps.maxMp),
-    maxCp: Math.max(fromScale.maxCp, hudCaps.maxCp),
+  const buffedCaps = heroHud
+    ? getHeroBuffedResourceCaps(heroHud, true)
+    : {
+        maxHp: baseCaps.maxHp,
+        maxMp: baseCaps.maxMp,
+        maxCp: baseCaps.maxCp,
+      };
+
+  const bmh = baseCaps.maxHp;
+  const bmm = baseCaps.maxMp;
+  const bmc = baseCaps.maxCp;
+  const hpPct = resourceFillRatio(h.hp, bmh, h.hpPercent);
+  const mpPct = resourceFillRatio(h.mp, bmm, h.mpPercent);
+  const cpPct = resourceFillRatio(h.cp, bmc, h.cpPercent);
+
+  const hp = Math.min(buffedCaps.maxHp, Math.max(0, Math.round(hpPct * buffedCaps.maxHp)));
+  const mp = Math.min(buffedCaps.maxMp, Math.max(0, Math.round(mpPct * buffedCaps.maxMp)));
+  const cp = Math.min(buffedCaps.maxCp, Math.max(0, Math.round(cpPct * buffedCaps.maxCp)));
+
+  return {
+    hp,
+    mp,
+    cp,
+    buffedCaps,
+    baseCaps,
+    rawBase: {
+      hp: Math.floor(Number(h.hp ?? 0)),
+      mp: Math.floor(Number(h.mp ?? 0)),
+      cp: Math.floor(Number(h.cp ?? 0)),
+    },
   };
-  const scaled = alignPveScaledToBuffedCaps(scaledRes, fromScale, buffedCaps);
-  return { scaled, buffedCaps };
 }
 
 /**
@@ -130,17 +151,6 @@ export function mergeServerAndClientBuffsForResourceScaling(
         (b.id && buff.id && b.id === buff.id) || (!b.id && !buff.id && b.name === buff.name),
       ) === i,
   );
-}
-
-/** Повний набір бафів для cap HP/MP при PvE snapshot (сервер + попередній heroJson + бойовий стор). */
-export function mergeHeroBuffsForPveResourceScaling(
-  serverBuffs: any[] | undefined,
-  prevHeroJsonBuffs: any[] | undefined,
-  clientBattleBuffs: any[],
-): any[] {
-  const prev = Array.isArray(prevHeroJsonBuffs) ? prevHeroJsonBuffs : [];
-  const step = mergeServerAndClientBuffsForResourceScaling(serverBuffs, prev);
-  return mergeServerAndClientBuffsForResourceScaling(step, clientBattleBuffs);
 }
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
@@ -162,20 +172,6 @@ function resourceFillRatio(currentRaw: unknown, baseMax: number, storedPercentRa
   if (Number.isFinite(cur) && bm > 0) return clamp01(cur / bm);
   const p = normalizeStoredResourcePercent(storedPercentRaw);
   return Number.isFinite(p) ? p : 1;
-}
-
-function pickBaseMaxFromSnapshot(
-  fromHero: number | undefined,
-  hjBaseKey: unknown,
-  hjMaxKey: unknown
-): number {
-  if (typeof fromHero === "number" && Number.isFinite(fromHero) && fromHero > 0) {
-    return Math.max(1, Math.floor(fromHero));
-  }
-  const b = Number(hjBaseKey);
-  if (Number.isFinite(b) && b > 0) return Math.max(1, Math.floor(b));
-  const m = Number(hjMaxKey);
-  return Math.max(1, Math.floor(Number.isFinite(m) && m > 0 ? m : 1));
 }
 
 /**
@@ -204,32 +200,3 @@ export function pveSnapshotBaseCaps(
   };
 }
 
-/**
- * Сервер зберігає hp/mp/cp у heroJson у масштабі base max (див. heroPersistence).
- * Після applyServerSync клієнтський max з buffs вищий — без масштабування смуги HUD показують ~половину після PvE snapshot.
- *
- * `baseCaps` з getMaxResources(hero) — коли hj.maxHp у знімку вже «бафнутий» з PUT, а hp лишився базовим (типово після pve-battle-tick).
- */
-export function scalePveSnapshotHpMpCpToBuffed(
-  hj: Record<string, any>,
-  buffsForScaling: any[],
-  now = Date.now(),
-  baseCaps?: { maxHp: number; maxMp: number; maxCp: number } | null,
-): { hp: number; mp: number; cp: number } {
-  const cleaned = cleanupBuffs(buffsForScaling, now);
-  const bmh = pickBaseMaxFromSnapshot(baseCaps?.maxHp, hj.baseMaxHp, hj.maxHp);
-  const bmm = pickBaseMaxFromSnapshot(baseCaps?.maxMp, hj.baseMaxMp, hj.maxMp);
-  const bmc = pickBaseMaxFromSnapshot(baseCaps?.maxCp, hj.baseMaxCp, hj.maxCp);
-  const buffed = computeBuffedMaxResources(
-    { maxHp: bmh, maxMp: bmm, maxCp: bmc },
-    cleaned as any,
-  );
-  const hpPct = resourceFillRatio(hj.hp, bmh, hj.hpPercent);
-  const mpPct = resourceFillRatio(hj.mp, bmm, hj.mpPercent);
-  const cpPct = resourceFillRatio(hj.cp, bmc, hj.cpPercent);
-  return {
-    hp: Math.min(buffed.maxHp, Math.max(0, Math.round(hpPct * buffed.maxHp))),
-    mp: Math.min(buffed.maxMp, Math.max(0, Math.round(mpPct * buffed.maxMp))),
-    cp: Math.min(buffed.maxCp, Math.max(0, Math.round(cpPct * buffed.maxCp))),
-  };
-}

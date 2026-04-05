@@ -9,12 +9,9 @@ import {
 } from "../helpers";
 import { persistBattle, loadBattle } from "../persist";
 import {
-  mergeHeroBuffsForPveResourceScaling,
-  mergePveScaledResourcesWithHudCaps,
-  pveSnapshotBaseCaps,
-  scalePveSnapshotHpMpCpToBuffed,
+  buffedResourcesFromPveServerSnapshot,
+  logPveBuffedResourceDebug,
 } from "../../../utils/heroBuffedResources";
-import { filterBuffsForHeroProfession } from "../loadout";
 import { applyRevisionConflictFromApiError } from "../../heroStore";
 import { runSerializedPveMutation } from "./pveMutationQueue";
 import type { BattleState } from "../types";
@@ -88,7 +85,6 @@ export function schedulePveConsumableOnline(args: {
       const expectedRevision = Number(expectedRevisionRaw);
       body.expectedRevision = Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0;
 
-      const heroJsonBefore = ((useHeroStore.getState().hero as any)?.heroJson || {}) as Record<string, any>;
       const res = await pveConsumableUseAPI(cid, body);
       if (!res?.ok || !(res as any).character) throw new Error("invalid response");
 
@@ -112,22 +108,17 @@ export function schedulePveConsumableOnline(args: {
         clientBattle,
         tickNow
       );
-      const forScaleRaw = mergeHeroBuffsForPveResourceScaling(
-        mergedHj.heroBuffs,
-        heroJsonBefore.heroBuffs,
-        clientBattle
-      );
-      const buffsForScale = hSync
-        ? cleanupBuffs(filterBuffsForHeroProfession(hSync, forScaleRaw), tickNow)
-        : cleanupBuffs(forScaleRaw, tickNow);
-      const baseCapsUse = pveSnapshotBaseCaps(mergedHj, hSync ? getMaxResources(hSync) : null);
-      const scaledRes = scalePveSnapshotHpMpCpToBuffed(mergedHj, buffsForScale, tickNow, baseCapsUse);
-      const { scaled: scaledHud } = mergePveScaledResourcesWithHudCaps({
-        scaledRes,
-        buffsForScale,
-        baseCaps: baseCapsUse,
+      const br = buffedResourcesFromPveServerSnapshot({
+        hj: mergedHj,
         liveHero: hSync,
         mergedHeroBuffs: mergedToggleHeroBuffs,
+        fallbackBase: hSync ? getMaxResources(hSync) : null,
+      });
+      logPveBuffedResourceDebug("pve-consumable", {
+        serverBaseHp: br.rawBase.hp,
+        serverBaseMaxHp: br.baseCaps.maxHp,
+        buffedMaxHp: br.buffedCaps.maxHp,
+        computedBuffedHp: br.hp,
       });
 
       const inv =
@@ -135,9 +126,9 @@ export function schedulePveConsumableOnline(args: {
 
       store.applyServerSync(
         {
-          hp: scaledHud.hp,
-          mp: scaledHud.mp,
-          cp: scaledHud.cp,
+          hp: br.hp,
+          mp: br.mp,
+          cp: br.cp,
           ...(Array.isArray(inv) ? { inventory: inv } : {}),
           heroJson: { ...prevHj, ...mergedHj, heroBuffs: mergedToggleHeroBuffs },
         } as any,

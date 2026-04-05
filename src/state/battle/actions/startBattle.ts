@@ -31,10 +31,9 @@ import {
   getWorldMobHpForSlot,
 } from "../../worldMobHpStore";
 import {
-  mergePveScaledResourcesWithHudCaps,
+  buffedResourcesFromPveServerSnapshot,
+  logPveBuffedResourceDebug,
   mergeServerAndClientBuffsForResourceScaling,
-  pveSnapshotBaseCaps,
-  scalePveSnapshotHpMpCpToBuffed,
 } from "../../../utils/heroBuffedResources";
 import { runSerializedPveMutation } from "./pveMutationQueue";
 
@@ -404,22 +403,19 @@ export const createStartBattle =
             ),
             now,
           );
-          const baseCapsStart = pveSnapshotBaseCaps(hj as Record<string, any>, getMaxResources(hero));
-          const scaledRes = scalePveSnapshotHpMpCpToBuffed(
-            hj as Record<string, any>,
-            buffsForScale,
-            now,
-            baseCapsStart,
-          );
-          // Серверний heroJson.hp/mp ще без локального регену з міста; scalePve* лише піднімає base→buffed.
-          // Інакше HUD показував ~13k, а після кліку в бій — ~9k (різкий «провал» смуг).
+          // Серверний heroJson у base; buffed абсолюти — одна формула через getHeroBuffedResourceCaps (як HUD).
           const heroLive = store.hero;
-          const { scaled: scaledHud, buffedCaps } = mergePveScaledResourcesWithHudCaps({
-            scaledRes,
-            buffsForScale,
-            baseCaps: baseCapsStart,
+          const br = buffedResourcesFromPveServerSnapshot({
+            hj: hj as Record<string, any>,
             liveHero: heroLive,
             mergedHeroBuffs: buffsMergedForSync,
+            fallbackBase: getMaxResources(hero),
+          });
+          logPveBuffedResourceDebug("battle-start", {
+            serverBaseHp: br.rawBase.hp,
+            serverBaseMaxHp: br.baseCaps.maxHp,
+            buffedMaxHp: br.buffedCaps.maxHp,
+            computedBuffedHp: br.hp,
           });
           const mergeWithLocalRegen = (liveRaw: unknown, scaled: number, cap: number) => {
             const c = Math.max(1, Math.floor(cap));
@@ -429,9 +425,9 @@ export const createStartBattle =
             const liveClamped = Math.min(c, Math.max(0, Math.round(liveNum)));
             return Math.min(c, Math.max(s, liveClamped));
           };
-          const finalHp = mergeWithLocalRegen(heroLive?.hp, scaledHud.hp, buffedCaps.maxHp);
-          const finalMp = mergeWithLocalRegen(heroLive?.mp, scaledHud.mp, buffedCaps.maxMp);
-          const finalCp = mergeWithLocalRegen(heroLive?.cp, scaledHud.cp, buffedCaps.maxCp);
+          const finalHp = mergeWithLocalRegen(heroLive?.hp, br.hp, br.buffedCaps.maxHp);
+          const finalMp = mergeWithLocalRegen(heroLive?.mp, br.mp, br.buffedCaps.maxMp);
+          const finalCp = mergeWithLocalRegen(heroLive?.cp, br.cp, br.buffedCaps.maxCp);
           store.applyServerSync(
             {
               hp: finalHp,

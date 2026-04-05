@@ -7,12 +7,9 @@ import { applyBuffsToStats, cleanupBuffs, mergeServerHeroBuffsRespectLocalToggle
 import { persistBattle, loadBattle } from "../persist";
 import type { BattleState } from "../types";
 import {
-  mergeHeroBuffsForPveResourceScaling,
-  mergePveScaledResourcesWithHudCaps,
-  pveSnapshotBaseCaps,
-  scalePveSnapshotHpMpCpToBuffed,
+  buffedResourcesFromPveServerSnapshot,
+  logPveBuffedResourceDebug,
 } from "../../../utils/heroBuffedResources";
-import { filterBuffsForHeroProfession } from "../loadout";
 import { applyRevisionConflictFromApiError } from "../../heroStore";
 import { runSerializedPveMutation } from "./pveMutationQueue";
 import { getMaxResources } from "../helpers/getMaxResources";
@@ -168,28 +165,20 @@ export function schedulePveMobTickOnline(): void {
         clientBattle,
         tickNow,
       );
-      const forScaleRaw = mergeHeroBuffsForPveResourceScaling(
-        mergedHj.heroBuffs,
-        heroJsonBeforeTick.heroBuffs,
-        clientBattle,
-      );
-      const buffsForScale = hSync
-        ? cleanupBuffs(filterBuffsForHeroProfession(hSync, forScaleRaw), tickNow)
-        : cleanupBuffs(forScaleRaw, tickNow);
       const liveHero = store.hero;
-      const baseCaps = pveSnapshotBaseCaps(mergedHj, liveHero ? getMaxResources(liveHero) : null);
-      const scaledRes = scalePveSnapshotHpMpCpToBuffed(
-        mergedHj,
-        buffsForScale,
-        tickNow,
-        baseCaps,
-      );
-      const { scaled: scaledHud, buffedCaps } = mergePveScaledResourcesWithHudCaps({
-        scaledRes,
-        buffsForScale,
-        baseCaps,
+      const br = buffedResourcesFromPveServerSnapshot({
+        hj: mergedHj,
         liveHero,
         mergedHeroBuffs: mergedToggleHeroBuffs,
+        fallbackBase: liveHero ? getMaxResources(liveHero) : null,
+      });
+      const buffedCaps = br.buffedCaps;
+      logPveBuffedResourceDebug("mob-tick", {
+        serverBaseHp: br.rawBase.hp,
+        serverBaseMaxHp: br.baseCaps.maxHp,
+        buffedMaxHp: br.buffedCaps.maxHp,
+        computedBuffedHp: br.hp,
+        liveHpBeforeApply: liveHero ? (liveHero as any).hp : undefined,
       });
 
       const prevBHp = Math.floor(Number(heroJsonBeforeTick.hp ?? NaN));
@@ -206,7 +195,7 @@ export function schedulePveMobTickOnline(): void {
         Math.min(Math.max(1, Math.floor(cap)), Math.max(0, Math.round(Number(v) || 0)));
 
       // HP: сервер зменшив — тільки scaled; інакше не відкочувати локальний реген (live > scaled).
-      const scaledHp = clampRes(scaledHud.hp, buffedCaps.maxHp);
+      const scaledHp = clampRes(br.hp, buffedCaps.maxHp);
       let finalHp = scaledHp;
       if (unchangedHp) {
         const live = Number(liveHero?.hp);
@@ -225,8 +214,8 @@ export function schedulePveMobTickOnline(): void {
         return clampRes(live, cap);
       };
 
-      const finalMp = pickLiveOrScaled(unchangedMp, liveHero?.mp, scaledHud.mp, buffedCaps.maxMp);
-      const finalCp = pickLiveOrScaled(unchangedCp, liveHero?.cp, scaledHud.cp, buffedCaps.maxCp);
+      const finalMp = pickLiveOrScaled(unchangedMp, liveHero?.mp, br.mp, buffedCaps.maxMp);
+      const finalCp = pickLiveOrScaled(unchangedCp, liveHero?.cp, br.cp, buffedCaps.maxCp);
 
       const hjTickMerged = { ...mergedHj, heroBuffs: mergedToggleHeroBuffs };
       store.applyServerSync(

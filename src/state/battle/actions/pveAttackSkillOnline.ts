@@ -14,12 +14,9 @@ import { createCooldownEntry } from "./useSkill/helpers";
 import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
 import { applyBuffsToStats } from "../helpers";
 import {
-  mergeHeroBuffsForPveResourceScaling,
-  mergePveScaledResourcesWithHudCaps,
-  pveSnapshotBaseCaps,
-  scalePveSnapshotHpMpCpToBuffed,
+  buffedResourcesFromPveServerSnapshot,
+  logPveBuffedResourceDebug,
 } from "../../../utils/heroBuffedResources";
-import { filterBuffsForHeroProfession } from "../loadout";
 import { runSerializedPveMutation } from "./pveMutationQueue";
 import { getMaxResources } from "../helpers/getMaxResources";
 
@@ -113,28 +110,26 @@ export function schedulePveAttackSkillOnline(args: {
         clientBattle,
         tickNow,
       );
-      const forScaleRaw = mergeHeroBuffsForPveResourceScaling(hj.heroBuffs, prevHj.heroBuffs, clientBattle);
-      const buffsForScale = cleanupBuffs(
-        filterBuffsForHeroProfession(heroForBuffMerge, forScaleRaw),
-        tickNow,
-      );
-      const baseCapsAtk = pveSnapshotBaseCaps(hj, getMaxResources(heroForBuffMerge));
-      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow, baseCapsAtk);
-      const { scaled: scaledHud } = mergePveScaledResourcesWithHudCaps({
-        scaledRes,
-        buffsForScale,
-        baseCaps: baseCapsAtk,
+      const br = buffedResourcesFromPveServerSnapshot({
+        hj,
         liveHero: heroForBuffMerge,
-        mergedHeroBuffs: mergedHeroBuffs,
+        mergedHeroBuffs,
+        fallbackBase: getMaxResources(heroForBuffMerge),
+      });
+      logPveBuffedResourceDebug("pve-attack", {
+        serverBaseHp: br.rawBase.hp,
+        serverBaseMaxHp: br.baseCaps.maxHp,
+        buffedMaxHp: br.buffedCaps.maxHp,
+        computedBuffedHp: br.hp,
       });
       const hjMerged = { ...hj, heroBuffs: mergedHeroBuffs };
       const invSync = Array.isArray(hj.inventory) ? hj.inventory : undefined;
       const overflowSync = Array.isArray(hj.overflowChest) ? hj.overflowChest : undefined;
       store.applyServerSync(
         {
-          hp: scaledHud.hp,
-          mp: scaledHud.mp,
-          cp: scaledHud.cp,
+          hp: br.hp,
+          mp: br.mp,
+          cp: br.cp,
           ...(invSync ? { inventory: invSync } : {}),
           ...(overflowSync ? { overflowChest: overflowSync } : {}),
           heroJson: { ...prevHj, ...hjMerged },

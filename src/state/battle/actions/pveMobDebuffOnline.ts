@@ -3,15 +3,12 @@ import { pveBattleDebuffAPI } from "../../../utils/api/characters";
 import { useHeroStore } from "../../heroStore";
 import { useCharacterStore } from "../../characterStore";
 import { battleStoreRef } from "../../battleStoreRef";
-import { cleanupBuffs } from "../helpers";
+import { cleanupBuffs, mergeServerHeroBuffsRespectLocalToggleOff } from "../helpers";
 import { loadBattle, persistBattle } from "../persist";
 import {
-  mergeHeroBuffsForPveResourceScaling,
-  mergePveScaledResourcesWithHudCaps,
-  pveSnapshotBaseCaps,
-  scalePveSnapshotHpMpCpToBuffed,
+  buffedResourcesFromPveServerSnapshot,
+  logPveBuffedResourceDebug,
 } from "../../../utils/heroBuffedResources";
-import { filterBuffsForHeroProfession } from "../loadout";
 import { applyRevisionConflictFromApiError } from "../../heroStore";
 import { runSerializedPveMutation } from "./pveMutationQueue";
 import { createCooldownEntry } from "./useSkill/helpers";
@@ -41,7 +38,6 @@ export function schedulePveMobDebuffOnline(args: {
 
   void runSerializedPveMutation(async () => {
     try {
-      const heroJsonBefore = ((useHeroStore.getState().hero as any)?.heroJson || {}) as Record<string, any>;
       const res = await pveBattleDebuffAPI(cid, { skillId, expectedRevision });
       if (!res?.ok || !(res as any).character) return;
       const ch = (res as any).character;
@@ -52,30 +48,30 @@ export function schedulePveMobDebuffOnline(args: {
       const liveBattleBuffs = battleStoreRef.getState()?.heroBuffs || [];
       const clientBattle = cleanupBuffs(liveBattleBuffs, tickNow);
       const heroForBuffMerge = store.hero ?? hero;
-      const mergedHjBuffs = hj.heroBuffs;
-      const forScaleRaw = mergeHeroBuffsForPveResourceScaling(
-        mergedHjBuffs,
-        heroJsonBefore.heroBuffs,
+      const mergedToggleHeroBuffs = mergeServerHeroBuffsRespectLocalToggleOff(
+        heroForBuffMerge,
+        hj.heroBuffs,
         clientBattle,
+        tickNow,
       );
-      const buffsForScale = heroForBuffMerge
-        ? cleanupBuffs(filterBuffsForHeroProfession(heroForBuffMerge, forScaleRaw), tickNow)
-        : cleanupBuffs(forScaleRaw, tickNow);
-      const baseCapsDeb = pveSnapshotBaseCaps(hj, getMaxResources(heroForBuffMerge));
-      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow, baseCapsDeb);
-      const { scaled: scaledHud } = mergePveScaledResourcesWithHudCaps({
-        scaledRes,
-        buffsForScale,
-        baseCaps: baseCapsDeb,
+      const br = buffedResourcesFromPveServerSnapshot({
+        hj,
         liveHero: heroForBuffMerge,
-        mergedHeroBuffs: mergedHjBuffs,
+        mergedHeroBuffs: mergedToggleHeroBuffs,
+        fallbackBase: getMaxResources(heroForBuffMerge),
       });
-      const hjMerged = { ...hj, heroBuffs: mergedHjBuffs };
+      logPveBuffedResourceDebug("pve-mob-debuff", {
+        serverBaseHp: br.rawBase.hp,
+        serverBaseMaxHp: br.baseCaps.maxHp,
+        buffedMaxHp: br.buffedCaps.maxHp,
+        computedBuffedHp: br.hp,
+      });
+      const hjMerged = { ...hj, heroBuffs: mergedToggleHeroBuffs };
       store.applyServerSync(
         {
-          hp: scaledHud.hp,
-          mp: scaledHud.mp,
-          cp: scaledHud.cp,
+          hp: br.hp,
+          mp: br.mp,
+          cp: br.cp,
           heroJson: { ...prevHj, ...hjMerged },
         } as any,
         {
