@@ -4,14 +4,15 @@ import { syncHeroBuffsAPI } from "./characters";
 
 /** Після зміни бафів у бою (тогл тощо) — оновити БД, інакше kill/battle-finish тягне застарілі heroBuffs. */
 export function scheduleHeroBuffsSync(heroBuffs: any[]): void {
-  const st = useHeroStore.getState();
-  const hero = st.hero;
+  const hero = useHeroStore.getState().hero;
   const cid =
     String(useCharacterStore.getState().characterId ?? "").trim() ||
     String((hero as any)?.id ?? "").trim();
   if (!cid) return;
   const expectedRevision = Number(
-    st.serverState?.heroRevision ?? (hero as any)?.heroJson?.heroRevision ?? 0
+    useHeroStore.getState().serverState?.heroRevision ??
+      (hero as any)?.heroJson?.heroRevision ??
+      0
   );
   void syncHeroBuffsAPI(cid, {
     heroBuffs,
@@ -19,21 +20,26 @@ export function scheduleHeroBuffsSync(heroBuffs: any[]): void {
   })
     .then((res) => {
       if (!res?.ok || !res.heroJson) return;
-      const prevRev = Number(
-        st.serverState?.heroRevision ?? (st.hero as any)?.heroJson?.heroRevision ?? 0
-      );
+      const prior = Number(res.priorRevisionUsed ?? 0);
       const nextRev = Number(res.heroJson.heroRevision ?? 0);
-      // Якщо бекенд ще без sync — PUT нічого не змінить, revision не виросте; не відкочувати локальні бафи зі старого snapshot.
-      if (!Number.isFinite(nextRev) || nextRev <= prevRev) return;
-      st.applyServerSync(
+      // Бекенд без sync: revision не зростає — не підміняти локальні бафи відповіддю зі старим heroBuffs.
+      if (!Number.isFinite(nextRev) || nextRev <= prior) return;
+      useHeroStore.getState().applyServerSync(
         {
           heroJson: {
-            ...((st.hero as any)?.heroJson || {}),
+            ...(useHeroStore.getState().hero as any)?.heroJson,
             heroBuffs: res.heroJson.heroBuffs,
           },
         },
         { heroRevision: res.heroJson.heroRevision, updatedAt: Date.now() }
       );
     })
-    .catch(() => {});
+    .catch((err) => {
+      if (import.meta.env.DEV) console.warn("[scheduleHeroBuffsSync]", err);
+      import("../../state/toastStore")
+        .then(({ showToast }) => {
+          showToast("Бафи не збереглися на сервері (оновіть сторінку або спробуйте знову).", "error");
+        })
+        .catch(() => {});
+    });
 }

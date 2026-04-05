@@ -234,26 +234,77 @@ export async function resurrectCharacter(
   return response.character;
 }
 
-/** Атомарно зберегти heroBuffs (CAS). Спочатку POST .../hero-buffs-sync; при 404 (старий API) — PUT з syncHeroBuffs. */
-export async function syncHeroBuffsAPI(
+function parseHeroJsonFromCharacter(raw: unknown): Record<string, any> {
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw as Record<string, any>;
+  if (typeof raw === "string") {
+    try {
+      const p = JSON.parse(raw);
+      if (p && typeof p === "object" && !Array.isArray(p)) return p as Record<string, any>;
+    } catch {
+      /* ignore */
+    }
+  }
+  return {};
+}
+
+async function readHeroRevisionFromGetCharacter(characterId: string): Promise<number> {
+  const char = await getCharacter(characterId);
+  const hj = parseHeroJsonFromCharacter((char as any)?.heroJson);
+  const r = Number(hj.heroRevision ?? 0);
+  return Number.isFinite(r) && r >= 0 ? r : 0;
+}
+
+async function syncHeroBuffsAttempt(
   characterId: string,
-  data: { heroBuffs: any[]; expectedRevision: number }
-): Promise<{ ok: boolean; heroJson: any }> {
+  heroBuffs: any[],
+  expectedRevision: number
+): Promise<{ ok: boolean; heroJson: any; priorRevisionUsed: number }> {
   try {
-    return await apiRequest<{ ok: boolean; heroJson: any }>(
+    const res = await apiRequest<{ ok: boolean; heroJson: any }>(
       `/characters/${encodeURIComponent(characterId)}/hero-buffs-sync`,
       {
         method: "POST",
-        body: JSON.stringify({ heroBuffs: data.heroBuffs, expectedRevision: data.expectedRevision }),
+        body: JSON.stringify({ heroBuffs, expectedRevision }),
       }
     );
+    return { ...res, priorRevisionUsed: expectedRevision };
   } catch (e: any) {
     if (e?.status !== 404) throw e;
     const character = await updateCharacter(characterId, {
-      syncHeroBuffs: data.heroBuffs,
-      expectedRevision: data.expectedRevision,
+      syncHeroBuffs: heroBuffs,
+      expectedRevision,
     });
-    return { ok: true, heroJson: (character as any)?.heroJson ?? {} };
+    const hj = parseHeroJsonFromCharacter((character as any)?.heroJson);
+    return { ok: true, heroJson: hj, priorRevisionUsed: expectedRevision };
+  }
+}
+
+/**
+ * Зберегти heroBuffs на сервері (CAS). Перед відправкою тягнемо свіжу revision з GET — інакше застарілий serverState дає 409 і все мовчки падає.
+ * POST .../hero-buffs-sync; при 404 — PUT з syncHeroBuffs.
+ */
+export async function syncHeroBuffsAPI(
+  characterId: string,
+  data: { heroBuffs: any[]; expectedRevision: number }
+): Promise<{ ok: boolean; heroJson: any; priorRevisionUsed: number }> {
+  let rev = data.expectedRevision;
+  try {
+    rev = await readHeroRevisionFromGetCharacter(characterId);
+  } catch {
+    rev = data.expectedRevision;
+  }
+
+  try {
+    return await syncHeroBuffsAttempt(characterId, data.heroBuffs, rev);
+  } catch (e: any) {
+    if (e?.status !== 409) throw e;
+    let rev2: number;
+    try {
+      rev2 = await readHeroRevisionFromGetCharacter(characterId);
+    } catch {
+      throw e;
+    }
+    return await syncHeroBuffsAttempt(characterId, data.heroBuffs, rev2);
   }
 }
 
