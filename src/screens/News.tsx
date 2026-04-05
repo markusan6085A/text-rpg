@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getNews, type NewsItem } from "../utils/api";
 import { formatGameClockHHMM } from "../utils/gameClock";
 import { getGameTimeTag } from "../utils/news";
@@ -460,6 +460,17 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
     return () => clearInterval(interval);
   }, []);
 
+  /** Нік унікальний лише в межах акаунта; різні акаунти можуть мати однаковий нік — тоді два «нові гравці» з однаковим текстом. */
+  const newPlayerNameDupCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const it of items) {
+      if (it.type !== "new_player" || !it.characterName) continue;
+      const k = it.characterName.trim().toLowerCase();
+      m.set(k, (m.get(k) ?? 0) + 1);
+    }
+    return m;
+  }, [items]);
+
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Frame = L2_WARM_OUTER_FRAME;
   const nameLinkCls = isL2
@@ -492,6 +503,10 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
     let text: React.ReactNode = null;
 
     if (item.type === "new_player") {
+      const dupKey = (item.characterName || "").trim().toLowerCase();
+      const dupCount = newPlayerNameDupCounts.get(dupKey) ?? 0;
+      const showCharSuffix =
+        Boolean(item.characterId) && dupCount > 1;
       text = (
         <>
           На сервері з'явився новий гравець{" "}
@@ -510,6 +525,14 @@ const News: React.FC<NewsProps> = ({ navigate, user, onLogout: _onLogout }) => {
               }
             }}
           />
+          {showCharSuffix ? (
+            <span
+              className={isL2 ? "text-[10px] text-[#7a6c52] ml-0.5 align-baseline" : "text-[10px] text-gray-500 ml-0.5 align-baseline"}
+              title={`Окремий персонаж (id …${item.characterId!.slice(-8)})`}
+            >
+              ·{item.characterId!.slice(-6)}
+            </span>
+          ) : null}
         </>
       );
     } else if (item.type === "premium_purchase") {
