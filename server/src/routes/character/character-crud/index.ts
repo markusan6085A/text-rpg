@@ -180,6 +180,63 @@ function sanitizeClientItemMeta(input: unknown): Record<string, any> {
   return out;
 }
 
+const CLIENT_PUT_HEROJSON_ALLOWLIST = new Set<string>([
+  "name",
+  "inventory",
+  "overflowChest",
+  "skills",
+  "skillBar",
+  "hotbarSkillIds",
+  "spellbookGuild",
+  "equipment",
+  "equipmentEnchantLevels",
+  "heroBuffs",
+  "activeQuests",
+  "completedQuests",
+  "questProgress",
+  "dailyQuestsProgress",
+  "dailyQuestsCompleted",
+  "profession",
+  "professionForLoadout",
+  "loadoutProfession",
+  "battleLoadout",
+  "activeDyes",
+  "mobsKilled",
+  "pkCount",
+  "pvpKills",
+]);
+
+const CLIENT_PUT_HEROJSON_DENYLIST = new Set<string>([
+  "heroRevision",
+  "heroJsonVersion",
+  "premiumUntil",
+  "adminLevelSetAt",
+  "adminExpSetAt",
+  "adminSpSetAt",
+  "adminAdenaSetAt",
+  "adminCoinLuckSetAt",
+]);
+
+function sanitizeClientHeroJsonForPut(
+  incoming: Record<string, any>,
+  existing: Record<string, any>
+): { sanitized: Record<string, any>; rejectedKeys: string[] } {
+  const sanitized: Record<string, any> = {};
+  const rejectedKeys: string[] = [];
+  for (const key of Object.keys(incoming)) {
+    if (CLIENT_PUT_HEROJSON_DENYLIST.has(key)) {
+      rejectedKeys.push(key);
+      continue;
+    }
+    if (CLIENT_PUT_HEROJSON_ALLOWLIST.has(key) || Object.prototype.hasOwnProperty.call(existing, key)) {
+      sanitized[key] = incoming[key];
+      continue;
+    }
+    rejectedKeys.push(key);
+  }
+  return { sanitized, rejectedKeys };
+}
+
 export async function characterCrudRoutes(app: FastifyInstance) {
   // POST /characters  (Bearer token)  { name, race, classId, sex }
   app.post("/characters", async (req, reply) => {
@@ -886,6 +943,25 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const updateData: any = {};
     
     if (body.heroJson !== undefined) {
+      if (body.heroJson && typeof body.heroJson === "object") {
+        const { sanitized, rejectedKeys } = sanitizeClientHeroJsonForPut(
+          body.heroJson as Record<string, any>,
+          oldHeroJson as Record<string, any>
+        );
+        if (rejectedKeys.length > 0) {
+          app.log.warn(
+            { accountId: auth.accountId, characterId: id, rejectedKeys },
+            "[PUT /characters/:id] Rejected unauthorized heroJson keys"
+          );
+          return reply.code(400).send({
+            error: "forbidden_hero_json_fields",
+            message: "heroJson contains unauthorized keys",
+            fields: rejectedKeys,
+          });
+        }
+        body.heroJson = sanitized;
+      }
+
       if (body.expectedRevision !== undefined) {
         const revisionCheck = checkRevision(oldHeroJson, body.expectedRevision);
         if (!revisionCheck.valid) {
