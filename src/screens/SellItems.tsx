@@ -7,13 +7,12 @@ import { useCharacterStore } from "../state/characterStore";
 import InventoryFilters, { CATEGORIES } from "./character/InventoryFilters";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { getSellPrice } from "../utils/sellPrices";
-import { sellInventoryItemsAPI } from "../utils/api/characters";
+import { getCharacter, sellInventoryItemsAPI } from "../utils/api/characters";
 import { showToast } from "../state/toastStore";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { getL2dopResourceIconPath } from "../data/world/l2dop/droplistMapping";
 import { normalizeIconPath, FALLBACK_ICON } from "../utils/itemIcon";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
-import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 
 type Navigate = (path: string) => void;
 
@@ -143,6 +142,20 @@ export default function SellItems({ navigate }: SellItemsProps) {
     );
   };
 
+  const fetchServerInventorySnapshot = async (charId: string): Promise<{ inventory: any[]; heroRevision: number }> => {
+    const serverCharacter = await getCharacter(charId);
+    const serverHeroJson =
+      (serverCharacter as any)?.heroJson && typeof (serverCharacter as any).heroJson === "object"
+        ? (serverCharacter as any).heroJson
+        : {};
+    const inventory = Array.isArray(serverHeroJson.inventory) ? serverHeroJson.inventory : [];
+    const heroRevision = Number(serverHeroJson.heroRevision ?? 0);
+    return {
+      inventory,
+      heroRevision: Number.isFinite(heroRevision) && heroRevision >= 0 ? heroRevision : 0,
+    };
+  };
+
   const doSellSelected = async () => {
     if (!hero || !hero.inventory || selectedIndices.size === 0) return;
     if (selling) return;
@@ -201,23 +214,21 @@ export default function SellItems({ navigate }: SellItemsProps) {
     } catch (e: any) {
       if (isInvalidSellInputError(e)) {
         try {
-          const reloaded = await loadHeroFromAPI();
-          if (reloaded) useHeroStore.getState().setHero(reloaded);
-          const liveHero = useHeroStore.getState().hero;
           const charId = useCharacterStore.getState().characterId;
-          if (!liveHero || !charId) throw e;
+          if (!charId) throw e;
           let totalPayout = 0;
           for (const idx of indices) {
             const targetItem = filteredItems[idx];
             if (!targetItem) continue;
-            const invIdx = resolveInventoryIndexByCanonical(targetItem, liveHero.inventory || []);
+            const snap = await fetchServerInventorySnapshot(charId);
+            const invIdx = resolveInventoryIndexByCanonical(targetItem, snap.inventory || []);
             if (invIdx < 0) continue;
-            const row = (liveHero.inventory || [])[invIdx] as any;
+            const row = (snap.inventory || [])[invIdx] as any;
             const rowId = String(row?.id ?? row?.itemId ?? "");
             if (!rowId) continue;
             const rowCount = Math.max(1, Number(row?.count ?? 1));
             const one = await sellInventoryItemsAPI(charId, {
-              expectedRevision: resolveExpectedRevision(),
+              expectedRevision: snap.heroRevision,
               operations: [{
                 inventoryIndex: invIdx,
                 amount: rowCount,
@@ -231,7 +242,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
               : [];
             const nextOverflow = Array.isArray((one as any)?.character?.heroJson?.overflowChest)
               ? (one as any).character.heroJson.overflowChest
-              : (liveHero.overflowChest || []);
+              : (useHeroStore.getState().hero?.overflowChest || []);
             const nextRevision = Number((one as any)?.character?.heroJson?.heroRevision ?? resolveExpectedRevision());
             const nextAdena = Number((one as any)?.character?.adena ?? useHeroStore.getState().hero?.adena ?? 0);
             applyServerSync(
@@ -336,20 +347,18 @@ export default function SellItems({ navigate }: SellItemsProps) {
     } catch (e: any) {
       if (isInvalidSellInputError(e)) {
         try {
-          const reloaded = await loadHeroFromAPI();
-          if (reloaded) useHeroStore.getState().setHero(reloaded);
-          const liveHero = useHeroStore.getState().hero;
           const charId = useCharacterStore.getState().characterId;
-          if (!liveHero || !charId) throw e;
-          const invIdx = resolveInventoryIndexByCanonical(item, liveHero.inventory || []);
+          if (!charId) throw e;
+          const snap = await fetchServerInventorySnapshot(charId);
+          const invIdx = resolveInventoryIndexByCanonical(item, snap.inventory || []);
           if (invIdx < 0) throw e;
-          const row = (liveHero.inventory || [])[invIdx] as any;
+          const row = (snap.inventory || [])[invIdx] as any;
           const rowId = String(row?.id ?? row?.itemId ?? "");
           if (!rowId) throw e;
           const rowCount = Math.max(1, Number(row?.count ?? 1));
           const retryAmount = Math.max(1, Math.min(Number(amount || 1), rowCount));
           const retried = await sellInventoryItemsAPI(charId, {
-            expectedRevision: resolveExpectedRevision(),
+            expectedRevision: snap.heroRevision,
             operations: [{
               inventoryIndex: invIdx,
               amount: retryAmount,
@@ -362,7 +371,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
             : [];
           const nextOverflow = Array.isArray((retried as any)?.character?.heroJson?.overflowChest)
             ? (retried as any).character.heroJson.overflowChest
-            : (liveHero.overflowChest || []);
+            : (useHeroStore.getState().hero?.overflowChest || []);
           const nextRevision = Number((retried as any)?.character?.heroJson?.heroRevision ?? resolveExpectedRevision());
           const nextAdena = Number((retried as any)?.character?.adena ?? useHeroStore.getState().hero?.adena ?? 0);
           applyServerSync(
