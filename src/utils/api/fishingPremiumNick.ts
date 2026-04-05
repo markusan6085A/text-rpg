@@ -66,11 +66,12 @@ export interface FishDismantleResponse {
 export async function dismantleFish(
   characterId: string,
   itemId: string,
-  amount: number
+  amount: number,
+  expectedRevision: number
 ): Promise<FishDismantleResponse> {
   return apiRequest<FishDismantleResponse>(`/characters/${characterId}/fish/dismantle`, {
     method: 'POST',
-    body: JSON.stringify({ itemId, amount }),
+    body: JSON.stringify({ itemId, amount, expectedRevision }),
   });
 }
 

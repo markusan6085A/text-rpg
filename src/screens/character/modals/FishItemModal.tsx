@@ -126,7 +126,17 @@ export default function FishItemModal({
     if (characterId) {
       setDismantleLoading(true);
       try {
-        const res = await dismantleFish(characterId, item.id, dismantleAmount);
+        const expectedRevision = Number(
+          useHeroStore.getState().serverState?.heroRevision ??
+          (currentHero as any)?.heroJson?.heroRevision ??
+          0
+        );
+        const res = await dismantleFish(
+          characterId,
+          item.id,
+          dismantleAmount,
+          Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0
+        );
         const hj = res.character?.heroJson ?? {};
         const newRev = hj?.heroRevision;
         if (newRev != null) useHeroStore.getState().updateServerState?.({ heroRevision: newRev });

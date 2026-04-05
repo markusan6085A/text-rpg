@@ -364,6 +364,10 @@ export async function characterFishingRoutes(app: FastifyInstance) {
     const payload = Array.isArray(body) ? body[0] : body;
     const itemId = payload?.itemId ?? body?.itemId ?? "fish_seawater";
     const amount = Math.max(1, Math.min(9999, Math.floor(Number(payload?.amount ?? body?.amount ?? 1))));
+    const expectedRevision = Number(payload?.expectedRevision ?? body?.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
 
     try {
       const owner = await prisma.character.findFirst({
@@ -382,6 +386,10 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         if (!ch) throw new Error("character not found");
 
         const heroJson = (ch.heroJson ?? {}) as any;
+        const currentRevision = Number(heroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          throw new Error("revision_conflict");
+        }
         const inv: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
         const fishIdx = inv.findIndex((i: any) => (i?.id ?? i?.itemId) === itemId);
         if (fishIdx < 0) throw new Error("fish not found in inventory");
@@ -475,6 +483,9 @@ export async function characterFishingRoutes(app: FastifyInstance) {
     } catch (error) {
       if (error instanceof Error) {
         const msg = error.message;
+        if (msg === "revision_conflict") {
+          return reply.code(409).send({ error: "revision_conflict" });
+        }
         if (msg === "character not found" || msg === "fish not found in inventory" || msg === "not enough fish") {
           return reply.code(msg === "character not found" ? 404 : 400).send({ error: msg });
         }
