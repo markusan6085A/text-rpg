@@ -16,6 +16,10 @@ import { useOnlineCountStore } from "../state/onlineCountStore";
 import { isHeroDead } from "../state/heroStore/isHeroDead";
 import { useCharacterStore } from "../state/characterStore";
 import { useBattleStore } from "../state/battle/store";
+import {
+  schedulePveMobTickOnline,
+  shouldUsePveServerMobTick,
+} from "../state/battle/actions/pveMobTickOnline";
 import { getGameSettings } from "../state/gameSettings";
 import { setString } from "../state/persistence";
 import { clearDeathGate, readDeathGate } from "../utils/deathGate";
@@ -199,7 +203,17 @@ export default function Layout({
       const pathname = typeof window !== "undefined" ? window.location.pathname.replace(/\?.*$/, "") : "";
       if (pathname !== "/battle") return; // Не атакувати поза сторінкою бою
       const battleStore = useBattleStore.getState();
-      battleStore.processMobAttack();
+      const now = Date.now();
+      if (shouldUsePveServerMobTick()) {
+        const st = battleStore;
+        if (st.mobStunnedUntil && st.mobStunnedUntil > now) {
+          battleStore.processMobAttack();
+        } else if (!st.mobNextAttackAt || now >= st.mobNextAttackAt) {
+          schedulePveMobTickOnline();
+        }
+      } else {
+        battleStore.processMobAttack();
+      }
       battleStore.regenTick();
     }, 1000);
     

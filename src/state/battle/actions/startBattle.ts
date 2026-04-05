@@ -157,7 +157,28 @@ export const createStartBattle =
       hero &&
       (hero.hp ?? 0) > 0;
 
-    if (canResume) {
+    let canResumeEffective = !!canResume;
+    if (canResume && zoneId !== "fishing" && hero) {
+      const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
+      const sess = hj.battleSession;
+      const serverSessOk =
+        sess &&
+        Number(sess.v) === 1 &&
+        String(sess.zoneId || "") === zoneId &&
+        Number(sess.mobIndex) === mobIndex &&
+        String(sess.mobId || "") === String(mob.id);
+      if (!serverSessOk) {
+        canResumeEffective = false;
+        void import("../../toastStore").then(({ showToast }) => {
+          showToast("Немає серверної сесії бою (онлайн). Почніть бій заново.", "error");
+        });
+        if (heroName) {
+          persistBattle({ ...(saved || {}), status: "idle", mob: undefined, mobHP: 0 } as any, heroName);
+        }
+      }
+    }
+
+    if (canResumeEffective) {
       const serverSlot = getWorldMobHpForSlot(zoneId, mobIndex);
       const resumeMobHp =
         serverSlot && serverSlot.currentHp > 0

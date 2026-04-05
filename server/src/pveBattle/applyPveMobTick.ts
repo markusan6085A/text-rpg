@@ -1,0 +1,119 @@
+/** Один крок удару моба по герою (спрощено від client processMobAttack — лише основний моб). */
+
+function clamp(n: number, lo: number, hi: number) {
+  return Math.min(hi, Math.max(lo, n));
+}
+
+function mitigation(raw: number, mobAtkStat: number, heroDefense: number): number {
+  const atk = Math.max(1, mobAtkStat);
+  const def = Math.max(0, heroDefense);
+  return Math.max(1, Math.round((raw * atk) / (atk + def)));
+}
+
+export type PveMobTickResult =
+  | {
+      ok: true;
+      nextHeroJson: any;
+      logLines: string[];
+      heroHpAfter: number;
+      killedHero: boolean;
+    }
+  | { ok: false; code: string; message?: string };
+
+export function applyPveMobTickSnapshot(args: {
+  heroJson: any;
+  /** Захист і ухилення героя (після бафів), як на клієнті. */
+  heroDefenseStats: {
+    pDef?: number;
+    mDef?: number;
+    evasion?: number;
+    invulnerable?: number;
+    damageTakenReduction?: number;
+  };
+}): PveMobTickResult {
+  const hjIn = args.heroJson && typeof args.heroJson === "object" ? args.heroJson : {};
+  const hj = { ...hjIn };
+  const sess: any = hj.battleSession;
+  if (!sess || Number(sess.v) !== 1 || typeof sess.mobHP !== "number") {
+    return { ok: false, code: "no_battle_session", message: "No active PvE battle on server" };
+  }
+  if (String(sess.zoneId || "") === "fishing") {
+    return { ok: false, code: "fishing_local", message: "Fishing uses local combat" };
+  }
+  const mobHp = Math.max(0, Math.floor(Number(sess.mobHP)));
+  if (mobHp <= 0) {
+    return { ok: false, code: "mob_dead", message: "Mob already defeated" };
+  }
+
+  const maxHp = Math.max(1, Math.floor(Number(hj.maxHp ?? hj.hp ?? 1)));
+  const curHp = clamp(Math.floor(Number(hj.hp ?? maxHp)), 0, maxHp);
+
+  const pDef = clamp(Math.floor(Number(args.heroDefenseStats.pDef ?? 0)), 0, 50000);
+  const mDef = clamp(Math.floor(Number(args.heroDefenseStats.mDef ?? 0)), 0, 50000);
+  const evasion = clamp(Math.floor(Number(args.heroDefenseStats.evasion ?? 0)), 0, 80);
+  const invulnerable = Number(args.heroDefenseStats.invulnerable ?? 0) > 0;
+  const dmgRed = clamp(Number(args.heroDefenseStats.damageTakenReduction ?? 0), 0, 95);
+
+  if (invulnerable || curHp <= 0) {
+    return {
+      ok: true,
+      nextHeroJson: hj,
+      logLines: ["Монстр б’є, але ви невразливі."],
+      heroHpAfter: curHp,
+      killedHero: false,
+    };
+  }
+
+  const isMiss = Math.random() * 100 < evasion;
+  if (isMiss) {
+    return {
+      ok: true,
+      nextHeroJson: hj,
+      logLines: ["Ви ухилилися від атаки монстра."],
+      heroHpAfter: curHp,
+      killedHero: false,
+    };
+  }
+
+  const lv = Math.max(1, Math.floor(Number(sess.mobLevel) || 1));
+  const isRb = sess.mobIsRaidBoss === true;
+  const isPhysical = Math.random() < 0.5;
+  let mobPAtk = Math.max(1, lv * 20);
+  let mobMAtk = Math.max(1, lv * 15);
+  let base = isPhysical ? Math.max(5, mobPAtk) : Math.max(5, mobMAtk);
+  if (isRb) base *= 2.25;
+  const variance = 0.25;
+  const raw = base * (1 - variance + Math.random() * variance * 2);
+  const defense = isPhysical ? pDef : mDef;
+  const atkFor = isPhysical ? mobPAtk : mobMAtk;
+  let dmg = mitigation(raw, atkFor, defense);
+  if (Math.random() < (isRb ? 0.2 : 0.4)) dmg = Math.max(1, Math.round(dmg * 2));
+  if (dmgRed > 0) dmg = Math.max(1, Math.round(dmg * (1 - dmgRed / 100)));
+
+  const nextHp = Math.max(0, curHp - dmg);
+  hj.hp = nextHp;
+
+  const logLines = [`Ви отримуєте ${dmg} урону.`];
+  let killedHero = false;
+
+  if (nextHp <= 0) {
+    killedHero = true;
+    hj.hp = 0;
+    hj.mp = 0;
+    hj.cp = 0;
+    hj.heroBuffs = [];
+    hj.isDead = true;
+    hj.deadAt = Date.now();
+    hj.killedByMobName = String(sess.mobId ?? "?");
+    hj.killedByMobDamage = dmg;
+    logLines.push("Ви мертві.");
+  }
+
+  return {
+    ok: true,
+    nextHeroJson: hj,
+    logLines,
+    heroHpAfter: nextHp,
+    killedHero,
+  };
+}

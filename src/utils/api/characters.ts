@@ -377,6 +377,9 @@ export async function pveBattleAttackAPI(
     expectedRevision: number;
     heroCombatStats: Record<string, number>;
     skillName?: string;
+    loadoutSlots?: (number | string | null)[];
+    activeChargeSlots?: number[];
+    mobBuffs?: any[];
   }
 ): Promise<{
   ok: boolean;
@@ -394,6 +397,48 @@ export async function pveBattleAttackAPI(
     rev = data.expectedRevision;
   }
   const url = `/characters/${encodeURIComponent(characterId)}/pve-battle-attack`;
+  const payload = { ...data, expectedRevision: rev };
+  try {
+    return await apiRequest(url, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  } catch (e: any) {
+    if (e?.status !== 409) throw e;
+    let rev2: number;
+    try {
+      rev2 = await readHeroRevisionFromGetCharacter(characterId);
+    } catch {
+      throw e;
+    }
+    return await apiRequest(url, {
+      method: "POST",
+      body: JSON.stringify({ ...data, expectedRevision: rev2 }),
+    });
+  }
+}
+
+/** PvE тік моба — урон по герою на сервері (CAS). */
+export async function pveBattleTickAPI(
+  characterId: string,
+  data: {
+    expectedRevision: number;
+    heroDefenseStats: Record<string, number>;
+  }
+): Promise<{
+  ok: boolean;
+  character: Character;
+  logLines?: string[];
+  heroHpAfter?: number;
+  killedHero?: boolean;
+}> {
+  let rev = data.expectedRevision;
+  try {
+    rev = await readHeroRevisionFromGetCharacter(characterId);
+  } catch {
+    rev = data.expectedRevision;
+  }
+  const url = `/characters/${encodeURIComponent(characterId)}/pve-battle-tick`;
   const payload = { ...data, expectedRevision: rev };
   try {
     return await apiRequest(url, {

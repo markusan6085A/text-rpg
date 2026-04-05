@@ -19,6 +19,7 @@ import { formatLootIntEn } from "../state/battle/helpers/victoryLootLogLines";
 import { flushWorldMobHpSyncAsync } from "../state/worldMobHpStore";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import { filterBuffsForHeroProfession } from "../state/battle/loadout";
+import { shouldUsePveServerMobTick } from "../state/battle/actions/pveMobTickOnline";
 
 type Navigate = (path: string) => void;
 
@@ -196,7 +197,16 @@ export default function Battle({ navigate }: BattleProps) {
   React.useEffect(() => {
     const battleInterval = setInterval(() => {
       setNow(Date.now());
-      if (useBattleStore.getState().status === "fighting") processMobAttackRef.current();
+      if (useBattleStore.getState().status !== "fighting") return;
+      if (shouldUsePveServerMobTick()) {
+        const st = useBattleStore.getState();
+        const t = Date.now();
+        if (st.mobStunnedUntil && st.mobStunnedUntil > t) {
+          processMobAttackRef.current();
+        }
+        return;
+      }
+      processMobAttackRef.current();
     }, BATTLE_TICK_MS);
     const regenInterval = setInterval(() => {
       if (useBattleStore.getState().status === "fighting") regenTickRef.current();

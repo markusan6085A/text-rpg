@@ -144,6 +144,34 @@ export function rollAttackDamage(args: {
   return { damage: Math.max(1, Math.floor(raw)), isCrit };
 }
 
+/** Базова атака (клієнт baseAttack): без power у чисельнику, лише pAtk / mobPDef. */
+export function rollBaseAutoAttackDamage(args: {
+  pAtk: number;
+  targetPDef: number;
+  crit: number;
+  critPower: number;
+  lsBackbiting: number;
+  /** Множник класу (маги 0.5). */
+  physicalDamageMultiplier: number;
+  shotMultiplier: number;
+}): { damage: number; isCrit: boolean } {
+  const pDef = Math.max(1, Math.floor(Number(args.targetPDef) || 1));
+  const mult = Math.max(0.1, Number(args.physicalDamageMultiplier) || 1);
+  const shot = Math.max(1, Number(args.shotMultiplier) || 1);
+  const effectivePAtk = Math.max(1, clamp(Number(args.pAtk) || 1, 1, 50000) * mult * shot);
+  const variance = 0.9 + Math.random() * 0.2;
+  const raw = (L2_PHYSICAL_COEFFICIENT * effectivePAtk) / pDef * L2_PVE_DAMAGE_MULTIPLIER * variance;
+
+  const critChance = Math.min(80, Number(args.crit) || 40);
+  const isCrit = Math.random() * 100 < critChance;
+  const critPower = clamp(Number(args.critPower) || 100, 0, 500);
+  const critMult = isCrit ? Math.min(3.0, 2.0 + critPower / 1500) : 1.0;
+  let damage = Math.max(1, Math.floor(raw * critMult));
+  const lsBackbiting = clamp(Number(args.lsBackbiting) || 0, 0, 200);
+  if (lsBackbiting > 0) damage = Math.round(damage * (1 + lsBackbiting / 100));
+  return { damage, isCrit };
+}
+
 export function sanitizeCombatStats(raw: any): CombatStatsIn {
   if (!raw || typeof raw !== "object") return {};
   const n = (k: string, max: number) => clamp(Number((raw as any)[k]) || 0, 0, max);

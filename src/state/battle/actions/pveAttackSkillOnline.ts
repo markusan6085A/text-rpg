@@ -11,6 +11,8 @@ import { commitMobVictoryToHeroStore } from "../commitMobVictory";
 import { buildVictoryResourceLogLines } from "../helpers/victoryLootLogLines";
 import { addDailyProgress } from "../../dailyQuestsProgress";
 import { createCooldownEntry } from "./useSkill/helpers";
+import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
+import { applyBuffsToStats } from "../helpers";
 
 let inFlightSkillId: number | null = null;
 
@@ -25,6 +27,10 @@ function pickCombatStatsForServer(heroStats: Record<string, any>): Record<string
     "critPower",
     "lsEmpower",
     "lsBackbiting",
+    "lsGuidance",
+    "mpSkillCostReduction",
+    "lsRskFocus",
+    "accuracy",
     "fireAttack",
     "waterAttack",
     "windAttack",
@@ -75,6 +81,9 @@ export function schedulePveAttackSkillOnline(args: {
     expectedRevision,
     heroCombatStats: pickCombatStatsForServer(heroStats),
     skillName: def.name,
+    loadoutSlots: state.loadoutSlots,
+    activeChargeSlots: state.activeChargeSlots ?? [],
+    mobBuffs: state.mobBuffs ?? [],
   })
     .then((res) => {
       if (!res?.ok || !(res as any).character) return;
@@ -108,10 +117,17 @@ export function schedulePveAttackSkillOnline(args: {
         : [];
 
       const heroAfter = store.hero;
-      const cooldownEntry = createCooldownEntry(skillId, cooldownDurationMs, now);
       const bs = battleStoreRef.getState();
       const prevCd = { ...(bs?.cooldowns || {}) };
-      const nextCooldowns = { ...prevCd, ...cooldownEntry };
+      let nextCooldowns = prevCd;
+      let heroNextAttackAtOut: number | undefined;
+      if (skillId === 0) {
+        const buffed = applyBuffsToStats(heroAfter?.battleStats || {}, bs?.heroBuffs || []);
+        const atkSpd = buffed?.attackSpeed ?? buffed?.atkSpeed ?? 0;
+        heroNextAttackAtOut = now + calcAutoAttackInterval(atkSpd);
+      } else {
+        nextCooldowns = { ...prevCd, ...createCooldownEntry(skillId, cooldownDurationMs, now) };
+      }
 
       if (killed && state.mob && heroAfter) {
         const buffsForVictory = cleanupBuffs(
@@ -148,6 +164,7 @@ export function schedulePveAttackSkillOnline(args: {
             mobBuffs: [],
             log: victoryLogTrim,
             cooldowns: nextCooldowns,
+            ...(heroNextAttackAtOut != null ? { heroNextAttackAt: heroNextAttackAtOut } : {}),
             heroBuffs: buffsForVictory,
             lastReward: {
               exp: v.displayExp,
@@ -167,6 +184,7 @@ export function schedulePveAttackSkillOnline(args: {
             status: "victory",
             log: victoryLogTrim,
             cooldowns: nextCooldowns,
+            ...(heroNextAttackAtOut != null ? { heroNextAttackAt: heroNextAttackAtOut } : {}),
             heroBuffs: buffsForVictory,
             lastReward: {
               exp: v.displayExp,
@@ -183,12 +201,18 @@ export function schedulePveAttackSkillOnline(args: {
       }
 
       const mergedLog = [...logLines, ...(bs?.log || [])].slice(0, 30);
+      const nextHeroBuffs = cleanupBuffs(
+        Array.isArray(hj.heroBuffs) ? (hj.heroBuffs as any[]) : bs?.heroBuffs || [],
+        Date.now()
+      );
       if (battleStoreRef.setState) {
         battleStoreRef.setState({
           mobHP: mobHpAfter,
           status: "fighting",
           log: mergedLog,
           cooldowns: nextCooldowns,
+          heroBuffs: nextHeroBuffs,
+          ...(heroNextAttackAtOut != null ? { heroNextAttackAt: heroNextAttackAtOut } : {}),
         });
       }
       const saved = loadBattle(heroName) || {};
@@ -199,6 +223,8 @@ export function schedulePveAttackSkillOnline(args: {
           status: "fighting",
           log: mergedLog,
           cooldowns: nextCooldowns,
+          heroBuffs: nextHeroBuffs,
+          ...(heroNextAttackAtOut != null ? { heroNextAttackAt: heroNextAttackAtOut } : {}),
         } as any,
         heroName
       );

@@ -58,9 +58,17 @@ function isEligiblePveServerAttack(
   if (state.zoneId === "fishing") return false;
   if (def.category !== "physical_attack" && def.category !== "magic_attack") return false;
   if (def.itemConsume) return false;
-  if (SONIC_CONSUMERS.has(skillId) || FOCUSED_FORCE_CONSUMERS.has(skillId)) return false;
   const rawMp = Math.max(0, Number(levelDef.mpCost ?? 0));
   if ((hero.mp ?? 0) < rawMp) return false;
+  if (!useAuthStore.getState().accessToken) return false;
+  const cid = String(useCharacterStore.getState().characterId ?? "").trim();
+  const hid = String((hero as any)?.id ?? "").trim();
+  if (!cid || hid !== cid) return false;
+  return true;
+}
+
+function isEligiblePveServerBaseAttack(state: BattleState, hero: Hero): boolean {
+  if (state.zoneId === "fishing") return false;
   if (!useAuthStore.getState().accessToken) return false;
   const cid = String(useCharacterStore.getState().characterId ?? "").trim();
   const hid = String((hero as any)?.id ?? "").trim();
@@ -162,6 +170,36 @@ export const createUseSkill =
     // Base attack
     // ------------------------
     if (skillId === BASE_ATTACK.id) {
+      if (isEligiblePveServerBaseAttack(state, hero)) {
+        let heroForStats = hero;
+        const bs = hero.battleStats;
+        const needsStatsRecalc = !bs || (bs.pAtk ?? 0) < 1 || (bs.mAtk ?? 0) < 1 || (bs.castSpeed ?? 0) < 1;
+        if (needsStatsRecalc) {
+          const recalculated = recalculateAllStats(hero, activeBuffs);
+          updateHero({ battleStats: recalculated.baseFinalStats });
+          heroForStats = { ...hero, battleStats: recalculated.baseFinalStats };
+        }
+        const heroStats = applyBuffsToStats(heroForStats.battleStats || {}, activeBuffs);
+        schedulePveAttackSkillOnline({
+          skillId: 0,
+          def: {
+            id: 0,
+            name: BASE_ATTACK.name,
+            category: "physical_attack",
+            icon: BASE_ATTACK.icon,
+          } as SkillDefinition,
+          levelDef: { level: 1, mpCost: 0, power: 1 } as SkillLevelDefinition,
+          hero,
+          heroStats,
+          state,
+          cooldownDurationMs: 0,
+          now,
+          onFallback: () => {
+            handleBaseAttack(state, hero, now, activeBuffs, computeMaxNow, updateHero, setAndPersist);
+          },
+        });
+        return;
+      }
       const handled = handleBaseAttack(
         state,
         hero,
