@@ -1,7 +1,7 @@
 import React from "react";
 import type { Character } from "../../utils/api";
 import { cleanupBuffs } from "../../state/battle/helpers";
-import { prepareBuffsForStatsView } from "./playerProfileUtils";
+import { getMergedHeroJsonFromCharacter, prepareBuffsForStatsView } from "./playerProfileUtils";
 
 /** Активні бафи з heroJson.heroBuffs або character.heroBuffs; `now` для expiresAt. */
 export function PlayerProfileActiveBuffsList(props: {
@@ -10,11 +10,13 @@ export function PlayerProfileActiveBuffsList(props: {
   now: number;
 }) {
   const { isL2, character, now } = props;
-  const heroJson = character.heroJson || {};
-  const hjBuffs = (heroJson as any).heroBuffs;
-  const useHeroJsonBuffs = Array.isArray(hjBuffs);
-  const fromChar = Array.isArray((character as any).heroBuffs) ? (character as any).heroBuffs : [];
-  const rawBuffs = useHeroJsonBuffs ? hjBuffs : fromChar;
+  const mergedHj = getMergedHeroJsonFromCharacter(character);
+  const hjBuffs = mergedHj.heroBuffs;
+  const rawBuffs = Array.isArray(hjBuffs)
+    ? hjBuffs
+    : Array.isArray((character as any).heroBuffs)
+      ? (character as any).heroBuffs
+      : [];
   const allBuffs = cleanupBuffs(prepareBuffsForStatsView(rawBuffs), now);
 
   const getExpiresAt = (b: any): number => {
@@ -30,8 +32,6 @@ export function PlayerProfileActiveBuffsList(props: {
     if (exp >= Number.MAX_SAFE_INTEGER - 1) return true;
     return exp > now;
   });
-
-  if (rawBuffs.length === 0) return null;
 
   return (
     <div

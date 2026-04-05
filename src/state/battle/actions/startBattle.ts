@@ -47,7 +47,8 @@ export const createStartBattle =
     const heroJsonBuffs = Array.isArray((hero as any)?.heroBuffs) ? (hero as any).heroBuffs
       : Array.isArray((hero as any)?.heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs
       : [];
-    const mergedBuffsRaw = [...battleBuffs, ...heroJsonBuffs];
+    // heroJson першим — узгоджено з saveHeroToLocalStorageOnly (вимкнений toggle не піднімається з stale battle).
+    const mergedBuffsRaw = [...heroJsonBuffs, ...battleBuffs];
     const mergedBuffsUnique = mergedBuffsRaw.filter((buff, i, arr) =>
       arr.findIndex((b) => (b.id && buff.id && b.id === buff.id) || (!b.id && !buff.id && b.name === buff.name)) === i
     );

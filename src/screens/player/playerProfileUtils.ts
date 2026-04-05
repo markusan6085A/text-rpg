@@ -53,6 +53,15 @@ function parseMaybeJsonObject(raw: unknown): Record<string, unknown> {
   return {};
 }
 
+/** Той самий merge root/nested heroJson, що на сервері в buildPublicHeroJson — для профілю іншого гравця. */
+export function getMergedHeroJsonFromCharacter(character: { heroJson?: unknown } | null | undefined): Record<string, any> {
+  const rootHeroJson = parseMaybeJsonObject(character?.heroJson);
+  const nestedHeroJson = parseMaybeJsonObject((rootHeroJson as any).heroJson);
+  return Object.keys(nestedHeroJson).length > 0
+    ? { ...(rootHeroJson as Record<string, any>), ...(nestedHeroJson as Record<string, any>) }
+    : (rootHeroJson as Record<string, any>);
+}
+
 function parseMaybeJsonMap(raw: unknown): Record<string, any> {
   return parseMaybeJsonObject(raw) as Record<string, any>;
 }

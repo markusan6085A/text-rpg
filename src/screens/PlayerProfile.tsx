@@ -63,6 +63,7 @@ import { setResurrectInProgress } from "../state/heroStore";
 import { clearDeathGate } from "../utils/deathGate";
 import {
   characterToProfileHeroData,
+  getMergedHeroJsonFromCharacter,
   prepareBuffsForStatsView,
 } from "./player/playerProfileUtils";
 import { PlayerProfileActiveBuffsList } from "./player/PlayerProfileActiveBuffsList";
@@ -935,13 +936,13 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         } catch {
           /* лишаємо character — стати все одно з heroJson */
         }
-        const hj = charForStats.heroJson || {};
-        const hjB = hj.heroBuffs;
-        const useHj = Array.isArray(hjB);
-        const fallbackB = Array.isArray((charForStats as any).heroBuffs)
-          ? (charForStats as any).heroBuffs
-          : [];
-        const rawBuffs = useHj ? hjB : fallbackB;
+        const mergedHj = getMergedHeroJsonFromCharacter(charForStats);
+        const hjB = mergedHj.heroBuffs;
+        const rawBuffs = Array.isArray(hjB)
+          ? hjB
+          : Array.isArray((charForStats as any).heroBuffs)
+            ? (charForStats as any).heroBuffs
+            : [];
         const nowMs = Date.now();
         const activeBuffsForStats = cleanupBuffs(prepareBuffsForStatsView(rawBuffs), nowMs);
         const statsHero = characterToProfileHeroData(charForStats);

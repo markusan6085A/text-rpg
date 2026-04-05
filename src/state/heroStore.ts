@@ -445,7 +445,9 @@ export const useHeroStore = create<HeroState>((set, get) => ({
       if (onlyBattleFluid) {
         try {
           const st = battleStoreRef.getState?.()?.status;
-          if (st === "fighting") {
+          // heroJson лише heroBuffs (тогл оф, диспел з екрану персонажа) треба відправляти на сервер і під час бою —
+          // інакше після F5 snapshot з API знову піднімає старі бафи.
+          if (st === "fighting" && !heroJsonOnlyBuffs) {
             return;
           }
         } catch {

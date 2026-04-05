@@ -147,8 +147,9 @@ export function saveHeroToLocalStorageOnly(hero: Hero): void {
   const battleState = loadBattle(hydrated.name);
   const battleBuffs = Array.isArray(battleState?.heroBuffs) ? battleState.heroBuffs : [];
   const jsonBuffs = Array.isArray(currentJson.heroBuffs) ? currentJson.heroBuffs : [];
-  // Спочатку battle — актуальний список з бою (toggle off, диспел); інакше застарілий запис у json перекривав би snapshot
-  const mergedBuffs = [...battleBuffs, ...jsonBuffs].filter((b: any, i: number, arr: any[]) =>
+  // heroJson (jsonBuffs) має бути першим: updateHero змінює hero.heroJson, а loadBattle() частіше ще старий
+  // (handleToggleOff викликає updateHero до setAndPersist — інакше stale battle знову підмішує вимкнутий toggle).
+  const mergedBuffs = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
     arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
   );
   const wasFullHp = Number(hydrated.hp ?? 0) >= Number(hydrated.maxHp ?? 1);
@@ -850,7 +851,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
         const savedBattle = rlIsDead ? null : loadBattle(hero.name);
         const battleBuffs = rlIsDead ? [] : (Array.isArray(savedBattle?.heroBuffs) ? savedBattle.heroBuffs : []);
         const jsonBuffs = rlIsDead ? [] : (Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : []);
-        const mergedBuffs = [...battleBuffs, ...jsonBuffs].filter((b: any, i: number, arr: any[]) =>
+        const mergedBuffs = [...jsonBuffs, ...battleBuffs].filter((b: any, i: number, arr: any[]) =>
           arr.findIndex((x: any) => (x.id && b.id && x.id === b.id) || (!x.id && !b.id && x.name === b.name)) === i
         );
         const heroJson = {
