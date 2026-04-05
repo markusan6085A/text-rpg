@@ -39,6 +39,8 @@ function pickCombatStatsForServer(heroStats: Record<string, any>): Record<string
     "mpSkillCostReduction",
     "lsRskFocus",
     "accuracy",
+    "vampirism",
+    "vampirismMelee",
     "fireAttack",
     "waterAttack",
     "windAttack",
@@ -117,11 +119,15 @@ export function schedulePveAttackSkillOnline(args: {
       const baseCapsAtk = getMaxResources(heroForBuffMerge);
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow, baseCapsAtk);
       const hjMerged = { ...hj, heroBuffs: mergedHeroBuffs };
+      const invSync = Array.isArray(hj.inventory) ? hj.inventory : undefined;
+      const overflowSync = Array.isArray(hj.overflowChest) ? hj.overflowChest : undefined;
       store.applyServerSync(
         {
           hp: scaledRes.hp,
           mp: scaledRes.mp,
           cp: scaledRes.cp,
+          ...(invSync ? { inventory: invSync } : {}),
+          ...(overflowSync ? { overflowChest: overflowSync } : {}),
           heroJson: { ...prevHj, ...hjMerged },
         } as any,
         {

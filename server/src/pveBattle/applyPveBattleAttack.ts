@@ -19,6 +19,7 @@ import {
 } from "./pveSonicConstants";
 import { applyServerToggleResourceTicks } from "./applyServerToggleTicks";
 import { syncHeroJsonResourcePercentsToAbsolutes } from "./pveHeroResourceSync";
+import { pveVampirismPercentFromSkill } from "./pveVampirismSkillPercent";
 
 type SkillMetaRow = {
   id: number;
@@ -370,6 +371,33 @@ export function applyPveBattleAttackSnapshot(args: {
     isCrit = rolled.isCrit;
   }
 
+  let healVamp = 0;
+  if (damage > 0) {
+    const wt = getWeaponTypeFromEquipment(hj.equipment);
+    const vampMeleeBonus =
+      isPhysical && !isMagic && wt !== "bow"
+        ? Math.max(0, Number((csInRaw as any).vampirismMelee) || 0)
+        : 0;
+    const vampFromBuffs = Math.max(0, Number((csInRaw as any).vampirism) || 0) + vampMeleeBonus;
+    const vampFromSkill = pveVampirismPercentFromSkill(skillId);
+    const isDrainSkill = skillId === 1090 || skillId === 1245;
+    let vampPct =
+      isDrainSkill && vampFromSkill > 0
+        ? vampFromSkill
+        : vampFromBuffs > 0
+          ? vampFromBuffs
+          : vampFromSkill;
+    vampPct = Math.max(0, Math.min(100, vampPct));
+    if (vampPct > 0) {
+      healVamp = Math.round(damage * (vampPct / 100));
+      if (healVamp > 0) {
+        const maxHp = Math.max(1, Math.floor(Number(hj.maxHp ?? 1)));
+        const curHp = Math.max(0, Math.floor(Number(hj.hp ?? 0)));
+        hj.hp = Math.min(maxHp, curHp + healVamp);
+      }
+    }
+  }
+
   const mobHpAfter = Math.max(0, mobHpBefore - damage);
   const killed = mobHpAfter <= 0;
 
@@ -383,15 +411,18 @@ export function applyPveBattleAttackSnapshot(args: {
   hj.battleSession = nextSession;
 
   const skillName = skillNameForLog;
+  const healLine = healVamp > 0 ? `Відновлено ${healVamp} HP (вампіризм).` : null;
   const logLines =
     skillId === 0
       ? [
           shot.used ? `Автоматична атака (заряд ×${shot.multiplier.toFixed(1)}).` : `Ви атакуєте.`,
           isCrit ? `Ви наносите ${damage} урону. (Крит!)` : `Ви наносите ${damage} урону.`,
+          ...(healLine ? [healLine] : []),
         ]
       : [
           `Ви використовуєте [${skillName}].`,
           isCrit ? `Ви наносите ${damage} урону. (Крит!)` : `Ви наносите ${damage} урону.`,
+          ...(healLine ? [healLine] : []),
         ];
 
   syncHeroJsonResourcePercentsToAbsolutes(hj);
