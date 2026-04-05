@@ -660,21 +660,48 @@ export default function Inventory() {
                       0
                     );
                     const updated = await clearInventoryAPI(characterId, expectedRevision);
-                    const clearedAt = (updated.heroJson as any)?.inventoryClearedAt ?? Date.now();
-                    useHeroStore.getState().updateServerState({
-                      heroRevision: (updated.heroJson as any)?.heroRevision ?? 0,
-                      updatedAt: Date.now(),
-                    });
-                    useHeroStore.getState().updateHero((prev: any) => ({
-                      inventory: [],
-                      overflowChest: [],
-                      heroJson: {
-                        ...(prev?.heroJson ?? {}),
-                        inventory: [],
-                        overflowChest: [],
-                        inventoryClearedAt: clearedAt,
-                      },
-                    }));
+                    const store = useHeroStore.getState();
+                    const liveHero = store.hero;
+                    if (liveHero) {
+                      const heroJson =
+                        (updated as any)?.heroJson && typeof (updated as any).heroJson === "object"
+                          ? (updated as any).heroJson
+                          : {};
+                      const overflowChest = Array.isArray(heroJson.overflowChest) ? heroJson.overflowChest : [];
+                      const activeDyes = Array.isArray(heroJson.activeDyes)
+                        ? heroJson.activeDyes
+                        : liveHero.activeDyes ?? [];
+                      const revision = Number(
+                        heroJson.heroRevision ?? (liveHero as any)?.heroJson?.heroRevision ?? 0
+                      );
+                      const nextCoinLuck = Number((updated as any).coinLuck ?? liveHero.coinOfLuck ?? 0);
+                      const nextLevel = Number((updated as any).level ?? liveHero.level ?? 1);
+                      const nextExp = Number((updated as any).exp ?? liveHero.exp ?? 0);
+                      const nextSp = Number((updated as any).sp ?? liveHero.sp ?? 0);
+                      const nextAdena = Number((updated as any).adena ?? liveHero.adena ?? 0);
+                      store.applyServerSync(
+                        {
+                          level: nextLevel,
+                          exp: nextExp,
+                          sp: nextSp,
+                          adena: nextAdena,
+                          coinOfLuck: nextCoinLuck,
+                          inventory: [],
+                          overflowChest,
+                          activeDyes,
+                          heroJson: { ...heroJson, inventory: [], overflowChest },
+                        } as any,
+                        {
+                          level: nextLevel,
+                          exp: nextExp,
+                          sp: nextSp,
+                          adena: nextAdena,
+                          coinLuck: nextCoinLuck,
+                          heroRevision: Number.isFinite(revision) ? revision : 0,
+                          updatedAt: Date.now(),
+                        }
+                      );
+                    }
                     setShowWipeConfirm(false);
                     setSelectedItem(null);
                     setDeleteConfirmItem(null);

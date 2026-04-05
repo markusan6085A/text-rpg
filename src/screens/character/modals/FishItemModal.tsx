@@ -137,33 +137,44 @@ export default function FishItemModal({
           dismantleAmount,
           Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0
         );
-        const hj = res.character?.heroJson ?? {};
-        const newRev = hj?.heroRevision;
-        if (newRev != null) useHeroStore.getState().updateServerState?.({ heroRevision: newRev });
-        const charAny = res.character as {
-          coinsSilver?: number | string;
-          adena?: number | string;
-          coinLuck?: number | string;
-        } | undefined;
-        const nextAdena = Number(charAny?.adena ?? hj?.adena ?? currentHero.adena ?? 0);
-        const nextSilver = Number(charAny?.coinsSilver ?? hj?.coins_silver ?? (currentHero as any).coins_silver ?? 0);
-        const nextCoinLuck = Number(
-          charAny?.coinLuck ?? hj?.coinOfLuck ?? currentHero.coinOfLuck ?? 0
-        );
-        updateHero({
-          adena: Number.isFinite(nextAdena) ? nextAdena : currentHero.adena,
-          coins_silver: Number.isFinite(nextSilver) ? nextSilver : Number((currentHero as any).coins_silver ?? 0),
-          coinOfLuck: Number.isFinite(nextCoinLuck) ? nextCoinLuck : currentHero.coinOfLuck,
-          inventory: hj?.inventory ?? currentHero.inventory,
-          overflowChest: hj?.overflowChest ?? currentHero.overflowChest,
-          heroJson: {
-            ...(currentHero as any).heroJson,
-            ...hj,
-            adena: Number.isFinite(nextAdena) ? nextAdena : hj?.adena ?? (currentHero as any).heroJson?.adena,
-            coins_silver: Number.isFinite(nextSilver) ? nextSilver : Number(hj?.coins_silver ?? (currentHero as any).heroJson?.coins_silver ?? 0),
-            coinOfLuck: Number.isFinite(nextCoinLuck) ? nextCoinLuck : hj?.coinOfLuck ?? (currentHero as any).heroJson?.coinOfLuck,
-          },
-        });
+        const store = useHeroStore.getState();
+        const liveHero = store.hero;
+        if (liveHero && res.character) {
+          const hj = (res.character as any).heroJson ?? {};
+          const inventory = Array.isArray(hj.inventory) ? hj.inventory : liveHero.inventory ?? [];
+          const overflowChest = Array.isArray(hj.overflowChest)
+            ? hj.overflowChest
+            : liveHero.overflowChest ?? [];
+          const activeDyes = Array.isArray(hj.activeDyes) ? hj.activeDyes : liveHero.activeDyes ?? [];
+          const nextCoinLuck = Number((res.character as any).coinLuck ?? hj.coinOfLuck ?? liveHero.coinOfLuck ?? 0);
+          const nextAdena = Number((res.character as any).adena ?? hj.adena ?? liveHero.adena ?? 0);
+          const nextLevel = Number((res.character as any).level ?? liveHero.level ?? 1);
+          const nextExp = Number((res.character as any).exp ?? liveHero.exp ?? 0);
+          const nextSp = Number((res.character as any).sp ?? liveHero.sp ?? 0);
+          const revision = Number(hj.heroRevision ?? (liveHero as any)?.heroJson?.heroRevision ?? 0);
+          store.applyServerSync(
+            {
+              level: nextLevel,
+              exp: nextExp,
+              sp: nextSp,
+              adena: nextAdena,
+              coinOfLuck: nextCoinLuck,
+              inventory,
+              overflowChest,
+              activeDyes,
+              heroJson: hj,
+            } as any,
+            {
+              level: nextLevel,
+              exp: nextExp,
+              sp: nextSp,
+              adena: nextAdena,
+              coinLuck: nextCoinLuck,
+              heroRevision: Number.isFinite(revision) ? revision : 0,
+              updatedAt: Date.now(),
+            }
+          );
+        }
         setDismantleResult(res.dropResult);
         setShowDismantleResult(true);
       } catch (e: any) {

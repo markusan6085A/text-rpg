@@ -1,0 +1,18 @@
+---
+description: Server-authoritative mutations with full snapshot sync
+alwaysApply: true
+---
+
+# Мутації тільки через server snapshot
+
+Для будь-якої мутації, що змінює економіку/інвентар/стан героя (POST/PUT/PATCH/DELETE):
+
+1. Потік тільки такий: **Click -> Server CAS/Lock -> Full Character Snapshot -> applyServerSync**.
+2. На сервері обов'язково: `expectedRevision` + перевірка revision, транзакція з row lock (`SELECT ... FOR UPDATE`), `409 revision_conflict` при mismatch.
+3. Клієнт **не рахує локально** залишки валюти/предметів після успішної мутації.
+4. Заборонено після мутації робити часткові `updateHero({ adena/.../inventory })` як джерело істини.
+5. Після успішної мутації клієнт оновлює `heroStore` тільки зі snapshot відповіді (`applyServerSync` + serverState.revision).
+6. Якщо сервер ще не повертає snapshot — спочатку змінити endpoint, щоб повертав повний `character`, і лише потім чіпати UI.
+7. Для `revision_conflict` дозволений silent-resync/retry, але без локальних економічних патчів.
+
+При рев'ю будь-якого фіксу перевіряти, що цей контракт не порушений.
