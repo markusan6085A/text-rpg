@@ -16,65 +16,77 @@ export async function clanNestedRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const { id } = req.params as { id: string };
-    const { amount } = req.body as { amount?: number };
+    const { amount, expectedRevision } = req.body as { amount?: number; expectedRevision?: number };
+    const expectedRevNum = Number(expectedRevision);
     
     app.log.info({ id, amount }, "Processing adena deposit");
 
     if (!amount || amount <= 0) {
       return reply.code(400).send({ error: "amount must be greater than 0" });
     }
-
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
-
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
+    if (!Number.isFinite(expectedRevNum) || expectedRevNum < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
     }
 
-    const isMember = await prisma.clanMember.findFirst({
-      where: {
-        clanId: id,
-        characterId: character.id,
-      },
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<Array<{ id: string; name: string; adena: bigint; heroJson: any }>>`
+        SELECT "id", "name", "adena", "heroJson"
+        FROM "Character"
+        WHERE "accountId" = ${auth.accountId}
+        ORDER BY "createdAt" ASC
+        LIMIT 1
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "character_not_found" as const };
+      const character = locked[0];
+      const currentRevision = Number((character.heroJson as any)?.heroRevision ?? 0);
+      if (currentRevision !== expectedRevNum) {
+        return { ok: false as const, reason: "revision_conflict" as const, revision: currentRevision };
+      }
+
+      const isMember = await tx.clanMember.findFirst({
+        where: { clanId: id, characterId: character.id },
+      });
+      const isCreator = await tx.clan.findFirst({
+        where: { id, creatorId: character.id },
+      });
+      if (!isMember && !isCreator) return { ok: false as const, reason: "forbidden" as const };
+
+      if (amount > Number(character.adena ?? 0n)) {
+        return { ok: false as const, reason: "insufficient_adena" as const };
+      }
+
+      const clan = await tx.clan.findUnique({ where: { id }, select: { id: true } });
+      if (!clan) return { ok: false as const, reason: "clan_not_found" as const };
+
+      await tx.character.update({
+        where: { id: character.id },
+        data: { adena: { decrement: amount } },
+      });
+      await tx.clan.update({
+        where: { id },
+        data: { adena: { increment: amount } },
+      });
+      await tx.clanLog.create({
+        data: {
+          clanId: id,
+          type: "adena_deposited",
+          characterId: character.id,
+          message: `${character.name} положил ${amount} адены в клан`,
+          metadata: { amount },
+        },
+      });
+      return { ok: true as const };
     });
 
-    const isCreator = await prisma.clan.findFirst({
-      where: {
-        id,
-        creatorId: character.id,
-      },
-    });
-
-    if (!isMember && !isCreator) {
-      return reply.code(403).send({ error: "you are not a member of this clan" });
+    if (!txRes.ok) {
+      if (txRes.reason === "character_not_found") return reply.code(404).send({ error: "character not found" });
+      if (txRes.reason === "clan_not_found") return reply.code(404).send({ error: "clan not found" });
+      if (txRes.reason === "revision_conflict") return reply.code(409).send({ error: "revision_conflict", revision: txRes.revision ?? 0 });
+      if (txRes.reason === "forbidden") return reply.code(403).send({ error: "you are not a member of this clan" });
+      if (txRes.reason === "insufficient_adena") return reply.code(400).send({ error: "insufficient adena" });
+      return reply.code(400).send({ error: "invalid input" });
     }
-
-    if (amount > (character.adena || 0)) {
-      return reply.code(400).send({ error: "insufficient adena" });
-    }
-
-    // Оновлюємо адену гравця та клану
-    await prisma.character.update({
-      where: { id: character.id },
-      data: { adena: { decrement: amount } },
-    });
-
-    await prisma.clan.update({
-      where: { id },
-      data: { adena: { increment: amount } },
-    });
-
-    // Додаємо лог
-    await prisma.clanLog.create({
-      data: {
-        clanId: id,
-        type: "adena_deposited",
-        characterId: character.id,
-        message: `${character.name} положил ${amount} адены в клан`,
-        metadata: { amount },
-      },
-    });
 
     return { ok: true };
   });
@@ -85,57 +97,69 @@ export async function clanNestedRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const { id } = req.params as { id: string };
-    const { amount } = req.body as { amount?: number };
+    const { amount, expectedRevision } = req.body as { amount?: number; expectedRevision?: number };
+    const expectedRevNum = Number(expectedRevision);
 
     if (!amount || amount <= 0) {
       return reply.code(400).send({ error: "amount must be greater than 0" });
     }
-
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
-
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
+    if (!Number.isFinite(expectedRevNum) || expectedRevNum < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
     }
 
-    const clan = await prisma.clan.findUnique({
-      where: { id },
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<Array<{ id: string; name: string; heroJson: any }>>`
+        SELECT "id", "name", "heroJson"
+        FROM "Character"
+        WHERE "accountId" = ${auth.accountId}
+        ORDER BY "createdAt" ASC
+        LIMIT 1
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "character_not_found" as const };
+      const character = locked[0];
+      const currentRevision = Number((character.heroJson as any)?.heroRevision ?? 0);
+      if (currentRevision !== expectedRevNum) {
+        return { ok: false as const, reason: "revision_conflict" as const, revision: currentRevision };
+      }
+
+      const clan = await tx.clan.findUnique({ where: { id } });
+      if (!clan) return { ok: false as const, reason: "clan_not_found" as const };
+      if (clan.creatorId !== character.id) {
+        return { ok: false as const, reason: "forbidden" as const };
+      }
+      if (amount > clan.adena) {
+        return { ok: false as const, reason: "insufficient_clan_adena" as const };
+      }
+
+      await tx.character.update({
+        where: { id: character.id },
+        data: { adena: { increment: amount } },
+      });
+      await tx.clan.update({
+        where: { id },
+        data: { adena: { decrement: amount } },
+      });
+      await tx.clanLog.create({
+        data: {
+          clanId: id,
+          type: "adena_withdrawn",
+          characterId: character.id,
+          message: `${character.name} забрал ${amount} адены из клана`,
+          metadata: { amount },
+        },
+      });
+      return { ok: true as const };
     });
 
-    if (!clan) {
-      return reply.code(404).send({ error: "clan not found" });
+    if (!txRes.ok) {
+      if (txRes.reason === "character_not_found") return reply.code(404).send({ error: "character not found" });
+      if (txRes.reason === "clan_not_found") return reply.code(404).send({ error: "clan not found" });
+      if (txRes.reason === "revision_conflict") return reply.code(409).send({ error: "revision_conflict", revision: txRes.revision ?? 0 });
+      if (txRes.reason === "forbidden") return reply.code(403).send({ error: "only clan leader can withdraw adena" });
+      if (txRes.reason === "insufficient_clan_adena") return reply.code(400).send({ error: "insufficient adena in clan" });
+      return reply.code(400).send({ error: "invalid input" });
     }
-
-    if (clan.creatorId !== character.id) {
-      return reply.code(403).send({ error: "only clan leader can withdraw adena" });
-    }
-
-    if (amount > clan.adena) {
-      return reply.code(400).send({ error: "insufficient adena in clan" });
-    }
-
-    // Оновлюємо адену гравця та клану
-    await prisma.character.update({
-      where: { id: character.id },
-      data: { adena: { increment: amount } },
-    });
-
-    await prisma.clan.update({
-      where: { id },
-      data: { adena: { decrement: amount } },
-    });
-
-    // Додаємо лог
-    await prisma.clanLog.create({
-      data: {
-        clanId: id,
-        type: "adena_withdrawn",
-        characterId: character.id,
-        message: `${character.name} забрал ${amount} адены из клана`,
-        metadata: { amount },
-      },
-    });
 
     return { ok: true };
   });
@@ -146,63 +170,75 @@ export async function clanNestedRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const { id } = req.params as { id: string };
-    const { amount } = req.body as { amount?: number };
+    const { amount, expectedRevision } = req.body as { amount?: number; expectedRevision?: number };
+    const expectedRevNum = Number(expectedRevision);
 
     if (!amount || amount <= 0) {
       return reply.code(400).send({ error: "amount must be greater than 0" });
     }
-
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
-
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
+    if (!Number.isFinite(expectedRevNum) || expectedRevNum < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
     }
 
-    const isMember = await prisma.clanMember.findFirst({
-      where: {
-        clanId: id,
-        characterId: character.id,
-      },
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<Array<{ id: string; name: string; coinLuck: bigint; heroJson: any }>>`
+        SELECT "id", "name", "coinLuck", "heroJson"
+        FROM "Character"
+        WHERE "accountId" = ${auth.accountId}
+        ORDER BY "createdAt" ASC
+        LIMIT 1
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "character_not_found" as const };
+      const character = locked[0];
+      const currentRevision = Number((character.heroJson as any)?.heroRevision ?? 0);
+      if (currentRevision !== expectedRevNum) {
+        return { ok: false as const, reason: "revision_conflict" as const, revision: currentRevision };
+      }
+
+      const isMember = await tx.clanMember.findFirst({
+        where: { clanId: id, characterId: character.id },
+      });
+      const isCreator = await tx.clan.findFirst({
+        where: { id, creatorId: character.id },
+      });
+      if (!isMember && !isCreator) return { ok: false as const, reason: "forbidden" as const };
+
+      if (amount > Number(character.coinLuck ?? 0n)) {
+        return { ok: false as const, reason: "insufficient_coin_luck" as const };
+      }
+
+      const clan = await tx.clan.findUnique({ where: { id }, select: { id: true } });
+      if (!clan) return { ok: false as const, reason: "clan_not_found" as const };
+
+      await tx.character.update({
+        where: { id: character.id },
+        data: { coinLuck: { decrement: amount } },
+      });
+      await tx.clan.update({
+        where: { id },
+        data: { coinLuck: { increment: amount } },
+      });
+      await tx.clanLog.create({
+        data: {
+          clanId: id,
+          type: "coin_luck_deposited",
+          characterId: character.id,
+          message: `${character.name} положил ${amount} Coin of Luck в клан`,
+          metadata: { amount },
+        },
+      });
+      return { ok: true as const };
     });
 
-    const isCreator = await prisma.clan.findFirst({
-      where: {
-        id,
-        creatorId: character.id,
-      },
-    });
-
-    if (!isMember && !isCreator) {
-      return reply.code(403).send({ error: "you are not a member of this clan" });
+    if (!txRes.ok) {
+      if (txRes.reason === "character_not_found") return reply.code(404).send({ error: "character not found" });
+      if (txRes.reason === "clan_not_found") return reply.code(404).send({ error: "clan not found" });
+      if (txRes.reason === "revision_conflict") return reply.code(409).send({ error: "revision_conflict", revision: txRes.revision ?? 0 });
+      if (txRes.reason === "forbidden") return reply.code(403).send({ error: "you are not a member of this clan" });
+      if (txRes.reason === "insufficient_coin_luck") return reply.code(400).send({ error: "insufficient coin of luck" });
+      return reply.code(400).send({ error: "invalid input" });
     }
-
-    if (amount > (character.coinLuck || 0)) {
-      return reply.code(400).send({ error: "insufficient coin of luck" });
-    }
-
-    // Оновлюємо Coin of Luck гравця та клану
-    await prisma.character.update({
-      where: { id: character.id },
-      data: { coinLuck: { decrement: amount } },
-    });
-
-    await prisma.clan.update({
-      where: { id },
-      data: { coinLuck: { increment: amount } },
-    });
-
-    // Додаємо лог
-    await prisma.clanLog.create({
-      data: {
-        clanId: id,
-        type: "coin_luck_deposited",
-        characterId: character.id,
-        message: `${character.name} положил ${amount} Coin of Luck в клан`,
-        metadata: { amount },
-      },
-    });
 
     return { ok: true };
   });
@@ -213,57 +249,69 @@ export async function clanNestedRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const { id } = req.params as { id: string };
-    const { amount } = req.body as { amount?: number };
+    const { amount, expectedRevision } = req.body as { amount?: number; expectedRevision?: number };
+    const expectedRevNum = Number(expectedRevision);
 
     if (!amount || amount <= 0) {
       return reply.code(400).send({ error: "amount must be greater than 0" });
     }
-
-    const character = await prisma.character.findFirst({
-      where: { accountId: auth.accountId },
-    });
-
-    if (!character) {
-      return reply.code(404).send({ error: "character not found" });
+    if (!Number.isFinite(expectedRevNum) || expectedRevNum < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
     }
 
-    const clan = await prisma.clan.findUnique({
-      where: { id },
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<Array<{ id: string; name: string; heroJson: any }>>`
+        SELECT "id", "name", "heroJson"
+        FROM "Character"
+        WHERE "accountId" = ${auth.accountId}
+        ORDER BY "createdAt" ASC
+        LIMIT 1
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "character_not_found" as const };
+      const character = locked[0];
+      const currentRevision = Number((character.heroJson as any)?.heroRevision ?? 0);
+      if (currentRevision !== expectedRevNum) {
+        return { ok: false as const, reason: "revision_conflict" as const, revision: currentRevision };
+      }
+
+      const clan = await tx.clan.findUnique({ where: { id } });
+      if (!clan) return { ok: false as const, reason: "clan_not_found" as const };
+      if (clan.creatorId !== character.id) {
+        return { ok: false as const, reason: "forbidden" as const };
+      }
+      if (amount > clan.coinLuck) {
+        return { ok: false as const, reason: "insufficient_clan_coin_luck" as const };
+      }
+
+      await tx.character.update({
+        where: { id: character.id },
+        data: { coinLuck: { increment: amount } },
+      });
+      await tx.clan.update({
+        where: { id },
+        data: { coinLuck: { decrement: amount } },
+      });
+      await tx.clanLog.create({
+        data: {
+          clanId: id,
+          type: "coin_luck_withdrawn",
+          characterId: character.id,
+          message: `${character.name} забрал ${amount} Coin of Luck из клана`,
+          metadata: { amount },
+        },
+      });
+      return { ok: true as const };
     });
 
-    if (!clan) {
-      return reply.code(404).send({ error: "clan not found" });
+    if (!txRes.ok) {
+      if (txRes.reason === "character_not_found") return reply.code(404).send({ error: "character not found" });
+      if (txRes.reason === "clan_not_found") return reply.code(404).send({ error: "clan not found" });
+      if (txRes.reason === "revision_conflict") return reply.code(409).send({ error: "revision_conflict", revision: txRes.revision ?? 0 });
+      if (txRes.reason === "forbidden") return reply.code(403).send({ error: "only clan leader can withdraw coin of luck" });
+      if (txRes.reason === "insufficient_clan_coin_luck") return reply.code(400).send({ error: "insufficient coin of luck in clan" });
+      return reply.code(400).send({ error: "invalid input" });
     }
-
-    if (clan.creatorId !== character.id) {
-      return reply.code(403).send({ error: "only clan leader can withdraw coin of luck" });
-    }
-
-    if (amount > clan.coinLuck) {
-      return reply.code(400).send({ error: "insufficient coin of luck in clan" });
-    }
-
-    // Оновлюємо Coin of Luck гравця та клану
-    await prisma.character.update({
-      where: { id: character.id },
-      data: { coinLuck: { increment: amount } },
-    });
-
-    await prisma.clan.update({
-      where: { id },
-      data: { coinLuck: { decrement: amount } },
-    });
-
-    // Додаємо лог
-    await prisma.clanLog.create({
-      data: {
-        clanId: id,
-        type: "coin_luck_withdrawn",
-        characterId: character.id,
-        message: `${character.name} забрал ${amount} Coin of Luck из клана`,
-        metadata: { amount },
-      },
-    });
 
     return { ok: true };
   });
@@ -383,12 +431,21 @@ export async function clanNestedRoutes(app: FastifyInstance) {
       if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
       const { id } = req.params as { id: string };
-      const { itemId, qty = 1, meta = {} } = req.body as { itemId?: string; qty?: number; meta?: any };
+      const { itemId, qty = 1, meta = {}, expectedRevision } = req.body as {
+        itemId?: string;
+        qty?: number;
+        meta?: any;
+        expectedRevision?: number;
+      };
+      const expectedRevNum = Number(expectedRevision);
 
       app.log.info({ id, itemId, qty, meta }, "Processing warehouse deposit");
 
       if (!itemId) {
         return reply.code(400).send({ error: "itemId is required" });
+      }
+      if (!Number.isFinite(expectedRevNum) || expectedRevNum < 0) {
+        return reply.code(400).send({ error: "expectedRevision required" });
       }
       if (String(itemId).trim() === "seven_seals_medal") {
         return reply.code(400).send({ error: "seven_seals_medal cannot be deposited" });
@@ -489,6 +546,16 @@ export async function clanNestedRoutes(app: FastifyInstance) {
       let warehouseItem;
       try {
         warehouseItem = await prisma.$transaction(async (tx) => {
+          const locked = await tx.$queryRaw<Array<{ id: string; heroJson: any }>>`
+            SELECT "id", "heroJson"
+            FROM "Character"
+            WHERE "id" = ${character.id} AND "accountId" = ${auth.accountId}
+            FOR UPDATE
+          `;
+          if (locked.length === 0) throw new Error("character not found");
+          const currentRevision = Number((locked[0]?.heroJson as any)?.heroRevision ?? 0);
+          if (currentRevision !== expectedRevNum) throw new Error("revision_conflict");
+
           const oldRevision = Number(heroJson.heroRevision ?? 0) || 0;
           const updatedHeroJson = addVersioning(
             { ...heroJson, inventory: newInventory },
@@ -516,6 +583,16 @@ export async function clanNestedRoutes(app: FastifyInstance) {
           await new Promise(resolve => setTimeout(resolve, 100));
           try {
             warehouseItem = await prisma.$transaction(async (tx) => {
+              const locked = await tx.$queryRaw<Array<{ id: string; heroJson: any }>>`
+                SELECT "id", "heroJson"
+                FROM "Character"
+                WHERE "id" = ${character.id} AND "accountId" = ${auth.accountId}
+                FOR UPDATE
+              `;
+              if (locked.length === 0) throw new Error("character not found");
+              const currentRevision = Number((locked[0]?.heroJson as any)?.heroRevision ?? 0);
+              if (currentRevision !== expectedRevNum) throw new Error("revision_conflict");
+
               const oldRevision = Number(heroJson.heroRevision ?? 0) || 0;
               const updatedHeroJson = addVersioning(
                 { ...heroJson, inventory: newInventory },
@@ -575,6 +652,9 @@ export async function clanNestedRoutes(app: FastifyInstance) {
         },
       };
     } catch (error: any) {
+      if (error?.message === "revision_conflict") {
+        return reply.code(409).send({ error: "revision_conflict" });
+      }
       app.log.error({ error: error.message, stack: error.stack }, "Error in warehouse deposit");
       return reply.code(500).send({ error: error.message || "Internal server error" });
     }
@@ -592,10 +672,17 @@ export async function clanNestedRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const { id } = req.params as { id: string };
-    const { itemId: warehouseRowId } = req.body as { itemId?: string };
+    const { itemId: warehouseRowId, expectedRevision } = req.body as {
+      itemId?: string;
+      expectedRevision?: number;
+    };
+    const expectedRevNum = Number(expectedRevision);
 
     if (!warehouseRowId) {
       return reply.code(400).send({ error: "itemId is required" });
+    }
+    if (!Number.isFinite(expectedRevNum) || expectedRevNum < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
     }
 
     const character = await prisma.character.findFirst({
@@ -658,24 +745,41 @@ export async function clanNestedRoutes(app: FastifyInstance) {
       oldRevision
     );
 
-    await prisma.$transaction(async (tx) => {
-      await tx.character.update({
-        where: { id: character.id },
-        data: { heroJson: updatedHeroJson },
+    try {
+      await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<Array<{ id: string; heroJson: any }>>`
+          SELECT "id", "heroJson"
+          FROM "Character"
+          WHERE "id" = ${character.id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) throw new Error("character not found");
+        const currentRevision = Number((locked[0]?.heroJson as any)?.heroRevision ?? 0);
+        if (currentRevision !== expectedRevNum) throw new Error("revision_conflict");
+
+        await tx.character.update({
+          where: { id: character.id },
+          data: { heroJson: updatedHeroJson },
+        });
+        await tx.clanWarehouse.delete({
+          where: { id: warehouseItem.id },
+        });
+        await tx.clanLog.create({
+          data: {
+            clanId: id,
+            type: "item_withdrawn",
+            characterId: character.id,
+            message: `${character.name} забрал предмет из склада`,
+            metadata: { itemId: warehouseItem.itemId, qty: warehouseItem.qty },
+          },
+        });
       });
-      await tx.clanWarehouse.delete({
-        where: { id: warehouseItem.id },
-      });
-      await tx.clanLog.create({
-        data: {
-          clanId: id,
-          type: "item_withdrawn",
-          characterId: character.id,
-          message: `${character.name} забрал предмет из склада`,
-          metadata: { itemId: warehouseItem.itemId, qty: warehouseItem.qty },
-        },
-      });
-    });
+    } catch (error: any) {
+      if (error?.message === "revision_conflict") {
+        return reply.code(409).send({ error: "revision_conflict" });
+      }
+      throw error;
+    }
 
     return { ok: true };
   });

@@ -259,7 +259,8 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
 
     try {
-      const response = await depositClanAdena(clan.id, amount);
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+      const response = await depositClanAdena(clan.id, amount, expectedRevision);
       if (response.ok) {
         setDepositAmount("");
         loadClan(); // Оновлюємо дані клану
@@ -289,7 +290,8 @@ export default function Clan({ navigate, clanId }: ClanProps) {
     }
 
     try {
-      const response = await withdrawClanAdena(clan.id, amount);
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+      const response = await withdrawClanAdena(clan.id, amount, expectedRevision);
       if (response.ok) {
         setWithdrawAdenaAmount("");
         loadClan(); // Оновлюємо дані клану
@@ -320,7 +322,8 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       }
 
       try {
-        const response = await depositClanCoinLuck(clan.id, amount);
+        const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+        const response = await depositClanCoinLuck(clan.id, amount, expectedRevision);
         if (response.ok) {
           setCoinLuckAmount("");
           loadClan(); // Оновлюємо дані клану
@@ -341,7 +344,8 @@ export default function Clan({ navigate, clanId }: ClanProps) {
       }
 
       try {
-        const response = await withdrawClanCoinLuck(clan.id, amount);
+        const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+        const response = await withdrawClanCoinLuck(clan.id, amount, expectedRevision);
         if (response.ok) {
           setCoinLuckAmount("");
           loadClan(); // Оновлюємо дані клану

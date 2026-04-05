@@ -34,7 +34,8 @@ export default function WithdrawItemsModal({
   const handleWithdraw = async (item: ClanWarehouseItem) => {
     if (!clan) return;
     try {
-      const response = await withdrawClanWarehouseItem(clan.id, item.id);
+      const expectedRevision = Number((heroStore.hero as any)?.heroJson?.heroRevision ?? 0);
+      const response = await withdrawClanWarehouseItem(clan.id, item.id, expectedRevision);
       if (response.ok) {
         onClose();
         if (heroStore.hero) {

@@ -39,11 +39,13 @@ export default function DepositItemsModal({
     if (!clan) return;
     try {
       const itemId = item.id || item.itemId;
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
       const response = await depositClanWarehouseItem(
         clan.id,
         itemId,
         item.count || 1,
-        { name: item.name, slot: item.slot, icon: item.icon, kind: item.kind, enchantLevel: item.enchantLevel ?? 0 }
+        { name: item.name, slot: item.slot, icon: item.icon, kind: item.kind, enchantLevel: item.enchantLevel ?? 0 },
+        expectedRevision
       );
       if (response.ok) {
         onClose();
