@@ -23,6 +23,7 @@ import {
   ensureWorldZoneLoaded,
   getWorldMobHpForSlot,
 } from "../../worldMobHpStore";
+import { scalePveSnapshotHpMpCpToBuffed } from "../../../utils/heroBuffedResources";
 
 type Setter = (
   partial: Partial<BattleState> | ((state: BattleState) => Partial<BattleState>),
@@ -356,11 +357,13 @@ export const createStartBattle =
         const hj = (ch as any)?.heroJson && typeof (ch as any).heroJson === "object" ? (ch as any).heroJson : {};
         const store = useHeroStore.getState();
         const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
+        const buffsForScale = Array.isArray((hj as any).heroBuffs) ? (hj as any).heroBuffs : savedBuffs;
+        const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj as Record<string, any>, buffsForScale, now);
         store.applyServerSync(
           {
-            hp: (hj as any).hp,
-            mp: (hj as any).mp,
-            cp: (hj as any).cp,
+            hp: scaledRes.hp,
+            mp: scaledRes.mp,
+            cp: scaledRes.cp,
             heroJson: { ...prevHj, ...hj },
           } as any,
           {

@@ -6,6 +6,7 @@ import { pveBattleTickAPI } from "../../../utils/api/characters";
 import { applyBuffsToStats } from "../helpers";
 import { persistBattle, loadBattle } from "../persist";
 import type { BattleState } from "../types";
+import { scalePveSnapshotHpMpCpToBuffed } from "../../../utils/heroBuffedResources";
 
 let tickInFlight = false;
 
@@ -83,11 +84,14 @@ export function schedulePveMobTickOnline(): void {
       const mergedHj = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, any>;
       const store = useHeroStore.getState();
       const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
+      const tickNow = Date.now();
+      const buffsForScale = Array.isArray(mergedHj.heroBuffs) ? mergedHj.heroBuffs : [];
+      const scaledRes = scalePveSnapshotHpMpCpToBuffed(mergedHj, buffsForScale, tickNow);
       store.applyServerSync(
         {
-          hp: mergedHj.hp,
-          mp: mergedHj.mp,
-          cp: mergedHj.cp,
+          hp: scaledRes.hp,
+          mp: scaledRes.mp,
+          cp: scaledRes.cp,
           heroJson: { ...prevHj, ...mergedHj },
         } as any,
         {

@@ -282,6 +282,22 @@ async function readHeroRevisionFromGetCharacter(characterId: string): Promise<nu
   return Number.isFinite(r) && r >= 0 ? r : 0;
 }
 
+/** Після 409: брати max(ревізія з тіла помилки, GET) — GET інколи відстає, тоді повторний POST знову 409. */
+async function resolveRevisionAfter409Conflict(characterId: string, e: any): Promise<number> {
+  const fromBody = Number(
+    e?.body?.currentRevision ?? e?.body?.serverState?.heroRevision ?? e?.body?.heroRevision,
+  );
+  let fromGet = NaN;
+  try {
+    fromGet = await readHeroRevisionFromGetCharacter(characterId);
+  } catch {
+    /* ignore */
+  }
+  const nums = [fromBody, fromGet].filter((n) => Number.isFinite(n) && n >= 0) as number[];
+  if (nums.length === 0) throw e;
+  return Math.max(...nums);
+}
+
 async function syncHeroBuffsAttempt(
   characterId: string,
   heroBuffs: any[],
@@ -326,16 +342,7 @@ export async function syncHeroBuffsAPI(
   } catch (e: any) {
     if (e?.status !== 409) throw e;
     applyRevisionConflictFromApiError(e);
-    const fromBody = Number(
-      (e as any)?.body?.currentRevision ?? (e as any)?.body?.serverState?.heroRevision
-    );
-    let rev2: number;
-    try {
-      rev2 = await readHeroRevisionFromGetCharacter(characterId);
-    } catch {
-      if (Number.isFinite(fromBody) && fromBody >= 0) rev2 = fromBody;
-      else throw e;
-    }
+    const rev2 = await resolveRevisionAfter409Conflict(characterId, e);
     return await syncHeroBuffsAttempt(characterId, data.heroBuffs, rev2);
   }
 }
@@ -382,16 +389,7 @@ export async function battleStartAPI(
   } catch (e: any) {
     if (e?.status !== 409) throw e;
     applyRevisionConflictFromApiError(e);
-    const fromBody = Number(
-      (e as any)?.body?.currentRevision ?? (e as any)?.body?.serverState?.heroRevision
-    );
-    let rev2: number;
-    try {
-      rev2 = await readHeroRevisionFromGetCharacter(characterId);
-    } catch {
-      if (Number.isFinite(fromBody) && fromBody >= 0) rev2 = fromBody;
-      else throw e;
-    }
+    const rev2 = await resolveRevisionAfter409Conflict(characterId, e);
     const res = await apiRequest<{
       ok: boolean;
       character: Character;
@@ -446,16 +444,7 @@ export async function pveBattleAttackAPI(
   } catch (e: any) {
     if (e?.status !== 409) throw e;
     applyRevisionConflictFromApiError(e);
-    const fromBody = Number(
-      (e as any)?.body?.currentRevision ?? (e as any)?.body?.serverState?.heroRevision
-    );
-    let rev2: number;
-    try {
-      rev2 = await readHeroRevisionFromGetCharacter(characterId);
-    } catch {
-      if (Number.isFinite(fromBody) && fromBody >= 0) rev2 = fromBody;
-      else throw e;
-    }
+    const rev2 = await resolveRevisionAfter409Conflict(characterId, e);
     return await apiRequest(url, {
       method: "POST",
       body: JSON.stringify({ ...data, expectedRevision: rev2 }),
@@ -498,16 +487,7 @@ export async function pveBattleTickAPI(
   } catch (e: any) {
     if (e?.status !== 409) throw e;
     applyRevisionConflictFromApiError(e);
-    const fromBody = Number(
-      (e as any)?.body?.currentRevision ?? (e as any)?.body?.serverState?.heroRevision
-    );
-    let rev2: number;
-    try {
-      rev2 = await readHeroRevisionFromGetCharacter(characterId);
-    } catch {
-      if (Number.isFinite(fromBody) && fromBody >= 0) rev2 = fromBody;
-      else throw e;
-    }
+    const rev2 = await resolveRevisionAfter409Conflict(characterId, e);
     return await apiRequest(url, {
       method: "POST",
       body: JSON.stringify({ ...data, expectedRevision: rev2 }),
@@ -535,16 +515,7 @@ export async function pveCastSelfBuffAPI(
   } catch (e: any) {
     if (e?.status !== 409) throw e;
     applyRevisionConflictFromApiError(e);
-    const fromBody = Number(
-      (e as any)?.body?.currentRevision ?? (e as any)?.body?.serverState?.heroRevision
-    );
-    let rev2: number;
-    try {
-      rev2 = await readHeroRevisionFromGetCharacter(characterId);
-    } catch {
-      if (Number.isFinite(fromBody) && fromBody >= 0) rev2 = fromBody;
-      else throw e;
-    }
+    const rev2 = await resolveRevisionAfter409Conflict(characterId, e);
     return await apiRequest<{ ok: boolean; character: Character; logLine?: string }>(url, {
       method: "POST",
       body: JSON.stringify({ skillId: data.skillId, expectedRevision: rev2 }),

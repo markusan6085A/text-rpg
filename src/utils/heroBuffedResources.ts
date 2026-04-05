@@ -48,3 +48,42 @@ export function getHeroResourceValues(hero: Hero, inBattle: boolean) {
     maxCp,
   };
 }
+
+const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
+
+function normalizeStoredResourcePercent(raw: unknown): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return NaN;
+  if (n > 1 && n <= 100) return clamp01(n / 100);
+  return clamp01(n);
+}
+
+/**
+ * Сервер зберігає hp/mp/cp у heroJson у масштабі base max (див. heroPersistence).
+ * Після applyServerSync клієнтський max з buffs вищий — без масштабування смуги HUD показують ~половину після PvE snapshot.
+ */
+export function scalePveSnapshotHpMpCpToBuffed(
+  hj: Record<string, any>,
+  buffsForScaling: any[],
+  now = Date.now(),
+): { hp: number; mp: number; cp: number } {
+  const cleaned = cleanupBuffs(buffsForScaling, now);
+  const bmh = Math.max(1, Math.floor(Number(hj.maxHp ?? 1)));
+  const bmm = Math.max(1, Math.floor(Number(hj.maxMp ?? 1)));
+  const bmc = Math.max(1, Math.floor(Number(hj.maxCp ?? 1)));
+  const buffed = computeBuffedMaxResources(
+    { maxHp: bmh, maxMp: bmm, maxCp: bmc },
+    cleaned as any,
+  );
+  const hpPctRaw = normalizeStoredResourcePercent(hj.hpPercent);
+  const mpPctRaw = normalizeStoredResourcePercent(hj.mpPercent);
+  const cpPctRaw = normalizeStoredResourcePercent(hj.cpPercent);
+  const hpPct = Number.isFinite(hpPctRaw) ? hpPctRaw : (bmh > 0 ? clamp01(Number(hj.hp ?? 0) / bmh) : 1);
+  const mpPct = Number.isFinite(mpPctRaw) ? mpPctRaw : (bmm > 0 ? clamp01(Number(hj.mp ?? 0) / bmm) : 1);
+  const cpPct = Number.isFinite(cpPctRaw) ? cpPctRaw : (bmc > 0 ? clamp01(Number(hj.cp ?? 0) / bmc) : 1);
+  return {
+    hp: Math.min(buffed.maxHp, Math.max(0, Math.round(hpPct * buffed.maxHp))),
+    mp: Math.min(buffed.maxMp, Math.max(0, Math.round(mpPct * buffed.maxMp))),
+    cp: Math.min(buffed.maxCp, Math.max(0, Math.round(cpPct * buffed.maxCp))),
+  };
+}

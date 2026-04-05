@@ -13,6 +13,7 @@ import { addDailyProgress } from "../../dailyQuestsProgress";
 import { createCooldownEntry } from "./useSkill/helpers";
 import { calcAutoAttackInterval } from "../../../utils/combatSpeed";
 import { applyBuffsToStats } from "../helpers";
+import { scalePveSnapshotHpMpCpToBuffed } from "../../../utils/heroBuffedResources";
 
 let inFlightSkillId: number | null = null;
 
@@ -91,11 +92,13 @@ export function schedulePveAttackSkillOnline(args: {
       const hj = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, any>;
       const store = useHeroStore.getState();
       const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
+      const buffsForScale = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
+      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, Date.now());
       store.applyServerSync(
         {
-          hp: hj.hp,
-          mp: hj.mp,
-          cp: hj.cp,
+          hp: scaledRes.hp,
+          mp: scaledRes.mp,
+          cp: scaledRes.cp,
           heroJson: { ...prevHj, ...hj },
         } as any,
         {

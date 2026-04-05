@@ -6,6 +6,7 @@ import { battleStoreRef } from "../../battleStoreRef";
 import { cleanupBuffs } from "../helpers";
 import { loadBattle, persistBattle } from "../persist";
 import { skillDefIsToggle } from "../loadout";
+import { scalePveSnapshotHpMpCpToBuffed } from "../../../utils/heroBuffedResources";
 
 let inFlightSkillId: number | null = null;
 
@@ -58,11 +59,14 @@ export function schedulePveSelfBuffOnline(
       const hj = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, any>;
       const store = useHeroStore.getState();
       const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
+      const now = Date.now();
+      const buffsForScale = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
+      const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, now);
       store.applyServerSync(
         {
-          hp: hj.hp,
-          mp: hj.mp,
-          cp: hj.cp,
+          hp: scaledRes.hp,
+          mp: scaledRes.mp,
+          cp: scaledRes.cp,
           heroJson: { ...prevHj, ...hj },
         } as any,
         {
@@ -73,7 +77,6 @@ export function schedulePveSelfBuffOnline(
 
       const heroName = store.hero?.name;
       if (!heroName) return;
-      const now = Date.now();
       const raw = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
       const cleaned = cleanupBuffs(raw as any, now);
       const line = (res as any).logLine || `Вы использовали ${def.name}`;
