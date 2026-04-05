@@ -238,6 +238,24 @@ function isStackableItem(it: any): boolean {
   return true;
 }
 
+/**
+ * Колонки Character.baseMax* з API — джерело правди для бази HP/MP/CP (без battle бафів).
+ * Якщо їх ігнорувати й брати лише recalculateAllStats().resources, локальний перерахунок може
+ * збігатися з уже бафнутим max зі старого знімка → подвійний Bless на HUD.
+ */
+function tripletFromCharacterBaseColumns(
+  character: unknown,
+): { maxHp: number; maxMp: number; maxCp: number } | null {
+  const c = character as { baseMaxHp?: unknown; baseMaxMp?: unknown; baseMaxCp?: unknown } | null;
+  if (!c) return null;
+  const hp = Math.floor(Number(c.baseMaxHp));
+  const mp = Math.floor(Number(c.baseMaxMp));
+  const cp = Math.floor(Number(c.baseMaxCp));
+  if (!Number.isFinite(hp) || !Number.isFinite(mp) || !Number.isFinite(cp)) return null;
+  if (hp < 1 || mp < 1 || cp < 1) return null;
+  return { maxHp: hp, maxMp: mp, maxCp: cp };
+}
+
 /** Об'єднує інвентарі local + server — ніколи не губити предмети. Зброя/броня — кожен окремо (count:1).
  * @param opts.preferLocalStackCounts — локальний snapshot **новіший** за сервер: (1) стаки з однаковим ключем — count з локалки, не max;
  * (2) для нестакабельних предметів ключ містить enchantLevel: серверний рядок з тим самим id, але іншою заточкою, відкидаємо,
@@ -680,7 +698,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         }
         const savedBuffs = cleanupBuffs(Array.from(bestByKey.values()), now);
         const recalculated = recalculateAllStats(heroForLocalRecalc, savedBuffs);
-        const baseMax = { maxHp: recalculated.resources.maxHp, maxMp: recalculated.resources.maxMp, maxCp: recalculated.resources.maxCp };
+        const baseMax =
+          tripletFromCharacterBaseColumns(character) ?? {
+            maxHp: recalculated.resources.maxHp,
+            maxMp: recalculated.resources.maxMp,
+            maxCp: recalculated.resources.maxCp,
+          };
         const buffedMax = computeBuffedMaxResources(baseMax, savedBuffs);
         const heroData = character.heroJson as any;
         const serverMaxHp = heroData?.maxHp != null ? Number(heroData.maxHp) : 0;
@@ -759,6 +782,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           adena: finalAdenaPreferred,
           inventory: consolidatedInv,
           overflowChest: mergedOverflowPreferred,
+          maxHp: baseMax.maxHp,
+          maxMp: baseMax.maxMp,
+          maxCp: baseMax.maxCp,
+          baseMaxHp: baseMax.maxHp,
+          baseMaxMp: baseMax.maxMp,
+          baseMaxCp: baseMax.maxCp,
           warehouseSlots: Array.isArray((serverHeroJson as any)?.warehouseSlots)
             ? (serverHeroJson as any).warehouseSlots
             : (Array.isArray((prevMergedHj as any)?.warehouseSlots) ? (prevMergedHj as any).warehouseSlots : []),
@@ -766,9 +795,9 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
           tvt_coins: mergedTvtPreferred,
         };
         (mergedHero as any).username = character.name;
-        (mergedHero as any).baseMaxHp = recalculated.resources.maxHp;
-        (mergedHero as any).baseMaxMp = recalculated.resources.maxMp;
-        (mergedHero as any).baseMaxCp = recalculated.resources.maxCp;
+        (mergedHero as any).baseMaxHp = baseMax.maxHp;
+        (mergedHero as any).baseMaxMp = baseMax.maxMp;
+        (mergedHero as any).baseMaxCp = baseMax.maxCp;
         // 🔥 КРИТИЧНО: Оновлюємо serverState.heroRevision перед background save — інакше heroPersistence пропускає PUT (expectedRevision undefined)
         // Без цього Browser 1 з level 7 ніколи не синхронізується → Browser 2 завжди бачить level 1 з API
         const serverRev = (character.heroJson as any)?.heroRevision ?? (character as any)?.heroRevision;
@@ -1171,11 +1200,12 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     const savedBuffs = cleanupBuffs(uniqueBuffsForProfession, now);
     const recalculated = recalculateAllStats(heroForRecalc, []);
 
-    const baseMax = {
-      maxHp: recalculated.resources.maxHp,
-      maxMp: recalculated.resources.maxMp,
-      maxCp: recalculated.resources.maxCp,
-    };
+    const baseMax =
+      tripletFromCharacterBaseColumns(character) ?? {
+        maxHp: recalculated.resources.maxHp,
+        maxMp: recalculated.resources.maxMp,
+        maxCp: recalculated.resources.maxCp,
+      };
     const heroDataAny = heroData as any;
     const serverIsDead = Boolean(heroDataAny?.isDead) || Number(heroDataAny?.deadAt) > 0;
     const localJson = (localSnapshot as any)?.heroJson || {};
@@ -1334,15 +1364,21 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
       ...(dailyQuestsResetDate !== undefined ? { dailyQuestsResetDate } : {}),
       activeQuests: mergedActiveQuests,
     };
-    (heroWithRecalculatedStats as any).baseMaxHp = recalculated.resources.maxHp;
-    (heroWithRecalculatedStats as any).baseMaxMp = recalculated.resources.maxMp;
-    (heroWithRecalculatedStats as any).baseMaxCp = recalculated.resources.maxCp;
+    (heroWithRecalculatedStats as any).baseMaxHp = baseMax.maxHp;
+    (heroWithRecalculatedStats as any).baseMaxMp = baseMax.maxMp;
+    (heroWithRecalculatedStats as any).baseMaxCp = baseMax.maxCp;
     // 🔥 Якщо живий або відновлено 70% після смерті при reload — heroJson isDead: false
     const loadedHeroJson = heroData || (fixedHero as any).heroJson || {};
     (heroWithRecalculatedStats as any).heroJson = {
       ...loadedHeroJson,
       ...(preferLocalAlive || finalHp > 0 || isAliveAfterLoad ? { isDead: false, deadAt: 0 } : {}),
       heroBuffs: isDead && !isAliveAfterLoad ? [] : finalBuffs,
+      maxHp: baseMax.maxHp,
+      maxMp: baseMax.maxMp,
+      maxCp: baseMax.maxCp,
+      baseMaxHp: baseMax.maxHp,
+      baseMaxMp: baseMax.maxMp,
+      baseMaxCp: baseMax.maxCp,
     };
 
     if (localBelongsToCharacter && hydratedLocalHero) {
