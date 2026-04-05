@@ -105,20 +105,26 @@ export default function SellItems({ navigate }: SellItemsProps) {
       .filter(Boolean)
       .map((item: any) => {
         const inventoryIndex = resolveInventoryIndex(item);
+        const row = inventoryIndex >= 0 ? (hero.inventory?.[inventoryIndex] as any) : null;
+        const rowCount = Math.max(1, Number(row?.count ?? 1));
         return {
           inventoryIndex,
-          amount: Math.max(1, Number(item?.count ?? 1)),
-          expectedItemId: String(item?.id ?? item?.itemId ?? ""),
-          expectedEnchantLevel: Math.max(0, Number(item?.enchantLevel ?? 0)),
+          amount: row ? rowCount : Math.max(1, Number(item?.count ?? 1)),
+          expectedItemId: String(row?.id ?? row?.itemId ?? item?.id ?? item?.itemId ?? ""),
+          expectedEnchantLevel: Math.max(0, Number(row?.enchantLevel ?? item?.enchantLevel ?? 0)),
         };
       })
-      .filter((op) => op.inventoryIndex >= 0);
+      .filter((op) => op.inventoryIndex >= 0 && op.expectedItemId);
     if (operations.length === 0) {
       showToast("Не вдалося визначити предмети для продажу. Оновіть інвентар.", "error");
       return;
     }
 
-    const expectedRevision = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
+    const expectedRevision = Number(
+      useHeroStore.getState().serverState?.heroRevision ??
+      (useHeroStore.getState().hero as any)?.heroJson?.heroRevision ??
+      0
+    );
     setSelling(true);
     try {
       const charId = useCharacterStore.getState().characterId;
@@ -184,7 +190,11 @@ export default function SellItems({ navigate }: SellItemsProps) {
     const price = getSellPrice(item.id, itemsDB[item.id] || itemsDBWithStarter[item.id]);
     if (price == null || price <= 0) return;
 
-    const expectedRevision = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
+    const expectedRevision = Number(
+      useHeroStore.getState().serverState?.heroRevision ??
+      (useHeroStore.getState().hero as any)?.heroJson?.heroRevision ??
+      0
+    );
     setSelling(true);
     try {
       const charId = useCharacterStore.getState().characterId;
@@ -193,14 +203,21 @@ export default function SellItems({ navigate }: SellItemsProps) {
       if (inventoryIndex < 0) {
         throw new Error("item not found in inventory");
       }
+      const row = hero.inventory[inventoryIndex] as any;
+      const rowCount = Math.max(1, Number(row?.count ?? 1));
+      const safeAmount = Math.max(1, Math.min(Number(amount || 1), rowCount));
+      const expectedItemId = String(row?.id ?? row?.itemId ?? item.id ?? item.itemId ?? "");
+      if (!expectedItemId) {
+        throw new Error("expectedItemId missing");
+      }
       const result = await sellInventoryItemsAPI(charId, {
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
         operations: [
           {
             inventoryIndex,
-            amount: Math.max(1, Number(amount || 1)),
-            expectedItemId: String(item.id ?? item.itemId ?? ""),
-            expectedEnchantLevel: Math.max(0, Number(item.enchantLevel ?? 0)),
+            amount: safeAmount,
+            expectedItemId,
+            expectedEnchantLevel: Math.max(0, Number(row?.enchantLevel ?? item.enchantLevel ?? 0)),
           },
         ],
       });
