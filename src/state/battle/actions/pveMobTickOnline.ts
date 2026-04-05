@@ -232,23 +232,26 @@ export function schedulePveMobTickOnline(): void {
         return;
       }
 
+      const sessTick = mergedHj?.battleSession;
+      const mobBuffsTick = Array.isArray(sessTick?.mobBuffs)
+        ? cleanupBuffs(sessTick.mobBuffs as any[], tickNow)
+        : [];
+      const tickPatch: Record<string, unknown> = {
+        mobNextAttackAt: mobNextAt,
+        log: nextLog,
+        heroBuffs: buffsSynced,
+        mobBuffs: mobBuffsTick,
+        ...controlPatch,
+      };
+      if (typeof sessTick?.mobStunnedUntil === "number" && Number.isFinite(sessTick.mobStunnedUntil)) {
+        tickPatch.mobStunnedUntil = sessTick.mobStunnedUntil;
+      }
       if (battleStoreRef.setState) {
-        battleStoreRef.setState({
-          mobNextAttackAt: mobNextAt,
-          log: nextLog,
-          heroBuffs: buffsSynced,
-          ...controlPatch,
-        });
+        battleStoreRef.setState(tickPatch as any);
       }
       if (heroName) {
         const saved = loadBattle(heroName) || {};
-        persistBattle({
-          ...saved,
-          mobNextAttackAt: mobNextAt,
-          log: nextLog,
-          heroBuffs: buffsSynced,
-          ...controlPatch,
-        } as any, heroName);
+        persistBattle({ ...saved, ...tickPatch } as any, heroName);
       }
     } catch (e: any) {
       const code = String(e?.body?.error ?? "");

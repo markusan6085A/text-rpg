@@ -61,30 +61,6 @@ function heroIsMageClass(heroJson: any): boolean {
   );
 }
 
-function sanitizeClientMobBuffs(raw: any): any[] {
-  if (!Array.isArray(raw)) return [];
-  return raw
-    .filter((b) => b && typeof b === "object")
-    .map((b) => ({
-      id: typeof b.id === "number" ? b.id : undefined,
-      name: typeof b.name === "string" ? b.name.slice(0, 120) : undefined,
-      expiresAt: Number(b.expiresAt) || 0,
-      startedAt: Number(b.startedAt) || undefined,
-      durationMs: Number(b.durationMs) || undefined,
-      effects: Array.isArray(b.effects)
-        ? b.effects
-            .filter((e: any) => e && typeof e === "object" && typeof e.stat === "string")
-            .slice(0, 8)
-            .map((e: any) => ({
-              stat: String(e.stat).slice(0, 48),
-              mode: e.mode === "percent" ? "percent" : "flat",
-              value: Math.max(-200, Math.min(200, Number(e.value) || 0)),
-            }))
-        : [],
-    }))
-    .slice(0, 24);
-}
-
 function applyMobBuffsToSession(sess: any, mobBuffsClean: any[], now: number) {
   const baseP = Math.max(1, Math.floor(Number(sess.mobPDefBase ?? sess.mobPDef) || 1));
   const baseM = Math.max(1, Math.floor(Number(sess.mobMDefBase ?? sess.mobMDef) || 1));
@@ -113,6 +89,23 @@ function applyMobBuffsToSession(sess: any, mobBuffsClean: any[], now: number) {
   sess.holyResist = merged.holyResist;
   sess.darkResist = merged.darkResist;
   sess.mobBuffs = mobBuffsClean;
+}
+
+/** Перерахунок pDef/mDef/evasion/резистів моба тільки з battleSession.mobBuffs (БД), без клієнта. */
+function syncMobCombatFromSessionBuffs(sess: any, now: number) {
+  if (typeof sess.mobPDefBase !== "number") sess.mobPDefBase = Math.max(1, Math.floor(Number(sess.mobPDef) || 1));
+  if (typeof sess.mobMDefBase !== "number") sess.mobMDefBase = Math.max(1, Math.floor(Number(sess.mobMDef) || 1));
+  if (sess.fireResistBase === undefined) sess.fireResistBase = Number(sess.fireResist) || 0;
+  if (sess.waterResistBase === undefined) sess.waterResistBase = Number(sess.waterResist) || 0;
+  if (sess.windResistBase === undefined) sess.windResistBase = Number(sess.windResist) || 0;
+  if (sess.earthResistBase === undefined) sess.earthResistBase = Number(sess.earthResist) || 0;
+  if (sess.holyResistBase === undefined) sess.holyResistBase = Number(sess.holyResist) || 0;
+  if (sess.darkResistBase === undefined) sess.darkResistBase = Number(sess.darkResist) || 0;
+  if (sess.mobEvasionBase === undefined) {
+    sess.mobEvasionBase = Math.max(0, Math.floor(Number(sess.mobEvasion) || 0));
+  }
+  const stored = cleanupBattleBuffs(Array.isArray(sess.mobBuffs) ? sess.mobBuffs : [], now);
+  applyMobBuffsToSession(sess, stored, now);
 }
 
 function checkSonicAndForceStacks(heroJson: any, skillId: number): { ok: false; code: string } | { ok: true } {
@@ -176,7 +169,6 @@ export function applyPveBattleAttackSnapshot(args: {
   skillNameFallback?: string;
   loadoutSlots?: any[];
   activeChargeSlots?: any[];
-  mobBuffsFromClient?: any[];
 }): PveBattleAttackResult {
   const hjIn = args.heroJson && typeof args.heroJson === "object" ? args.heroJson : {};
   const hj = { ...hjIn };
@@ -201,22 +193,7 @@ export function applyPveBattleAttackSnapshot(args: {
     return { ok: false, code: "invalid_skill", message: "skillId invalid" };
   }
 
-  if (args.mobBuffsFromClient !== undefined) {
-    const sanitized = sanitizeClientMobBuffs(args.mobBuffsFromClient);
-    const cleaned = cleanupBattleBuffs(sanitized, now);
-    if (typeof sess.mobPDefBase !== "number") sess.mobPDefBase = Math.max(1, Math.floor(Number(sess.mobPDef) || 1));
-    if (typeof sess.mobMDefBase !== "number") sess.mobMDefBase = Math.max(1, Math.floor(Number(sess.mobMDef) || 1));
-    if (sess.fireResistBase === undefined) sess.fireResistBase = Number(sess.fireResist) || 0;
-    if (sess.waterResistBase === undefined) sess.waterResistBase = Number(sess.waterResist) || 0;
-    if (sess.windResistBase === undefined) sess.windResistBase = Number(sess.windResist) || 0;
-    if (sess.earthResistBase === undefined) sess.earthResistBase = Number(sess.earthResist) || 0;
-    if (sess.holyResistBase === undefined) sess.holyResistBase = Number(sess.holyResist) || 0;
-    if (sess.darkResistBase === undefined) sess.darkResistBase = Number(sess.darkResist) || 0;
-    if (sess.mobEvasionBase === undefined) {
-      sess.mobEvasionBase = Math.max(0, Math.floor(Number(sess.mobEvasion) || 0));
-    }
-    applyMobBuffsToSession(sess, cleaned, now);
-  }
+  syncMobCombatFromSessionBuffs(sess, now);
 
   const toggleLogLines = applyServerToggleResourceTicks(hj, now);
 

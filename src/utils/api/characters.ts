@@ -408,7 +408,6 @@ export async function pveBattleAttackAPI(
     skillName?: string;
     loadoutSlots?: (number | string | null)[];
     activeChargeSlots?: number[];
-    mobBuffs?: any[];
   }
 ): Promise<{
   ok: boolean;

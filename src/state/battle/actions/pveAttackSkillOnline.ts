@@ -92,7 +92,6 @@ export function schedulePveAttackSkillOnline(args: {
         skillName: def.name,
         loadoutSlots: state.loadoutSlots,
         activeChargeSlots: state.activeChargeSlots ?? [],
-        mobBuffs: state.mobBuffs ?? [],
       });
       if (!res?.ok || !(res as any).character) return;
       const ch = (res as any).character;
@@ -238,29 +237,40 @@ export function schedulePveAttackSkillOnline(args: {
           : mergedHeroBuffs,
         Date.now(),
       );
+      const sessPost = ((heroAfter as any)?.heroJson || {})?.battleSession;
+      const mobBuffsServer = Array.isArray(sessPost?.mobBuffs)
+        ? cleanupBuffs(sessPost.mobBuffs as any[], Date.now())
+        : [];
+      const fightPatch: Record<string, unknown> = {
+        mobHP: mobHpAfter,
+        status: "fighting",
+        log: mergedLog,
+        cooldowns: nextCooldowns,
+        heroBuffs: nextHeroBuffs,
+        mobBuffs: mobBuffsServer,
+        ...(heroNextAttackAtOut != null ? { heroNextAttackAt: heroNextAttackAtOut } : {}),
+      };
+      if (typeof sessPost?.mobStunnedUntil === "number" && Number.isFinite(sessPost.mobStunnedUntil)) {
+        fightPatch.mobStunnedUntil = sessPost.mobStunnedUntil;
+      }
       if (battleStoreRef.setState) {
-        battleStoreRef.setState({
-          mobHP: mobHpAfter,
-          status: "fighting",
-          log: mergedLog,
-          cooldowns: nextCooldowns,
-          heroBuffs: nextHeroBuffs,
-          ...(heroNextAttackAtOut != null ? { heroNextAttackAt: heroNextAttackAtOut } : {}),
-        });
+        battleStoreRef.setState(fightPatch as any);
       }
       const saved = loadBattle(heroName) || {};
-      persistBattle(
-        {
-          ...saved,
-          mobHP: mobHpAfter,
-          status: "fighting",
-          log: mergedLog,
-          cooldowns: nextCooldowns,
-          heroBuffs: nextHeroBuffs,
-          ...(heroNextAttackAtOut != null ? { heroNextAttackAt: heroNextAttackAtOut } : {}),
-        } as any,
-        heroName
-      );
+      const persistFight: Record<string, unknown> = {
+        ...saved,
+        mobHP: mobHpAfter,
+        status: "fighting",
+        log: mergedLog,
+        cooldowns: nextCooldowns,
+        heroBuffs: nextHeroBuffs,
+        mobBuffs: mobBuffsServer,
+        ...(heroNextAttackAtOut != null ? { heroNextAttackAt: heroNextAttackAtOut } : {}),
+      };
+      if (typeof sessPost?.mobStunnedUntil === "number" && Number.isFinite(sessPost.mobStunnedUntil)) {
+        persistFight.mobStunnedUntil = sessPost.mobStunnedUntil;
+      }
+      persistBattle(persistFight as any, heroName);
     } catch (e: any) {
       const st = Number(e?.status);
       if (st === 409) applyRevisionConflictFromApiError(e);

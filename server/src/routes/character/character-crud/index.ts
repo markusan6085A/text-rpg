@@ -4341,7 +4341,6 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       skillName?: string;
       loadoutSlots?: any[];
       activeChargeSlots?: any[];
-      mobBuffs?: any[];
     };
     const skillId = Math.floor(Number(body?.skillId));
     const expectedRevision = Number(body?.expectedRevision);
@@ -4383,7 +4382,6 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           skillNameFallback: typeof body.skillName === "string" ? body.skillName.slice(0, 120) : undefined,
           loadoutSlots: body.loadoutSlots,
           activeChargeSlots: body.activeChargeSlots,
-          mobBuffsFromClient: body.mobBuffs,
         });
         if (!applied.ok) {
           return {
