@@ -6,6 +6,22 @@ function clamp(n: number, lo: number, hi: number) {
   return Math.min(hi, Math.max(lo, n));
 }
 
+/** heroJson.hpPercent/mpPercent/cpPercent мають відповідати абсолютам інакше клієнт попередніх версій «різав» MP/CP по застарілому %. */
+function syncResourcePercentsToAbsolutes(hj: any) {
+  const mh = Math.max(1, Math.floor(Number(hj.maxHp ?? 1)));
+  const mm = Math.max(1, Math.floor(Number(hj.maxMp ?? 1)));
+  const mc = Math.max(1, Math.floor(Number(hj.maxCp ?? 1)));
+  const ch = clamp(Math.floor(Number(hj.hp ?? 0)), 0, mh);
+  const cm = clamp(Math.floor(Number(hj.mp ?? 0)), 0, mm);
+  const cc = clamp(Math.floor(Number(hj.cp ?? 0)), 0, mc);
+  hj.hp = ch;
+  hj.mp = cm;
+  hj.cp = cc;
+  hj.hpPercent = mh > 0 ? ch / mh : 0;
+  hj.mpPercent = mm > 0 ? cm / mm : 0;
+  hj.cpPercent = mc > 0 ? cc / mc : 0;
+}
+
 function mitigation(raw: number, mobAtkStat: number, heroDefense: number): number {
   const atk = Math.max(1, mobAtkStat);
   const def = Math.max(0, heroDefense);
@@ -68,6 +84,7 @@ export function applyPveMobTickSnapshot(args: {
   const dmgRed = clamp(Number(args.heroDefenseStats.damageTakenReduction ?? 0), 0, 95);
 
   if (invulnerable || curHp <= 0) {
+    syncResourcePercentsToAbsolutes(hj);
     return {
       ok: true,
       nextHeroJson: hj,
@@ -79,6 +96,7 @@ export function applyPveMobTickSnapshot(args: {
 
   const isMiss = Math.random() * 100 < evasion;
   if (isMiss) {
+    syncResourcePercentsToAbsolutes(hj);
     return {
       ok: true,
       nextHeroJson: hj,
@@ -160,11 +178,14 @@ export function applyPveMobTickSnapshot(args: {
     logLines.push("Ви мертві.");
   }
 
+  syncResourcePercentsToAbsolutes(hj);
+  const heroHpAfter = Math.max(0, Math.floor(Number(hj.hp ?? 0)));
+
   return {
     ok: true,
     nextHeroJson: hj,
     logLines,
-    heroHpAfter: nextHp,
+    heroHpAfter,
     killedHero,
     battleControl: Object.keys(battleControl).length > 0 ? battleControl : undefined,
   };
