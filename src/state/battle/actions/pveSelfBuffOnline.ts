@@ -31,9 +31,13 @@ function mergeCooldowns(skillId: number, def: SkillDefinition, cleaned: any[], n
 }
 
 /**
- * Онлайн: каст buff/toggle лише через сервер (snapshot у відповіді). Без локального handleBuffSkill.
+ * Онлайн: спочатку POST .../pve-self-buff (snapshot). Якщо прод ще без маршруту (404) — onFallback (локальний handleBuffSkill + hero-buffs-sync).
  */
-export function schedulePveSelfBuffOnline(skillId: number, def: SkillDefinition): void {
+export function schedulePveSelfBuffOnline(
+  skillId: number,
+  def: SkillDefinition,
+  onFallback?: () => void
+): void {
   if (inFlightSkillId === skillId) return;
   const hero = useHeroStore.getState().hero;
   const cid =
@@ -93,7 +97,19 @@ export function schedulePveSelfBuffOnline(skillId: number, def: SkillDefinition)
         heroName
       );
     })
-    .catch(() => {
+    .catch((e: any) => {
+      const st = Number(e?.status);
+      if (st === 404 && typeof onFallback === "function") {
+        if (import.meta.env.DEV) {
+          console.warn("[pve-self-buff] 404 — fallback до локального касту (задеплойте API)");
+        }
+        try {
+          onFallback();
+        } catch (err) {
+          if (import.meta.env.DEV) console.warn("[pve-self-buff] fallback failed", err);
+        }
+        return;
+      }
       void import("../../toastStore").then(({ showToast }) => {
         showToast("Не вдалося застосувати навик. Оновіть або спробуйте знову.", "error");
       });

@@ -140,6 +140,10 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
       });
     }
 
+    void import("../utils/api/heroBuffsSync").then(({ scheduleHeroBuffsSync }) =>
+      scheduleHeroBuffsSync(updatedBuffs)
+    );
+
     // Оновлюємо компонент для відображення
     setRefreshKey((k) => k + 1);
     
@@ -203,6 +207,10 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
         } as any,
       });
     }
+
+    void import("../utils/api/heroBuffsSync").then(({ scheduleHeroBuffsSync }) =>
+      scheduleHeroBuffsSync(filteredBuffs)
+    );
 
     setRefreshKey((k) => k + 1);
     const currentPath = window.location.pathname;

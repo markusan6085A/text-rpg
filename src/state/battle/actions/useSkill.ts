@@ -509,7 +509,25 @@ export const createUseSkill =
           String(useCharacterStore.getState().characterId ?? "").trim() ||
           String((hero as any)?.id ?? "").trim();
         if (characterId) {
-          schedulePveSelfBuffOnline(skillId, def);
+          schedulePveSelfBuffOnline(skillId, def, () => {
+            handleBuffSkill(
+              skillId,
+              def,
+              levelDef,
+              state,
+              hero,
+              heroStats,
+              mpCost,
+              now,
+              activeBuffs,
+              computeMaxNow,
+              cooldownMs,
+              updateHero,
+              setAndPersist,
+              set,
+              get
+            );
+          });
           return;
         }
       }
