@@ -13,6 +13,7 @@ import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { getL2dopResourceIconPath } from "../data/world/l2dop/droplistMapping";
 import { normalizeIconPath, FALLBACK_ICON } from "../utils/itemIcon";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
+import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 
 type Navigate = (path: string) => void;
 
@@ -96,6 +97,52 @@ export default function SellItems({ navigate }: SellItemsProps) {
     );
   };
 
+  const canonicalSellId = (raw: unknown): string => {
+    const normalized = String(raw ?? "").replace(/^shop_/i, "").replace(/^quest_/i, "").trim().toLowerCase();
+    if (normalized === "weapon_s_angel_slayer") return "s_angel_slayer";
+    if (normalized === "weapon_s_draconic_bow") return "s_draconic_bow";
+    return normalized;
+  };
+
+  const resolveInventoryIndexByCanonical = (target: any, inv: any[]): number => {
+    const targetCanonical = canonicalSellId(target?.id ?? target?.itemId ?? "");
+    if (!targetCanonical) return -1;
+    const targetEnchant = Math.max(0, Number(target?.enchantLevel ?? 0));
+    // Prefer exact enchant match first.
+    let idx = inv.findIndex((i: any) => {
+      if (!i) return false;
+      const c = canonicalSellId(i.id ?? i.itemId ?? "");
+      const e = Math.max(0, Number(i.enchantLevel ?? 0));
+      return c === targetCanonical && e === targetEnchant;
+    });
+    if (idx >= 0) return idx;
+    // Fallback: match by canonical id only.
+    idx = inv.findIndex((i: any) => canonicalSellId(i?.id ?? i?.itemId ?? "") === targetCanonical);
+    return idx;
+  };
+
+  const resolveExpectedRevision = (): number => {
+    const fromServerState = Number(useHeroStore.getState().serverState?.heroRevision ?? NaN);
+    if (Number.isFinite(fromServerState) && fromServerState >= 0) return fromServerState;
+    const fromHero = Number((useHeroStore.getState().hero as any)?.heroJson?.heroRevision ?? 0);
+    return Number.isFinite(fromHero) && fromHero >= 0 ? fromHero : 0;
+  };
+
+  const isInvalidSellInputError = (e: any): boolean => {
+    const bodyError = String(e?.body?.error ?? "").toLowerCase();
+    const bodyReason = String(e?.body?.reason ?? "").toLowerCase();
+    const msg = String(e?.message ?? "").toLowerCase();
+    return (
+      e?.status === 400 &&
+      (
+        bodyError.includes("invalid input") ||
+        bodyError.includes("unsellable") ||
+        bodyReason.length > 0 ||
+        msg.includes("invalid input")
+      )
+    );
+  };
+
   const doSellSelected = async () => {
     if (!hero || !hero.inventory || selectedIndices.size === 0) return;
     if (selling) return;
@@ -120,11 +167,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
       return;
     }
 
-    const expectedRevision = Number(
-      useHeroStore.getState().serverState?.heroRevision ??
-      (useHeroStore.getState().hero as any)?.heroJson?.heroRevision ??
-      0
-    );
+    const expectedRevision = resolveExpectedRevision();
     setSelling(true);
     try {
       const charId = useCharacterStore.getState().characterId;
@@ -156,6 +199,60 @@ export default function SellItems({ navigate }: SellItemsProps) {
       setConfirmSell(null);
       showToast(`Продано. +${Number((result as any)?.payoutAdena ?? 0).toLocaleString()} Adena`, "success");
     } catch (e: any) {
+      if (isInvalidSellInputError(e)) {
+        try {
+          const reloaded = await loadHeroFromAPI();
+          if (reloaded) useHeroStore.getState().setHero(reloaded);
+          const liveHero = useHeroStore.getState().hero;
+          const charId = useCharacterStore.getState().characterId;
+          if (!liveHero || !charId) throw e;
+          let totalPayout = 0;
+          for (const idx of indices) {
+            const targetItem = filteredItems[idx];
+            if (!targetItem) continue;
+            const invIdx = resolveInventoryIndexByCanonical(targetItem, liveHero.inventory || []);
+            if (invIdx < 0) continue;
+            const row = (liveHero.inventory || [])[invIdx] as any;
+            const rowId = String(row?.id ?? row?.itemId ?? "");
+            if (!rowId) continue;
+            const rowCount = Math.max(1, Number(row?.count ?? 1));
+            const one = await sellInventoryItemsAPI(charId, {
+              expectedRevision: resolveExpectedRevision(),
+              operations: [{
+                inventoryIndex: invIdx,
+                amount: rowCount,
+                expectedItemId: rowId,
+                expectedEnchantLevel: Math.max(0, Number(row?.enchantLevel ?? 0)),
+              }],
+            });
+            totalPayout += Number((one as any)?.payoutAdena ?? 0);
+            const nextInventory = Array.isArray((one as any)?.character?.heroJson?.inventory)
+              ? (one as any).character.heroJson.inventory
+              : [];
+            const nextOverflow = Array.isArray((one as any)?.character?.heroJson?.overflowChest)
+              ? (one as any).character.heroJson.overflowChest
+              : (liveHero.overflowChest || []);
+            const nextRevision = Number((one as any)?.character?.heroJson?.heroRevision ?? resolveExpectedRevision());
+            const nextAdena = Number((one as any)?.character?.adena ?? useHeroStore.getState().hero?.adena ?? 0);
+            applyServerSync(
+              {
+                inventory: nextInventory,
+                overflowChest: nextOverflow,
+                adena: nextAdena,
+                heroRevision: nextRevision,
+              } as any,
+              { adena: nextAdena, heroRevision: nextRevision, updatedAt: Date.now() }
+            );
+          }
+          setSelectedIndices(new Set());
+          setSelectMode(false);
+          setConfirmSell(null);
+          showToast(`Продано. +${Number(totalPayout).toLocaleString()} Adena`, "success");
+          return;
+        } catch {
+          // fallback to standard error handling below
+        }
+      }
       const msg = e?.status === 409
         ? "Инвентарь изменился на сервере. Обновите и повторите продажу."
         : (e?.body?.error || e?.message || "Не удалось продать предметы на сервере.");
@@ -190,11 +287,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
     const price = getSellPrice(item.id, itemsDB[item.id] || itemsDBWithStarter[item.id]);
     if (price == null || price <= 0) return;
 
-    const expectedRevision = Number(
-      useHeroStore.getState().serverState?.heroRevision ??
-      (useHeroStore.getState().hero as any)?.heroJson?.heroRevision ??
-      0
-    );
+    const expectedRevision = resolveExpectedRevision();
     setSelling(true);
     try {
       const charId = useCharacterStore.getState().characterId;
@@ -241,6 +334,53 @@ export default function SellItems({ navigate }: SellItemsProps) {
       setConfirmSell(null);
       showToast(`Продано. +${Number((result as any)?.payoutAdena ?? 0).toLocaleString()} Adena`, "success");
     } catch (e: any) {
+      if (isInvalidSellInputError(e)) {
+        try {
+          const reloaded = await loadHeroFromAPI();
+          if (reloaded) useHeroStore.getState().setHero(reloaded);
+          const liveHero = useHeroStore.getState().hero;
+          const charId = useCharacterStore.getState().characterId;
+          if (!liveHero || !charId) throw e;
+          const invIdx = resolveInventoryIndexByCanonical(item, liveHero.inventory || []);
+          if (invIdx < 0) throw e;
+          const row = (liveHero.inventory || [])[invIdx] as any;
+          const rowId = String(row?.id ?? row?.itemId ?? "");
+          if (!rowId) throw e;
+          const rowCount = Math.max(1, Number(row?.count ?? 1));
+          const retryAmount = Math.max(1, Math.min(Number(amount || 1), rowCount));
+          const retried = await sellInventoryItemsAPI(charId, {
+            expectedRevision: resolveExpectedRevision(),
+            operations: [{
+              inventoryIndex: invIdx,
+              amount: retryAmount,
+              expectedItemId: rowId,
+              expectedEnchantLevel: Math.max(0, Number(row?.enchantLevel ?? 0)),
+            }],
+          });
+          const nextInventory = Array.isArray((retried as any)?.character?.heroJson?.inventory)
+            ? (retried as any).character.heroJson.inventory
+            : [];
+          const nextOverflow = Array.isArray((retried as any)?.character?.heroJson?.overflowChest)
+            ? (retried as any).character.heroJson.overflowChest
+            : (liveHero.overflowChest || []);
+          const nextRevision = Number((retried as any)?.character?.heroJson?.heroRevision ?? resolveExpectedRevision());
+          const nextAdena = Number((retried as any)?.character?.adena ?? useHeroStore.getState().hero?.adena ?? 0);
+          applyServerSync(
+            {
+              inventory: nextInventory,
+              overflowChest: nextOverflow,
+              adena: nextAdena,
+              heroRevision: nextRevision,
+            } as any,
+            { adena: nextAdena, heroRevision: nextRevision, updatedAt: Date.now() }
+          );
+          setConfirmSell(null);
+          showToast(`Продано. +${Number((retried as any)?.payoutAdena ?? 0).toLocaleString()} Adena`, "success");
+          return;
+        } catch {
+          // fallback to standard error handling below
+        }
+      }
       const msg = e?.status === 409
         ? "Инвентарь изменился на сервере. Обновите и повторите продажу."
         : (e?.body?.error || e?.message || "Не удалось продать предмет на сервере.");
