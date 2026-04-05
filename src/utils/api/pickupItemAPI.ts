@@ -28,6 +28,7 @@ export async function pickupItemAPI(params: {
   items: PickupItemEntry[];
   /** Джерело для логів: "battle", "quest", "mail", "craft" */
   source?: string;
+  expectedRevision: number;
 }): Promise<PickupItemResult> {
   const characterId = useCharacterStore.getState().characterId;
   if (!characterId) throw new Error("no character id");

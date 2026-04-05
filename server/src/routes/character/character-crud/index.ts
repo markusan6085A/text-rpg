@@ -2746,6 +2746,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }>;
       /** Optional: source for logging (battle, quest, mail, etc.) */
       source?: string;
+      expectedRevision?: number;
     };
 
     if (!Array.isArray(body.items) || body.items.length === 0) {
@@ -2755,85 +2756,118 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (body.items.length > 50) {
       return reply.code(400).send({ error: "too many items (max 50)" });
     }
-
-    const character = await prisma.character.findFirst({
-      where: { id, accountId: auth.accountId },
-    });
-    if (!character) return reply.code(404).send({ error: "character not found" });
-
-    const heroJson: any = (character.heroJson as any) || {};
-    const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
-    const MAX_INVENTORY = 200;
-
-    const addedItems: string[] = [];
-    const overflowItems: any[] = Array.isArray(heroJson.overflowChest)
-      ? [...heroJson.overflowChest]
-      : [];
-
-    for (const item of body.items) {
-      if (!item.id) continue;
-      const itemId = String(item.id).trim();
-      const count = Math.max(1, Math.floor(Number(item.count ?? 1)));
-      if (!itemId) continue;
-
-      // Equipment pieces are never stackable — everything else stacks by default.
-      const EQUIP_KINDS_PU = new Set(["weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"]);
-      const isStackable =
-        !(item as any).meta?.hasLSPassive &&
-        !EQUIP_KINDS_PU.has(String(item.kind ?? "").toLowerCase()) &&
-        !EQUIP_KINDS_PU.has(String(item.slot ?? "").toLowerCase());
-
-      // Нормалізуємо shop_ prefix для findIndex (щоб shop_xxx та xxx знаходили один стак)
-      const normPickupId = (s: string) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
-      const existingIdx = isStackable
-        ? inventory.findIndex((i: any) => i && normPickupId(String(i.id ?? "")) === normPickupId(itemId) && !(i?.meta?.hasLSPassive))
-        : -1;
-
-      if (existingIdx >= 0 && isStackable) {
-        inventory[existingIdx] = {
-          ...inventory[existingIdx],
-          count: (inventory[existingIdx].count ?? 0) + count,
-        };
-        addedItems.push(itemId);
-      } else if (inventory.length < MAX_INVENTORY) {
-        inventory.push({ ...item, id: itemId, count });
-        addedItems.push(itemId);
-      } else {
-        // Inventory full → overflow
-        const ovIdx = overflowItems.findIndex((i: any) => i && normPickupId(String(i.id ?? "")) === normPickupId(itemId));
-        if (ovIdx >= 0) {
-          overflowItems[ovIdx] = {
-            ...overflowItems[ovIdx],
-            count: (overflowItems[ovIdx].count ?? 0) + count,
-          };
-        } else {
-          overflowItems.push({ ...item, id: itemId, count });
-        }
-      }
+    const expectedRevision = Number(body.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
     }
 
-    const newHeroJson: any = { ...heroJson, inventory, overflowChest: overflowItems };
-    const oldRevision = Number(heroJson.heroRevision ?? 0);
-    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<Array<{ heroJson: any; name: string; updatedAt: Date }>>`
+        SELECT "heroJson", "name", "updatedAt"
+        FROM "Character"
+        WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+      const row = locked[0];
+      const heroJson: any = (row.heroJson as any) || {};
+      const currentRevision = Number(heroJson.heroRevision ?? 0);
+      if (currentRevision !== expectedRevision) {
+        return {
+          ok: false as const,
+          reason: "revision_conflict" as const,
+          currentRevision,
+          updatedAt: row.updatedAt,
+        };
+      }
 
-    await prisma.character.update({
-      where: { id },
-      data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+      const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+      const MAX_INVENTORY = 200;
+      const addedItems: string[] = [];
+      const overflowItems: any[] = Array.isArray(heroJson.overflowChest)
+        ? [...heroJson.overflowChest]
+        : [];
+
+      for (const item of body.items) {
+        if (!item.id) continue;
+        const itemId = String(item.id).trim();
+        const count = Math.max(1, Math.floor(Number(item.count ?? 1)));
+        if (!itemId) continue;
+
+        const EQUIP_KINDS_PU = new Set(["weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"]);
+        const isStackable =
+          !(item as any).meta?.hasLSPassive &&
+          !EQUIP_KINDS_PU.has(String(item.kind ?? "").toLowerCase()) &&
+          !EQUIP_KINDS_PU.has(String(item.slot ?? "").toLowerCase());
+
+        const normPickupId = (s: string) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
+        const existingIdx = isStackable
+          ? inventory.findIndex((i: any) => i && normPickupId(String(i.id ?? "")) === normPickupId(itemId) && !(i?.meta?.hasLSPassive))
+          : -1;
+
+        if (existingIdx >= 0 && isStackable) {
+          inventory[existingIdx] = {
+            ...inventory[existingIdx],
+            count: (inventory[existingIdx].count ?? 0) + count,
+          };
+          addedItems.push(itemId);
+        } else if (inventory.length < MAX_INVENTORY) {
+          inventory.push({ ...item, id: itemId, count });
+          addedItems.push(itemId);
+        } else {
+          const ovIdx = overflowItems.findIndex((i: any) => i && normPickupId(String(i.id ?? "")) === normPickupId(itemId));
+          if (ovIdx >= 0) {
+            overflowItems[ovIdx] = {
+              ...overflowItems[ovIdx],
+              count: (overflowItems[ovIdx].count ?? 0) + count,
+            };
+          } else {
+            overflowItems.push({ ...item, id: itemId, count });
+          }
+        }
+      }
+
+      const newHeroJson: any = { ...heroJson, inventory, overflowChest: overflowItems };
+      const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+      await tx.character.update({
+        where: { id },
+        data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+      });
+
+      return {
+        ok: true as const,
+        heroJson: versionedHeroJson,
+        characterName: String(row.name ?? ""),
+        addedItems,
+        overflowCount:
+          overflowItems.length - (Array.isArray(heroJson.overflowChest) ? heroJson.overflowChest.length : 0),
+      };
     });
+
+    if (!txRes.ok) {
+      if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+      return reply.code(409).send({
+        error: "revision_conflict",
+        message: "Character was modified by another session. Please reload and try again.",
+        currentRevision: txRes.currentRevision ?? 0,
+        updatedAt: txRes.updatedAt?.toISOString(),
+        serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+      });
+    }
 
     enqueuePlayerActivityLog({
       accountId: auth.accountId,
       characterId: id,
-      characterName: String((character.heroJson as any)?.name ?? character.name ?? ""),
+      characterName: txRes.characterName,
       action: `pickup.${body.source ?? "unknown"}`,
       metadata: {
         itemCount: body.items.length,
-        addedItems: addedItems.slice(0, 20),
-        overflowCount: overflowItems.length - (Array.isArray(heroJson.overflowChest) ? heroJson.overflowChest.length : 0),
+        addedItems: txRes.addedItems.slice(0, 20),
+        overflowCount: txRes.overflowCount,
       },
       clientIp: getClientIp(req),
     });
 
-    return reply.send({ ok: true, heroJson: versionedHeroJson });
+    return reply.send({ ok: true, heroJson: txRes.heroJson });
   });
 }
