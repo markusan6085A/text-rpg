@@ -130,7 +130,12 @@ export default function Fishing({ navigate }: FishingProps) {
     }
     setActionLoading(true);
     try {
-      const res = await api.startFishing(activeCharacterId);
+      const expectedRevision = Number(
+        (useHeroStore.getState() as any).serverState?.heroRevision ??
+        (hero as any)?.heroJson?.heroRevision ??
+        0
+      );
+      const res = await api.startFishing(activeCharacterId, expectedRevision);
       setSessionState(res.session);
       setServerOffsetMs((res.serverNow ?? Date.now()) - Date.now());
       const hj = res.character.heroJson as any;
@@ -158,7 +163,12 @@ export default function Fishing({ navigate }: FishingProps) {
     if (!hero || !activeCharacterId || !ready || actionLoading) return;
     setActionLoading(true);
     try {
-      const res = await api.collectFishing(activeCharacterId);
+      const expectedRevision = Number(
+        (useHeroStore.getState() as any).serverState?.heroRevision ??
+        (hero as any)?.heroJson?.heroRevision ??
+        0
+      );
+      const res = await api.collectFishing(activeCharacterId, expectedRevision);
       setSessionState(null);
       const hj = res.character.heroJson as any;
       const newRev = hj?.heroRevision;

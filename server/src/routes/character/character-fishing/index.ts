@@ -106,6 +106,10 @@ export async function characterFishingRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
     const id = (req.params as any).id;
     if (!id) return reply.code(400).send({ error: "character id required" });
+    const expectedRevision = Number((req.body as any)?.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
 
     try {
       const owner = await prisma.character.findFirst({
@@ -124,6 +128,10 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         if (!ch) throw new Error("character not found");
 
         const heroJson = (ch.heroJson ?? {}) as any;
+        const currentRevision = Number(heroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          throw new Error("revision_conflict");
+        }
         if (heroJson.fishingSession) throw new Error("fishing already in progress");
 
         const equipment = heroJson.equipment ?? {};
@@ -208,12 +216,19 @@ export async function characterFishingRoutes(app: FastifyInstance) {
       if (error instanceof Error) {
         const msg = error.message;
         if (
+          msg === "revision_conflict" ||
           msg === "character not found" ||
           msg === "fishing already in progress" ||
           msg === "rod required (Baby Duck Rod)" ||
           msg === "bait required (Gludio Fish Lure)" ||
           msg.startsWith("need ")
         ) {
+          if (msg === "revision_conflict") {
+            return reply.code(409).send({
+              error: "revision_conflict",
+              message: "Character was modified by another session. Please reload and try again.",
+            });
+          }
           const code = msg === "character not found" ? 404 : 400;
           return reply.code(code).send({ error: msg });
         }
@@ -228,6 +243,10 @@ export async function characterFishingRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
     const id = (req.params as any).id;
     if (!id) return reply.code(400).send({ error: "character id required" });
+    const expectedRevision = Number((req.body as any)?.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
 
     try {
       const owner = await prisma.character.findFirst({
@@ -246,6 +265,10 @@ export async function characterFishingRoutes(app: FastifyInstance) {
         if (!ch) throw new Error("character not found");
 
         const heroJson = (ch.heroJson ?? {}) as any;
+        const currentRevision = Number(heroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          throw new Error("revision_conflict");
+        }
         const session = heroJson.fishingSession;
         if (!session || typeof session.startedAt !== "number") {
           throw new Error("no active fishing session");
@@ -338,11 +361,18 @@ export async function characterFishingRoutes(app: FastifyInstance) {
       if (error instanceof Error) {
         const msg = error.message;
         if (
+          msg === "revision_conflict" ||
           msg === "character not found" ||
           msg === "no active fishing session" ||
           msg === "fishing not ready yet (1 hour required)" ||
           msg === "invalid fishing reward"
         ) {
+          if (msg === "revision_conflict") {
+            return reply.code(409).send({
+              error: "revision_conflict",
+              message: "Character was modified by another session. Please reload and try again.",
+            });
+          }
           const code = msg === "character not found" ? 404 : 400;
           return reply.code(code).send({ error: msg });
         }

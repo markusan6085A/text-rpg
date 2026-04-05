@@ -34,17 +34,17 @@ export async function getFishingSession(characterId: string): Promise<FishingSes
   return response;
 }
 
-export async function startFishing(characterId: string): Promise<FishingStartResponse> {
+export async function startFishing(characterId: string, expectedRevision: number): Promise<FishingStartResponse> {
   return apiRequest<FishingStartResponse>(`/characters/${characterId}/fishing/start`, {
     method: 'POST',
-    body: JSON.stringify({}),
+    body: JSON.stringify({ expectedRevision }),
   });
 }
 
-export async function collectFishing(characterId: string): Promise<FishingCollectResponse> {
+export async function collectFishing(characterId: string, expectedRevision: number): Promise<FishingCollectResponse> {
   return apiRequest<FishingCollectResponse>(`/characters/${characterId}/fishing/collect`, {
     method: 'POST',
-    body: JSON.stringify({}),
+    body: JSON.stringify({ expectedRevision }),
   });
 }
 
