@@ -10,6 +10,8 @@ import { cleanupBuffs } from "../helpers";
 import { handleEnchantScroll } from "./enchantScroll";
 import { isGmBlessSoulScrollItem } from "../../../data/items/gmBlessSoulScrollBuffs";
 import { mergeGmBlessSoulScrollBuffs } from "../../../utils/gmBlessSoulScrollApply";
+import { shouldUsePveServerMobTick } from "./pveMobTickOnline";
+import { schedulePveConsumableOnline, isPveServerSyncedPotionItemId } from "./pveConsumableOnline";
 
 // КД для банок у PvE (1 секунда)
 const DEFAULT_POTION_COOLDOWN_MS = 1000;
@@ -121,6 +123,36 @@ export function handleConsumable(
         return i;
       }).filter(Boolean) as any[];
 
+      if (
+        shouldUsePveServerMobTick() &&
+        isPveServerSyncedPotionItemId(itemId) &&
+        !state.pkSessionId
+      ) {
+        const prevCooldowns = { ...(state.cooldowns || {}) };
+        setAndPersist({
+          cooldowns: {
+            ...prevCooldowns,
+            [cooldownKey]: now,
+          },
+        });
+        const actualHealHp = Math.max(0, Math.min(healAmount, maxHp - currentHp));
+        schedulePveConsumableOnline({
+          itemId,
+          kind: "hp",
+          restoreAmountBuffed: actualHealHp,
+          buffedMaxHp: maxHp,
+          buffedMaxMp: maxMp,
+          buffedMaxCp: maxCp,
+          loadoutSlots: state.loadoutSlots ?? [],
+          activeChargeSlots: state.activeChargeSlots ?? [],
+          cooldownKey,
+          prevCooldowns,
+          setAndPersist,
+          clientLogLine: `Ви використали ${itemDef.name} (+${actualHealHp} HP)`,
+        });
+        return true;
+      }
+
       // Оновлюємо HP та інвентар (важливо: оновлюємо обидва одночасно)
       updateHero({ hp: newHp, inventory: updatedInventory });
       
@@ -183,6 +215,36 @@ export function handleConsumable(
         return i;
       }).filter(Boolean) as any[];
 
+      if (
+        shouldUsePveServerMobTick() &&
+        isPveServerSyncedPotionItemId(itemId) &&
+        !state.pkSessionId
+      ) {
+        const prevCooldowns = { ...(state.cooldowns || {}) };
+        setAndPersist({
+          cooldowns: {
+            ...prevCooldowns,
+            [cooldownKey]: now,
+          },
+        });
+        const actualMpRestore = Math.max(0, Math.min(restoreAmount, maxMp - currentMp));
+        schedulePveConsumableOnline({
+          itemId,
+          kind: "mp",
+          restoreAmountBuffed: actualMpRestore,
+          buffedMaxHp: maxHp,
+          buffedMaxMp: maxMp,
+          buffedMaxCp: maxCp,
+          loadoutSlots: state.loadoutSlots ?? [],
+          activeChargeSlots: state.activeChargeSlots ?? [],
+          cooldownKey,
+          prevCooldowns,
+          setAndPersist,
+          clientLogLine: `Ви використали ${itemDef.name} (+${actualMpRestore} MP)`,
+        });
+        return true;
+      }
+
       // Оновлюємо MP та інвентар (важливо: оновлюємо обидва одночасно)
       updateHero({ mp: newMp, inventory: updatedInventory });
       
@@ -240,6 +302,36 @@ export function handleConsumable(
         }
         return i;
       }).filter(Boolean) as any[];
+
+      if (
+        shouldUsePveServerMobTick() &&
+        isPveServerSyncedPotionItemId(itemId) &&
+        !state.pkSessionId
+      ) {
+        const prevCooldowns = { ...(state.cooldowns || {}) };
+        setAndPersist({
+          cooldowns: {
+            ...prevCooldowns,
+            [cooldownKey]: now,
+          },
+        });
+        const actualCpRestore = Math.max(0, Math.min(restoreAmount, maxCp - currentCp));
+        schedulePveConsumableOnline({
+          itemId,
+          kind: "cp",
+          restoreAmountBuffed: actualCpRestore,
+          buffedMaxHp: maxHp,
+          buffedMaxMp: maxMp,
+          buffedMaxCp: maxCp,
+          loadoutSlots: state.loadoutSlots ?? [],
+          activeChargeSlots: state.activeChargeSlots ?? [],
+          cooldownKey,
+          prevCooldowns,
+          setAndPersist,
+          clientLogLine: `Ви використали ${itemDef.name} (+${actualCpRestore} CP)`,
+        });
+        return true;
+      }
 
       // Оновлюємо CP та інвентар (важливо: оновлюємо обидва одночасно)
       updateHero({ cp: newCp, inventory: updatedInventory });

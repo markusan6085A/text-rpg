@@ -490,6 +490,52 @@ export async function pveBattleTickAPI(
   throw lastErr;
 }
 
+/** PvE банка HP/MP/CP — зменшення стеку та оновлення heroJson.hp/mp/cp на сервері (CAS). */
+export async function pveConsumableUseAPI(
+  characterId: string,
+  data: {
+    expectedRevision: number;
+    itemId: string;
+    restoreAmountBuffed: number;
+    buffedMaxHp?: number;
+    buffedMaxMp?: number;
+    buffedMaxCp?: number;
+    loadoutSlots?: (number | string | null)[];
+    activeChargeSlots?: number[];
+  }
+): Promise<{
+  ok: boolean;
+  character: Character;
+  logLine?: string;
+  heroHpAfter?: number;
+  heroMpAfter?: number;
+  heroCpAfter?: number;
+}> {
+  let rev = data.expectedRevision;
+  try {
+    rev = await readHeroRevisionFromGetCharacter(characterId);
+  } catch {
+    rev = data.expectedRevision;
+  }
+  const url = `/characters/${encodeURIComponent(characterId)}/pve-consumable`;
+  let attemptRev = rev;
+  let lastErr: any;
+  for (let i = 0; i < 3; i++) {
+    try {
+      return await apiRequest(url, {
+        method: "POST",
+        body: JSON.stringify({ ...data, expectedRevision: attemptRev }),
+      });
+    } catch (e: any) {
+      lastErr = e;
+      if (e?.status !== 409) throw e;
+      applyRevisionConflictFromApiError(e);
+      attemptRev = await resolveRevisionAfter409Conflict(characterId, e);
+    }
+  }
+  throw lastErr;
+}
+
 export async function pveBattleDebuffAPI(
   characterId: string,
   data: { skillId: number; expectedRevision: number }
