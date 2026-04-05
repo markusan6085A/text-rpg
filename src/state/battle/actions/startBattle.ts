@@ -464,6 +464,23 @@ export const createStartBattle =
         : serverSlotNew && serverSlotNew.currentHp > 0
           ? Math.max(1, Math.min(serverSlotNew.currentHp, serverSlotNew.maxHp))
           : maxFromDef;
+
+    let battleHeroBuffsForInitial = classOrLoadoutMismatch
+      ? []
+      : cleanupBuffs(filterBuffsForHeroProfession(heroForBattle, savedBuffs), now);
+    if (!classOrLoadoutMismatch && heroForBattle && !isFishingZone) {
+      const ab = ((heroForBattle as any)?.heroJson || {}) as Record<string, any>;
+      if (Array.isArray(ab.heroBuffs)) {
+        battleHeroBuffsForInitial = cleanupBuffs(
+          filterBuffsForHeroProfession(
+            heroForBattle,
+            mergeServerAndClientBuffsForResourceScaling(ab.heroBuffs, savedBuffs),
+          ),
+          now,
+        );
+      }
+    }
+
     const initial: Partial<BattleState> = {
       heroName: heroName,
       zoneId,
@@ -484,7 +501,11 @@ export const createStartBattle =
       professionForLoadout: heroForBattle?.profession ?? undefined,
       activeChargeSlots: activeChargeSlotsForNewBattle,
       lastReward: undefined,
-      heroBuffs: classOrLoadoutMismatch ? [] : (preservedSummon ? savedBuffs : savedBuffs.filter((b) => b.id !== 1262 && b.id !== 1332)),
+      heroBuffs: classOrLoadoutMismatch
+        ? []
+        : preservedSummon
+          ? battleHeroBuffsForInitial
+          : battleHeroBuffsForInitial.filter((b) => b.id !== 1262 && b.id !== 1332),
       mobBuffs: [],
       summonBuffs: preservedSummon ? (saved?.summonBuffs || prevState.summonBuffs || []) : [],
       baseSummonStats: preservedSummon ? (saved?.baseSummonStats || prevState.baseSummonStats) : undefined,

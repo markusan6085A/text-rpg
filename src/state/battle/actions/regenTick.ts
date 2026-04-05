@@ -51,13 +51,11 @@ export const createRegenTick =
     const now = Date.now();
     const rawHeroBuffs = state.heroBuffs || [];
     const expiredAuraLines = rawHeroBuffs
-      .filter(
-        (b) =>
-          b &&
-          typeof b.expiresAt === "number" &&
-          b.expiresAt !== Number.MAX_SAFE_INTEGER &&
-          b.expiresAt <= now
-      )
+      .filter((b) => {
+        if (!b) return false;
+        const exp = Number(b.expiresAt);
+        return Number.isFinite(exp) && exp !== Number.MAX_SAFE_INTEGER && exp <= now;
+      })
       .map((b) => `Ваша аура [${String(b.name ?? "Невідомо")}] закінчилася.`);
     const cleanedBuffs = cleanupBuffs(rawHeroBuffs, now);
     const cleanedSummonBuffs = cleanupSummonBuffs(state.summonBuffs || [], now);

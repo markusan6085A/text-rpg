@@ -21,7 +21,7 @@ function mergeCooldowns(skillId: number, def: SkillDefinition, cleaned: any[], n
   const isToggleSkill = skillDefIsToggle(def);
   if (isToggleSkill) {
     const buffOn = cleaned.some(
-      (b: any) => Number(b?.id) === skillId && b.expiresAt === Number.MAX_SAFE_INTEGER
+      (b: any) => Number(b?.id) === skillId && Number(b.expiresAt) === Number.MAX_SAFE_INTEGER
     );
     if (buffOn) {
       delete next[skillId];

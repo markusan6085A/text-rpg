@@ -3,6 +3,9 @@ import { computeBuffedMaxResources } from "../helpers";
 import { getMaxResources } from "../helpers/getMaxResources";
 import type { BattleBuff, BattleState } from "../types";
 
+const RESOURCE_TOGGLE_LOG_COOLDOWN_MS = 2500;
+const lastResourceToggleOffLogAt = new Map<string, number>();
+
 /**
  * Обробляє tick ефекти для активних toggle скілів
  * Віднімає HP/MP кожні tickInterval секунд
@@ -31,8 +34,8 @@ export function processToggleTicks(
 
   // Перевіряємо всі активні toggle бафи
   for (const buff of state.heroBuffs || []) {
-    // Toggle бафи мають expiresAt === Number.MAX_SAFE_INTEGER
-    const isToggle = buff.expiresAt === Number.MAX_SAFE_INTEGER;
+    // Toggle: сервер/API інколи дає string; MAX_SAFE_INTEGER має збігатися після Number().
+    const isToggle = Number(buff.expiresAt) === Number.MAX_SAFE_INTEGER;
     
     if (!isToggle || (!buff.hpPerTick && !buff.mpPerTick)) {
       // Не toggle або немає tick ефектів - просто додаємо без змін
@@ -67,7 +70,15 @@ export function processToggleTicks(
 
       // Якщо ресурсів недостатньо - вимикаємо toggle
       if (newHP <= 0 || newMP < 0) {
-        logMessages.push(`Ваша аура [${buff.name || "Невідомо"}] закінчилася.`);
+        const logKey =
+          typeof buff.id === "number" && Number.isFinite(buff.id)
+            ? `id:${buff.id}`
+            : `n:${String(buff.name ?? "")}`;
+        const prevAt = lastResourceToggleOffLogAt.get(logKey) ?? 0;
+        if (now - prevAt >= RESOURCE_TOGGLE_LOG_COOLDOWN_MS) {
+          logMessages.push(`Ваша аура [${buff.name || "Невідомо"}] закінчилася.`);
+          lastResourceToggleOffLogAt.set(logKey, now);
+        }
         continue;
       }
 

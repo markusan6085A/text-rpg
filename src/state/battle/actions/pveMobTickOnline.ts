@@ -118,6 +118,8 @@ export function schedulePveMobTickOnline(): void {
         }
       );
 
+      const buffsSynced = cleanupBuffs(mergedToggleHeroBuffs, tickNow);
+
       const logLines: string[] = Array.isArray((res as any).logLines)
         ? (res as any).logLines.filter((x: any) => typeof x === "string")
         : [];
@@ -145,6 +147,7 @@ export function schedulePveMobTickOnline(): void {
           status: "idle",
           mobNextAttackAt: null,
           log: nextLog,
+          heroBuffs: buffsSynced,
           heroStunnedUntil: undefined,
           heroBuffsBlockedUntil: undefined,
           heroSkillsBlockedUntil: undefined,
@@ -157,6 +160,7 @@ export function schedulePveMobTickOnline(): void {
               status: "idle",
               mobNextAttackAt: null,
               log: nextLog,
+              heroBuffs: buffsSynced,
               heroStunnedUntil: undefined,
               heroBuffsBlockedUntil: undefined,
               heroSkillsBlockedUntil: undefined,
@@ -171,12 +175,19 @@ export function schedulePveMobTickOnline(): void {
         battleStoreRef.setState({
           mobNextAttackAt: mobNextAt,
           log: nextLog,
+          heroBuffs: buffsSynced,
           ...controlPatch,
         });
       }
       if (heroName) {
         const saved = loadBattle(heroName) || {};
-        persistBattle({ ...saved, mobNextAttackAt: mobNextAt, log: nextLog, ...controlPatch } as any, heroName);
+        persistBattle({
+          ...saved,
+          mobNextAttackAt: mobNextAt,
+          log: nextLog,
+          heroBuffs: buffsSynced,
+          ...controlPatch,
+        } as any, heroName);
       }
     })
     .catch((e: any) => {
