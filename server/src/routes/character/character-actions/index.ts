@@ -374,51 +374,59 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     const ratio = Math.max(0, Math.min(1, Number(body.ratio) ?? 1));
 
     try {
-      const ch = await prisma.character.findFirst({
-        where: { id: targetId, accountId: auth.accountId },
-        select: { id: true, name: true, race: true, classId: true, sex: true, level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true, heroJson: true, updatedAt: true },
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{ id: string; heroJson: any }>
+        >`
+          SELECT "id", "heroJson"
+          FROM "Character"
+          WHERE "id" = ${targetId} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+
+        const ch = locked[0];
+        const heroJson = (ch.heroJson ?? {}) as any;
+        const maxHp = Math.max(1, Number(heroJson.maxHp) || 100);
+        const maxMp = Math.max(1, Number(heroJson.maxMp) || 50);
+        const maxCp = Math.max(1, Number(heroJson.maxCp) || Math.round(maxHp * 0.6));
+
+        const hp = Math.max(1, Math.round(maxHp * ratio));
+        const mp = Math.max(0, Math.round(maxMp * ratio));
+        const cp = Math.max(0, Math.round(maxCp * ratio));
+        const hpFull = ratio >= 1;
+        const mpFull = ratio >= 1;
+        const cpFull = ratio >= 1;
+        const pct = Math.max(0, Math.min(1, ratio));
+
+        const patchedHeroJson = {
+          ...heroJson,
+          isDead: false,
+          deadAt: 0,
+          hp,
+          mp,
+          cp,
+          hpFull,
+          mpFull,
+          cpFull,
+          hpPercent: pct,
+          mpPercent: pct,
+          cpPercent: pct,
+          heroBuffs: [],
+        };
+
+        const oldRevision = heroJson.heroRevision || 0;
+        const versionedHeroJson = addVersioning(patchedHeroJson, oldRevision);
+        const updated = await tx.character.update({
+          where: { id: ch.id },
+          data: { heroJson: versionedHeroJson, lastActivityAt: new Date() },
+          select: { id: true, name: true, race: true, classId: true, sex: true, level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true, heroJson: true, updatedAt: true },
+        });
+        return { ok: true as const, updated };
       });
-      if (!ch) return reply.code(404).send({ error: "character not found" });
 
-      const heroJson = (ch.heroJson ?? {}) as any;
-      const maxHp = Math.max(1, Number(heroJson.maxHp) || 100);
-      const maxMp = Math.max(1, Number(heroJson.maxMp) || 50);
-      const maxCp = Math.max(1, Number(heroJson.maxCp) || Math.round(maxHp * 0.6));
-
-      const hp = Math.max(1, Math.round(maxHp * ratio));
-      const mp = Math.max(0, Math.round(maxMp * ratio));
-      const cp = Math.max(0, Math.round(maxCp * ratio));
-      const hpFull = ratio >= 1;
-      const mpFull = ratio >= 1;
-      const cpFull = ratio >= 1;
-      const pct = Math.max(0, Math.min(1, ratio));
-
-      const patchedHeroJson = {
-        ...heroJson,
-        isDead: false,
-        deadAt: 0,
-        hp,
-        mp,
-        cp,
-        hpFull,
-        mpFull,
-        cpFull,
-        hpPercent: pct,
-        mpPercent: pct,
-        cpPercent: pct,
-        heroBuffs: [],
-      };
-
-      const oldRevision = heroJson.heroRevision || 0;
-      const versionedHeroJson = addVersioning(patchedHeroJson, oldRevision);
-
-      const updated = await prisma.character.update({
-        where: { id: ch.id },
-        data: { heroJson: versionedHeroJson, lastActivityAt: new Date() },
-        select: { id: true, name: true, race: true, classId: true, sex: true, level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true, heroJson: true, updatedAt: true },
-      });
-
-      return reply.send({ ok: true, character: { ...updated, exp: Number(updated.exp) } });
+      if (!txRes.ok) return reply.code(404).send({ error: "character not found" });
+      return reply.send({ ok: true, character: { ...txRes.updated, exp: Number(txRes.updated.exp) } });
     } catch (error) {
       app.log.error(error, "Error resurrect character:");
       return reply.code(500).send({
