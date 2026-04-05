@@ -663,7 +663,7 @@ export const itemsDBC: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_c/apprentices_spellbook.jpg",
     description: "Заклинання учня C-grade. Покращена версія з більшим уроном та швидкістю бою.",
     grade: "C",
-    stats: { pAtk: 44, mAtk: 47, rCrit: 8, pAtkSpd: 429, critPower: 20 },
+    stats: { pAtk: 115, mAtk: 147, rCrit: 8, pAtkSpd: 429, critPower: 20 },
   },
   quest_weapon_c_battle_axe: {
     id: "quest_weapon_c_battle_axe",

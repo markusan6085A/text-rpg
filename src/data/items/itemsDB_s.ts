@@ -501,7 +501,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/apprentices_spellbook.jpg",
     description: "Книга заклинань учня S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 120, mAtk: 208, rCrit: 8, pAtkSpd: 375, critPower: 50 },
+    stats: { pAtk: 115, mAtk: 220, rCrit: 8, pAtkSpd: 375, critPower: 50 },
   },
   quest_weapon_s_arcana_mace: {
     id: "quest_weapon_s_arcana_mace",
@@ -591,7 +591,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Imperial_Staff.jpg",
     description: "Імператорський посох S-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "S",
-    stats: { pAtk: 190, mAtk: 265, rCrit: 4, pAtkSpd: 375, critPower: 50 },
+    stats: { pAtk: 185, mAtk: 260, rCrit: 4, pAtkSpd: 375, critPower: 50 },
   },
   quest_weapon_s_saint_spear: {
     id: "quest_weapon_s_saint_spear",
@@ -633,7 +633,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/apprentices_spellbook.jpg",
     description: "Книга заклинань учня S-grade.",
     grade: "S",
-    stats: { pAtk: 85, mAtk: 168, rCrit: 8, pAtkSpd: 325 },
+    stats: { pAtk: 95, mAtk: 220, rCrit: 8, pAtkSpd: 325 },
   },
   shop_weapon_s_arcana_mace: {
     id: "shop_weapon_s_arcana_mace",
@@ -643,7 +643,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Arcana_Mace.jpg",
     description: "Булава аркани S-grade.",
     grade: "S",
-    stats: { pAtk: 195, mAtk: 225, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 185, mAtk: 260, rCrit: 4, pAtkSpd: 379 },
   },
   shop_weapon_s_baguette_s_dualsword: {
     id: "shop_weapon_s_baguette_s_dualsword",
@@ -723,7 +723,7 @@ export const itemsDBS: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_s/Imperial_Staff.jpg",
     description: "Імператорський посох S-grade.",
     grade: "S",
-    stats: { pAtk: 155, mAtk: 225, rCrit: 4, pAtkSpd: 325 },
+    stats: { pAtk: 165, mAtk: 260, rCrit: 4, pAtkSpd: 325 },
   },
   shop_weapon_s_saint_spear: {
     id: "shop_weapon_s_saint_spear",

@@ -518,7 +518,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_a/Daimon_Crystal.jpg",
     description: "Кристал Даймона A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "A",
-    stats: { pAtk: 267, mAtk: 149, rCrit: 8, pAtkSpd: 429, critPower: 40 },
+    stats: { pAtk: 118, mAtk: 268, rCrit: 8, pAtkSpd: 429, critPower: 40 },
   },
   quest_weapon_a_dasparion_s_staff: {
     id: "quest_weapon_a_dasparion_s_staff",
@@ -638,7 +638,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_a/Soul_Separator.jpg",
     description: "Роздільник душ A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "A",
-    stats: { pAtk: 267, mAtk: 149, rCrit: 8, pAtkSpd: 429, critPower: 40 },
+    stats: { pAtk: 120, mAtk: 275, rCrit: 8, pAtkSpd: 429, critPower: 40 },
   },
   quest_weapon_a_spiritual_eye: {
     id: "quest_weapon_a_spiritual_eye",
@@ -648,7 +648,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_a/Spiritual_Eye.jpg",
     description: "Духовне око A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "A",
-    stats: { pAtk: 267, mAtk: 149, rCrit: 8, pAtkSpd: 429, critPower: 40 },
+    stats: { pAtk: 115, mAtk: 272, rCrit: 8, pAtkSpd: 429, critPower: 40 },
   },
   quest_weapon_a_sword_of_ipos: {
     id: "quest_weapon_a_sword_of_ipos",

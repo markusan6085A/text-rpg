@@ -516,7 +516,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Great_Sword.jpg",
     description: "Великий меч B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-    stats: { pAtk: 221, mAtk: 187, rCrit: 4, pAtkSpd: 429, critPower: 30 },
+    stats: { pAtk: 125, mAtk: 172, rCrit: 4, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_b_guardian_sword: {
     id: "quest_weapon_b_guardian_sword",
@@ -606,7 +606,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Staff_of_Evil_Spirits.jpg",
     description: "Посох злих духів B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-    stats: { pAtk: 123, mAtk: 157, rCrit: 4, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 105, mAtk: 158, rCrit: 4, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_b_star_buster: {
     id: "quest_weapon_b_star_buster",

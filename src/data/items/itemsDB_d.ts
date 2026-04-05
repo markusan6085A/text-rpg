@@ -552,7 +552,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/apprentices_spellbook.jpg",
     description: "Книга заклинань учня D-grade. Покращена версія з більшою швидкістю бою.",
     grade: "D",
-    stats: { pAtk: 44, mAtk: 47, rCrit: 8, pAtkSpd: 429, critPower: 10 },
+    stats: { pAtk: 95, mAtk: 114, rCrit: 8, pAtkSpd: 429, critPower: 10 },
   },
   quest_baguette_dual_sword: {
     id: "quest_baguette_dual_sword",
@@ -572,7 +572,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/kv_shop/Bonebreaker.jpg",
     description: "Ламач кісток D-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "D",
-    stats: { pAtk: 127, mAtk: 89, rCrit: 4, pAtkSpd: 429, critPower: 10 },
+    stats: { pAtk: 95, mAtk: 119, rCrit: 4, pAtkSpd: 429, critPower: 10 },
   },
   quest_claymore: {
     id: "quest_claymore",
