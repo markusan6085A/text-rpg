@@ -359,7 +359,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Two_Handed_Sword.jpg",
     description: "Дворучний меч D-grade.",
     grade: "D",
-    stats: { pAtk: 64, mAtk: 62, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 52, mAtk: 88, rCrit: 4, pAtkSpd: 379 },
   },
   d_war_hammer: {
     id: "d_war_hammer",
@@ -724,7 +724,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Two_Handed_Sword.jpg",
     description: "Дворучний меч D-grade.",
     grade: "D",
-    stats: { pAtk: 78, mAtk: 39, rCrit: 8, pAtkSpd: 325 },
+    stats: { pAtk: 72, mAtk: 108, rCrit: 8, pAtkSpd: 325 },
   },
   shop_weapon_d_war_hammer: {
     id: "shop_weapon_d_war_hammer",
@@ -816,7 +816,7 @@ export const itemsDBD: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_d/Two_Handed_Sword.jpg",
     description: "Тіньова копія Two-Handed Sword D-grade (+40 pAtk/mAtk до магазину).",
     grade: "D",
-    stats: { pAtk: 153, mAtk: 114, rCrit: 8, pAtkSpd: 325, critPower: 10 },
+    stats: { pAtk: 112, mAtk: 148, rCrit: 8, pAtkSpd: 325, critPower: 10 },
   },
   shadow_shop_weapon_d_war_hammer: {
     id: "shadow_shop_weapon_d_war_hammer",

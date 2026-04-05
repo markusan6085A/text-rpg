@@ -418,7 +418,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_a/Meteor_Shower.jpg",
     description: "Метеорний дощ A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "A",
-    stats: { pAtk: 248, mAtk: 142, rCrit: 4, pAtkSpd: 429, critPower: 40 },
+    stats: { pAtk: 140, mAtk: 255, rCrit: 4, pAtkSpd: 429, critPower: 40 },
   },
   quest_weapon_a_apprentices_spellbook: {
     id: "quest_weapon_a_apprentices_spellbook",
@@ -448,7 +448,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_a/Barakiel_s_Axe.jpg",
     description: "Сокира Баракіеля A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "A",
-    stats: { pAtk: 267, mAtk: 149, rCrit: 8, pAtkSpd: 429, critPower: 40 },
+    stats: { pAtk: 145, mAtk: 253, rCrit: 8, pAtkSpd: 429, critPower: 40 },
   },
   quest_weapon_a_behemoth_s_tuning_fork: {
     id: "quest_weapon_a_behemoth_s_tuning_fork",
@@ -558,7 +558,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_a/Elysian.jpg",
     description: "Елізійський лук A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "A",
-    stats: { pAtk: 554, mAtk: 156, rCrit: 12, pAtkSpd: 343, critPower: 40 },
+    stats: { pAtk: 272, mAtk: 290, rCrit: 12, pAtkSpd: 343, critPower: 40 },
   },
   quest_weapon_a_halberd: {
     id: "quest_weapon_a_halberd",
@@ -668,7 +668,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_a/Sword_of_Miracles.jpg",
     description: "Меч див A-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "A",
-    stats: { pAtk: 114, mAtk: 82, rCrit: 4, pAtkSpd: 429, critPower: 40 },
+    stats: { pAtk: 342, mAtk: 375, rCrit: 12, pAtkSpd: 429, critPower: 40 },
   },
   quest_weapon_a_tallum_blade: {
     id: "quest_weapon_a_tallum_blade",
@@ -730,7 +730,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_a/Meteor_Shower.jpg",
     description: "Метеорний дощ A-grade.",
     grade: "A",
-    stats: { pAtk: 213, mAtk: 107, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 100, mAtk: 220, rCrit: 4, pAtkSpd: 379 },
   },
   shop_weapon_a_apprentices_spellbook: {
     id: "shop_weapon_a_apprentices_spellbook",
@@ -760,7 +760,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_a/Barakiel_s_Axe.jpg",
     description: "Сокира Баракіеля A-grade.",
     grade: "A",
-    stats: { pAtk: 232, mAtk: 114, rCrit: 8, pAtkSpd: 379 },
+    stats: { pAtk: 105, mAtk: 218, rCrit: 8, pAtkSpd: 379 },
   },
   shop_weapon_a_behemoth_s_tuning_fork: {
     id: "shop_weapon_a_behemoth_s_tuning_fork",
@@ -870,7 +870,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_a/Elysian.jpg",
     description: "Елізійський лук A-grade.",
     grade: "A",
-    stats: { pAtk: 519, mAtk: 121, rCrit: 12, pAtkSpd: 293 },
+    stats: { pAtk: 232, mAtk: 250, rCrit: 12, pAtkSpd: 293 },
   },
   shop_weapon_a_halberd: {
     id: "shop_weapon_a_halberd",
@@ -980,7 +980,7 @@ export const itemsDBA: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_a/Sword_of_Miracles.jpg",
     description: "Меч див A-grade.",
     grade: "A",
-    stats: { pAtk: 79, mAtk: 47, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 237, mAtk: 255, rCrit: 12, pAtkSpd: 379 },
   },
   shop_weapon_a_tallum_blade: {
     id: "shop_weapon_a_tallum_blade",

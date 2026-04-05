@@ -536,7 +536,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Hell_Knife.jpg",
     description: "Ніж пекла B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-    stats: { pAtk: 157, mAtk: 157, rCrit: 12, pAtkSpd: 483, critPower: 30 },
+    stats: { pAtk: 130, mAtk: 163, rCrit: 12, pAtkSpd: 483, critPower: 30 },
   },
   quest_weapon_b_ice_storm_hammer: {
     id: "quest_weapon_b_ice_storm_hammer",
@@ -556,7 +556,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Kaim_Vanul_s_Bones.jpg",
     description: "Кістки Кайма Ванула B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-    stats: { pAtk: 190, mAtk: 167, rCrit: 4, pAtkSpd: 429, critPower: 30 },
+    stats: { pAtk: 98, mAtk: 130, rCrit: 4, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_b_kris: {
     id: "quest_weapon_b_kris",
@@ -586,7 +586,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Spell_Breaker.jpg",
     description: "Руйнівник заклинань B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-    stats: { pAtk: 175, mAtk: 157, rCrit: 4, pAtkSpd: 429, critPower: 30 },
+    stats: { pAtk: 133, mAtk: 160, rCrit: 4, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_b_spirit_s_staff: {
     id: "quest_weapon_b_spirit_s_staff",
@@ -606,7 +606,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Staff_of_Evil_Spirits.jpg",
     description: "Посох злих духів B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-    stats: { pAtk: 131, mAtk: 82, rCrit: 4, pAtkSpd: 375, critPower: 30 },
+    stats: { pAtk: 123, mAtk: 157, rCrit: 4, pAtkSpd: 375, critPower: 30 },
   },
   quest_weapon_b_star_buster: {
     id: "quest_weapon_b_star_buster",
@@ -636,7 +636,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Sword_of_Valhalla.jpg",
     description: "Меч Вальгаллу B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-    stats: { pAtk: 175, mAtk: 157, rCrit: 8, pAtkSpd: 429, critPower: 30 },
+    stats: { pAtk: 133, mAtk: 159, rCrit: 8, pAtkSpd: 429, critPower: 30 },
   },
   quest_weapon_b_wizard_s_tear: {
     id: "quest_weapon_b_wizard_s_tear",
@@ -646,7 +646,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Wizard_s_Tear.jpg",
     description: "Сльоза чарівника B-grade. Покращена версія з більшим уроном та швидкістю атаки.",
     grade: "B",
-    stats: { pAtk: 190, mAtk: 167, rCrit: 8, pAtkSpd: 429, critPower: 30 },
+    stats: { pAtk: 135, mAtk: 165, rCrit: 8, pAtkSpd: 429, critPower: 30 },
   },
 
   // ===== SHOP B-GRADE WEAPONS (Магазин вещей) =====
@@ -768,7 +768,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Hell_Knife.jpg",
     description: "Ніж пекла B-grade.",
     grade: "B",
-    stats: { pAtk: 122, mAtk: 122, rCrit: 12, pAtkSpd: 433 },
+    stats: { pAtk: 95, mAtk: 128, rCrit: 12, pAtkSpd: 433 },
   },
   shop_weapon_b_ice_storm_hammer: {
     id: "shop_weapon_b_ice_storm_hammer",
@@ -808,7 +808,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Spell_Breaker.jpg",
     description: "Руйнівник заклинань B-grade.",
     grade: "B",
-    stats: { pAtk: 140, mAtk: 122, rCrit: 4, pAtkSpd: 379 },
+    stats: { pAtk: 98, mAtk: 125, rCrit: 4, pAtkSpd: 379 },
   },
   shop_weapon_b_spirit_s_staff: {
     id: "shop_weapon_b_spirit_s_staff",
@@ -828,7 +828,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Staff_of_Evil_Spirits.jpg",
     description: "Посох злих духів B-grade.",
     grade: "B",
-    stats: { pAtk: 96, mAtk: 47, rCrit: 4, pAtkSpd: 325 },
+    stats: { pAtk: 88, mAtk: 122, rCrit: 4, pAtkSpd: 325 },
   },
   shop_weapon_b_star_buster: {
     id: "shop_weapon_b_star_buster",
@@ -858,7 +858,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Sword_of_Valhalla.jpg",
     description: "Меч Вальгаллу B-grade.",
     grade: "B",
-    stats: { pAtk: 140, mAtk: 122, rCrit: 8, pAtkSpd: 379 },
+    stats: { pAtk: 98, mAtk: 124, rCrit: 8, pAtkSpd: 379 },
   },
   shop_weapon_b_wizard_s_tear: {
     id: "shop_weapon_b_wizard_s_tear",
@@ -868,7 +868,7 @@ export const itemsDBB: Record<string, ItemDefinition> = {
     icon: "/items/drops/weapon_b/Wizard_s_Tear.jpg",
     description: "Сльоза чарівника B-grade.",
     grade: "B",
-    stats: { pAtk: 155, mAtk: 132, rCrit: 8, pAtkSpd: 379 },
+    stats: { pAtk: 100, mAtk: 130, rCrit: 8, pAtkSpd: 379 },
   },
 
   // ===== SHOP JEWELRY B-GRADE (Магазин вещей) =====
