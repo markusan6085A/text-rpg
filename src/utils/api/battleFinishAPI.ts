@@ -5,6 +5,8 @@ import { useCharacterStore } from "../../state/characterStore";
 export interface BattleFinishResult {
   ok: boolean;
   heroJson: any;
+  /** Повний snapshot персонажа (паралельно до heroJson) — джерело правди для стора після kill. */
+  character?: unknown;
   serverDrops?: {
     items: Array<{ id: string; count: number; name?: string }>;
     adena: number;

@@ -4,7 +4,7 @@ import { EXP_GAIN_RATE, SP_GAIN_RATE } from "../../data/balance";
 import type { Mob } from "../../data/world/types";
 import type { Hero } from "../../types/Hero";
 import { getGameSettings } from "../gameSettings";
-import { useHeroStore } from "../heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../heroStore";
 import { getPremiumMultiplier } from "../../utils/premium/isPremiumActive";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
 import { reportRaidBossKill } from "../../utils/api";
@@ -406,8 +406,51 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         }
       }
 
-      if (finishResult?.ok && finishResult.heroJson) {
-        // Update heroRevision (so future loadHeroFromAPI reflects this save)
+      if (finishResult?.ok && finishResult.character) {
+        applyCharacterSnapshotFromApi(finishResult.character);
+
+        let cleanedFinishBuffs: ReturnType<typeof cleanupBuffs> | null = null;
+        const hAfter = useHeroStore.getState().hero;
+        if (hAfter && Array.isArray((hAfter as any).heroJson?.heroBuffs)) {
+          cleanedFinishBuffs = cleanupBuffs((hAfter as any).heroJson.heroBuffs, Date.now());
+          useHeroStore.getState().updateHero(
+            {
+              heroJson: {
+                ...((hAfter as any).heroJson || {}),
+                heroBuffs: cleanedFinishBuffs,
+              },
+            },
+            { skipServer: true }
+          );
+        }
+
+        if (cleanedFinishBuffs && useHeroStore.getState().hero?.name) {
+          const n = useHeroStore.getState().hero!.name;
+          const saved = loadBattle(n) || {};
+          persistBattle({ ...saved, heroBuffs: cleanedFinishBuffs }, n);
+          battleStoreRef.setState?.({ heroBuffs: cleanedFinishBuffs });
+        }
+
+        const serverDrops = finishResult.serverDrops;
+        if (Array.isArray(serverDrops?.items)) {
+          const serverDropLines: string[] = serverDrops.items.map((item: { id: string; count: number; name?: string; kind?: string }) => {
+            const displayName = item.name || itemsDB[item.id]?.name || item.id;
+            const count = item.count ?? 1;
+            const kind = String(item.kind ?? "").toLowerCase();
+            const prefix = kind === "quest" ? "Квест" : kind === "spoil" ? "Спойл" : "Дроп";
+            return `${prefix}: ${displayName} x${count}`;
+          });
+          const currentLog = battleStoreRef.getState()?.log ?? [];
+          const filteredLog = currentLog.filter(
+            (line) =>
+              !line.startsWith("Дроп:") &&
+              !line.startsWith("Спойл:") &&
+              !line.startsWith("Квест:")
+          );
+          const newLog = [...serverDropLines, ...filteredLog];
+          battleStoreRef.setState?.({ log: newLog });
+        }
+      } else if (finishResult?.ok && finishResult.heroJson) {
         if (finishResult.heroJson.heroRevision) {
           useHeroStore.getState().updateServerState(
             { heroRevision: finishResult.heroJson.heroRevision, updatedAt: Date.now() },
@@ -415,15 +458,11 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
           );
         }
 
-        // Apply server-authoritative inventory + equipment (zariche, quest items persist after F5)
         const serverHj = finishResult.heroJson;
         const serverDrops = finishResult.serverDrops;
         const patch: Partial<import("../../types/Hero").Hero> = {};
 
         if (Array.isArray(serverHj.inventory)) {
-          // Merge server inventory with current local inventory:
-          // - For shots/charges consumed mid-battle: take MIN(local, server).
-          // - For everything else: trust server count.
           const EQUIP_K = new Set(["weapon","armor","helmet","boots","gloves","shield","necklace","ring","earring","jewelry","belt","cloak"]);
           const localInvNow = useHeroStore.getState().hero?.inventory ?? [];
           const localById = new Map<string, number>();
@@ -449,16 +488,13 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
             }
             return srv;
           });
-          // Дедублікація на клієнті: злиття фрагментованих записів (кілька рядків count=1 для одного id)
-          const dedupMap = new Map<string, number>(); // id -> index in deduped
+          const dedupMap = new Map<string, number>();
           const deduped: any[] = [];
           for (const item of mapped) {
             if (!item?.id) { deduped.push(item); continue; }
             const id = String(item.id).trim().toLowerCase();
             const kind = String(item.kind ?? "").toLowerCase();
             const slot = String(item.slot ?? "").toLowerCase();
-            // enchantLevel == null виключено: 0 == null є false в JS, тому медалі/ресурси з enchantLevel:0
-            // (старі записи) не стакались. Для non-equipment EQUIP_K вже виключає зброю/броню — enchantLevel не потрібен.
             const stackable = !(item?.meta?.hasLSPassive) && !EQUIP_K.has(kind) && !EQUIP_K.has(slot);
             if (!stackable) { deduped.push(item); continue; }
             const existing = dedupMap.get(id);
@@ -470,21 +506,12 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
             }
           }
 
-          // Merge: client drops WIN over server for THIS battle.
-          // Server registry has only resources for regular mobs (no equipment drops).
-          // Client has full L2 drop tables (resources + equipment + drops).
-          // Strategy:
-          //   - server item count > local → server wins (server-authoritative for pre-battle state)
-          //   - local item count > server → local wins (client dropped more, preserve it)
-          //   - item only in local → add it (server might not have drop table for this mob)
-          //   - item is currently equipped → skip (never duplicate equipped items)
           const currentEquipment = useHeroStore.getState().hero?.equipment ?? {};
           const currentEquippedNids = new Set(
             Object.values(currentEquipment)
               .filter(Boolean)
               .map((v) => String(v).replace(/^shop_/i, "").toLowerCase())
           );
-          // Build index: nid → index in deduped (for stackable items)
           const serverNidToIdx = new Map<string, number>();
           deduped.forEach((item: any, idx: number) => {
             if (!item?.id) return;
@@ -494,13 +521,12 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
           for (const localItem of localInvNow) {
             if (!localItem?.id) continue;
             const nid = String(localItem.id).replace(/^shop_/i, "").toLowerCase();
-            if (currentEquippedNids.has(nid)) continue; // ніколи не кладемо одягнений предмет в інвентар
+            if (currentEquippedNids.has(nid)) continue;
             const lkind = String((localItem as any).kind ?? "").toLowerCase();
             const lslot = String((localItem as any).slot ?? "").toLowerCase();
             const isStackable = !EQUIP_K.has(lkind) && !EQUIP_K.has(lslot) && lkind !== "equipment";
             const serverIdx = serverNidToIdx.get(nid);
             if (serverIdx !== undefined) {
-              // Item exists on server — for stackable: take max(server, local)
               if (isStackable) {
                 const srvCount = deduped[serverIdx]?.count ?? 1;
                 const locCount = (localItem as any).count ?? 1;
@@ -508,13 +534,10 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
                   deduped[serverIdx] = { ...deduped[serverIdx], count: locCount };
                 }
               }
-              // For equipment: server wins (already in deduped, skip)
             } else {
-              // Item only in local — add it (server drop table may not have it)
               if (isStackable) {
                 deduped.push({ ...localItem, count: (localItem as any).count ?? 1 });
               } else {
-                // Equipment not in server → add (e.g. weapon drop from mob not in RB registry)
                 deduped.push(localItem);
               }
               serverNidToIdx.set(nid, deduped.length - 1);
@@ -548,8 +571,6 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         }
 
         if (Object.keys(patch).length > 0) {
-          // Server already persisted this kill via /battle-finish.
-          // Apply patch locally without scheduling an extra PUT that can race and produce 409.
           useHeroStore.getState().updateHero(patch, { skipServer: true });
         }
 
@@ -560,8 +581,6 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
           battleStoreRef.setState?.({ heroBuffs: cleanedFinishBuffs });
         }
 
-        // Оновлюємо лог бою серверними дропами (щоб те, що показує гравцю = те, що реально в інвентарі)
-        // Запускається завжди (навіть при порожньому дропі), щоб прибрати клієнтські «гessed» рядки
         if (Array.isArray(serverDrops?.items)) {
           const serverDropLines: string[] = serverDrops.items.map((item: { id: string; count: number; name?: string; kind?: string }) => {
             const displayName = item.name || itemsDB[item.id]?.name || item.id;
@@ -571,7 +590,6 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
             return `${prefix}: ${displayName} x${count}`;
           });
           const currentLog = battleStoreRef.getState()?.log ?? [];
-          // Видаляємо рядки з клієнтськими "guessed" дропами, замінюємо серверними
           const filteredLog = currentLog.filter(
             (line) =>
               !line.startsWith("Дроп:") &&

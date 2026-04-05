@@ -73,6 +73,38 @@ function applyLevelUpsInPlace(level: number, exp: number): { level: number; exp:
   return { level: nextLevel, exp: Math.max(0, Math.floor(nextExp)) };
 }
 
+/** Snapshot після battle-finish — той самий набір полів, що learn-skill / sell / pickup-item. */
+const BATTLE_FINISH_CHARACTER_SELECT = {
+  id: true,
+  name: true,
+  race: true,
+  classId: true,
+  sex: true,
+  level: true,
+  exp: true,
+  sp: true,
+  adena: true,
+  aa: true,
+  coinLuck: true,
+  coinsSilver: true,
+  heroJson: true,
+  nickColor: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
+function serializeBattleFinishCharacterRow(c: Record<string, any>) {
+  return {
+    ...c,
+    exp: Number(c.exp ?? 0),
+    adena: Number(c.adena ?? 0),
+    aa: Number(c.aa ?? 0),
+    sp: Number(c.sp ?? 0),
+    coinLuck: Number(c.coinLuck ?? 0),
+    coinsSilver: Number(c.coinsSilver ?? 0),
+  };
+}
+
 type ServerShopCatalogEntry = {
   unitPrice: number;
   currency: "adena" | "coins_silver";
@@ -3307,10 +3339,16 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       const finishNonce =
         typeof body.finishNonce === "string" ? body.finishNonce.trim().slice(0, 120) : "";
       if (finishNonce && String(heroJson.lastBattleFinishNonce ?? "") === finishNonce) {
+        const dupSnap = await tx.character.findUnique({
+          where: { id },
+          select: BATTLE_FINISH_CHARACTER_SELECT,
+        });
+        if (!dupSnap) return { ok: false as const, reason: "not_found" as const };
         return {
           ok: true as const,
           duplicate: true as const,
           heroJson,
+          character: serializeBattleFinishCharacterRow(dupSnap as any),
           serverDrops: {
             items: [],
             adena: 0,
@@ -3630,6 +3668,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       heroJson: versionedHeroJson as any,
       lastActivityAt: new Date(),
     };
+    updateData.level = Math.max(1, Math.min(MAX_LEVEL, Math.floor(Number(newHeroJson.level ?? 1))));
+    updateData.exp = BigInt(Math.max(0, Math.floor(Number(newHeroJson.exp ?? 0))));
     updateData.adena = BigInt(Math.max(0, Math.floor(Number(newHeroJson.adena))));
     updateData.sp = Math.max(0, Math.floor(Number(newHeroJson.sp ?? character.sp ?? 0)));
     updateData.coinLuck = BigInt(Math.max(0, Math.floor(Number(newHeroJson.coinOfLuck ?? character.coinLuck ?? 0))));
@@ -3639,10 +3679,17 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         data: updateData,
       });
 
+      const updatedSnap = await tx.character.findUnique({
+        where: { id },
+        select: BATTLE_FINISH_CHARACTER_SELECT,
+      });
+      if (!updatedSnap) return { ok: false as const, reason: "not_found" as const };
+
       return {
         ok: true as const,
         duplicate: false as const,
         heroJson: versionedHeroJson,
+        character: serializeBattleFinishCharacterRow(updatedSnap as any),
         serverDrops: {
           items: serverDropResult.items,
           adena: serverDropResult.adena,
@@ -3702,6 +3749,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       ok: true,
       heroJson: txRes.heroJson,
       serverDrops: txRes.serverDrops,
+      character: (txRes as any).character,
     });
   });
 
