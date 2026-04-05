@@ -45,7 +45,7 @@ const MAX_RETRIES_NON_BATTLE = 2; // Поза боєм даємо ще одну 
 function isActiveBattleForHero(hero: Hero | null | undefined): boolean {
   if (!hero?.name) return false;
   const st = loadBattle(hero.name)?.status;
-  return st === "fighting";
+  return st === "fighting" || st === "victory";
 }
 
 /** PUT 409 повертає актуальний serverState.heroRevision; без цього наступний expectedRevision знову відстає (battle/heartbeat/state). */

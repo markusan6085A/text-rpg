@@ -356,7 +356,12 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
           finishResult = await battleFinishAPI(finishPayload);
           break;
         } catch (err: any) {
-          if (err?.status === 409) {
+          const isRevisionConflict =
+            err?.status === 409 ||
+            err?.body?.error === "revision_conflict" ||
+            String(err?.message ?? "").includes("revision_conflict") ||
+            String(err?.message ?? "").includes("Character was modified");
+          if (isRevisionConflict) {
             const currentRevision = Number(err?.body?.currentRevision ?? 0);
             if (Number.isFinite(currentRevision) && currentRevision >= 0) {
               useHeroStore.getState().updateServerState({
