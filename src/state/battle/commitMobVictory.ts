@@ -468,7 +468,9 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         }
 
         if (Object.keys(patch).length > 0) {
-          useHeroStore.getState().updateHero(patch);
+          // Server already persisted this kill via /battle-finish.
+          // Apply patch locally without scheduling an extra PUT that can race and produce 409.
+          useHeroStore.getState().updateHero(patch, { skipServer: true });
         }
 
         // Оновлюємо лог бою серверними дропами (щоб те, що показує гравцю = те, що реально в інвентарі)
