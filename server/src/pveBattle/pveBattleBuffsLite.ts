@@ -1,4 +1,4 @@
-/** Мінімальна логіка бафів моба для pDef/mDef/резистів (узгоджено з client buffs). */
+/** Мінімальна логіка бафів моба для pDef/mDef/evasion/резистів (узгоджено з client buffs). */
 
 const RESIST_STATS = new Set([
   "fireResist",
@@ -9,7 +9,19 @@ const RESIST_STATS = new Set([
   "darkResist",
 ]);
 
-const ALLOW = new Set(["pDef", "mDef", ...RESIST_STATS]);
+const ALLOW = new Set(["pDef", "mDef", "evasion", ...RESIST_STATS]);
+
+export type MobCombatBase = {
+  pDef: number;
+  mDef: number;
+  evasion: number;
+  fireResist: number;
+  waterResist: number;
+  windResist: number;
+  earthResist: number;
+  holyResist: number;
+  darkResist: number;
+};
 
 export function cleanupBattleBuffs(buffs: any[], now: number): any[] {
   const list = Array.isArray(buffs) ? buffs : [];
@@ -23,19 +35,7 @@ function clamp(n: number, lo: number, hi: number) {
   return Math.min(hi, Math.max(lo, n));
 }
 
-export function applyMobBuffsToCombat(
-  base: {
-    pDef: number;
-    mDef: number;
-    fireResist: number;
-    waterResist: number;
-    windResist: number;
-    earthResist: number;
-    holyResist: number;
-    darkResist: number;
-  },
-  buffs: any[]
-): typeof base {
+export function applyMobBuffsToCombat(base: MobCombatBase, buffs: any[]): MobCombatBase {
   const merged = { ...base };
   const pctBy: Record<string, number> = {};
   const flatBy: Record<string, number> = {};
@@ -63,6 +63,9 @@ export function applyMobBuffsToCombat(
     if (RESIST_STATS.has(stat)) {
       const next = clamp(cur * (1 + pv / 100) + fv, -80, 95);
       (merged as any)[stat] = next;
+    } else if (stat === "evasion") {
+      const next = Math.round(cur * (1 + pv / 100) + fv);
+      (merged as any).evasion = clamp(next, 0, 120);
     } else {
       const next = Math.round(cur * (1 + pv / 100) + fv);
       (merged as any)[stat] = stat === "pDef" || stat === "mDef" ? Math.max(1, next) : next;

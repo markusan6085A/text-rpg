@@ -1,5 +1,6 @@
 import { lookupMobRegistry } from "../utils/serverDropCalculator";
 import { mobDefenseFromLevel, resolveMobMaxHp } from "./pveDamage";
+import { isValidRaidAiProfileId } from "./raidBossAIServer";
 
 export type PveBattleStartBody = {
   zoneId: string;
@@ -7,6 +8,10 @@ export type PveBattleStartBody = {
   mobId: string;
   clientMobMaxHp: number;
   mobIsRaidBoss?: boolean;
+  /** ID з raidBossAI (тільки для рейд-босів; валідується по whitelist). */
+  raidAiProfileId?: string;
+  /** Епічні РБ (Queen Ant тощо) — без ×2.25 та з окремим балансом як у клієнта. */
+  mobIsEpicRaidBoss?: boolean;
 };
 
 export type PveBattleStartResult =
@@ -36,6 +41,25 @@ export function applyPveBattleStartSnapshot(args: { heroJson: any; body: PveBatt
   });
   const { pDef, mDef } = mobDefenseFromLevel(reg.level);
 
+  const rawRaidAi = typeof args.body.raidAiProfileId === "string" ? args.body.raidAiProfileId.trim() : "";
+  let raidAiProfileId: string | undefined;
+  if (rawRaidAi) {
+    if (!isRaidBoss) {
+      return { ok: false, code: "invalid_input", message: "raidAiProfileId only for raid bosses" };
+    }
+    if (!isValidRaidAiProfileId(rawRaidAi)) {
+      return { ok: false, code: "invalid_input", message: "Unknown raid AI profile" };
+    }
+    raidAiProfileId = rawRaidAi === "rb_floran_ai" ? "rb_floran_overlord_ai" : rawRaidAi;
+  }
+
+  const mobIsEpicRaidBoss = args.body.mobIsEpicRaidBoss === true;
+  const lv = Math.max(1, Math.floor(reg.level));
+  const mobEvasionBase = Math.min(
+    90,
+    Math.max(3, Math.round(lv * 1.35 + (isRaidBoss ? 12 : 0) + (mobIsEpicRaidBoss ? 6 : 0)))
+  );
+
   const session = {
     v: 1,
     zoneId,
@@ -45,10 +69,14 @@ export function applyPveBattleStartSnapshot(args: { heroJson: any; body: PveBatt
     mobMaxHp,
     mobLevel: reg.level,
     mobIsRaidBoss: isRaidBoss,
+    mobIsEpicRaidBoss,
+    raidAiProfileId,
     mobPDef: pDef,
     mobMDef: mDef,
     mobPDefBase: pDef,
     mobMDefBase: mDef,
+    mobEvasionBase,
+    mobEvasion: mobEvasionBase,
     mobBuffs: [] as any[],
     fireResist: 0,
     waterResist: 0,

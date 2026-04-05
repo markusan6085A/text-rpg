@@ -5,6 +5,7 @@ import { battleStoreRef } from "../../battleStoreRef";
 import { pveBattleTickAPI } from "../../../utils/api/characters";
 import { applyBuffsToStats } from "../helpers";
 import { persistBattle, loadBattle } from "../persist";
+import type { BattleState } from "../types";
 
 let tickInFlight = false;
 
@@ -14,6 +15,36 @@ function pickDefenseStatsForServer(heroStats: Record<string, any>): Record<strin
   for (const k of keys) {
     const n = Number(heroStats[k]);
     if (Number.isFinite(n)) out[k] = n;
+  }
+  return out;
+}
+
+/** Сервер надсилає лише поля, виставлені цим ударом; інші не чіпаємо. Таймери — пізніший deadline wins. */
+function mergeServerBattleControl(
+  prev: Pick<BattleState, "heroStunnedUntil" | "heroBuffsBlockedUntil" | "heroSkillsBlockedUntil">,
+  bc: Partial<{
+    heroStunnedUntil: number;
+    heroBuffsBlockedUntil: number;
+    heroSkillsBlockedUntil: number;
+  }>
+): Partial<
+  Pick<BattleState, "heroStunnedUntil" | "heroBuffsBlockedUntil" | "heroSkillsBlockedUntil">
+> {
+  const maxDeadline = (a?: number, b?: number): number | undefined => {
+    const m = Math.max(Number(a) || 0, Number(b) || 0);
+    return m > 0 ? m : undefined;
+  };
+  const out: Partial<
+    Pick<BattleState, "heroStunnedUntil" | "heroBuffsBlockedUntil" | "heroSkillsBlockedUntil">
+  > = {};
+  if (typeof bc.heroStunnedUntil === "number" && Number.isFinite(bc.heroStunnedUntil)) {
+    out.heroStunnedUntil = maxDeadline(prev.heroStunnedUntil, bc.heroStunnedUntil);
+  }
+  if (typeof bc.heroBuffsBlockedUntil === "number" && Number.isFinite(bc.heroBuffsBlockedUntil)) {
+    out.heroBuffsBlockedUntil = maxDeadline(prev.heroBuffsBlockedUntil, bc.heroBuffsBlockedUntil);
+  }
+  if (typeof bc.heroSkillsBlockedUntil === "number" && Number.isFinite(bc.heroSkillsBlockedUntil)) {
+    out.heroSkillsBlockedUntil = maxDeadline(prev.heroSkillsBlockedUntil, bc.heroSkillsBlockedUntil);
   }
   return out;
 }
@@ -73,16 +104,43 @@ export function schedulePveMobTickOnline(): void {
       const mobNextAt = now + 1000 + Math.random() * 5000;
       const heroName = store.hero?.name;
       const nextLog = [...logLines, ...(bs.log || [])].slice(0, 30);
+      const bcRaw = (res as any).battleControl;
+      const bc =
+        bcRaw && typeof bcRaw === "object"
+          ? (bcRaw as Partial<{
+              heroStunnedUntil: number;
+              heroBuffsBlockedUntil: number;
+              heroSkillsBlockedUntil: number;
+            }>)
+          : null;
+      const controlPatch =
+        !killedHero && bc && battleStoreRef.getState
+          ? mergeServerBattleControl(battleStoreRef.getState(), bc)
+          : {};
 
       if (killedHero && battleStoreRef.setState) {
         battleStoreRef.setState({
           status: "idle",
           mobNextAttackAt: null,
           log: nextLog,
+          heroStunnedUntil: undefined,
+          heroBuffsBlockedUntil: undefined,
+          heroSkillsBlockedUntil: undefined,
         });
         if (heroName) {
           const saved = loadBattle(heroName) || {};
-          persistBattle({ ...saved, status: "idle", mobNextAttackAt: null, log: nextLog } as any, heroName);
+          persistBattle(
+            {
+              ...saved,
+              status: "idle",
+              mobNextAttackAt: null,
+              log: nextLog,
+              heroStunnedUntil: undefined,
+              heroBuffsBlockedUntil: undefined,
+              heroSkillsBlockedUntil: undefined,
+            } as any,
+            heroName
+          );
         }
         return;
       }
@@ -91,11 +149,12 @@ export function schedulePveMobTickOnline(): void {
         battleStoreRef.setState({
           mobNextAttackAt: mobNextAt,
           log: nextLog,
+          ...controlPatch,
         });
       }
       if (heroName) {
         const saved = loadBattle(heroName) || {};
-        persistBattle({ ...saved, mobNextAttackAt: mobNextAt, log: nextLog } as any, heroName);
+        persistBattle({ ...saved, mobNextAttackAt: mobNextAt, log: nextLog, ...controlPatch } as any, heroName);
       }
     })
     .catch(() => {

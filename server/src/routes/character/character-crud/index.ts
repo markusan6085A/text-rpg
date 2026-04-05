@@ -3898,6 +3898,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       mobId?: string;
       clientMobMaxHp?: number;
       mobIsRaidBoss?: boolean;
+      raidAiProfileId?: string;
+      mobIsEpicRaidBoss?: boolean;
     };
     const expectedRevision = Number(body?.expectedRevision);
     if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
@@ -3935,6 +3937,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             mobId: String(body.mobId ?? ""),
             clientMobMaxHp: Math.floor(Number(body.clientMobMaxHp ?? 0)),
             mobIsRaidBoss: body.mobIsRaidBoss === true,
+            raidAiProfileId: typeof body.raidAiProfileId === "string" ? body.raidAiProfileId : undefined,
+            mobIsEpicRaidBoss: body.mobIsEpicRaidBoss === true,
           },
         });
         if (!started.ok) {
@@ -4109,6 +4113,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           };
         }
 
+        // Оновлений inventory (стрілки/заряди) входить у nextHeroJson і зберігається в Character.heroJson (БД).
+        // Оновлений inventory (стрілки/заряди) входить у nextHeroJson і зберігається в Character.heroJson (БД).
         const newHeroJson = { ...applied.nextHeroJson };
         const validation = validateHeroJson(newHeroJson);
         if (!validation.valid) {
@@ -4304,6 +4310,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           logLines: applied.logLines,
           heroHpAfter: applied.heroHpAfter,
           killedHero: applied.killedHero,
+          battleControl: applied.battleControl,
         };
       });
 
@@ -4346,6 +4353,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         logLines: txRes.logLines,
         heroHpAfter: txRes.heroHpAfter,
         killedHero: txRes.killedHero,
+        battleControl: txRes.battleControl,
       });
     } catch (e) {
       console.error("[pve-battle-tick]", e);

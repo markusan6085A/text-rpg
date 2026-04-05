@@ -338,13 +338,20 @@ export const createStartBattle =
         const revRaw =
           useHeroStore.getState().serverState?.heroRevision ?? hj0.heroRevision ?? 0;
         const rev = Number(revRaw);
+        const isRb = (mob as any).isRaidBoss === true;
+        const rawAi =
+          isRb && typeof (mob as any).aiProfileId === "string"
+            ? String((mob as any).aiProfileId).trim()
+            : "";
         const ch = await battleStartAPI(cid, {
           expectedRevision: Number.isFinite(rev) && rev >= 0 ? rev : 0,
           zoneId,
           mobIndex,
           mobId: mob.id,
           clientMobMaxHp: getMobEffectiveMaxHp(mob),
-          mobIsRaidBoss: (mob as any).isRaidBoss === true,
+          mobIsRaidBoss: isRb,
+          raidAiProfileId: rawAi || undefined,
+          mobIsEpicRaidBoss: isRb && (mob as any).isEpicRaidBoss === true,
         });
         const hj = (ch as any)?.heroJson && typeof (ch as any).heroJson === "object" ? (ch as any).heroJson : {};
         const store = useHeroStore.getState();

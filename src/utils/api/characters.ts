@@ -319,6 +319,9 @@ export async function battleStartAPI(
     mobId: string;
     clientMobMaxHp: number;
     mobIsRaidBoss?: boolean;
+    /** Профіль рейд-AI з моба; сервер валідує whitelist. */
+    raidAiProfileId?: string;
+    mobIsEpicRaidBoss?: boolean;
   }
 ): Promise<Character & { sessionMobHp?: number; sessionMobMaxHp?: number }> {
   let rev = data.expectedRevision;
@@ -431,6 +434,11 @@ export async function pveBattleTickAPI(
   logLines?: string[];
   heroHpAfter?: number;
   killedHero?: boolean;
+  battleControl?: {
+    heroStunnedUntil?: number;
+    heroBuffsBlockedUntil?: number;
+    heroSkillsBlockedUntil?: number;
+  };
 }> {
   let rev = data.expectedRevision;
   try {

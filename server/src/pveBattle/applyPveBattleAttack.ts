@@ -8,6 +8,7 @@ import {
   tryConsumeShotFromInventory,
 } from "./pveShotArrowsServer";
 import { cleanupBattleBuffs, applyMobBuffsToCombat } from "./pveBattleBuffsLite";
+import { clampPlayerAccuracy, hitChancePercentVsMob, rollPvEAttackHit } from "./pveHitChance";
 import {
   SONIC_CONSUMERS,
   SONIC_COST,
@@ -85,10 +86,12 @@ function sanitizeClientMobBuffs(raw: any): any[] {
 function applyMobBuffsToSession(sess: any, mobBuffsClean: any[], now: number) {
   const baseP = Math.max(1, Math.floor(Number(sess.mobPDefBase ?? sess.mobPDef) || 1));
   const baseM = Math.max(1, Math.floor(Number(sess.mobMDefBase ?? sess.mobMDef) || 1));
+  const baseE = Math.max(0, Math.floor(Number(sess.mobEvasionBase ?? sess.mobEvasion) || 0));
   const merged = applyMobBuffsToCombat(
     {
       pDef: baseP,
       mDef: baseM,
+      evasion: baseE,
       fireResist: Number(sess.fireResistBase ?? 0) || 0,
       waterResist: Number(sess.waterResistBase ?? 0) || 0,
       windResist: Number(sess.windResistBase ?? 0) || 0,
@@ -100,6 +103,7 @@ function applyMobBuffsToSession(sess: any, mobBuffsClean: any[], now: number) {
   );
   sess.mobPDef = merged.pDef;
   sess.mobMDef = merged.mDef;
+  sess.mobEvasion = merged.evasion;
   sess.fireResist = merged.fireResist;
   sess.waterResist = merged.waterResist;
   sess.windResist = merged.windResist;
@@ -109,32 +113,45 @@ function applyMobBuffsToSession(sess: any, mobBuffsClean: any[], now: number) {
   sess.mobBuffs = mobBuffsClean;
 }
 
-function consumeSonicAndForceStacks(heroJson: any, skillId: number): { ok: false; code: string } | { ok: true; heroBuffs: any[] } {
-  let buffs = Array.isArray(heroJson.heroBuffs) ? [...heroJson.heroBuffs] : [];
-
+function checkSonicAndForceStacks(heroJson: any, skillId: number): { ok: false; code: string } | { ok: true } {
+  const buffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
   if (SONIC_CONSUMERS.has(skillId)) {
     const need = SONIC_COST[skillId] ?? 1;
     const focusBuff = buffs.find((b: any) => Number(b?.id) === SONIC_FOCUS_ID);
     const stacks = Math.max(0, Math.floor(Number(focusBuff?.stacks) || 0));
     if (stacks < need) return { ok: false, code: "sonic_focus_required" };
-    const newStacks = stacks - need;
-    const remainingFocus = newStacks > 0 ? { ...focusBuff, stacks: newStacks } : null;
-    const withoutFocus = buffs.filter((b: any) => Number(b?.id) !== SONIC_FOCUS_ID);
-    buffs = remainingFocus ? [remainingFocus, ...withoutFocus] : withoutFocus;
   }
-
   if (FOCUSED_FORCE_CONSUMERS.has(skillId)) {
     const need = FOCUSED_FORCE_COST[skillId] ?? 1;
     const focusBuff = buffs.find((b: any) => Number(b?.id) === FOCUSED_FORCE_ID);
     const stacks = Math.max(0, Math.floor(Number(focusBuff?.stacks) || 0));
     if (stacks < need) return { ok: false, code: "focused_force_required" };
-    const newStacks = stacks - need;
+  }
+  return { ok: true };
+}
+
+/** Застосувати списання стаків після підтвердженого влучання. */
+function applySonicAndForceStacks(heroJson: any, skillId: number): any[] {
+  let buffs = Array.isArray(heroJson.heroBuffs) ? [...heroJson.heroBuffs] : [];
+  if (SONIC_CONSUMERS.has(skillId)) {
+    const need = SONIC_COST[skillId] ?? 1;
+    const focusBuff = buffs.find((b: any) => Number(b?.id) === SONIC_FOCUS_ID);
+    const stacks = Math.max(0, Math.floor(Number(focusBuff?.stacks) || 0));
+    const newStacks = Math.max(0, stacks - need);
+    const remainingFocus = newStacks > 0 ? { ...focusBuff, stacks: newStacks } : null;
+    const withoutFocus = buffs.filter((b: any) => Number(b?.id) !== SONIC_FOCUS_ID);
+    buffs = remainingFocus ? [remainingFocus, ...withoutFocus] : withoutFocus;
+  }
+  if (FOCUSED_FORCE_CONSUMERS.has(skillId)) {
+    const need = FOCUSED_FORCE_COST[skillId] ?? 1;
+    const focusBuff = buffs.find((b: any) => Number(b?.id) === FOCUSED_FORCE_ID);
+    const stacks = Math.max(0, Math.floor(Number(focusBuff?.stacks) || 0));
+    const newStacks = Math.max(0, stacks - need);
     const remainingForce = newStacks > 0 ? { ...focusBuff, stacks: newStacks } : null;
     const withoutForce = buffs.filter((b: any) => Number(b?.id) !== FOCUSED_FORCE_ID);
     buffs = remainingForce ? [remainingForce, ...withoutForce] : withoutForce;
   }
-
-  return { ok: true, heroBuffs: buffs };
+  return buffs;
 }
 
 export type PveBattleAttackResult =
@@ -193,6 +210,9 @@ export function applyPveBattleAttackSnapshot(args: {
     if (sess.earthResistBase === undefined) sess.earthResistBase = Number(sess.earthResist) || 0;
     if (sess.holyResistBase === undefined) sess.holyResistBase = Number(sess.holyResist) || 0;
     if (sess.darkResistBase === undefined) sess.darkResistBase = Number(sess.darkResist) || 0;
+    if (sess.mobEvasionBase === undefined) {
+      sess.mobEvasionBase = Math.max(0, Math.floor(Number(sess.mobEvasion) || 0));
+    }
     applyMobBuffsToSession(sess, cleaned, now);
   }
 
@@ -242,15 +262,14 @@ export function applyPveBattleAttackSnapshot(args: {
       return { ok: false, code: "not_enough_mp", message: "Not enough MP" };
     }
 
-    const stC = consumeSonicAndForceStacks(hj, skillId);
-    if (!stC.ok) {
+    const stCheck = checkSonicAndForceStacks(hj, skillId);
+    if (!stCheck.ok) {
       return {
         ok: false,
-        code: stC.code,
-        message: stC.code === "sonic_focus_required" ? "Потрібні стаки Sonic Focus" : "Потрібні стаки Focused Force",
+        code: stCheck.code,
+        message: stCheck.code === "sonic_focus_required" ? "Потрібні стаки Sonic Focus" : "Потрібні стаки Focused Force",
       };
     }
-    hj.heroBuffs = stC.heroBuffs;
   }
 
   const bowNeed =
@@ -265,6 +284,35 @@ export function applyPveBattleAttackSnapshot(args: {
       return { ok: false, code: "no_arrows", message: bowCheck.message || "No arrows" };
     }
     bowGrade = bowCheck.grade ?? null;
+  }
+
+  const accuracy = clampPlayerAccuracy((csInRaw as any).accuracy);
+  const mobEv = Math.max(0, Math.min(120, Math.floor(Number(sess.mobEvasion) || 0)));
+  const hitPct = hitChancePercentVsMob(accuracy, mobEv);
+  const landed = rollPvEAttackHit(hitPct);
+  const skillNameForLog = skillId === 0 ? "Attack" : String(args.skillNameFallback || `Skill ${skillId}`);
+
+  if (!landed) {
+    hj.mp = heroMp;
+    hj.battleSession = {
+      ...sess,
+      lastSkillId: skillId,
+      lastDamage: 0,
+      lastAt: Date.now(),
+    };
+    return {
+      ok: true,
+      nextHeroJson: hj,
+      logLines: [`Ви промахнулись [${skillNameForLog}] (шанс влучання ${hitPct}%).`],
+      damage: 0,
+      isCrit: false,
+      mobHpAfter: mobHpBefore,
+      killed: false,
+    };
+  }
+
+  if (skillId !== 0) {
+    hj.heroBuffs = applySonicAndForceStacks(hj, skillId);
   }
 
   const isPhysical = skillId === 0 || cat === "physical_attack";
@@ -344,7 +392,7 @@ export function applyPveBattleAttackSnapshot(args: {
   };
   hj.battleSession = nextSession;
 
-  const skillName = skillId === 0 ? "Attack" : String(args.skillNameFallback || `Skill ${skillId}`);
+  const skillName = skillNameForLog;
   const logLines =
     skillId === 0
       ? [

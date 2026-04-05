@@ -1,4 +1,6 @@
-/** Один крок удару моба по герою (спрощено від client processMobAttack — лише основний моб). */
+/** Удар моба по герою: зональний РБ з фазами AI (як у client processMobAttack); ефірні РБ без ×2.25. */
+
+import { getRaidBossAIProfile, type RaidBossPhase } from "./raidBossAIServer";
 
 function clamp(n: number, lo: number, hi: number) {
   return Math.min(hi, Math.max(lo, n));
@@ -10,6 +12,17 @@ function mitigation(raw: number, mobAtkStat: number, heroDefense: number): numbe
   return Math.max(1, Math.round((raw * atk) / (atk + def)));
 }
 
+function pickRaidPhase(phases: RaidBossPhase[], hpPercent: number): RaidBossPhase | null {
+  const p = Math.max(0, Math.min(100, hpPercent));
+  return phases.find((ph) => p <= ph.fromHpPercent && p > ph.toHpPercent) ?? null;
+}
+
+export type PveMobTickBattleControl = {
+  heroStunnedUntil?: number;
+  heroBuffsBlockedUntil?: number;
+  heroSkillsBlockedUntil?: number;
+};
+
 export type PveMobTickResult =
   | {
       ok: true;
@@ -17,12 +30,12 @@ export type PveMobTickResult =
       logLines: string[];
       heroHpAfter: number;
       killedHero: boolean;
+      battleControl?: PveMobTickBattleControl;
     }
   | { ok: false; code: string; message?: string };
 
 export function applyPveMobTickSnapshot(args: {
   heroJson: any;
-  /** Захист і ухилення героя (після бафів), як на клієнті. */
   heroDefenseStats: {
     pDef?: number;
     mDef?: number;
@@ -77,11 +90,28 @@ export function applyPveMobTickSnapshot(args: {
 
   const lv = Math.max(1, Math.floor(Number(sess.mobLevel) || 1));
   const isRb = sess.mobIsRaidBoss === true;
+  const isEpic = sess.mobIsEpicRaidBoss === true;
   const isPhysical = Math.random() < 0.5;
   let mobPAtk = Math.max(1, lv * 20);
   let mobMAtk = Math.max(1, lv * 15);
   let base = isPhysical ? Math.max(5, mobPAtk) : Math.max(5, mobMAtk);
-  if (isRb) base *= 2.25;
+
+  let phaseMult = 1;
+  let currentPhase: RaidBossPhase | null = null;
+  if (isRb && !isEpic && sess.raidAiProfileId) {
+    const prof = getRaidBossAIProfile(String(sess.raidAiProfileId));
+    if (prof?.phases?.length) {
+      const hpPct = (mobHp / Math.max(1, Math.floor(Number(sess.mobMaxHp) || 1))) * 100;
+      currentPhase = pickRaidPhase(prof.phases, hpPct);
+      if (currentPhase) phaseMult = Math.max(0.25, Number(currentPhase.damageMultiplier) || 1);
+      else phaseMult = Math.max(0.25, Number(prof.phases[0]?.damageMultiplier) || 1);
+    }
+    base *= phaseMult;
+    base *= 2.25;
+  } else if (isRb && !isEpic) {
+    base *= 2.25;
+  }
+
   const variance = 0.25;
   const raw = base * (1 - variance + Math.random() * variance * 2);
   const defense = isPhysical ? pDef : mDef;
@@ -93,7 +123,28 @@ export function applyPveMobTickSnapshot(args: {
   const nextHp = Math.max(0, curHp - dmg);
   hj.hp = nextHp;
 
-  const logLines = [`Ви отримуєте ${dmg} урону.`];
+  const logLines: string[] = [`Ви отримуєте ${dmg} урону.`];
+  const battleControl: PveMobTickBattleControl = {};
+  const now = Date.now();
+
+  if (currentPhase && isRb && !isEpic) {
+    if (currentPhase.stunChance && currentPhase.stunDuration && Math.random() < currentPhase.stunChance) {
+      const ms = Math.max(1000, Math.floor(Number(currentPhase.stunDuration) * 1000));
+      battleControl.heroStunnedUntil = now + ms;
+      logLines.push(`Рейд-бос оглушив вас на ${currentPhase.stunDuration} сек!`);
+    }
+    if (
+      currentPhase.blockBuffsAndSkillsChance &&
+      currentPhase.blockDuration &&
+      Math.random() < currentPhase.blockBuffsAndSkillsChance
+    ) {
+      const ms = Math.max(1000, Math.floor(Number(currentPhase.blockDuration) * 1000));
+      battleControl.heroBuffsBlockedUntil = now + ms;
+      battleControl.heroSkillsBlockedUntil = now + ms;
+      logLines.push(`Рейд-бос заблокував бафи та скіли на ${currentPhase.blockDuration} сек!`);
+    }
+  }
+
   let killedHero = false;
 
   if (nextHp <= 0) {
@@ -115,5 +166,6 @@ export function applyPveMobTickSnapshot(args: {
     logLines,
     heroHpAfter: nextHp,
     killedHero,
+    battleControl: Object.keys(battleControl).length > 0 ? battleControl : undefined,
   };
 }
