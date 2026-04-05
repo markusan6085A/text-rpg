@@ -5,7 +5,11 @@ import { useCharacterStore } from "../state/characterStore";
 import { useHeroStore, setResurrectInProgress } from "../state/heroStore";
 import { isHeroDead } from "../state/heroStore/isHeroDead";
 import { resurrectCharacter } from "../utils/api";
-import { findZoneWithCity, locationPathForZoneMob } from "./battle/battleUtils";
+import {
+  findZoneWithCity,
+  locationPathForZoneMob,
+  isBattleEntryErrorMessage,
+} from "./battle/battleUtils";
 import { SkillBar } from "./battle/SkillBar";
 import { BattleLog } from "./battle/BattleLog";
 import { BattlePanel } from "./battle/BattlePanel";
@@ -320,7 +324,7 @@ export default function Battle({ navigate }: BattleProps) {
   if (!mob && status !== "victory") {
     // Якщо є помилка в лозі (наприклад, немає удочки/наживки або моб на респавні)
     const errorMessage = log && log.length > 0 ? log[0] : null;
-    if (status === "idle" && errorMessage) {
+    if (status === "idle" && errorMessage && isBattleEntryErrorMessage(errorMessage)) {
       // Визначаємо, куди повертатися: якщо це fishing зона - на риболовлю, інакше - в окрестность
       const isRespawnError = errorMessage.includes("ще не респавнувся");
       const isFishingZone = zoneId === "fishing";

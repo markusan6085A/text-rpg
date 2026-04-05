@@ -58,6 +58,25 @@ export function findZoneWithCity(zoneId: string): { zone: Zone; city: City } | u
  * Шлях до екрана окрестности з тією ж сторінкою списку мобів, що й глобальний індекс моба в зоні
  * (щоб після «Продовжити» не кидало на початок списку).
  */
+/**
+ * Тексти з гілок помилки в startBattle. Усе інше в log[0] під idle+без моба — бойові рядки
+ * (під час async pve-battle-start), не показувати модалку «Помилка».
+ */
+export function isBattleEntryErrorMessage(msg: string | null | undefined): boolean {
+  const m = String(msg ?? "").trim();
+  if (!m) return false;
+  return (
+    m.startsWith("Cannot start:") ||
+    m.includes("Увійдіть в акаунт") ||
+    m.includes("ще не респавнувся") ||
+    m.includes("Hero not found") ||
+    m.includes("потрібна удочка") ||
+    m.includes("потрібна наживка") ||
+    m.includes("Удочкою можна бити тільки рибу") ||
+    m.includes("Сервер не дозволив почати бій")
+  );
+}
+
 export function locationPathForZoneMob(zoneId: string, mobIndexInZone: number): string {
   const found = findZoneWithCity(zoneId);
   if (!found) return `/location?id=${encodeURIComponent(zoneId)}`;
