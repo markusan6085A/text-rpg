@@ -119,7 +119,7 @@ export async function payToViewPlayerStats(
 /** Серверна оплата телепорту GK (рівень і адена з БД; до 40 lvl — безкоштовно). */
 export async function postCharacterGkTeleport(
   characterId: string,
-  body: { kind: "city" | "zone"; targetId: string }
+  body: { kind: "city" | "zone"; targetId: string; expectedRevision: number }
 ): Promise<{ ok: boolean; charge: number; newAdena: number; currentCityId?: string }> {
   return apiRequest(`/characters/${characterId}/gk-teleport`, {
     method: "POST",

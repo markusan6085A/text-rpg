@@ -102,7 +102,16 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
     const token = getAccessToken();
     if (token) {
       try {
-        const res = await postCharacterGkTeleport(hero.id, { kind: "city", targetId: cityId });
+        const expectedRevision = Number(
+          useHeroStore.getState().serverState?.heroRevision ??
+          (hero as any)?.heroJson?.heroRevision ??
+          0
+        );
+        const res = await postCharacterGkTeleport(hero.id, {
+          kind: "city",
+          targetId: cityId,
+          expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+        });
         const hj = ((useHeroStore.getState().hero as any)?.heroJson || {}) as Record<string, unknown>;
         useHeroStore.getState().updateHero({
           adena: res.newAdena,
@@ -154,7 +163,16 @@ export default function GKScreen({ navigate }: { navigate: Navigate }) {
     const token = getAccessToken();
     if (token) {
       try {
-        const res = await postCharacterGkTeleport(hero.id, { kind: "zone", targetId: zoneId });
+        const expectedRevision = Number(
+          useHeroStore.getState().serverState?.heroRevision ??
+          (hero as any)?.heroJson?.heroRevision ??
+          0
+        );
+        const res = await postCharacterGkTeleport(hero.id, {
+          kind: "zone",
+          targetId: zoneId,
+          expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
+        });
         useHeroStore.getState().updateHero({ adena: res.newAdena } as any);
       } catch (e: unknown) {
         const msg = (e as Error)?.message || "";
