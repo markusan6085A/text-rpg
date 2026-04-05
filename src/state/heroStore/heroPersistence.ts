@@ -499,6 +499,7 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     // 🔥 MERGE: зберігаємо всі існуючі поля + оновлюємо прогрес
     // 🔥 КРИТИЧНО: isDead/deadAt не мерджимо з existingHeroJson — тільки з поточного hero.heroJson; змінюються лише в death/resurrect handlers
     const currentHeroJson = (hero as any).heroJson || {};
+    const hasActiveDyesField = Object.prototype.hasOwnProperty.call(hero as object, "activeDyes");
     const heroJsonToSave = {
       ...existingHeroJson,
       isDead: Boolean(currentHeroJson.isDead),
@@ -543,7 +544,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       equipment: hero.equipment && typeof hero.equipment === 'object' ? hero.equipment : (existingHeroJson.equipment && typeof existingHeroJson.equipment === 'object' ? existingHeroJson.equipment : {}),
       ...(hero.equipmentEnchantLevels && Object.keys(hero.equipmentEnchantLevels).length > 0 ? { equipmentEnchantLevels: hero.equipmentEnchantLevels } : {}),
       ...(hero.equipmentInserts && Object.keys(hero.equipmentInserts).length > 0 ? { equipmentInserts: hero.equipmentInserts } : {}),
-      activeDyes: Array.isArray(hero.activeDyes) && hero.activeDyes.length > 0 ? hero.activeDyes : (Array.isArray(existingHeroJson.activeDyes) ? existingHeroJson.activeDyes : []),
+      // Якщо гравець зняв усі тату (activeDyes = []), це валідний стан і його не можна заміняти старим snapshot.
+      activeDyes: hasActiveDyesField && Array.isArray(hero.activeDyes)
+        ? hero.activeDyes
+        : (Array.isArray(existingHeroJson.activeDyes) ? existingHeroJson.activeDyes : []),
       // Щоденні завдання — мерджимо з store, щоб при race не губити daily_kills/daily_adena_farm
       dailyQuestsProgress: dailyQuestsProgressToSave,
       dailyQuestsCompleted: Array.isArray(hero.dailyQuestsCompleted) ? hero.dailyQuestsCompleted : (existingHeroJson.dailyQuestsCompleted ?? []),
@@ -903,8 +907,18 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
             const source = (await import('../heroStore')).useHeroStore.getState().hero ?? hero;
             const inv = Array.isArray(source?.inventory) ? source.inventory : [];
             const chest = Array.isArray((source as any)?.overflowChest) ? (source as any).overflowChest : [];
+            const expectedRevision = Number(
+              (source as any)?.heroJson?.heroRevision ??
+              (source as any)?.heroRevision ??
+              (await import('../heroStore')).useHeroStore.getState().serverState?.heroRevision ??
+              0
+            );
             try {
-              await updateInventoryAPI(cs.characterId, { inventory: inv, overflowChest: chest });
+              await updateInventoryAPI(cs.characterId, {
+                inventory: inv,
+                overflowChest: chest,
+                expectedRevision,
+              });
               console.log('[saveHeroToLocalStorage] Saved inventory via fallback (exp error)');
             } catch (e) {
               console.warn('[saveHeroToLocalStorage] Inventory fallback failed:', e);

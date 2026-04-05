@@ -449,91 +449,105 @@ export async function characterActionsRoutes(app: FastifyInstance) {
     }
 
     try {
-      const ch = await prisma.character.findFirst({
-        where: { id: targetId, accountId: auth.accountId },
-        select: {
-          id: true,
-          adena: true,
-          exp: true,
-          sp: true,
-          coinLuck: true,
-          coinsSilver: true,
-          heroJson: true,
-        },
-      });
-      if (!ch) return reply.code(404).send({ error: "character not found" });
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{
+            id: string;
+            adena: bigint;
+            exp: bigint;
+            sp: number;
+            coinLuck: bigint;
+            coinsSilver: bigint;
+            heroJson: any;
+            updatedAt: Date;
+          }>
+        >`
+          SELECT "id", "adena", "exp", "sp", "coinLuck", "coinsSilver", "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${targetId} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
 
-      const silverCost = BigInt(QUEST_SHOP_EXCHANGE_SILVER_PER_UNIT * qty);
-      const curSilver = BigInt(ch.coinsSilver ?? 0);
-      if (curSilver < silverCost) {
-        return reply.code(400).send({ error: "forbidden" });
-      }
+        const ch = locked[0];
+        const heroJson = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, unknown>;
+        const oldRevision = Number(heroJson.heroRevision ?? 0);
+        if (body.expectedRevision !== undefined && Number(body.expectedRevision) !== oldRevision) {
+          return { ok: false as const, reason: "revision_conflict" as const, revision: oldRevision };
+        }
 
-      const heroJson = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, unknown>;
-      const oldRevision = Number(heroJson.heroRevision ?? 0);
-      if (body.expectedRevision !== undefined && body.expectedRevision !== oldRevision) {
-        return reply.code(409).send({ error: "revision_conflict", revision: oldRevision });
-      }
+        const silverCost = BigInt(QUEST_SHOP_EXCHANGE_SILVER_PER_UNIT * qty);
+        const curSilver = BigInt(ch.coinsSilver ?? 0n);
+        if (curSilver < silverCost) {
+          return { ok: false as const, reason: "forbidden" as const };
+        }
 
-      const newSilver = curSilver - silverCost;
-      let newAdena = BigInt(ch.adena ?? 0);
-      let newExp = BigInt(ch.exp ?? 0);
-      let newSp = ch.sp ?? 0;
-      let newCoinLuck = BigInt(ch.coinLuck ?? 0);
+        const newSilver = curSilver - silverCost;
+        let newAdena = BigInt(ch.adena ?? 0n);
+        let newExp = BigInt(ch.exp ?? 0n);
+        let newSp = Number(ch.sp ?? 0);
+        let newCoinLuck = BigInt(ch.coinLuck ?? 0n);
 
-      if (kind === "adena") newAdena += BigInt(50_000 * qty);
-      if (kind === "exp") newExp += BigInt(100_000 * qty);
-      if (kind === "sp") newSp += 50_000 * qty;
-      if (kind === "coinOfLuck") newCoinLuck += BigInt(qty);
+        if (kind === "adena") newAdena += BigInt(50_000 * qty);
+        if (kind === "exp") newExp += BigInt(100_000 * qty);
+        if (kind === "sp") newSp += 50_000 * qty;
+        if (kind === "coinOfLuck") newCoinLuck += BigInt(qty);
 
-      const mergedHj: Record<string, unknown> = {
-        ...heroJson,
-        adena: Number(newAdena),
-        exp: Number(newExp),
-        sp: newSp,
-        coinOfLuck: Number(newCoinLuck),
-        coins_silver: Number(newSilver),
-      };
-
-      const prevDq =
-        typeof mergedHj.dailyQuestsProgress === "object" && mergedHj.dailyQuestsProgress !== null
-          ? (mergedHj.dailyQuestsProgress as Record<string, unknown>)
-          : {};
-      const dq = { ...prevDq };
-      const prevEx = typeof dq.daily_exchange === "number" ? dq.daily_exchange : 0;
-      dq.daily_exchange = prevEx + qty;
-      mergedHj.dailyQuestsProgress = dq;
-
-      const versioned = addVersioning(mergedHj, oldRevision);
-
-      const updated = await prisma.character.update({
-        where: { id: ch.id },
-        data: {
-          coinsSilver: newSilver,
-          adena: newAdena,
-          exp: newExp,
+        const mergedHj: Record<string, unknown> = {
+          ...heroJson,
+          adena: Number(newAdena),
+          exp: Number(newExp),
           sp: newSp,
-          coinLuck: newCoinLuck,
-          heroJson: versioned,
-          lastActivityAt: new Date(),
-        },
-        select: {
-          id: true,
-          name: true,
-          race: true,
-          classId: true,
-          sex: true,
-          level: true,
-          exp: true,
-          sp: true,
-          adena: true,
-          aa: true,
-          coinLuck: true,
-          coinsSilver: true,
-          heroJson: true,
-          updatedAt: true,
-        },
+          coinOfLuck: Number(newCoinLuck),
+          coins_silver: Number(newSilver),
+        };
+        const prevDq =
+          typeof mergedHj.dailyQuestsProgress === "object" && mergedHj.dailyQuestsProgress !== null
+            ? (mergedHj.dailyQuestsProgress as Record<string, unknown>)
+            : {};
+        const dq = { ...prevDq };
+        const prevEx = typeof dq.daily_exchange === "number" ? dq.daily_exchange : 0;
+        dq.daily_exchange = prevEx + qty;
+        mergedHj.dailyQuestsProgress = dq;
+
+        const versioned = addVersioning(mergedHj, oldRevision);
+        const updated = await tx.character.update({
+          where: { id: ch.id },
+          data: {
+            coinsSilver: newSilver,
+            adena: newAdena,
+            exp: newExp,
+            sp: newSp,
+            coinLuck: newCoinLuck,
+            heroJson: versioned,
+            lastActivityAt: new Date(),
+          },
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            coinsSilver: true,
+            heroJson: true,
+            updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated };
       });
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") return reply.code(409).send({ error: "revision_conflict", revision: txRes.revision ?? 0 });
+        if (txRes.reason === "forbidden") return reply.code(400).send({ error: "forbidden" });
+        return reply.code(400).send({ error: "invalid input" });
+      }
+      const updated = txRes.updated;
 
       return reply.send({
         ok: true,

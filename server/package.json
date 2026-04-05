@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "prisma migrate deploy && node dist/index.js",
-    "build": "node ../tools/buildGkTeleportCosts.mjs && tsc && cp src/data/drops/mobDropRegistry.generated.json dist/data/drops/mobDropRegistry.generated.json",
+    "build": "node ../tools/buildGkTeleportCosts.mjs && npx tsx ../tools/buildServerShopCatalog.ts && tsc && cp src/data/drops/mobDropRegistry.generated.json dist/data/drops/mobDropRegistry.generated.json && cp src/data/shopCatalog.generated.json dist/data/shopCatalog.generated.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",

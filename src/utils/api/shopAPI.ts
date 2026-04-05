@@ -16,10 +16,10 @@ export interface ShopBuyResult {
 export async function shopBuyAPI(params: {
   itemId: string;
   quantity: number;
-  currency: "adena" | "ancient_adena" | "coins_silver";
-  unitPrice: number;
+  shopType?: "gm" | "regular" | "quest";
   /** Метадані предмета для збереження в inventory (name, kind, slot, icon, etc.) */
   itemMeta?: Record<string, any>;
+  expectedRevision?: number;
 }): Promise<ShopBuyResult> {
   const characterId = useCharacterStore.getState().characterId;
   if (!characterId) throw new Error("no character id");

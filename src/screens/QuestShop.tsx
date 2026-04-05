@@ -6,6 +6,7 @@ import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
 import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 import { postQuestShopExchange } from "../utils/api/characters";
+import { shopBuyAPI } from "../utils/api/shopAPI";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { findSetForItem, ARMOR_SETS, formatSetStatsForDisplay } from "../data/sets/armorSets";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
@@ -35,9 +36,10 @@ interface QuestShopProps {
 export default function QuestShop({ navigate }: QuestShopProps) {
   const hero = useHeroStore((s) => s.hero);
   const setHero = useHeroStore((s) => s.setHero);
+  const applyServerSync = useHeroStore((s) => s.applyServerSync);
   const characterId = useCharacterStore((s) => s.characterId);
-  const updateHero = useHeroStore((s) => s.updateHero);
   const [exchangeBusy, setExchangeBusy] = useState(false);
+  const [buyBusy, setBuyBusy] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<string>("weapons");
   const [selectedGrade, setSelectedGrade] = useState<string>("D");
@@ -99,8 +101,9 @@ export default function QuestShop({ navigate }: QuestShopProps) {
     return false;
   });
 
-  const handleBuy = (item: ShopItem, quantity: number = 1) => {
+  const handleBuy = async (item: ShopItem, quantity: number = 1) => {
     if (!hero) return;
+    if (buyBusy) return;
 
     const totalPrice = item.price * quantity;
 
@@ -134,35 +137,32 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       return;
     }
 
-    // Списання Серебряных Монет (валюта) та додаємо предмет до інвентаря
-    const newInventory = [...(hero.inventory || [])];
-
-    // Використовуємо стати з ShopItem, якщо вони є, інакше з itemsDB
     const finalStats = item.stats || itemDef.stats;
-    
-    // Попереджаємо про невідповідність статів
     if (item.stats && itemDef.stats && JSON.stringify(item.stats) !== JSON.stringify(itemDef.stats)) {
-      console.warn(`[QuestShop] Stats mismatch for ${itemsDBId}: ShopItem has ${JSON.stringify(item.stats)}, itemsDB has ${JSON.stringify(itemDef.stats)}. Using ShopItem stats.`);
+      console.warn(
+        `[QuestShop] Stats mismatch for ${itemsDBId}: ShopItem has ${JSON.stringify(item.stats)}, itemsDB has ${JSON.stringify(itemDef.stats)}. Using ShopItem stats.`
+      );
     }
-
-    // Додаємо предмет до інвентаря (не стакаємо зброю та броню)
-    const stackableSlots = ["consumable", "resource", "quest"];
-    const canStack = stackableSlots.includes(itemDef.slot);
-    const existingItemIndex = newInventory.findIndex((item) => item.id === itemsDBId);
-
-    if (canStack) {
-      if (existingItemIndex >= 0) {
-        // Стакаємо з існуючим
-        const existingItem = newInventory[existingItemIndex];
-        newInventory[existingItemIndex] = {
-          ...existingItem,
-          count: (existingItem.count || 1) + quantity
-        };
-      } else {
-        // Додаємо новий стакаємий предмет з повною кількістю
-        const grade = itemDef.grade || autoDetectGrade(itemsDBId);
-        const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemsDBId) : undefined);
-        newInventory.push({
+    const grade = itemDef.grade || autoDetectGrade(itemsDBId);
+    const armorType =
+      itemDef.armorType ||
+      (itemDef.kind === "armor" ||
+      itemDef.kind === "helmet" ||
+      itemDef.kind === "boots" ||
+      itemDef.kind === "gloves"
+        ? autoDetectArmorType(itemsDBId)
+        : undefined);
+    const expectedRevision =
+      typeof (hero as any)?.heroJson?.heroRevision === "number"
+        ? Number((hero as any).heroJson.heroRevision)
+        : undefined;
+    setBuyBusy(true);
+    try {
+      const result = await shopBuyAPI({
+        itemId: itemDef.id,
+        quantity,
+        shopType: "quest",
+        itemMeta: {
           id: itemDef.id,
           name: itemDef.name,
           slot: itemDef.slot,
@@ -170,40 +170,40 @@ export default function QuestShop({ navigate }: QuestShopProps) {
           icon: itemDef.icon,
           description: itemDef.description,
           stats: finalStats,
-          count: quantity,
-          grade: grade,
-          armorType: armorType,
-        });
+          grade,
+          armorType,
+        },
+        ...(expectedRevision !== undefined ? { expectedRevision } : {}),
+      });
+      if (!result?.ok || !result.heroJson) {
+        showToast("Сервер відхилив покупку.", "error");
+        return;
       }
-    } else {
-      // Екіп (зброя, броня, удочка тощо) — не стакаємо: кожна одиниця окремим слотом (count: 1)
-      const grade = itemDef.grade || autoDetectGrade(itemsDBId);
-      const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemsDBId) : undefined);
-      const baseItem = {
-        id: itemDef.id,
-        name: itemDef.name,
-        slot: itemDef.slot,
-        kind: itemDef.kind,
-        icon: itemDef.icon,
-        description: itemDef.description,
-        stats: finalStats,
-        count: 1,
-        grade: grade,
-        armorType: armorType,
-      };
-      for (let i = 0; i < quantity; i++) {
-        newInventory.push({ ...baseItem });
+      applyServerSync(
+        {
+          inventory: Array.isArray(result.heroJson.inventory) ? result.heroJson.inventory : [],
+          overflowChest: Array.isArray(result.heroJson.overflowChest) ? result.heroJson.overflowChest : [],
+          coins_silver: Number(result.coinsSilver ?? hero.coins_silver ?? 0),
+          heroRevision: result.heroJson.heroRevision,
+        } as any,
+        {
+          heroRevision: result.heroJson.heroRevision,
+          updatedAt: Date.now(),
+        }
+      );
+      setSelectedItem(null);
+      setBuyQuantity(1);
+    } catch (e: any) {
+      if (e?.status === 409) {
+        showToast("Дані персонажа застаріли. Оновіть стан.", "error");
+      } else if (e?.status === 400) {
+        showToast("Покупку відхилено сервером.", "error");
+      } else {
+        showToast(e?.message || "Не вдалося виконати покупку.", "error");
       }
+    } finally {
+      setBuyBusy(false);
     }
-    
-    // Оновлюємо валюту coins_silver та інвентар
-    updateHero({
-      coins_silver: (hero.coins_silver ?? 0) - totalPrice,
-      inventory: newInventory,
-    });
-    
-    setSelectedItem(null);
-    setBuyQuantity(1);
   };
 
   // Отримання itemsDB ID з ShopItem — спочатку item.id (унікальний), потім маппінг
@@ -828,10 +828,13 @@ export default function QuestShop({ navigate }: QuestShopProps) {
             {/* Кнопки */}
             <div className="flex gap-2 justify-center">
               <button
-                onClick={() => handleBuy(selectedItem, buyQuantity)}
-                className="text-green-400 text-[12px] py-2 hover:text-green-300 cursor-pointer"
+                onClick={() => {
+                  void handleBuy(selectedItem, buyQuantity);
+                }}
+                disabled={buyBusy}
+                className="text-green-400 text-[12px] py-2 hover:text-green-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Купить
+                {buyBusy ? "..." : "Купить"}
               </button>
               <button
                 onClick={() => setSelectedItem(null)}

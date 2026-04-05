@@ -25,6 +25,7 @@ import {
 } from "../../../learnSkillServer";
 import { calculateServerDrops } from "../../../utils/serverDropCalculator";
 import { EXP_TABLE, MAX_LEVEL } from "../../../expTable";
+import shopCatalogRaw from "../../../data/shopCatalog.generated.json";
 
 function getExpToNext(level: number): number {
   const lvl = Math.max(1, Math.min(MAX_LEVEL, Number(level) || 1));
@@ -64,6 +65,41 @@ function applyLevelUpsInPlace(level: number, exp: number): { level: number; exp:
   }
   if (nextLevel >= MAX_LEVEL) nextExp = 0;
   return { level: nextLevel, exp: Math.max(0, Math.floor(nextExp)) };
+}
+
+type ServerShopCatalogEntry = {
+  unitPrice: number;
+  currency: "adena" | "coins_silver";
+  stackable: boolean;
+  itemMeta: Record<string, any>;
+};
+
+const serverShopCatalog = shopCatalogRaw as {
+  regular?: Record<string, ServerShopCatalogEntry>;
+  quest?: Record<string, ServerShopCatalogEntry>;
+};
+
+function normalizeShopItemId(raw: unknown): string {
+  return String(raw ?? "").replace(/^shop_/i, "").trim().toLowerCase();
+}
+
+function sanitizeClientItemMeta(input: unknown): Record<string, any> {
+  const src = input && typeof input === "object" ? (input as Record<string, any>) : {};
+  const out: Record<string, any> = {};
+  const copyStr = (key: string, maxLen: number) => {
+    if (typeof src[key] !== "string") return;
+    const v = src[key].trim();
+    if (!v) return;
+    out[key] = v.slice(0, maxLen);
+  };
+  copyStr("name", 120);
+  copyStr("slot", 40);
+  copyStr("kind", 40);
+  copyStr("icon", 280);
+  copyStr("description", 800);
+  copyStr("grade", 12);
+  copyStr("armorType", 24);
+  return out;
 }
 
 export async function characterCrudRoutes(app: FastifyInstance) {
@@ -176,11 +212,16 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const id = params.id;
     if (!id) return reply.code(400).send({ error: "character id required" });
 
-    const body = req.body as { inventory?: any[]; overflowChest?: any[] };
+    const body = req.body as { inventory?: any[]; overflowChest?: any[]; expectedRevision?: number };
     const inventory = Array.isArray(body.inventory) ? body.inventory : undefined;
     const overflowChest = Array.isArray(body.overflowChest) ? body.overflowChest : undefined;
+    const expectedRevision =
+      body.expectedRevision !== undefined ? Number(body.expectedRevision) : undefined;
     if (inventory === undefined && overflowChest === undefined) {
       return reply.code(400).send({ error: "inventory or overflowChest required" });
+    }
+    if (expectedRevision === undefined || !Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
     }
 
     const existing = await prisma.character.findFirst({
@@ -208,22 +249,60 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
     }
 
-    const oldRevision = oldHeroJson.heroRevision || 0;
-    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
-
     try {
-      const updated = await prisma.character.update({
-        where: { id },
-        data: {
-          heroJson: versionedHeroJson as any,
-          lastActivityAt: new Date(),
-        },
-        select: {
-          id: true, name: true, race: true, classId: true, sex: true,
-          level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true,
-          heroJson: true, createdAt: true, updatedAt: true,
-        },
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date }>>`
+          SELECT "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+
+        if (locked.length === 0) {
+          return { ok: false as const, reason: "not_found" as const };
+        }
+        const lockedHeroJson = (locked[0].heroJson as any) || {};
+        const currentRevision = Number(lockedHeroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: locked[0].updatedAt,
+          };
+        }
+
+        const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+        const updated = await tx.character.update({
+          where: { id },
+          data: {
+            heroJson: versionedHeroJson as any,
+            lastActivityAt: new Date(),
+          },
+          select: {
+            id: true, name: true, race: true, classId: true, sex: true,
+            level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true,
+            heroJson: true, createdAt: true, updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated };
       });
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") {
+          return reply.code(404).send({ error: "character not found" });
+        }
+        return reply.code(409).send({
+          error: "revision_conflict",
+          message: "Character was modified by another session. Please reload and try again.",
+          currentRevision: txRes.currentRevision ?? 0,
+          updatedAt: txRes.updatedAt?.toISOString(),
+          serverState: {
+            heroRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+          },
+        });
+      }
+      const updated = txRes.updated;
 
       const serialized = {
         ...updated,
@@ -574,6 +653,19 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         }
         if (oldHeroJson.equipmentEnchantLevels !== undefined) {
           heroJsonToSave.equipmentEnchantLevels = oldHeroJson.equipmentEnchantLevels;
+        }
+        // heroBuffs є сервер-авторитетними (battle/use-buff-scroll/PK routes).
+        // Клієнтський PUT не має права інжектити/оновлювати бафи напряму.
+        if (Object.prototype.hasOwnProperty.call(body.heroJson ?? {}, "heroBuffs")) {
+          app.log.warn(
+            { accountId: auth.accountId, characterId: id },
+            "[PUT /characters/:id] heroBuffs from client payload ignored"
+          );
+        }
+        if (oldHeroJson.heroBuffs !== undefined) {
+          heroJsonToSave.heroBuffs = oldHeroJson.heroBuffs;
+        } else {
+          delete (heroJsonToSave as any).heroBuffs;
         }
 
         // ── Захист від ін'єкції предметів через heroJson.inventory ───────────────
@@ -1878,7 +1970,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     return reply.send({ ok: true, heroJson: versionedHeroJson });
   });
 
-  // POST /characters/:id/shop/buy — server-side GM shop purchase (Phase 3)
+  // POST /characters/:id/shop/buy — server-side authoritative shop purchase (GM/regular/quest)
   app.post("/characters/:id/shop/buy", async (req, reply) => {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
@@ -1887,105 +1979,182 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const body = req.body as {
       itemId?: string;
       quantity?: number;
-      currency?: string;
-      unitPrice?: number;
+      shopType?: "gm" | "regular" | "quest";
       itemMeta?: Record<string, any>;
+      expectedRevision?: number;
     };
 
-    const itemId = String(body.itemId ?? "").trim();
+    const itemIdRaw = String(body.itemId ?? "").trim();
+    const normalizedItemId = normalizeShopItemId(itemIdRaw);
+    const shopType = body.shopType ?? "gm";
     const quantity = Math.max(1, Math.floor(Number(body.quantity ?? 1)));
+    const expectedRevision =
+      body.expectedRevision !== undefined ? Number(body.expectedRevision) : undefined;
 
-    if (!itemId) return reply.code(400).send({ error: "itemId required" });
-
-    // Validate against server-side catalog for price authority
-    const { getGmShopItemPrice } = await import("../../../data/gmShopCatalog");
-    const catalogEntry = getGmShopItemPrice(itemId);
-    if (!catalogEntry) {
-      return reply.code(400).send({ error: "item not available in shop" });
-    }
-    const unitPrice = catalogEntry.unitPrice;
-    const currency = catalogEntry.currency;
-    const totalPrice = unitPrice * quantity;
-
-    const character = await prisma.character.findFirst({
-      where: { id, accountId: auth.accountId },
-    });
-    if (!character) return reply.code(404).send({ error: "character not found" });
-
-    const heroJson: any = (character.heroJson as any) || {};
-    const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
-
-    let newAdena = Number((character as any).adena ?? 0);
-
-    if (currency === "adena") {
-      if (newAdena < totalPrice) {
-        return reply.code(400).send({ error: "insufficient adena" });
-      }
-      newAdena -= totalPrice;
-    } else if (currency === "ancient_adena" || currency === "aa") {
-      const aaIdx = inventory.findIndex((i: any) => i && i.id === "ancient_adena");
-      const aaCount = Number(inventory[aaIdx]?.count ?? 0);
-      if (aaCount < totalPrice) {
-        return reply.code(400).send({ error: "insufficient ancient adena" });
-      }
-      if (aaCount - totalPrice <= 0) {
-        inventory.splice(aaIdx, 1);
-      } else {
-        inventory[aaIdx] = { ...inventory[aaIdx], count: aaCount - totalPrice };
-      }
-    } else if (currency === "coins_silver") {
-      const silverCount = Number((character as any).coinsSilver ?? 0);
-      if (silverCount < totalPrice) {
-        return reply.code(400).send({ error: "insufficient silver coins" });
-      }
+    if (!normalizedItemId) return reply.code(400).send({ error: "itemId required" });
+    if (!Number.isFinite(quantity) || quantity < 1 || quantity > 30000) {
+      return reply.code(400).send({ error: "invalid input" });
     }
 
-    // Add item to inventory using client-provided metadata for item display fields
-    const itemMeta = body.itemMeta as Record<string, any> | undefined;
-    // Normalize shop_ prefix when finding existing stack (client may store with or without prefix)
-    const normalizeId = (id: string) => String(id ?? "").replace(/^shop_/i, "").toLowerCase();
-    const normalizedItemId = normalizeId(itemId);
-    const existingIdx = inventory.findIndex(
-      (i: any) => i && normalizeId(String(i.id ?? "")) === normalizedItemId
-    );
-    if (existingIdx >= 0) {
-      inventory[existingIdx] = {
-        ...inventory[existingIdx],
-        count: (inventory[existingIdx].count ?? 0) + quantity,
-      };
+    let unitPrice = 0;
+    let currency: "adena" | "ancient_adena" | "coins_silver";
+    let stackable = true;
+    let canonicalItemId = normalizedItemId;
+    let canonicalMeta: Record<string, any> = {};
+
+    if (shopType === "gm") {
+      const { getGmShopItemPrice } = await import("../../../data/gmShopCatalog");
+      const gm = getGmShopItemPrice(normalizedItemId);
+      if (!gm) return reply.code(400).send({ error: "item not available in shop" });
+      unitPrice = gm.unitPrice;
+      currency = gm.currency === "ancient_adena" ? "ancient_adena" : "adena";
+      canonicalMeta = sanitizeClientItemMeta(body.itemMeta);
+      canonicalMeta.id = normalizedItemId;
     } else {
-      inventory.push({
-        id: itemId,
-        count: quantity,
-        ...(itemMeta || {}),
+      const bucket = shopType === "regular" ? serverShopCatalog.regular : serverShopCatalog.quest;
+      const entry = bucket?.[normalizedItemId];
+      if (!entry) return reply.code(400).send({ error: "item not available in shop" });
+      unitPrice = Math.max(0, Number(entry.unitPrice) || 0);
+      currency = entry.currency === "coins_silver" ? "coins_silver" : "adena";
+      stackable = entry.stackable !== false;
+      canonicalItemId = String(entry.itemMeta?.id || normalizedItemId);
+      canonicalMeta = {
+        id: canonicalItemId,
+        name: String(entry.itemMeta?.name ?? canonicalItemId),
+        slot: entry.itemMeta?.slot,
+        kind: entry.itemMeta?.kind,
+        icon: entry.itemMeta?.icon,
+        description: entry.itemMeta?.description,
+        grade: entry.itemMeta?.grade,
+        armorType: entry.itemMeta?.armorType,
+      };
+    }
+    const totalPrice = Math.max(0, unitPrice * quantity);
+
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<
+        Array<{ heroJson: any; adena: bigint; coinsSilver: bigint; updatedAt: Date }>
+      >`
+        SELECT "heroJson", "adena", "coinsSilver", "updatedAt"
+        FROM "Character"
+        WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+
+      const row = locked[0];
+      const heroJson = (row.heroJson as any) || {};
+      const currentRevision = Number(heroJson.heroRevision ?? 0);
+      if (expectedRevision !== undefined && Number.isFinite(expectedRevision) && expectedRevision !== currentRevision) {
+        return {
+          ok: false as const,
+          reason: "revision_conflict" as const,
+          currentRevision,
+          updatedAt: row.updatedAt,
+        };
+      }
+      const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+      const overflowChest: any[] = Array.isArray(heroJson.overflowChest) ? [...heroJson.overflowChest] : [];
+      const MAX_INVENTORY = 200;
+
+      let nextAdena = Number(row.adena ?? 0n);
+      let nextCoinsSilver = Number(row.coinsSilver ?? 0n);
+
+      if (currency === "adena") {
+        if (nextAdena < totalPrice) return { ok: false as const, reason: "insufficient_adena" as const };
+        nextAdena -= totalPrice;
+      } else if (currency === "coins_silver") {
+        if (nextCoinsSilver < totalPrice) return { ok: false as const, reason: "insufficient_silver" as const };
+        nextCoinsSilver -= totalPrice;
+      } else if (currency === "ancient_adena") {
+        const aaIdx = inventory.findIndex((i: any) => normalizeShopItemId(i?.id) === "ancient_adena");
+        const aaCount = Number(inventory[aaIdx]?.count ?? 0);
+        if (aaCount < totalPrice) return { ok: false as const, reason: "insufficient_aa" as const };
+        const left = aaCount - totalPrice;
+        if (left <= 0) inventory.splice(aaIdx, 1);
+        else inventory[aaIdx] = { ...inventory[aaIdx], count: left };
+      }
+
+      const addOne = (rowItem: any) => {
+        if (!stackable) {
+          if (inventory.length < MAX_INVENTORY) inventory.push({ ...rowItem, count: 1 });
+          else overflowChest.push({ ...rowItem, count: 1 });
+          return;
+        }
+        const idx = inventory.findIndex((i: any) => normalizeShopItemId(i?.id) === normalizeShopItemId(rowItem.id));
+        if (idx >= 0) {
+          inventory[idx] = { ...inventory[idx], count: Number(inventory[idx].count ?? 0) + 1 };
+          return;
+        }
+        if (inventory.length < MAX_INVENTORY) {
+          inventory.push({ ...rowItem, count: 1 });
+          return;
+        }
+        const ovIdx = overflowChest.findIndex((i: any) => normalizeShopItemId(i?.id) === normalizeShopItemId(rowItem.id));
+        if (ovIdx >= 0) overflowChest[ovIdx] = { ...overflowChest[ovIdx], count: Number(overflowChest[ovIdx].count ?? 0) + 1 };
+        else overflowChest.push({ ...rowItem, count: 1 });
+      };
+      const basePurchasedRow = {
+        id: canonicalItemId,
+        ...canonicalMeta,
+      };
+      for (let i = 0; i < quantity; i++) addOne(basePurchasedRow);
+      if (stackable) {
+        // collapse to a single stack row
+        const idx = inventory.findIndex((i: any) => normalizeShopItemId(i?.id) === normalizeShopItemId(canonicalItemId));
+        if (idx >= 0) inventory[idx] = { ...inventory[idx], count: Number(inventory[idx].count ?? 0) };
+      }
+
+      const newHeroJson = {
+        ...heroJson,
+        inventory,
+        overflowChest,
+      };
+      const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+      const updateData: any = {
+        heroJson: versionedHeroJson as any,
+        lastActivityAt: new Date(),
+      };
+      if (currency === "adena") updateData.adena = BigInt(Math.max(0, Math.floor(nextAdena)));
+      if (currency === "coins_silver") updateData.coinsSilver = Math.max(0, Math.floor(nextCoinsSilver));
+
+      const updated = await tx.character.update({
+        where: { id },
+        data: updateData,
+        select: {
+          id: true,
+          adena: true,
+          coinsSilver: true,
+          heroJson: true,
+        },
       });
+      return { ok: true as const, updated, unitPrice, currency, totalPrice };
+    });
+    if (!txRes.ok) {
+      if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+      if (txRes.reason === "revision_conflict") {
+        return reply.code(409).send({
+          error: "revision_conflict",
+          message: "Character was modified by another session. Please reload and try again.",
+          currentRevision: txRes.currentRevision ?? 0,
+          updatedAt: txRes.updatedAt?.toISOString(),
+          serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+        });
+      }
+      if (txRes.reason === "insufficient_adena") return reply.code(400).send({ error: "insufficient adena" });
+      if (txRes.reason === "insufficient_silver") return reply.code(400).send({ error: "insufficient silver coins" });
+      if (txRes.reason === "insufficient_aa") return reply.code(400).send({ error: "insufficient ancient adena" });
+      return reply.code(400).send({ error: "invalid input" });
     }
-
-    const newHeroJson: any = { ...heroJson, inventory };
-    const oldRevision = Number(heroJson.heroRevision ?? 0);
-    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
-
-    const updateData: any = {
-      heroJson: versionedHeroJson as any,
-      lastActivityAt: new Date(),
-    };
-    if (currency === "adena") {
-      updateData.adena = BigInt(Math.floor(newAdena));
-    }
-    if (currency === "coins_silver") {
-      const silverCount = Number((character as any).coinsSilver ?? 0);
-      updateData.coinsSilver = Math.max(0, silverCount - totalPrice);
-    }
-
-    await prisma.character.update({ where: { id }, data: updateData });
 
     enqueuePlayerActivityLog({
       accountId: auth.accountId,
       characterId: id,
-      characterName: String((character.heroJson as any)?.name ?? character.name ?? ""),
+      characterName: String((txRes.updated.heroJson as any)?.name ?? ""),
       action: "shop.buy",
       metadata: {
-        itemId,
+        itemId: canonicalItemId,
+        shopType,
         quantity,
         currency,
         unitPrice,
@@ -1993,13 +2162,11 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       },
       clientIp: getClientIp(req),
     });
-
-    const updatedChar = await prisma.character.findFirst({ where: { id } });
     return reply.send({
       ok: true,
-      heroJson: versionedHeroJson,
-      adena: Number((updatedChar as any)?.adena ?? newAdena),
-      coinsSilver: Number((updatedChar as any)?.coinsSilver ?? 0),
+      heroJson: txRes.updated.heroJson,
+      adena: Number((txRes.updated as any)?.adena ?? 0),
+      coinsSilver: Number((txRes.updated as any)?.coinsSilver ?? 0),
     });
   });
 

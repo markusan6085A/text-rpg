@@ -114,7 +114,9 @@ export function applyWarehouseSlotsFromHeroJson(
 ): void {
   const id = typeof characterId === "string" && characterId.trim().length > 0 ? characterId.trim() : "";
   if (!id) return;
-  const arr = Array.isArray(slots) ? slots : [];
+  // undefined/null = "сервер не прислав склад" (не чіпаємо локальні комірки, щоб уникнути wipe)
+  if (slots == null || !Array.isArray(slots)) return;
+  const arr = slots;
   for (let i = 0; i < WAREHOUSE_MAX_SLOTS; i++) {
     const raw = arr[i];
     if (raw != null && typeof raw === "object") {

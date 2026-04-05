@@ -9,7 +9,6 @@ import { S_GRADE_SHOP_ITEMS } from "../data/shop/sGradeShop";
 import { CONSUMABLES_SHOP_ITEMS } from "../data/shop/consumablesShop";
 import type { ShopItem } from "../data/shop/shopTypes";
 import { useHeroStore } from "../state/heroStore";
-import { addItemsWithOverflow, isStackableHeroItem } from "../state/heroStore/inventoryOverflow";
 import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { findSetForItem, ARMOR_SETS, formatSetStatsForDisplay } from "../data/sets/armorSets";
 import { SHOP_ITEM_ID_MAPPING } from "../data/shop/itemMappings";
@@ -19,6 +18,7 @@ import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { SetBonusDisplay } from "./character/SetBonusDisplay";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import { isMagicWeaponForEnchant } from "../utils/stats/weaponEnchantBonuses";
+import { shopBuyAPI } from "../utils/api/shopAPI";
 
 // У категорії «Стрелы» тільки стріли грейдів NG, D, C, B, A, S (один тип на грейд)
 const ARROW_GRADE_IDS = ["wooden_arrow", "bone_arrow", "fine_steel_arrow", "silver_arrow", "mithril_arrow", "shining_arrow"];
@@ -33,8 +33,7 @@ const ITEMS_PER_PAGE = 10;
 
 export default function Shop({ navigate }: ShopProps) {
   const hero = useHeroStore((s) => s.hero);
-  const updateAdena = useHeroStore((s) => s.updateAdena);
-  const updateHero = useHeroStore((s) => s.updateHero);
+  const applyServerSync = useHeroStore((s) => s.applyServerSync);
 
   const [selectedCategory, setSelectedCategory] = useState<string>("weapons");
   const [selectedGrade, setSelectedGrade] = useState<string>("D");
@@ -127,8 +126,10 @@ export default function Shop({ navigate }: ShopProps) {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const handleBuy = (item: ShopItem, quantity: number = 1) => {
+  const [buying, setBuying] = useState(false);
+  const handleBuy = async (item: ShopItem, quantity: number = 1) => {
     if (!hero) return;
+    if (buying) return;
 
     const totalPrice = item.price * quantity;
 
@@ -168,14 +169,17 @@ export default function Shop({ navigate }: ShopProps) {
       console.warn(`[Shop] Stats mismatch for ${itemsDBId}: ShopItem has ${JSON.stringify(item.stats)}, itemsDB has ${JSON.stringify(itemDef.stats)}. Using ShopItem stats.`);
     }
 
-    updateAdena(-totalPrice);
-
-    // Збираємо предмети для додавання (з overflow-логікою)
-    const itemsToAdd: import("../types/Hero").HeroInventoryItem[] = [];
     const grade = itemDef.grade || autoDetectGrade(itemsDBId);
-    const armorType = itemDef.armorType || (itemDef.kind === "armor" || itemDef.kind === "helmet" || itemDef.kind === "boots" || itemDef.kind === "gloves" ? autoDetectArmorType(itemsDBId) : undefined);
+    const armorType =
+      itemDef.armorType ||
+      (itemDef.kind === "armor" ||
+      itemDef.kind === "helmet" ||
+      itemDef.kind === "boots" ||
+      itemDef.kind === "gloves"
+        ? autoDetectArmorType(itemsDBId)
+        : undefined);
 
-    const baseShopItem = {
+    const itemMeta = {
       id: itemDef.id,
       name: itemDef.name,
       slot: itemDef.slot,
@@ -183,27 +187,54 @@ export default function Shop({ navigate }: ShopProps) {
       icon: itemDef.icon,
       description: itemDef.description,
       stats: finalStats,
-      grade: grade,
-      armorType: armorType,
+      grade,
+      armorType,
     };
-
-    // Використовуємо канонічний isStackableHeroItem (blocklist підхід, а не allowlist)
-    const canStack = isStackableHeroItem(baseShopItem as any);
-    if (canStack) {
-      itemsToAdd.push({ ...baseShopItem, count: quantity });
-    } else {
-      for (let i = 0; i < quantity; i++) {
-        itemsToAdd.push({ ...baseShopItem, count: 1 });
+    const expectedRevision =
+      typeof (hero as any)?.heroJson?.heroRevision === "number"
+        ? Number((hero as any).heroJson.heroRevision)
+        : undefined;
+    setBuying(true);
+    try {
+      const result = await shopBuyAPI({
+        itemId: itemMeta.id,
+        quantity,
+        shopType: "regular",
+        itemMeta,
+        ...(expectedRevision !== undefined ? { expectedRevision } : {}),
+      });
+      if (!result?.ok || !result.heroJson) {
+        showToast("Сервер відхилив покупку.", "error");
+        return;
       }
+      const nextInventory = Array.isArray(result.heroJson.inventory) ? result.heroJson.inventory : [];
+      const nextOverflow = Array.isArray(result.heroJson.overflowChest) ? result.heroJson.overflowChest : [];
+      applyServerSync(
+        {
+          inventory: nextInventory,
+          overflowChest: nextOverflow,
+          adena: Number(result.adena ?? hero.adena ?? 0),
+          heroRevision: result.heroJson.heroRevision,
+        } as any,
+        {
+          adena: Number(result.adena ?? hero.adena ?? 0),
+          heroRevision: result.heroJson.heroRevision,
+          updatedAt: Date.now(),
+        }
+      );
+      setSelectedItem(null);
+      setBuyQuantity(1);
+    } catch (e: any) {
+      if (e?.status === 409) {
+        showToast("Дані персонажа застаріли. Оновлюю стан...", "error");
+      } else if (e?.status === 400) {
+        showToast("Покупку відхилено сервером.", "error");
+      } else {
+        showToast(e?.message || "Не вдалося виконати покупку.", "error");
+      }
+    } finally {
+      setBuying(false);
     }
-
-    const heroForOverflow = { ...hero, inventory: hero.inventory || [], overflowChest: hero.overflowChest ?? [] };
-    const { inventory: finalInventory, overflowChest: finalOverflow } = addItemsWithOverflow(heroForOverflow, itemsToAdd);
-    // persist: true — покупка критична, зберігаємо одразу на сервер
-    updateHero({ inventory: finalInventory, overflowChest: finalOverflow }, { persist: true });
-    
-    setSelectedItem(null);
-    setBuyQuantity(1);
   };
 
   // Отримання itemsDB ID з ShopItem
@@ -856,16 +887,16 @@ export default function Shop({ navigate }: ShopProps) {
             <div className="flex justify-between gap-2">
               <button
                 onClick={() => {
-                  handleBuy(selectedItem, buyQuantity);
+                  void handleBuy(selectedItem, buyQuantity);
                 }}
-                disabled={!hero || hero.adena < selectedItem.price * buyQuantity}
+                disabled={buying || !hero || hero.adena < selectedItem.price * buyQuantity}
                 className={`text-[12px] transition-colors ${
-                  !hero || hero.adena < selectedItem.price * buyQuantity
+                  buying || !hero || hero.adena < selectedItem.price * buyQuantity
                     ? "text-gray-500 cursor-not-allowed"
                     : "text-green-400 hover:text-green-300"
                 }`}
               >
-                Купить {buyQuantity > 1 ? `(${buyQuantity})` : ""}
+                {buying ? "..." : `Купить ${buyQuantity > 1 ? `(${buyQuantity})` : ""}`}
               </button>
               <button
                 onClick={() => {
