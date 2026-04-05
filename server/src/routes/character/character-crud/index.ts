@@ -627,10 +627,11 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           return { ok: false as const, reason: "invalid_operation" as const };
         }
         const rowItem = inventory[op.inventoryIndex];
-        if (!rowItem || !rowItem.id) return { ok: false as const, reason: "invalid_operation" as const };
+        const rowItemId = String((rowItem as any)?.id ?? (rowItem as any)?.itemId ?? "");
+        if (!rowItem || !rowItemId) return { ok: false as const, reason: "invalid_operation" as const };
 
         const expectedIdNorm = normalizeShopItemId(op.expectedItemId);
-        const actualIdNorm = normalizeShopItemId(rowItem.id);
+        const actualIdNorm = normalizeShopItemId(rowItemId);
         if (!expectedIdNorm || expectedIdNorm !== actualIdNorm) {
           return { ok: false as const, reason: "invalid_operation" as const };
         }

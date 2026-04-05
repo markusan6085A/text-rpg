@@ -81,13 +81,13 @@ export default function SellItems({ navigate }: SellItemsProps) {
     const inv = hero?.inventory || [];
     const byRef = inv.findIndex((i: any) => i === target);
     if (byRef >= 0) return byRef;
-    const targetId = String(target?.id ?? "");
+    const targetId = String(target?.id ?? target?.itemId ?? "");
     const targetEnchant = Number(target?.enchantLevel ?? 0);
     const targetCount = Number(target?.count ?? 1);
     return inv.findIndex(
       (i: any) =>
         i &&
-        String(i.id ?? "") === targetId &&
+        String(i.id ?? i.itemId ?? "") === targetId &&
         Number(i.enchantLevel ?? 0) === targetEnchant &&
         Number(i.count ?? 1) === targetCount
     );
@@ -105,7 +105,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
         return {
           inventoryIndex,
           amount: Math.max(1, Number(item?.count ?? 1)),
-          expectedItemId: String(item?.id ?? ""),
+          expectedItemId: String(item?.id ?? item?.itemId ?? ""),
           expectedEnchantLevel: Math.max(0, Number(item?.enchantLevel ?? 0)),
         };
       })
@@ -196,7 +196,7 @@ export default function SellItems({ navigate }: SellItemsProps) {
           {
             inventoryIndex,
             amount: Math.max(1, Number(amount || 1)),
-            expectedItemId: String(item.id ?? ""),
+            expectedItemId: String(item.id ?? item.itemId ?? ""),
             expectedEnchantLevel: Math.max(0, Number(item.enchantLevel ?? 0)),
           },
         ],

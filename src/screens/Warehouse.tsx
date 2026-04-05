@@ -48,6 +48,10 @@ function isRevisionConflictError(err: any): boolean {
   );
 }
 
+function isNotFoundRouteError(err: any): boolean {
+  return err?.status === 404 || err?.body?.statusCode === 404 || err?.body?.error === "Not Found";
+}
+
 async function resyncHeroSilently(): Promise<void> {
   try {
     const { loadHeroFromAPI } = await import("../state/heroStore/heroLoadAPI");
@@ -189,6 +193,71 @@ export default function Warehouse({ navigate }: WarehouseProps) {
   // Кількість зайнятих СЛОТІВ (не кількість предметів): кожен слот = 1, незалежно від item.count
   const warehouseUsed = warehouseArr.filter(Boolean).length;
 
+  const applyLegacyLocalDeposit = (item: HeroInventoryItem, inventoryIndex: number, itemCount: number): boolean => {
+    const inv = Array.isArray(hero.inventory) ? [...hero.inventory] : [];
+    const src = inv[inventoryIndex];
+    if (!src) return false;
+    const srcCount = Math.max(1, Number(src.count || 1));
+    const moveCount = Math.max(1, Math.min(srcCount, itemCount));
+
+    const slots = [...warehouseArr];
+    const stackable = isStackableHeroItem(src);
+    const sameIx = stackable
+      ? slots.findIndex((s: any) => s && String(s.id ?? s.itemId ?? "") === String((src as any).id ?? (src as any).itemId ?? ""))
+      : -1;
+    const targetIx = sameIx >= 0 ? sameIx : slots.findIndex((s) => !s);
+    if (targetIx < 0) return false;
+
+    if (sameIx >= 0 && slots[sameIx]) {
+      const ex = slots[sameIx] as any;
+      slots[sameIx] = { ...ex, count: Math.max(1, Number(ex.count || 1)) + moveCount };
+    } else {
+      slots[targetIx] = {
+        ...src,
+        count: stackable ? moveCount : 1,
+      };
+    }
+
+    if (moveCount >= srcCount || !stackable) {
+      inv.splice(inventoryIndex, 1);
+    } else {
+      inv[inventoryIndex] = { ...src, count: srcCount - moveCount };
+    }
+
+    const nextHeroJson = { ...((hero as any).heroJson || {}), warehouseSlots: slots };
+    updateHero({ inventory: inv, heroJson: nextHeroJson } as any);
+    setWarehouse(slots);
+    return true;
+  };
+
+  const applyLegacyLocalWithdraw = (slotIndex: number): boolean => {
+    const item = warehouseArr[slotIndex];
+    if (!item) return false;
+    const slots = [...warehouseArr];
+    const inv = Array.isArray(hero.inventory) ? [...hero.inventory] : [];
+    const stackable = isStackableHeroItem(item);
+
+    if (stackable) {
+      const sameIx = inv.findIndex(
+        (r: any) => r && String(r.id ?? r.itemId ?? "") === String((item as any).id ?? (item as any).itemId ?? "")
+      );
+      if (sameIx >= 0) {
+        const ex = inv[sameIx] as any;
+        inv[sameIx] = { ...ex, count: Math.max(1, Number(ex.count || 1)) + Math.max(1, Number(item.count || 1)) };
+      } else {
+        inv.push({ ...(item as any) });
+      }
+    } else {
+      inv.push({ ...(item as any), count: 1 });
+    }
+
+    slots[slotIndex] = null;
+    const nextHeroJson = { ...((hero as any).heroJson || {}), warehouseSlots: slots };
+    updateHero({ inventory: inv, heroJson: nextHeroJson } as any);
+    setWarehouse(slots);
+    return true;
+  };
+
   // Функція для покладення предмета на склад
   const handlePutToWarehouse = async (item: HeroInventoryItem, inventoryIndex: number, count?: number) => {
     if (!activeCharacterId) return;
@@ -232,6 +301,13 @@ export default function Warehouse({ navigate }: WarehouseProps) {
           await resyncHeroSilently();
           await new Promise((resolve) => setTimeout(resolve, 120));
           continue;
+        }
+        if (isNotFoundRouteError(err) && applyLegacyLocalDeposit(item, inventoryIndex, itemCount)) {
+          addLogEntry(`Положено на склад: ${item.name} x${itemCount}`);
+          setQuantityModal(null);
+          setQuantityInput("1");
+          showToast("Серверный склад еще не обновлен, применен временный локальный режим.", "info");
+          return;
         }
         showToast(err?.message || "Ошибка при перемещении на склад", "error");
         return;
@@ -289,6 +365,11 @@ export default function Warehouse({ navigate }: WarehouseProps) {
           await resyncHeroSilently();
           await new Promise((resolve) => setTimeout(resolve, 120));
           continue;
+        }
+        if (isNotFoundRouteError(err) && applyLegacyLocalWithdraw(slotIndex)) {
+          addLogEntry(`Взято со склада: ${item.name} x${item.count || 1}`);
+          showToast("Серверный склад еще не обновлен, применен временный локальный режим.", "info");
+          return;
         }
         showToast(err?.message || "Ошибка при выводе предмета", "error");
         return;
