@@ -76,6 +76,17 @@ export interface SevenSealsRankResponse {
   ok: boolean;
   /** Статус «переможець» лише з активного бонусу після офіційної видачі */
   rank: number | null;
+  /** Повні числа активної нагороди (для профілю іншого гравця), якщо доступні */
+  bonus?: {
+    rank?: number;
+    pAtk?: number;
+    mAtk?: number;
+    pDef?: number;
+    mDef?: number;
+    coinLuck?: number;
+    expiresAt?: number;
+    claimedWeekStart?: string;
+  };
   medalCount: number;
   /** Поточний тиждень: місце в таблиці без статусу переможця */
   provisionalRank?: number | null;

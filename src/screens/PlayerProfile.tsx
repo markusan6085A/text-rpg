@@ -12,7 +12,11 @@ import {
   type Character,
   type PkSessionState,
 } from "../utils/api";
-import { getActiveSevenSealsRank, getSevenSealsBonusFromHero } from "../utils/sevenSealsBonus";
+import {
+  getActiveSevenSealsRank,
+  getSevenSealsBonusFromHero,
+  type SevenSealsBonusLike,
+} from "../utils/sevenSealsBonus";
 import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
 import WriteLetterModal from "../components/WriteLetterModal";
@@ -79,6 +83,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const [selectedItem, setSelectedItem] = useState<{ slot: string; itemId: string | null; enchantLevel?: number } | null>(null);
   const [playerClan, setPlayerClan] = useState<any>(null);
   const [sevenSealsRank, setSevenSealsRank] = useState<number | null>(null);
+  const [sevenSealsBonusFromRankApi, setSevenSealsBonusFromRankApi] = useState<SevenSealsBonusLike | undefined>(undefined);
   const [showSevenSealsModal, setShowSevenSealsModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [viewedStats, setViewedStats] = useState<ReturnType<typeof recalculateAllStats> | null>(null);
@@ -210,9 +215,11 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
 
   const sevenSealsBonus = character ? getSevenSealsBonusFromHero(character as any) : undefined;
   const sevenSealsFromChar = getActiveSevenSealsRank(sevenSealsBonus);
+  const sevenSealsBonusForModal = sevenSealsBonus ?? sevenSealsBonusFromRankApi;
   useEffect(() => {
     if (sevenSealsFromChar != null) {
       setSevenSealsRank(sevenSealsFromChar);
+      setSevenSealsBonusFromRankApi(undefined);
       return;
     }
     const load = async () => {
@@ -220,8 +227,26 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
       try {
         const data = await getSevenSealsRank(character.id);
         setSevenSealsRank((data.rank >= 1 && data.rank <= 3) ? data.rank : null);
+        if (data.bonus && typeof data.bonus === "object") {
+          setSevenSealsBonusFromRankApi({
+            rank: Number(data.bonus.rank) || 0,
+            pAtk: Number(data.bonus.pAtk) || 0,
+            mAtk: Number(data.bonus.mAtk) || 0,
+            pDef: Number(data.bonus.pDef) || 0,
+            mDef: Number(data.bonus.mDef) || 0,
+            coinLuck: data.bonus.coinLuck != null ? Number(data.bonus.coinLuck) || 0 : undefined,
+            expiresAt: Number(data.bonus.expiresAt) || 0,
+            claimedWeekStart:
+              typeof data.bonus.claimedWeekStart === "string"
+                ? data.bonus.claimedWeekStart
+                : undefined,
+          });
+        } else {
+          setSevenSealsBonusFromRankApi(undefined);
+        }
       } catch {
         setSevenSealsRank(null);
+        setSevenSealsBonusFromRankApi(undefined);
       }
     };
     load();
@@ -1056,7 +1081,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           <SevenSealsBonusModal
             rank={sevenSealsRank as 1 | 2 | 3}
             playerName={character.name}
-            bonus={sevenSealsBonus as any}
+            bonus={sevenSealsBonusForModal as any}
             onClose={() => setShowSevenSealsModal(false)}
           />
         )}

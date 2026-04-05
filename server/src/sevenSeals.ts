@@ -164,6 +164,24 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
         claimedRank >= 1 &&
         claimedRank <= 3 &&
         expiresAt > Date.now();
+      const activeBonusPayload = activeBonus
+        ? {
+            rank: Number(sevenSealsBonus?.rank) || 0,
+            pAtk: Number((sevenSealsBonus as any)?.pAtk) || 0,
+            mAtk: Number((sevenSealsBonus as any)?.mAtk) || 0,
+            pDef: Number((sevenSealsBonus as any)?.pDef) || 0,
+            mDef: Number((sevenSealsBonus as any)?.mDef) || 0,
+            coinLuck:
+              (sevenSealsBonus as any)?.coinLuck != null
+                ? Number((sevenSealsBonus as any).coinLuck) || 0
+                : undefined,
+            expiresAt: Number(sevenSealsBonus?.expiresAt) || 0,
+            claimedWeekStart:
+              typeof sevenSealsBonus?.claimedWeekStart === "string"
+                ? sevenSealsBonus.claimedWeekStart
+                : undefined,
+          }
+        : undefined;
 
       const weekStart = getSevenSealsWeekMondayStart(new Date());
       const medalsCur = await prisma.sevenSealsMedal.findMany({
@@ -195,6 +213,7 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
         ok: true,
         characterId,
         rank: activeBonus ? (claimedRank ?? null) : null,
+        bonus: activeBonusPayload,
         medalCount: myMedalsCur,
         provisionalRank,
         fromClaimedBonus: !!activeBonus,
