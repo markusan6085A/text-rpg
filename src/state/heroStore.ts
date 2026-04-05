@@ -797,13 +797,21 @@ export function applyCharacterSnapshotFromApi(character: unknown, opts?: ApplyCh
   if (!currentHero) return;
 
   const prevHj = ((currentHero as any).heroJson || {}) as Record<string, any>;
-  const serverHj =
-    c.heroJson && typeof c.heroJson === "object" ? ({ ...c.heroJson } as Record<string, any>) : {};
+  const hasServerHeroJson = c.heroJson && typeof c.heroJson === "object";
+  const serverHj = hasServerHeroJson ? ({ ...c.heroJson } as Record<string, any>) : {};
   const heroJson: Record<string, any> = {
     ...prevHj,
     ...serverHj,
     ...((opts?.heroJsonExtra || {}) as Record<string, any>),
   };
+  // Після battle-finish сервер видаляє battleSession з heroJson; якщо ключа немає в snapshot,
+  // spread залишив би стару сесію з prevHj → клієнт шле pve-battle-tick, сервер: no_battle_session.
+  if (
+    hasServerHeroJson &&
+    (!Object.prototype.hasOwnProperty.call(serverHj, "battleSession") || serverHj.battleSession == null)
+  ) {
+    delete heroJson.battleSession;
+  }
 
   const inventory = Array.isArray(serverHj.inventory)
     ? serverHj.inventory

@@ -157,7 +157,42 @@ export function schedulePveMobTickOnline(): void {
         persistBattle({ ...saved, mobNextAttackAt: mobNextAt, log: nextLog, ...controlPatch } as any, heroName);
       }
     })
-    .catch(() => {
+    .catch((e: any) => {
+      const code = String(e?.body?.error ?? "");
+      if (code === "no_battle_session" || code === "mob_dead") {
+        const store = useHeroStore.getState();
+        const h = store.hero;
+        if (h && (h as any).heroJson) {
+          const hj = { ...(h as any).heroJson } as Record<string, any>;
+          delete hj.battleSession;
+          store.updateHero({ heroJson: hj } as any, { skipServer: true });
+        }
+        if (battleStoreRef.setState) {
+          battleStoreRef.setState({
+            status: "idle",
+            mobNextAttackAt: null,
+            heroStunnedUntil: undefined,
+            heroBuffsBlockedUntil: undefined,
+            heroSkillsBlockedUntil: undefined,
+          });
+        }
+        const name = useHeroStore.getState().hero?.name;
+        if (name) {
+          const saved = loadBattle(name) || {};
+          persistBattle(
+            {
+              ...saved,
+              status: "idle",
+              mobNextAttackAt: null,
+              heroStunnedUntil: undefined,
+              heroBuffsBlockedUntil: undefined,
+              heroSkillsBlockedUntil: undefined,
+            } as any,
+            name
+          );
+        }
+        return;
+      }
       void import("../../heroStore/heroLoadAPI").then(({ loadHeroFromAPI }) => loadHeroFromAPI()).catch(() => {});
     })
     .finally(() => {

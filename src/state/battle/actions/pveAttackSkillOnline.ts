@@ -231,6 +231,36 @@ export function schedulePveAttackSkillOnline(args: {
     })
     .catch((e: any) => {
       const st = Number(e?.status);
+      const code = String(e?.body?.error ?? "");
+      if (code === "no_battle_session" || code === "mob_dead") {
+        const store = useHeroStore.getState();
+        const h = store.hero;
+        if (h && (h as any).heroJson) {
+          const hj = { ...(h as any).heroJson } as Record<string, any>;
+          delete hj.battleSession;
+          store.updateHero({ heroJson: hj } as any, { skipServer: true });
+        }
+        if (battleStoreRef.setState) {
+          battleStoreRef.setState({
+            status: "idle",
+            mobNextAttackAt: null,
+          });
+        }
+        const heroName = store.hero?.name;
+        if (heroName) {
+          const saved = loadBattle(heroName) || {};
+          persistBattle(
+            {
+              ...saved,
+              status: "idle",
+              mobNextAttackAt: null,
+            } as any,
+            heroName
+          );
+        }
+        void import("../../heroStore/heroLoadAPI").then(({ loadHeroFromAPI }) => loadHeroFromAPI()).catch(() => {});
+        return;
+      }
       if (st === 404 && typeof onFallback === "function") {
         if (import.meta.env.DEV) {
           console.warn("[pve-battle-attack] 404 — fallback до локального удару (задеплойте API)");
