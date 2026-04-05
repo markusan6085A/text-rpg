@@ -103,6 +103,42 @@ export function getWorldMobHpForSlot(
   return c.hp[mobIndex] ?? null;
 }
 
+/** Як на сервері worldMobState (maxHpCompatible). */
+function maxHpCompatibleForWorldPut(a: number, b: number): boolean {
+  if (a === b) return true;
+  const lo = Math.min(a, b);
+  const hi = Math.max(a, b);
+  const tol = Math.max(1, Math.floor(lo * 0.05));
+  return hi - lo <= tol;
+}
+
+/**
+ * Узгоджує current/max із кешем зони: той самий maxHp що в БД і currentHp не вище серверного
+ * (інакше PUT повертає 400 invalid input — шум у консолі та розсинхрон).
+ */
+export function normalizeWorldMobHpPutPayload(
+  zoneId: string,
+  mobIndex: number,
+  currentHp: number,
+  maxHp: number,
+): { currentHp: number; maxHp: number } | null {
+  let c = Math.floor(Number(currentHp));
+  let m = Math.floor(Number(maxHp));
+  if (!Number.isFinite(c) || !Number.isFinite(m) || m < 1 || c < 1 || c > m) return null;
+  const cached = getWorldMobHpForSlot(zoneId, mobIndex);
+  if (!cached) return { currentHp: c, maxHp: m };
+  if (!maxHpCompatibleForWorldPut(cached.maxHp, m)) {
+    m = cached.maxHp;
+    c = Math.min(c, cached.currentHp, m);
+  } else {
+    m = cached.maxHp;
+    c = Math.min(c, cached.currentHp);
+  }
+  if (c < 1) c = 1;
+  if (c > m) return null;
+  return { currentHp: c, maxHp: m };
+}
+
 /** Timestamp ms, коли моб знову доступний; null якщо немає активного респавну в кеші. */
 export function getWorldRespawnUntilMs(zoneId: string, mobIndex: number): number | null {
   const c = zoneCache.get(zoneId);
@@ -121,6 +157,8 @@ export function scheduleWorldMobHpSync(
   const token = getAccessToken();
   if (!token) return;
   if (currentHp < 1 || maxHp < 1 || currentHp > maxHp) return;
+  const normalized = normalizeWorldMobHpPutPayload(zoneId, mobIndex, currentHp, maxHp);
+  if (!normalized) return;
 
   const k = `${zoneId}_${mobIndex}`;
   const existing = debounceTimers.get(k);
@@ -129,8 +167,8 @@ export function scheduleWorldMobHpSync(
     k,
     setTimeout(() => {
       debounceTimers.delete(k);
-      void putWorldMobHp(zoneId, mobIndex, currentHp, maxHp)
-        .then(() => patchZoneMobHpCache(zoneId, mobIndex, currentHp, maxHp))
+      void putWorldMobHp(zoneId, mobIndex, normalized.currentHp, normalized.maxHp)
+        .then(() => patchZoneMobHpCache(zoneId, mobIndex, normalized.currentHp, normalized.maxHp))
         .catch(() => {});
     }, DEBOUNCE_MS)
   );
@@ -154,9 +192,11 @@ export function flushWorldMobHpSyncAsync(
   const token = getAccessToken();
   if (!token) return Promise.resolve();
   if (currentHp < 1 || maxHp < 1 || currentHp > maxHp) return Promise.resolve();
-  return putWorldMobHp(zoneId, mobIndex, currentHp, maxHp)
+  const normalized = normalizeWorldMobHpPutPayload(zoneId, mobIndex, currentHp, maxHp);
+  if (!normalized) return Promise.resolve();
+  return putWorldMobHp(zoneId, mobIndex, normalized.currentHp, normalized.maxHp)
     .then(() => {
-      patchZoneMobHpCache(zoneId, mobIndex, currentHp, maxHp);
+      patchZoneMobHpCache(zoneId, mobIndex, normalized.currentHp, normalized.maxHp);
     })
     .catch(() => {});
 }

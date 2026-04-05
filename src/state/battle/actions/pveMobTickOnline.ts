@@ -24,6 +24,41 @@ import { getMaxResources } from "../helpers/getMaxResources";
 /** Другий тік не ставимо в чергу — один «інтент» за раз (наступний інтервал спробує знову). */
 let tickScheduleBusy = false;
 
+/** Локальна розсинхронізація з сервером (mob уже мертвий / сесію скинуто) — без POST pve-battle-tick. */
+function clearStaleOnlinePveFightState(): void {
+  const store = useHeroStore.getState();
+  const h = store.hero;
+  if (h && (h as any).heroJson) {
+    const hj = { ...(h as any).heroJson } as Record<string, any>;
+    delete hj.battleSession;
+    store.updateHero({ heroJson: hj } as any, { skipServer: true });
+  }
+  if (battleStoreRef.setState) {
+    battleStoreRef.setState({
+      status: "idle",
+      mobNextAttackAt: null,
+      heroStunnedUntil: undefined,
+      heroBuffsBlockedUntil: undefined,
+      heroSkillsBlockedUntil: undefined,
+    });
+  }
+  const name = useHeroStore.getState().hero?.name;
+  if (name) {
+    const saved = loadBattle(name) || {};
+    persistBattle(
+      {
+        ...saved,
+        status: "idle",
+        mobNextAttackAt: null,
+        heroStunnedUntil: undefined,
+        heroBuffsBlockedUntil: undefined,
+        heroSkillsBlockedUntil: undefined,
+      } as any,
+      name
+    );
+  }
+}
+
 function pickDefenseStatsForServer(heroStats: Record<string, any>): Record<string, number> {
   const keys = ["pDef", "mDef", "evasion", "invulnerable", "damageTakenReduction"];
   const out: Record<string, number> = {};
@@ -82,9 +117,16 @@ export function schedulePveMobTickOnline(): void {
   const sess = hj.battleSession;
   if (!sess || Number(sess.v) !== 1) return;
 
+  const sessMobHpNum = Number(sess.mobHP);
+  if (Number.isFinite(sessMobHpNum) && sessMobHpNum <= 0) {
+    clearStaleOnlinePveFightState();
+    return;
+  }
+
   tickScheduleBusy = true;
   if (typeof bs.mobHP === "number" && bs.mobHP <= 0) {
     tickScheduleBusy = false;
+    clearStaleOnlinePveFightState();
     return;
   }
   const expectedRevisionRaw =
@@ -95,6 +137,17 @@ export function schedulePveMobTickOnline(): void {
 
   void runSerializedPveMutation(async () => {
     try {
+      const bsPre = battleStoreRef.getState();
+      const hjPre = ((useHeroStore.getState().hero as any)?.heroJson || {}) as Record<string, any>;
+      const smPre = hjPre?.battleSession != null ? Number(hjPre.battleSession.mobHP) : NaN;
+      if (
+        (Number.isFinite(smPre) && smPre <= 0) ||
+        (typeof bsPre.mobHP === "number" && bsPre.mobHP <= 0)
+      ) {
+        clearStaleOnlinePveFightState();
+        return;
+      }
+
       const heroJsonBeforeTick = ((useHeroStore.getState().hero as any)?.heroJson || {}) as Record<string, any>;
       const res = await pveBattleTickAPI(cid, {
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
@@ -266,42 +319,12 @@ export function schedulePveMobTickOnline(): void {
         persistBattle({ ...saved, ...tickPatch } as any, heroName);
       }
     } catch (e: any) {
-      const code = String(e?.body?.error ?? "");
+      const code = String(e?.body?.error ?? e?.message ?? "").trim();
       if (Number(e?.status) === 409) {
         applyRevisionConflictFromApiError(e);
       }
       if (code === "no_battle_session" || code === "mob_dead") {
-        const store = useHeroStore.getState();
-        const h = store.hero;
-        if (h && (h as any).heroJson) {
-          const hj = { ...(h as any).heroJson } as Record<string, any>;
-          delete hj.battleSession;
-          store.updateHero({ heroJson: hj } as any, { skipServer: true });
-        }
-        if (battleStoreRef.setState) {
-          battleStoreRef.setState({
-            status: "idle",
-            mobNextAttackAt: null,
-            heroStunnedUntil: undefined,
-            heroBuffsBlockedUntil: undefined,
-            heroSkillsBlockedUntil: undefined,
-          });
-        }
-        const name = useHeroStore.getState().hero?.name;
-        if (name) {
-          const saved = loadBattle(name) || {};
-          persistBattle(
-            {
-              ...saved,
-              status: "idle",
-              mobNextAttackAt: null,
-              heroStunnedUntil: undefined,
-              heroBuffsBlockedUntil: undefined,
-              heroSkillsBlockedUntil: undefined,
-            } as any,
-            name
-          );
-        }
+        clearStaleOnlinePveFightState();
         return;
       }
       if (battleStoreRef.getState()?.status === "fighting") {
