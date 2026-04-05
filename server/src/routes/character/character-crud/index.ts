@@ -157,7 +157,7 @@ function getServerSellUnitPrice(row: any): number | null {
   // Legacy inventory rows may miss slot/kind metadata for equipment.
   // In this case we still allow selling by using a conservative grade fallback.
   const looksLikeEquipmentId =
-    /(^|_)(sword|dagger|bow|crossbow|blunt|mace|staff|spear|pole|fists|dualsword|armor|robe|gaiter|helmet|glove|gloves|boots|shield|sigil|ring|earring|necklace|belt|cloak|circlet)(_|$)/i
+    /(^|_)(sword|dagger|bow|crossbow|blunt|mace|staff|spear|pole|fists|dualsword|slayer|armor|robe|gaiter|helmet|glove|gloves|boots|shield|sigil|ring|earring|necklace|belt|cloak|circlet)(_|$)/i
       .test(itemId);
   if (looksLikeEquipmentId) {
     const grade = String(row?.grade ?? "D").toUpperCase();
@@ -170,6 +170,13 @@ function getServerSellUnitPrice(row: any): number | null {
 
 function normalizeShopItemId(raw: unknown): string {
   return String(raw ?? "").replace(/^shop_/i, "").trim().toLowerCase();
+}
+
+function canonicalSellItemId(raw: unknown): string {
+  const normalized = normalizeShopItemId(raw).replace(/^quest_/i, "");
+  if (normalized === "weapon_s_angel_slayer") return "s_angel_slayer";
+  if (normalized === "weapon_s_draconic_bow") return "s_draconic_bow";
+  return normalized;
 }
 
 function sanitizeClientItemMeta(input: unknown): Record<string, any> {
@@ -653,12 +660,12 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       let payoutTotal = 0;
       for (const op of sortedOps) {
         if (!Number.isFinite(op.amount) || op.amount <= 0) {
-          return { ok: false as const, reason: "invalid_operation" as const };
+          return { ok: false as const, reason: "invalid_operation" as const, detail: "invalid_amount" as const };
         }
 
-        const expectedIdNorm = normalizeShopItemId(op.expectedItemId);
+        const expectedIdNorm = canonicalSellItemId(op.expectedItemId);
         if (!expectedIdNorm) {
-          return { ok: false as const, reason: "invalid_operation" as const };
+          return { ok: false as const, reason: "invalid_operation" as const, detail: "expected_item_missing" as const };
         }
 
         const matchRowAtIndex = (idx: number): any | null => {
@@ -666,10 +673,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           const row = inventory[idx];
           const rowItemId = String((row as any)?.id ?? (row as any)?.itemId ?? "");
           if (!row || !rowItemId) return null;
-          const actualIdNorm = normalizeShopItemId(rowItemId);
+          const actualIdNorm = canonicalSellItemId(rowItemId);
           if (expectedIdNorm !== actualIdNorm) return null;
-          const actualEnchant = Math.max(0, Math.floor(Number((row as any).enchantLevel ?? 0)));
-          if (actualEnchant !== op.expectedEnchantLevel) return null;
           return row;
         };
 
@@ -692,11 +697,11 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           }
         }
         if (!rowItem) {
-          return { ok: false as const, reason: "invalid_operation" as const };
+          return { ok: false as const, reason: "invalid_operation" as const, detail: "item_not_found" as const };
         }
 
         const rowCount = Math.max(1, Math.floor(Number(rowItem.count ?? 1)));
-        if (op.amount > rowCount) return { ok: false as const, reason: "invalid_operation" as const };
+        if (op.amount > rowCount) return { ok: false as const, reason: "invalid_operation" as const, detail: "amount_exceeds_count" as const };
 
         const unitPrice = getServerSellUnitPrice(rowItem);
         if (unitPrice == null || !Number.isFinite(unitPrice) || unitPrice <= 0) {
@@ -747,6 +752,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         });
       }
       if (txRes.reason === "unsellable_item") return reply.code(400).send({ error: "unsellable item" });
+      if (txRes.reason === "invalid_operation") {
+        return reply.code(400).send({ error: "invalid input", reason: txRes.detail ?? "invalid_operation" });
+      }
       return reply.code(400).send({ error: "invalid input" });
     }
 
