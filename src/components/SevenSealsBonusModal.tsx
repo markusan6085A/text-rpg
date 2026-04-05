@@ -1,40 +1,32 @@
 import React from "react";
 
-// Діапазони до отримання нагороди (після claim показуємо точні числа з bonus)
-const SEVEN_SEALS_REWARDS: Record<number, string> = {
-  1: `1 місце (до отримання — випадково в діапазоні):
-• Фіз. атака: +125…+750
-• Маг. атака: +125…+750
-• Фіз. захист: +154…+456
-• Маг. захист: +154…+456
-• CoL: +5…+20`,
-  2: `2 місце (до отримання — випадково в діапазоні):
-• Фіз. атака: +100…+500
-• Маг. атака: +100…+500
-• Фіз. захист: +100…+400
-• Маг. захист: +100…+400
-• CoL: +5…+15`,
-  3: `3 місце (до отримання — випадково в діапазоні):
-• Фіз. атака: +80…+300
-• Маг. атака: +80…+300
-• Фіз. захист: +80…+300
-• Маг. захист: +80…+300
-• CoL: +5…+10`,
-};
-
 interface SevenSealsBonusModalProps {
   rank: 1 | 2 | 3;
   playerName?: string;
   /** Реальні отримані стати (якщо вже отримано нагороду) */
-  bonus?: { pAtk: number; mAtk: number; pDef: number; mDef: number; coinLuck?: number };
+  bonus?: {
+    pAtk?: number | string;
+    mAtk?: number | string;
+    pDef?: number | string;
+    mDef?: number | string;
+    coinLuck?: number | string;
+  };
   onClose: () => void;
 }
 
 export default function SevenSealsBonusModal({ rank, playerName, bonus, onClose }: SevenSealsBonusModalProps) {
-  const rangesText = SEVEN_SEALS_REWARDS[rank];
   const titleColor =
     rank === 1 ? "text-yellow-400" : rank === 2 ? "text-gray-300" : "text-orange-400";
-  const hasBonus = bonus && typeof bonus.pAtk === "number";
+  const pAtk = Number(bonus?.pAtk);
+  const mAtk = Number(bonus?.mAtk);
+  const pDef = Number(bonus?.pDef);
+  const mDef = Number(bonus?.mDef);
+  const coinLuck = bonus?.coinLuck != null ? Number(bonus.coinLuck) : undefined;
+  const hasBonus =
+    Number.isFinite(pAtk) &&
+    Number.isFinite(mAtk) &&
+    Number.isFinite(pDef) &&
+    Number.isFinite(mDef);
 
   return (
     <div
@@ -53,12 +45,19 @@ export default function SevenSealsBonusModal({ rank, playerName, bonus, onClose 
           {hasBonus ? (
             <>
               <div className="text-green-400 font-semibold mb-1">Ваш бонус:</div>
-              <div>Физ/Маг атака: +{bonus!.pAtk} / +{bonus!.mAtk}</div>
-              <div>Физ/Маг защита: +{bonus!.pDef} / +{bonus!.mDef}</div>
-              {bonus!.coinLuck != null && <div>Кол (Coin of Luck): +{bonus!.coinLuck}</div>}
+              <div>Физ/Маг атака: +{pAtk} / +{mAtk}</div>
+              <div>Физ/Маг защита: +{pDef} / +{mDef}</div>
+              {coinLuck != null && Number.isFinite(coinLuck) && <div>Кол (Coin of Luck): +{coinLuck}</div>}
             </>
           ) : (
-            rangesText
+            <>
+              <div className="text-yellow-300">
+                Для цього гравця немає зафіксованих чисел нагороди 7 печатей.
+              </div>
+              <div className="mt-1 text-gray-400">
+                Показуються тільки фактично отримані значення, без випадкових діапазонів.
+              </div>
+            </>
           )}
         </div>
         <div className="mt-4 flex justify-center">

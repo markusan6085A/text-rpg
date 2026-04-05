@@ -12,7 +12,7 @@ import {
   type Character,
   type PkSessionState,
 } from "../utils/api";
-import { getActiveSevenSealsRank } from "../utils/sevenSealsBonus";
+import { getActiveSevenSealsRank, getSevenSealsBonusFromHero } from "../utils/sevenSealsBonus";
 import { getProfessionDefinition, normalizeProfessionId } from "../data/skills";
 import CharacterEquipmentFrame from "./character/CharacterEquipmentFrame";
 import WriteLetterModal from "../components/WriteLetterModal";
@@ -208,7 +208,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     }
   };
 
-  const sevenSealsBonus = (character?.heroJson as any)?.sevenSealsBonus;
+  const sevenSealsBonus = character ? getSevenSealsBonusFromHero(character as any) : undefined;
   const sevenSealsFromChar = getActiveSevenSealsRank(sevenSealsBonus);
   useEffect(() => {
     if (sevenSealsFromChar != null) {
@@ -1056,7 +1056,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
           <SevenSealsBonusModal
             rank={sevenSealsRank as 1 | 2 | 3}
             playerName={character.name}
-            bonus={(character?.heroJson as any)?.sevenSealsBonus}
+            bonus={sevenSealsBonus as any}
             onClose={() => setShowSevenSealsModal(false)}
           />
         )}
