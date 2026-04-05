@@ -81,20 +81,51 @@ export default function Battle({ navigate }: BattleProps) {
       const hj = (char as any)?.heroJson;
       if (hero?.name) clearDeathGate(characterId, hero.name);
       if (hj) {
-        updateHero({
-          hp: Number(hj.hp) || 1,
-          mp: Number(hj.mp) ?? 0,
-          cp: Number(hj.cp) ?? 0,
-          heroJson: {
-            ...(hero as any)?.heroJson,
-            ...hj,
-            isDead: false,
-            deadAt: 0,
-            killedByMobName: undefined,
-            killedByMobDamage: undefined,
-            heroBuffs: [],
-          } as any,
-        });
+        const store = useHeroStore.getState();
+        const liveHero = store.hero;
+        if (liveHero) {
+          const nextLevel = Number((char as any)?.level ?? liveHero.level ?? 1);
+          const nextExp = Number((char as any)?.exp ?? liveHero.exp ?? 0);
+          const nextSp = Number((char as any)?.sp ?? liveHero.sp ?? 0);
+          const nextAdena = Number((char as any)?.adena ?? liveHero.adena ?? 0);
+          const nextCoinLuck = Number((char as any)?.coinLuck ?? liveHero.coinOfLuck ?? 0);
+          const nextInventory = Array.isArray(hj.inventory) ? hj.inventory : liveHero.inventory ?? [];
+          const nextOverflow = Array.isArray(hj.overflowChest) ? hj.overflowChest : liveHero.overflowChest ?? [];
+          const nextActiveDyes = Array.isArray(hj.activeDyes) ? hj.activeDyes : liveHero.activeDyes ?? [];
+          const revision = Number(hj.heroRevision ?? (liveHero as any)?.heroJson?.heroRevision ?? 0);
+          store.applyServerSync(
+            {
+              level: nextLevel,
+              exp: nextExp,
+              sp: nextSp,
+              adena: nextAdena,
+              coinOfLuck: nextCoinLuck,
+              hp: Number(hj.hp) || 1,
+              mp: Number(hj.mp) ?? 0,
+              cp: Number(hj.cp) ?? 0,
+              inventory: nextInventory,
+              overflowChest: nextOverflow,
+              activeDyes: nextActiveDyes,
+              heroJson: {
+                ...hj,
+                isDead: false,
+                deadAt: 0,
+                killedByMobName: undefined,
+                killedByMobDamage: undefined,
+                heroBuffs: [],
+              } as any,
+            } as any,
+            {
+              level: nextLevel,
+              exp: nextExp,
+              sp: nextSp,
+              adena: nextAdena,
+              coinLuck: nextCoinLuck,
+              heroRevision: Number.isFinite(revision) ? revision : 0,
+              updatedAt: Date.now(),
+            }
+          );
+        }
       }
       reset();
       navigate("/city");
