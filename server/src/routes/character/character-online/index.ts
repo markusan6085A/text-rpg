@@ -4,6 +4,55 @@ import { getEffectiveNickColor } from "../../../effectiveNickColor";
 import { getAuth } from "../auth";
 import { effectiveCharacterLevel } from "../../../utils/effectiveCharacterLevel";
 
+function buildPublicHeroJson(raw: any): Record<string, unknown> {
+  const src = raw && typeof raw === "object" ? raw : {};
+  const out: Record<string, unknown> = {};
+  const copy = (k: string) => {
+    if (Object.prototype.hasOwnProperty.call(src, k)) out[k] = src[k];
+  };
+  // Public profile allowlist used by PlayerProfile UI (equipment, stats, counters, buffs)
+  [
+    "name",
+    "race",
+    "classId",
+    "klass",
+    "profession",
+    "status",
+    "equipment",
+    "equipmentEnchantLevels",
+    "equipmentInserts",
+    "activeDyes",
+    "skills",
+    "heroBuffs",
+    "location",
+    "currentLocation",
+    "zone",
+    "zoneId",
+    "currentCityId",
+    "mobsKilled",
+    "mobs_killed",
+    "killedMobs",
+    "totalKills",
+    "karma",
+    "pk",
+    "pvpWins",
+    "pvpLosses",
+    "giftsCount",
+    "premiumActive",
+    "premiumExpiresAt",
+    "baseStats",
+    "baseStatsInitial",
+    "hp",
+    "mp",
+    "cp",
+    "maxHp",
+    "maxMp",
+    "maxCp",
+    "sevenSealsBonus",
+  ].forEach(copy);
+  return out;
+}
+
 export async function characterOnlineRoutes(app: FastifyInstance) {
   // GET /characters/online - список онлайн гравців (активні за останні 10 хвилин)
   app.get("/characters/online", async (req, reply) => {
@@ -193,6 +242,15 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
           classId: true,
           sex: true,
           level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
           lastActivityAt: true,
           nickColor: true,
           clanMember: {
@@ -218,6 +276,15 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
         classId: char.classId,
         sex: char.sex,
         level: effectiveCharacterLevel(char),
+        exp: Number((char as any).exp ?? 0),
+        sp: Number((char as any).sp ?? 0),
+        adena: Number((char as any).adena ?? 0),
+        aa: Number((char as any).aa ?? 0),
+        coinLuck: Number((char as any).coinLuck ?? 0),
+        coinsSilver: Number((char as any).coinsSilver ?? 0),
+        heroJson: buildPublicHeroJson((char as any).heroJson),
+        createdAt: char.createdAt ? char.createdAt.toISOString() : new Date().toISOString(),
+        updatedAt: char.updatedAt ? char.updatedAt.toISOString() : undefined,
         nickColor: getEffectiveNickColor((char as any).heroJson ?? {}, (char as any).nickColor) || undefined,
         lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
         clan: char.clanMember?.clan || null,
@@ -250,6 +317,15 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
           classId: true,
           sex: true,
           level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
           lastActivityAt: true,
           nickColor: true,
           clanMember: {
@@ -275,6 +351,15 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
         classId: char.classId,
         sex: char.sex,
         level: effectiveCharacterLevel(char),
+        exp: Number((char as any).exp ?? 0),
+        sp: Number((char as any).sp ?? 0),
+        adena: Number((char as any).adena ?? 0),
+        aa: Number((char as any).aa ?? 0),
+        coinLuck: Number((char as any).coinLuck ?? 0),
+        coinsSilver: Number((char as any).coinsSilver ?? 0),
+        heroJson: buildPublicHeroJson((char as any).heroJson),
+        createdAt: char.createdAt ? char.createdAt.toISOString() : new Date().toISOString(),
+        updatedAt: char.updatedAt ? char.updatedAt.toISOString() : undefined,
         nickColor: getEffectiveNickColor((char as any).heroJson ?? {}, (char as any).nickColor) || undefined,
         lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
         clan: char.clanMember?.clan || null,
