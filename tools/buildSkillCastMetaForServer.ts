@@ -68,10 +68,31 @@ const SUMMON_SKILL_IDS = new Set([1128, 1129, 1154, 1228, 1334]);
 /** Хіли по призваному — з battle state, не з heroJson; лишаються клієнтським шляхом до окремого server snapshot. */
 const HEAL_SERVER_EXCLUDE_IDS = new Set([1126, 1127]);
 
+/** Warrior/Mage Bane — логіка з heroBuffs, окремо від mob debuff. */
+const BANE_DEBUFF_IDS = new Set([1350, 1351]);
+
+function extractStunMeta(
+  def: SkillDefinition
+): { chance: number; durationSec: number } | undefined {
+  const effs = Array.isArray(def.effects) ? def.effects : [];
+  for (const e of effs as any[]) {
+    if (!e || typeof e !== "object") continue;
+    const stat = String(e.stat || "");
+    if (stat !== "stun" && stat !== "stunResist") continue;
+    const chance = Math.max(0, Math.min(100, Number(e.chance ?? def.chance ?? 100)));
+    const durationSec = Number(e.duration ?? def.duration ?? 1.5) || 1.5;
+    return { chance, durationSec };
+  }
+  return undefined;
+}
+
 function isEligibleSelfCast(def: SkillDefinition): boolean {
   if (SUMMON_SKILL_IDS.has(def.id)) return false;
   if (def.itemConsume) return false;
-  if (def.category === "debuff") return false;
+  if (def.category === "debuff") {
+    if (BANE_DEBUFF_IDS.has(def.id)) return false;
+    return true;
+  }
   if (def.category === "heal") {
     return !HEAL_SERVER_EXCLUDE_IDS.has(def.id);
   }
@@ -104,6 +125,7 @@ type SkillMetaOut = {
   hpPerTick?: number;
   mpPerTick?: number;
   tickInterval?: number;
+  stun?: { chance: number; durationSec: number };
   levels: Record<string, LevelMeta>;
   effectsByLevel: Record<string, any[]>;
 };
@@ -120,6 +142,7 @@ function buildMeta(def: SkillDefinition): SkillMetaOut {
     };
     effectsByLevel[k] = processSkillEffectsForMeta(def, lv);
   }
+  const stunMeta = def.category === "debuff" ? extractStunMeta(def) : undefined;
   return {
     id: def.id,
     name: def.name,
@@ -136,6 +159,7 @@ function buildMeta(def: SkillDefinition): SkillMetaOut {
     ...(def.hpPerTick !== undefined ? { hpPerTick: def.hpPerTick } : {}),
     ...(def.mpPerTick !== undefined ? { mpPerTick: def.mpPerTick } : {}),
     ...(def.tickInterval !== undefined ? { tickInterval: def.tickInterval } : {}),
+    ...(stunMeta ? { stun: stunMeta } : {}),
     levels,
     effectsByLevel,
   };

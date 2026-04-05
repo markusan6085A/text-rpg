@@ -43,6 +43,7 @@ import {
   type Setter,
 } from "./useSkill/helpers";
 import { schedulePveSelfBuffOnline } from "./pveSelfBuffOnline";
+import { schedulePveMobDebuffOnline } from "./pveMobDebuffOnline";
 import { schedulePveAttackSkillOnline } from "./pveAttackSkillOnline";
 import { useAuthStore } from "../../authStore";
 import { createIsSameBuff } from "./useSkill/buffHelpers";
@@ -103,6 +104,25 @@ function isEligiblePveServerHeal(
   const hid = String((hero as any)?.id ?? "").trim();
   if (!cid || hid !== cid) return false;
   return true;
+}
+
+function isEligiblePveServerMobDebuff(
+  def: SkillDefinition,
+  skillId: number,
+  state: BattleState,
+  hero: Hero
+): boolean {
+  if (def.category !== "debuff") return false;
+  if (skillId === 1350 || skillId === 1351) return false;
+  if (state.zoneId === "fishing") return false;
+  if (state.status !== "fighting" || !state.mob) return false;
+  if (!useAuthStore.getState().accessToken) return false;
+  const cid = String(useCharacterStore.getState().characterId ?? "").trim();
+  const hid = String((hero as any)?.id ?? "").trim();
+  if (!cid || hid !== cid) return false;
+  const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
+  const sess = hj.battleSession;
+  return !!(sess && Number(sess.v) === 1);
 }
 
 export const createUseSkill =
@@ -608,6 +628,40 @@ export const createUseSkill =
 
     // Buff / Debuff / Toggle / Special / non-attack skills
     if (!isAttack) {
+      if (isEligiblePveServerMobDebuff(def, skillId, state, hero)) {
+        const characterId =
+          String(useCharacterStore.getState().characterId ?? "").trim() ||
+          String((hero as any)?.id ?? "").trim();
+        if (characterId) {
+          const debuffCdMs = cooldownMs(def.cooldown ?? 5, false);
+          schedulePveMobDebuffOnline({
+            skillId,
+            def,
+            cooldownDurationMs: debuffCdMs,
+            now,
+            onFallback: () => {
+              handleBuffSkill(
+                skillId,
+                def,
+                levelDef,
+                state,
+                hero,
+                heroStats,
+                mpCost,
+                now,
+                activeBuffs,
+                computeMaxNow,
+                cooldownMs,
+                updateHero,
+                setAndPersist,
+                set,
+                get
+              );
+            },
+          });
+          return;
+        }
+      }
       if (isEligiblePveServerSelfCast(def)) {
         const characterId =
           String(useCharacterStore.getState().characterId ?? "").trim() ||

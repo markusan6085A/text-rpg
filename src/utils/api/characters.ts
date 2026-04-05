@@ -488,6 +488,34 @@ export async function pveBattleTickAPI(
   throw lastErr;
 }
 
+export async function pveBattleDebuffAPI(
+  characterId: string,
+  data: { skillId: number; expectedRevision: number }
+): Promise<{ ok: boolean; character: Character; logLine?: string }> {
+  let rev = data.expectedRevision;
+  try {
+    rev = await readHeroRevisionFromGetCharacter(characterId);
+  } catch {
+    rev = data.expectedRevision;
+  }
+  const url = `/characters/${encodeURIComponent(characterId)}/pve-battle-debuff`;
+  const body = { skillId: data.skillId, expectedRevision: rev };
+  try {
+    return await apiRequest<{ ok: boolean; character: Character; logLine?: string }>(url, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  } catch (e: any) {
+    if (e?.status !== 409) throw e;
+    applyRevisionConflictFromApiError(e);
+    const rev2 = await resolveRevisionAfter409Conflict(characterId, e);
+    return await apiRequest<{ ok: boolean; character: Character; logLine?: string }>(url, {
+      method: "POST",
+      body: JSON.stringify({ skillId: data.skillId, expectedRevision: rev2 }),
+    });
+  }
+}
+
 export async function pveCastSelfBuffAPI(
   characterId: string,
   data: { skillId: number; expectedRevision: number }

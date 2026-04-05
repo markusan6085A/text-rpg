@@ -91,6 +91,14 @@ export function applyPveSelfBuffSnapshot(args: {
     return { ok: false, code: "unsupported_skill", message: "Skill cannot be self-cast on server" };
   }
 
+  if (meta.category === "debuff") {
+    return {
+      ok: false,
+      code: "wrong_endpoint",
+      message: "Debuffs use POST .../pve-battle-debuff",
+    };
+  }
+
   if (!professionAllowsSkill(skillId, hj, classId)) {
     return { ok: false, code: "forbidden_skill", message: "Skill not allowed for this profession" };
   }

@@ -1,5 +1,5 @@
 /**
- * Одна серійна черга для усіх PvE CAS-мутацій (tick / attack / battle-start / self-buff).
+ * Одна серійна черга для усіх PvE CAS-мутацій (tick / attack / battle-start / self-buff / mob-debuff).
  * Поки попередній запит не завершився (включно з applyServerSync у caller), наступний не стартує —
  * усуває revision_conflict від паралельних tick+attack або кількох in-flight HTTP.
  */

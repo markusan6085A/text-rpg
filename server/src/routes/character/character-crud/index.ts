@@ -32,6 +32,7 @@ import { applyPveSelfBuffSnapshot } from "../../../pveSelfBuffCast/applyPveSelfB
 import { applyPveBattleStartSnapshot } from "../../../pveBattle/applyPveBattleStart";
 import { applyPveBattleAttackSnapshot } from "../../../pveBattle/applyPveBattleAttack";
 import { applyPveMobTickSnapshot } from "../../../pveBattle/applyPveMobTick";
+import { applyPveMobDebuffSnapshot } from "../../../pveBattle/applyPveMobDebuff";
 
 function getExpToNext(level: number): number {
   const lvl = Math.max(1, Math.min(MAX_LEVEL, Number(level) || 1));
@@ -4013,6 +4014,150 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       return reply.send({ ok: true, character: serialized, logLine: txRes.logLine });
     } catch (e) {
       console.error("[pve-self-buff]", e);
+      return reply.code(500).send({ error: "internal_error" });
+    }
+  });
+
+  // POST /characters/:id/pve-battle-debuff — дебаф/стан на моба (revision CAS + battleSession)
+  app.post("/characters/:id/pve-battle-debuff", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as { skillId?: number; expectedRevision?: number };
+    const skillId = Math.floor(Number(body?.skillId));
+    const expectedRevision = Number(body?.expectedRevision);
+    if (!Number.isFinite(skillId) || skillId < 1) {
+      return reply.code(400).send({ error: "skillId required" });
+    }
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+
+    try {
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{ id: string; name: string; classId: string; heroJson: any; updatedAt: Date }>
+        >`
+          SELECT "id", "name", "classId", "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+        const row = locked[0];
+        const oldHeroJson = (row.heroJson as any) || {};
+        const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: row.updatedAt,
+          };
+        }
+
+        const applied = applyPveMobDebuffSnapshot({
+          heroJson: oldHeroJson,
+          classId: String(row.classId ?? ""),
+          skillId,
+          nowMs: Date.now(),
+        });
+        if (!applied.ok) {
+          return {
+            ok: false as const,
+            reason: "apply_failed" as const,
+            code: applied.code,
+            message: applied.message,
+          };
+        }
+
+        const newHeroJson = { ...applied.nextHeroJson };
+        const validation = validateHeroJson(newHeroJson);
+        if (!validation.valid) {
+          return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
+        }
+        const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+        const updated = await tx.character.update({
+          where: { id: row.id },
+          data: {
+            heroJson: versionedHeroJson as any,
+            lastActivityAt: new Date(),
+          },
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            coinsSilver: true,
+            heroJson: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated, logLine: applied.logLine, characterName: row.name };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            message: "Character was modified by another session. Please reload and try again.",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: {
+              heroRevision: txRes.currentRevision ?? 0,
+              updatedAt: txRes.updatedAt?.toISOString(),
+            },
+          });
+        }
+        if (txRes.reason === "invalid_hero_json") {
+          return reply.code(400).send({ error: "invalid_hero_json", errors: txRes.errors });
+        }
+        if (txRes.reason === "apply_failed") {
+          const c = txRes.code;
+          if (c === "not_enough_mp") {
+            return reply.code(400).send({ error: "not_enough_mp", message: txRes.message });
+          }
+          return reply.code(400).send({ error: c || "invalid_input", message: txRes.message });
+        }
+        return reply.code(400).send({ error: "invalid input" });
+      }
+
+      const updated = txRes.updated;
+      const serialized = {
+        ...updated,
+        exp: Number(updated.exp),
+        adena: Number(updated.adena ?? 0),
+        aa: Number(updated.aa ?? 0),
+        coinLuck: Number(updated.coinLuck ?? 0),
+        coinsSilver: Number(updated.coinsSilver ?? 0),
+      };
+
+      enqueuePlayerActivityLog({
+        accountId: auth.accountId,
+        characterId: id,
+        characterName: txRes.characterName ?? updated.name,
+        action: "pve.mob_debuff",
+        metadata: { skillId, logLine: txRes.logLine },
+        clientIp: getClientIp(req),
+      });
+
+      return reply.send({ ok: true, character: serialized, logLine: txRes.logLine });
+    } catch (e) {
+      console.error("[pve-battle-debuff]", e);
       return reply.code(500).send({ error: "internal_error" });
     }
   });
