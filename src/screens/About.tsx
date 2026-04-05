@@ -16,7 +16,6 @@ export default function About({ navigate }: { navigate: Navigate }) {
   const [newNickname, setNewNickname] = useState("");
   const [isChanging, setIsChanging] = useState(false);
   const hero = useHeroStore((s) => s.hero);
-  const updateHero = useHeroStore((s) => s.updateHero);
   const characterId = useCharacterStore((s) => s.characterId);
 
   useEffect(() => {
@@ -55,6 +54,51 @@ export default function About({ navigate }: { navigate: Navigate }) {
   const rowBase = isL2
     ? "text-left transition-colors text-[10px] py-2 w-full border-b border-[#5c4a32]/35 hover:bg-black/20"
     : "text-left transition-colors text-[10px] py-2 border-b border-solid border-white/50 w-full";
+
+  const applyServerCharacterSnapshot = (character: any) => {
+    if (!character || typeof character !== "object") return;
+    const store = useHeroStore.getState();
+    const currentHero = store.hero;
+    if (!currentHero) return;
+    const heroJson =
+      (character as any).heroJson && typeof (character as any).heroJson === "object"
+        ? (character as any).heroJson
+        : {};
+    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
+    const overflowChest = Array.isArray(heroJson.overflowChest)
+      ? heroJson.overflowChest
+      : currentHero.overflowChest ?? [];
+    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
+    const coinLuck = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
+    const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
+    const level = Number((character as any).level ?? currentHero.level ?? 1);
+    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
+    const sp = Number((character as any).sp ?? currentHero.sp ?? 0);
+    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
+    store.applyServerSync(
+      {
+        level,
+        exp,
+        sp,
+        adena,
+        name: String((character as any).name ?? currentHero.name ?? ""),
+        coinOfLuck: coinLuck,
+        inventory,
+        overflowChest,
+        activeDyes,
+        heroJson,
+      } as any,
+      {
+        level,
+        exp,
+        sp,
+        adena,
+        coinLuck,
+        heroRevision: Number.isFinite(revision) ? revision : 0,
+        updatedAt: Date.now(),
+      }
+    );
+  };
 
   return (
     <>
@@ -240,16 +284,7 @@ export default function About({ navigate }: { navigate: Navigate }) {
                         trimmedNick,
                         Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0
                       );
-                      const { coinLuck, name: newName, heroJson: heroJsonFromRes } = res.character;
-                      const newRevision = heroJsonFromRes?.heroRevision;
-                      // Оновлюємо serverState (coinLuck + heroRevision) щоб PUT не відправляв застарілу ревізію
-                      useHeroStore.getState().updateServerState?.({ coinLuck, heroRevision: newRevision });
-                      updateHero({
-                        name: newName,
-                        coinOfLuck: coinLuck,
-                        heroJson: { ...(hero as any)?.heroJson, name: newName, heroRevision: newRevision },
-                        ...(newRevision != null && { heroRevision: newRevision }),
-                      } as any);
+                      applyServerCharacterSnapshot((res as any).character);
                       setShowChangeNickModal(false);
                       setNewNickname("");
                       showToast(`Поздравляю! Вы изменили ник на "${trimmedNick}"!`, "success");

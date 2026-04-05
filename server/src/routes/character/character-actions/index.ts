@@ -529,11 +529,38 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         }
         const nextAdena = Math.max(0, currentAdena - VIEW_STATS_COST);
         const versionedHeroJson = addVersioning({ ...heroJson, adena: nextAdena }, currentRevision);
-        await tx.character.update({
+        const updated = await tx.character.update({
           where: { id: myChar.id },
           data: { adena: BigInt(nextAdena), heroJson: versionedHeroJson as any },
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            coinsSilver: true,
+            heroJson: true,
+            updatedAt: true,
+          },
         });
-        return { ok: true as const, nextAdena };
+        return {
+          ok: true as const,
+          nextAdena,
+          character: {
+            ...updated,
+            exp: Number((updated as any).exp ?? 0),
+            adena: Number((updated as any).adena ?? 0),
+            aa: Number((updated as any).aa ?? 0),
+            coinLuck: Number((updated as any).coinLuck ?? 0),
+            coinsSilver: Number((updated as any).coinsSilver ?? 0),
+          },
+        };
       });
 
       if (!txRes.ok) {
@@ -548,7 +575,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         }
         return reply.code(400).send({ error: "not enough adena", needed: VIEW_STATS_COST, have: txRes.currentAdena ?? 0 });
       }
-      return reply.send({ ok: true, newAdena: txRes.nextAdena });
+      return reply.send({ ok: true, newAdena: txRes.nextAdena, character: (txRes as any).character });
     } catch (error) {
       app.log.error(error, "POST /characters/:targetId/pay-view-stats");
       return reply.code(500).send({ error: "Internal Server Error" });

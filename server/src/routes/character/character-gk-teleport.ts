@@ -67,13 +67,29 @@ export async function characterGkTeleportRoutes(app: FastifyInstance) {
           ...(kind === "city" ? { currentCityId: targetId } : {}),
         };
         const versionedHeroJson = addVersioning(patchedHeroJson, oldRevision);
-        await tx.character.update({
+        const updated = await tx.character.update({
           where: { id: char.id },
           data: {
             adena: BigInt(newAdena),
             heroJson: versionedHeroJson as any,
             lastActivityAt: new Date(),
           } as any,
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            coinsSilver: true,
+            heroJson: true,
+            updatedAt: true,
+          },
         });
 
         return {
@@ -81,6 +97,14 @@ export async function characterGkTeleportRoutes(app: FastifyInstance) {
           charge,
           newAdena,
           currentCityId: kind === "city" ? targetId : undefined,
+          character: {
+            ...updated,
+            exp: Number((updated as any).exp ?? 0),
+            adena: Number((updated as any).adena ?? 0),
+            aa: Number((updated as any).aa ?? 0),
+            coinLuck: Number((updated as any).coinLuck ?? 0),
+            coinsSilver: Number((updated as any).coinsSilver ?? 0),
+          },
         };
       });
 
@@ -102,6 +126,7 @@ export async function characterGkTeleportRoutes(app: FastifyInstance) {
         ok: true,
         charge: txRes.charge,
         newAdena: txRes.newAdena,
+        character: (txRes as any).character,
         ...(txRes.currentCityId ? { currentCityId: txRes.currentCityId } : {}),
       };
     } catch (e) {

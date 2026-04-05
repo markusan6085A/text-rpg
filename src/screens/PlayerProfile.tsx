@@ -842,7 +842,54 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
         Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0
       );
       if (res.ok) {
-        useHeroStore.getState().updateHero({ adena: res.newAdena });
+        const characterSnapshot = (res as any).character;
+        if (characterSnapshot && typeof characterSnapshot === "object") {
+          const store = useHeroStore.getState();
+          const currentHero = store.hero;
+          if (currentHero) {
+            const heroJson =
+              (characterSnapshot as any).heroJson && typeof (characterSnapshot as any).heroJson === "object"
+                ? (characterSnapshot as any).heroJson
+                : {};
+            const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
+            const overflowChest = Array.isArray(heroJson.overflowChest)
+              ? heroJson.overflowChest
+              : currentHero.overflowChest ?? [];
+            const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
+            const coinLuckFromServer = Number(
+              (characterSnapshot as any).coinLuck ?? currentHero.coinOfLuck ?? 0
+            );
+            const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
+            const level = Number((characterSnapshot as any).level ?? currentHero.level ?? 1);
+            const exp = Number((characterSnapshot as any).exp ?? currentHero.exp ?? 0);
+            const sp = Number((characterSnapshot as any).sp ?? currentHero.sp ?? 0);
+            const adena = Number((characterSnapshot as any).adena ?? res.newAdena ?? currentHero.adena ?? 0);
+            store.applyServerSync(
+              {
+                level,
+                exp,
+                sp,
+                adena,
+                coinOfLuck: coinLuckFromServer,
+                inventory,
+                overflowChest,
+                activeDyes,
+                heroJson,
+              } as any,
+              {
+                level,
+                exp,
+                sp,
+                adena,
+                coinLuck: coinLuckFromServer,
+                heroRevision: Number.isFinite(revision) ? revision : 0,
+                updatedAt: Date.now(),
+              }
+            );
+          }
+        } else {
+          useHeroStore.getState().updateHero({ adena: res.newAdena });
+        }
         let charForStats = character;
         try {
           const fresh =

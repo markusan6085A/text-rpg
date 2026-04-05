@@ -76,7 +76,6 @@ const NICK_COLORS = [
 
 export default function ColorizeNick({ navigate }: ColorizeNickProps) {
   const hero = useHeroStore((s) => s.hero);
-  const updateHero = useHeroStore((s) => s.updateHero);
   const characterId = useCharacterStore((s) => s.characterId);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [isApplying, setIsApplying] = useState(false);
@@ -86,6 +85,52 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
     ? "max-w-[420px] mx-auto rounded-xl border border-[#5c4a32]/75 bg-black/25 shadow-[inset_0_1px_0_rgba(199,173,128,0.08)] p-4"
     : "max-w-[360px] mx-auto";
   const sep = isL2 ? "border-t border-[#5c4a32]/45" : "border-t border-white/40";
+
+  const applyServerCharacterSnapshot = (character: any, fallbackNickColor?: string) => {
+    if (!character || typeof character !== "object") return;
+    const store = useHeroStore.getState();
+    const currentHero = store.hero;
+    if (!currentHero) return;
+    const heroJson =
+      (character as any).heroJson && typeof (character as any).heroJson === "object"
+        ? (character as any).heroJson
+        : {};
+    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
+    const overflowChest = Array.isArray(heroJson.overflowChest)
+      ? heroJson.overflowChest
+      : currentHero.overflowChest ?? [];
+    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
+    const coinLuck = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
+    const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
+    const level = Number((character as any).level ?? currentHero.level ?? 1);
+    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
+    const sp = Number((character as any).sp ?? currentHero.sp ?? 0);
+    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
+    const nextNickColor = String((character as any).nickColor ?? fallbackNickColor ?? currentHero.nickColor ?? "");
+    store.applyServerSync(
+      {
+        level,
+        exp,
+        sp,
+        adena,
+        coinOfLuck: coinLuck,
+        nickColor: nextNickColor || undefined,
+        inventory,
+        overflowChest,
+        activeDyes,
+        heroJson: { ...heroJson, nickColor: nextNickColor || undefined },
+      } as any,
+      {
+        level,
+        exp,
+        sp,
+        adena,
+        coinLuck,
+        heroRevision: Number.isFinite(revision) ? revision : 0,
+        updatedAt: Date.now(),
+      }
+    );
+  };
 
   if (!hero) {
     return (
@@ -201,23 +246,7 @@ export default function ColorizeNick({ navigate }: ColorizeNickProps) {
                     showToast("Ошибка при изменении цвета ника", "error");
                     return;
                   }
-                  const { coinLuck, nickColor: newNickColor, heroJson: heroJsonFromRes } = res.character;
-                  const newRevision = heroJsonFromRes?.heroRevision;
-
-                  // Update serverState (coinLuck + heroRevision) to avoid PUT sending stale revision
-                  useHeroStore.getState().updateServerState?.({ coinLuck, heroRevision: newRevision });
-
-                  // Update hero in store (heroRevision at top level for heroPersistence)
-                  updateHero({
-                    coinOfLuck: coinLuck,
-                    nickColor: newNickColor ?? selectedColor,
-                    heroJson: {
-                      ...(hero as any)?.heroJson,
-                      nickColor: newNickColor ?? selectedColor,
-                      heroRevision: newRevision,
-                    },
-                    ...(newRevision != null && { heroRevision: newRevision }),
-                  } as any);
+                  applyServerCharacterSnapshot(res.character, selectedColor);
 
                   showToast("Поздравляю! Вы изменили цвет ника!", "success", {
                     onDismiss: () => navigate("/about"),

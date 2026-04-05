@@ -29,8 +29,6 @@ interface FishingProps {
 
 export default function Fishing({ navigate }: FishingProps) {
   const hero = useHeroStore((s) => s.hero);
-  const updateHero = useHeroStore((s) => s.updateHero);
-  const updateServerState = useHeroStore((s) => s.updateServerState);
   const characterId = useCharacterStore((s) => s.characterId);
   const activeCharacterId = characterId || hero?.id || null;
 
@@ -113,6 +111,55 @@ export default function Fishing({ navigate }: FishingProps) {
   const canAfford =
     sp >= FISHING_COST_SP && (FISHING_COST_ADENA <= 0 || (hero?.adena ?? 0) >= FISHING_COST_ADENA);
 
+  const applyServerCharacterSnapshot = (character: any, fishingSession?: api.FishingSession | null) => {
+    if (!character || typeof character !== "object") return;
+    const store = useHeroStore.getState();
+    const currentHero = store.hero;
+    if (!currentHero) return;
+    const serverHeroJson =
+      (character as any).heroJson && typeof (character as any).heroJson === "object"
+        ? { ...(character as any).heroJson }
+        : {};
+    if (fishingSession) {
+      (serverHeroJson as any).fishingSession = fishingSession;
+    } else if ((serverHeroJson as any).fishingSession == null) {
+      (serverHeroJson as any).fishingSession = undefined;
+    }
+    const inventory = Array.isArray(serverHeroJson.inventory) ? serverHeroJson.inventory : currentHero.inventory ?? [];
+    const overflowChest = Array.isArray(serverHeroJson.overflowChest)
+      ? serverHeroJson.overflowChest
+      : currentHero.overflowChest ?? [];
+    const activeDyes = Array.isArray(serverHeroJson.activeDyes) ? serverHeroJson.activeDyes : currentHero.activeDyes ?? [];
+    const level = Number((character as any).level ?? currentHero.level ?? 1);
+    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
+    const spVal = Number((character as any).sp ?? currentHero.sp ?? 0);
+    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
+    const coinLuck = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
+    const revision = Number(serverHeroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
+    store.applyServerSync(
+      {
+        level,
+        exp,
+        sp: spVal,
+        adena,
+        coinOfLuck: coinLuck,
+        inventory,
+        overflowChest,
+        activeDyes,
+        heroJson: serverHeroJson,
+      } as any,
+      {
+        level,
+        exp,
+        sp: spVal,
+        adena,
+        coinLuck,
+        heroRevision: Number.isFinite(revision) ? revision : 0,
+        updatedAt: Date.now(),
+      }
+    );
+  };
+
   const estimatedServerNow = now + serverOffsetMs;
   const ready = session && isFishingReady(session, estimatedServerNow);
   const remainingMs = session && !ready ? Math.max(0, FISHING_DURATION_MS - (estimatedServerNow - session.startedAt)) : 0;
@@ -138,15 +185,7 @@ export default function Fishing({ navigate }: FishingProps) {
       const res = await api.startFishing(activeCharacterId, expectedRevision);
       setSessionState(res.session);
       setServerOffsetMs((res.serverNow ?? Date.now()) - Date.now());
-      const hj = res.character.heroJson as any;
-      const newRev = hj?.heroRevision;
-      if (newRev != null) updateServerState({ heroRevision: newRev });
-      updateHero({
-        sp: res.character.sp,
-        adena: res.character.adena,
-        inventory: hj?.inventory ?? hero.inventory ?? [],
-        heroJson: { ...(hero as any).heroJson, ...hj, fishingSession: res.session },
-      });
+      applyServerCharacterSnapshot(res.character, res.session);
     } catch (e: any) {
       if (isUnauthorizedError(e)) {
         showToast("Сессия истекла. Войдите снова.", "error");
@@ -170,15 +209,7 @@ export default function Fishing({ navigate }: FishingProps) {
       );
       const res = await api.collectFishing(activeCharacterId, expectedRevision);
       setSessionState(null);
-      const hj = res.character.heroJson as any;
-      const newRev = hj?.heroRevision;
-      if (newRev != null) updateServerState({ heroRevision: newRev });
-      updateHero({
-        level: Number(res.character.level ?? hero.level ?? 1),
-        exp: res.character.exp,
-        inventory: hj?.inventory ?? hero.inventory ?? [],
-        heroJson: { ...(hero as any).heroJson, ...hj, fishingSession: undefined },
-      });
+      applyServerCharacterSnapshot(res.character, null);
       setCatchResult({ fishCount: res.fishCount, expGained: res.expGained || 0 });
     } catch (e: any) {
       if (isUnauthorizedError(e)) {

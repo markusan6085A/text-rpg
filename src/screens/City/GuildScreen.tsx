@@ -19,7 +19,6 @@ import {
 } from "../../data/spellbooks/mysticSpellbookData";
 import { postLearnSkill, postMageSpellbookTurnIn } from "../../utils/api/characters";
 import { useCharacterStore } from "../../state/characterStore";
-import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { ONBOARDING_GUILD_NEED_SP_KEY } from "../../state/gameSettings";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import {
@@ -87,7 +86,57 @@ export default function GuildScreen({
 
   const learnOpts = spellbookMode ? { mageGuildSpellbooks: true as const } : undefined;
   const updateHero = useHeroStore((s) => s.updateHero);
-  const setHero = useHeroStore((s) => s.setHero);
+
+  const applyServerCharacterSnapshot = (character: any) => {
+    if (!character || typeof character !== "object") return;
+    const store = useHeroStore.getState();
+    const currentHero = store.hero;
+    if (!currentHero) return;
+    const heroJson =
+      (character as any).heroJson && typeof (character as any).heroJson === "object"
+        ? (character as any).heroJson
+        : {};
+    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : currentHero.inventory ?? [];
+    const overflowChest = Array.isArray(heroJson.overflowChest)
+      ? heroJson.overflowChest
+      : currentHero.overflowChest ?? [];
+    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : currentHero.activeDyes ?? [];
+    const coinLuckFromServer = Number((character as any).coinLuck ?? currentHero.coinOfLuck ?? 0);
+    const aaFromServer = Number(
+      (character as any).aa ??
+      (character as any).ancientAdena ??
+      (character as any).ancient_adena ??
+      0
+    );
+    const revision = Number(heroJson.heroRevision ?? (currentHero as any)?.heroJson?.heroRevision ?? 0);
+    const level = Number((character as any).level ?? currentHero.level ?? 1);
+    const exp = Number((character as any).exp ?? currentHero.exp ?? 0);
+    const sp = Number((character as any).sp ?? currentHero.sp ?? 0);
+    const adena = Number((character as any).adena ?? currentHero.adena ?? 0);
+    store.applyServerSync(
+      {
+        level,
+        exp,
+        sp,
+        adena,
+        aa: Number.isFinite(aaFromServer) ? aaFromServer : Number((currentHero as any).aa ?? 0),
+        coinOfLuck: coinLuckFromServer,
+        inventory,
+        overflowChest,
+        activeDyes,
+        heroJson,
+      } as any,
+      {
+        level,
+        exp,
+        sp,
+        adena,
+        coinLuck: coinLuckFromServer,
+        heroRevision: Number.isFinite(revision) ? revision : 0,
+        updatedAt: Date.now(),
+      }
+    );
+  };
 
   const handleTurnInSpellbook = async (skillId: number) => {
     if (!characterId) {
@@ -102,20 +151,7 @@ export default function GuildScreen({
     setTurnInBusyId(skillId);
     try {
       const res = await postMageSpellbookTurnIn(characterId, { skillId, expectedRevision });
-      const gk = res.guildKey;
-      if (gk) {
-        const h = useHeroStore.getState().hero;
-        if (h) {
-          const hj: any = { ...(h as any).heroJson };
-          const prev =
-            hj.spellbookGuild && typeof hj.spellbookGuild === "object" && !Array.isArray(hj.spellbookGuild)
-              ? hj.spellbookGuild
-              : {};
-          updateHero({ ...h, heroJson: { ...hj, spellbookGuild: { ...prev, [gk]: true } } } as any);
-        }
-      }
-      const synced = await loadHeroFromAPI();
-      if (synced) setHero(synced);
+      applyServerCharacterSnapshot((res as any).character);
       showToast("Книга сдана гильдии. Теперь можно выучить уровень за SP.", "success");
     } catch {
       showToast("Не удалось сдать книгу. Проверьте, что книга в инвентаре.", "error");
@@ -145,14 +181,13 @@ export default function GuildScreen({
         return;
       }
       try {
-        await postLearnSkill(characterId, { skillId, expectedRevision });
+        const res = await postLearnSkill(characterId, { skillId, expectedRevision });
         try {
           sessionStorage.removeItem(ONBOARDING_GUILD_NEED_SP_KEY);
         } catch {
           /* ignore */
         }
-        const synced = await loadHeroFromAPI();
-        if (synced) setHero(synced);
+        applyServerCharacterSnapshot((res as any).character);
       } catch (e: any) {
         if (e?.message && (e.message.includes("revision_conflict") || e.message.includes("Character was modified"))) {
           console.warn("Ігноруємо revision conflict при вивченні скіла");

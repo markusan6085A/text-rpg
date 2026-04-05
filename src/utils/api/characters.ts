@@ -177,8 +177,8 @@ export async function postTattooRemove(
 export async function payToViewPlayerStats(
   targetCharacterId: string,
   expectedRevision: number
-): Promise<{ ok: boolean; newAdena: number }> {
-  const response = await apiRequest<{ ok: boolean; newAdena: number }>(
+): Promise<{ ok: boolean; newAdena: number; character?: Character }> {
+  const response = await apiRequest<{ ok: boolean; newAdena: number; character?: Character }>(
     `/characters/${targetCharacterId}/pay-view-stats`,
     { method: "POST", body: JSON.stringify({ expectedRevision }) }
   );
@@ -189,7 +189,7 @@ export async function payToViewPlayerStats(
 export async function postCharacterGkTeleport(
   characterId: string,
   body: { kind: "city" | "zone"; targetId: string; expectedRevision: number }
-): Promise<{ ok: boolean; charge: number; newAdena: number; currentCityId?: string }> {
+): Promise<{ ok: boolean; charge: number; newAdena: number; currentCityId?: string; character?: Character }> {
   return apiRequest(`/characters/${characterId}/gk-teleport`, {
     method: "POST",
     body: JSON.stringify(body),
