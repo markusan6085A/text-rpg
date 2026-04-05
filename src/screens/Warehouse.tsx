@@ -117,7 +117,7 @@ export default function Warehouse({ navigate }: WarehouseProps) {
     if (!hero) return [];
     const inv = Array.isArray(hero.inventory) ? hero.inventory : [];
     const category = CATEGORIES.find((c) => c.key === currentCategory) || CATEGORIES[0];
-    const withoutCurrency = inv.filter((item: any) => item && !CURRENCY_IDS.has(item.id));
+    const withoutCurrency = inv.filter((item: any) => item && !CURRENCY_IDS.has(String(item.id ?? item.itemId ?? "")));
     if (!category || typeof category.test !== "function") return withoutCurrency;
     return withoutCurrency.filter((item: any) => category.test(item));
   }, [hero, currentCategory]);

@@ -124,7 +124,7 @@ function getResourceSellPrice(itemId: string): number {
 }
 
 function getServerSellUnitPrice(row: any): number | null {
-  const rawId = String(row?.id ?? "");
+  const rawId = String(row?.id ?? row?.itemId ?? "");
   const itemId = normalizeShopItemId(rawId);
   if (!itemId || NO_SELL_IDS.has(itemId)) return null;
   if (itemId.startsWith("dye_")) return GREATER_DYE_SELL_ADENA;

@@ -27,7 +27,7 @@ function sanitizeInventoryArray(input: unknown, path: string, errors: string[]):
       errors.push(`${path}[${i}] invalid object`);
       continue;
     }
-    const id = String((row as any).id ?? "").trim();
+    const id = String((row as any).id ?? (row as any).itemId ?? "").trim();
     if (!id) {
       errors.push(`${path}[${i}] missing id`);
       continue;

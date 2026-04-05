@@ -52,7 +52,10 @@ export default function SellItems({ navigate }: SellItemsProps) {
     if (!hero || !hero.inventory) return [];
     const category = CATEGORIES.find((c) => c.key === currentCategory) || CATEGORIES[0];
     let items = hero.inventory.filter(
-      (item: any) => item && !CURRENCY_IDS.has(item.id) && !NO_SELL_IDS.has(item.id) && category.test(item)
+      (item: any) => {
+        const rowId = String(item?.id ?? item?.itemId ?? "");
+        return item && !CURRENCY_IDS.has(rowId) && !NO_SELL_IDS.has(rowId) && category.test(item);
+      }
     );
     if (currentGrade) {
       const gradeUpper = currentGrade.toUpperCase();
