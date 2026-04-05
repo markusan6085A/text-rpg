@@ -97,10 +97,10 @@ export async function sellInventoryItemsAPI(
 }
 
 /** Очистити інвентар на сервері (окремий ендпоінт — без exp/level, уникаємо "exp cannot be decreased") */
-export async function clearInventoryAPI(characterId: string): Promise<Character> {
+export async function clearInventoryAPI(characterId: string, expectedRevision: number): Promise<Character> {
   const response = await apiRequest<CharacterResponse>(`/characters/${encodeURIComponent(characterId)}/inventory/clear`, {
     method: 'PUT',
-    body: JSON.stringify({}),
+    body: JSON.stringify({ expectedRevision }),
   });
   return response.character;
 }

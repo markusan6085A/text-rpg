@@ -654,7 +654,12 @@ export default function Inventory() {
                   setWipeError(null);
                   setWipeLoading(true);
                   try {
-                    const updated = await clearInventoryAPI(characterId);
+                    const expectedRevision = Number(
+                      (useHeroStore.getState() as any).serverState?.heroRevision ??
+                      (hero as any)?.heroJson?.heroRevision ??
+                      0
+                    );
+                    const updated = await clearInventoryAPI(characterId, expectedRevision);
                     const clearedAt = (updated.heroJson as any)?.inventoryClearedAt ?? Date.now();
                     useHeroStore.getState().updateServerState({
                       heroRevision: (updated.heroJson as any)?.heroRevision ?? 0,

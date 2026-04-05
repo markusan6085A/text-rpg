@@ -591,59 +591,99 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const auth = getAuth(req);
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
+    const body = req.body as { expectedRevision?: number };
+    const expectedRevision = Number(body?.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+
     const params = req.params as { id?: string };
     const id = params.id;
     if (!id) return reply.code(400).send({ error: "character id required" });
 
-    const existing = await prisma.character.findFirst({
-      where: { id, accountId: auth.accountId },
-    });
-    if (!existing) return reply.code(404).send({ error: "character not found" });
-
-    const oldHeroJson = (existing.heroJson as any) || {};
-    // 🔥 Якщо heroJson порожній — беремо name/race/classId з character (нові персонажі)
-    const baseJson = {
-      name: oldHeroJson.name || existing.name,
-      race: oldHeroJson.race || existing.race,
-      classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
-      klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
-      level: oldHeroJson.level ?? existing.level ?? 1,
-    };
-    const newHeroJson = {
-      ...baseJson,
-      ...oldHeroJson,
-      inventory: [],
-      overflowChest: [],
-      inventoryClearedAt: Date.now(),
-    };
-    const validation = validateHeroJson(newHeroJson);
-    if (!validation.valid) {
-      return reply.code(400).send({ error: "invalid_hero_json", errors: validation.errors });
-    }
-
-    const oldRevision = oldHeroJson.heroRevision || 0;
-    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
-
     try {
-      const updated = await prisma.character.update({
-        where: { id },
-        data: {
-          heroJson: versionedHeroJson as any,
-          lastActivityAt: new Date(),
-        },
-        select: {
-          id: true, name: true, race: true, classId: true, sex: true,
-          level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true,
-          heroJson: true, createdAt: true, updatedAt: true,
-        },
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{
+            id: string;
+            name: string;
+            race: string;
+            classId: string;
+            heroJson: any;
+            updatedAt: Date;
+          }>
+        >`
+          SELECT "id", "name", "race", "classId", "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+        const existing = locked[0];
+        const oldHeroJson = (existing.heroJson as any) || {};
+        const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: existing.updatedAt,
+          };
+        }
+
+        const baseJson = {
+          name: oldHeroJson.name || existing.name,
+          race: oldHeroJson.race || existing.race,
+          classId: oldHeroJson.classId || oldHeroJson.klass || existing.classId,
+          klass: oldHeroJson.klass || oldHeroJson.classId || existing.classId,
+          level: oldHeroJson.level ?? 1,
+        };
+        const newHeroJson = {
+          ...baseJson,
+          ...oldHeroJson,
+          inventory: [],
+          overflowChest: [],
+          inventoryClearedAt: Date.now(),
+        };
+        const validation = validateHeroJson(newHeroJson);
+        if (!validation.valid) {
+          return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
+        }
+
+        const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+        const updated = await tx.character.update({
+          where: { id },
+          data: {
+            heroJson: versionedHeroJson as any,
+            lastActivityAt: new Date(),
+          },
+          select: {
+            id: true, name: true, race: true, classId: true, sex: true,
+            level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true,
+            heroJson: true, createdAt: true, updatedAt: true,
+          },
+        });
+        return { ok: true as const, updated };
       });
 
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "invalid_hero_json") return reply.code(400).send({ error: "invalid_hero_json", errors: txRes.errors });
+        return reply.code(409).send({
+          error: "revision_conflict",
+          message: "Character was modified by another session. Please reload and try again.",
+          currentRevision: txRes.currentRevision ?? 0,
+          updatedAt: txRes.updatedAt?.toISOString(),
+          serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+        });
+      }
+
       const serialized = {
-        ...updated,
-        exp: Number(updated.exp),
-        adena: Number(updated.adena ?? 0),
-        aa: Number(updated.aa ?? 0),
-        coinLuck: Number(updated.coinLuck ?? 0),
+        ...txRes.updated,
+        exp: Number(txRes.updated.exp),
+        adena: Number(txRes.updated.adena ?? 0),
+        aa: Number(txRes.updated.aa ?? 0),
+        coinLuck: Number(txRes.updated.coinLuck ?? 0),
       };
 
       app.log.info({ accountId: auth.accountId, characterId: id }, "[PUT /characters/:id/inventory/clear] Inventory cleared");
