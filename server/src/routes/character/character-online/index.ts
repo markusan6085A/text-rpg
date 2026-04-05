@@ -17,12 +17,28 @@ function parseMaybeJsonObject(raw: any): Record<string, unknown> {
   return {};
 }
 
+/** Не даємо nested heroJson з порожніми heroBuffs затерти актуальні бафи з кореня (профіль іншого гравця). */
+function pickMergedHeroBuffsForPublic(
+  root: Record<string, unknown>,
+  nested: Record<string, unknown>
+): unknown {
+  const a = root.heroBuffs;
+  const b = nested.heroBuffs;
+  const ar = Array.isArray(a) ? a.length : 0;
+  const br = Array.isArray(b) ? b.length : 0;
+  if (ar === 0) return Array.isArray(b) ? b : a;
+  if (br === 0) return a;
+  return ar >= br ? a : b;
+}
+
 function normalizeHeroJsonForPublic(raw: any): Record<string, unknown> {
   const root = parseMaybeJsonObject(raw);
   const nested = parseMaybeJsonObject((root as any).heroJson);
   if (Object.keys(nested).length === 0) return root;
   // Legacy rows may contain payload under heroJson.heroJson. Merge to keep public profile stable.
-  return { ...root, ...nested };
+  const merged = { ...root, ...nested } as Record<string, unknown>;
+  merged.heroBuffs = pickMergedHeroBuffsForPublic(root, nested);
+  return merged;
 }
 
 function buildPublicHeroJson(raw: any): Record<string, unknown> {

@@ -7,6 +7,10 @@ export function coerceBuffExpiresAtMs(expiresAt: unknown): number {
   if (expiresAt === Number.MAX_SAFE_INTEGER) return Number.MAX_SAFE_INTEGER;
   if (typeof expiresAt === "number" && Number.isFinite(expiresAt)) return expiresAt;
   if (typeof expiresAt === "string") {
+    if (/^\d+$/.test(expiresAt)) {
+      const n = Number(expiresAt);
+      return Number.isFinite(n) ? n : 0;
+    }
     const t = Date.parse(expiresAt);
     return Number.isFinite(t) ? t : 0;
   }
@@ -53,13 +57,30 @@ function parseMaybeJsonObject(raw: unknown): Record<string, unknown> {
   return {};
 }
 
-/** Той самий merge root/nested heroJson, що на сервері в buildPublicHeroJson — для профілю іншого гравця. */
+function pickMergedHeroBuffs(
+  root: Record<string, unknown>,
+  nested: Record<string, unknown>
+): unknown {
+  const a = root.heroBuffs;
+  const b = nested.heroBuffs;
+  const ar = Array.isArray(a) ? a.length : 0;
+  const br = Array.isArray(b) ? b.length : 0;
+  if (ar === 0) return Array.isArray(b) ? b : a;
+  if (br === 0) return a;
+  return ar >= br ? a : b;
+}
+
+/** Той самий merge root/nested heroJson, що на сервері в normalizeHeroJsonForPublic — для профілю іншого гравця. */
 export function getMergedHeroJsonFromCharacter(character: { heroJson?: unknown } | null | undefined): Record<string, any> {
   const rootHeroJson = parseMaybeJsonObject(character?.heroJson);
   const nestedHeroJson = parseMaybeJsonObject((rootHeroJson as any).heroJson);
-  return Object.keys(nestedHeroJson).length > 0
-    ? { ...(rootHeroJson as Record<string, any>), ...(nestedHeroJson as Record<string, any>) }
-    : (rootHeroJson as Record<string, any>);
+  if (Object.keys(nestedHeroJson).length === 0) return rootHeroJson as Record<string, any>;
+  const merged = {
+    ...(rootHeroJson as Record<string, any>),
+    ...(nestedHeroJson as Record<string, any>),
+  };
+  merged.heroBuffs = pickMergedHeroBuffs(rootHeroJson, nestedHeroJson);
+  return merged;
 }
 
 function parseMaybeJsonMap(raw: unknown): Record<string, any> {
@@ -71,9 +92,14 @@ export function characterToProfileHeroData(character: Character) {
   const rootHeroJson = parseMaybeJsonObject((character as any).heroJson);
   const nestedHeroJson = parseMaybeJsonObject((rootHeroJson as any).heroJson);
   // Legacy compatibility: some rows keep payload under heroJson.heroJson.
-  const heroJson = Object.keys(nestedHeroJson).length > 0
-    ? { ...rootHeroJson, ...nestedHeroJson }
-    : rootHeroJson;
+  const heroJson =
+    Object.keys(nestedHeroJson).length > 0
+      ? (() => {
+          const m = { ...rootHeroJson, ...nestedHeroJson };
+          m.heroBuffs = pickMergedHeroBuffs(rootHeroJson, nestedHeroJson);
+          return m;
+        })()
+      : rootHeroJson;
   const equipment = parseMaybeJsonMap((heroJson as any).equipment);
   const equipmentEnchantLevels = parseMaybeJsonMap((heroJson as any).equipmentEnchantLevels);
   const equipmentInserts = parseMaybeJsonMap((heroJson as any).equipmentInserts);
