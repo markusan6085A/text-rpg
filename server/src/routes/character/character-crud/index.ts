@@ -1333,6 +1333,24 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       isWeaponItem =
         kind === "weapon" ||
         ["weapon", "lrhand", "rhand", "lhand"].includes(itemSlot);
+      if (!isWeaponItem) {
+        // Legacy inventory rows may miss kind/slot. Use conservative id-based fallback for weapons.
+        const targetId = String(item.id ?? "").replace(/^shop_/i, "").toLowerCase();
+        const looksLikeWeaponById =
+          /(^|_)(sword|blade|dagger|bow|mace|hammer|blunt|spear|pole|staff|wand|crossbow|rapier|slayer|rod)(_|$)/.test(
+            targetId
+          ) || targetId === "s_angel_slayer" || targetId === "s_draconic_bow";
+        const looksLikeConsumableById =
+          targetId.includes("scroll") ||
+          targetId.includes("enchant_") ||
+          targetId.includes("potion") ||
+          targetId.includes("soulshot") ||
+          targetId.includes("spiritshot") ||
+          targetId.includes("charge_");
+        if (looksLikeWeaponById && !looksLikeConsumableById) {
+          isWeaponItem = true;
+        }
+      }
     }
 
     // Validate scroll type vs item

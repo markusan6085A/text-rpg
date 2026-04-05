@@ -38,11 +38,14 @@ export function isStackableHeroItem(item: HeroInventoryItem): boolean {
     "rhand",
     "lrhand",
   ]);
-  const isEquipmentPiece =
-    (def && (EQUIP_KINDS.has(String(def.kind || "")) || def.slot === "weapon")) ||
-    tid.includes("_weapon_") ||
-    tid === "s_draconic_bow" ||
-    tid === "s_angel_slayer";
+  // IMPORTANT: fallback by id is only for unknown defs.
+  // For known defs (e.g. gm_giant_enchant_weapon_* scrolls) trust DB kind/slot first,
+  // otherwise scroll ids containing "_weapon_" are misclassified as equipment and lose stacks.
+  const isEquipmentByDef = !!(def && (EQUIP_KINDS.has(String(def.kind || "")) || def.slot === "weapon"));
+  const isEquipmentByIdFallback =
+    !def &&
+    (tid.includes("_weapon_") || tid === "s_draconic_bow" || tid === "s_angel_slayer");
+  const isEquipmentPiece = isEquipmentByDef || isEquipmentByIdFallback;
   if (isEquipmentPiece) return false;
   if (def?.stackable === false) return false;
   // Все, що не є екіпом і не позначено stackable:false — стакується за замовчуванням.
