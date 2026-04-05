@@ -73,7 +73,7 @@ export function handleToggleOff(
   
   setAndPersist({
     status: state.status,
-    log: [`Ваша аура [${def.name}] закінчилася.`, ...state.log].slice(0, 30),
+    log: [`Ви вимкнули [${def.name}].`, ...state.log].slice(0, 30),
     cooldowns: updatedCooldowns,
     heroBuffs: filtered,
   });

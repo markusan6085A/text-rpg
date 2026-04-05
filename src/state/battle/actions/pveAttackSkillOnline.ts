@@ -100,12 +100,13 @@ export function schedulePveAttackSkillOnline(args: {
       const store = useHeroStore.getState();
       const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
       const tickNow = Date.now();
-      const clientBattle = cleanupBuffs(state.heroBuffs || [], tickNow);
+      const liveBattleBuffs = battleStoreRef.getState()?.heroBuffs || [];
+      const clientBattle = cleanupBuffs(liveBattleBuffs, tickNow);
       const heroForBuffMerge = store.hero ?? hero;
       const mergedHeroBuffs = mergeServerHeroBuffsRespectLocalToggleOff(
         heroForBuffMerge,
         hj.heroBuffs,
-        state.heroBuffs,
+        clientBattle,
         tickNow,
       );
       const buffsForScale = cleanupBuffs(

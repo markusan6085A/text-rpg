@@ -74,6 +74,8 @@ export function getPveBattleLogColor(line: string): string {
 
   if (lower.includes("ваша аура [") && lower.includes("закінчилася")) return "#120A8F";
 
+  if (lower.includes("ви вимкнули [")) return "#120A8F";
+
   return getColor(line);
 }
 
