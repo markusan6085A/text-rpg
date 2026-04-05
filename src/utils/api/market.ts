@@ -51,6 +51,7 @@ export async function createMarketListingApi(
     /** Точний слот: основний інвентар або переповнення (риба/ресурси тощо) */
     itemSource?: "inventory" | "overflowChest";
     itemIndex?: number;
+    expectedRevision: number;
   }
 ): Promise<{ ok: boolean; character: Character }> {
   return apiRequest(`/market/listings`, {
@@ -62,9 +63,13 @@ export async function createMarketListingApi(
 export async function buyMarketListingApi(
   listingId: string,
   buyerCharacterId: string,
+  expectedRevision: number,
   quantity?: number
 ): Promise<{ ok: boolean; buyer: Character; seller: Character }> {
-  const body: { buyerCharacterId: string; quantity?: number } = { buyerCharacterId };
+  const body: { buyerCharacterId: string; expectedRevision: number; quantity?: number } = {
+    buyerCharacterId,
+    expectedRevision,
+  };
   if (quantity != null && Number.isFinite(quantity) && quantity >= 1) {
     body.quantity = Math.floor(quantity);
   }
@@ -76,10 +81,11 @@ export async function buyMarketListingApi(
 
 export async function cancelMarketListingApi(
   listingId: string,
-  characterId: string
+  characterId: string,
+  expectedRevision: number
 ): Promise<{ ok: boolean; character: Character }> {
   return apiRequest(
-    `/market/listings/${encodeURIComponent(listingId)}?characterId=${encodeURIComponent(characterId)}`,
+    `/market/listings/${encodeURIComponent(listingId)}?characterId=${encodeURIComponent(characterId)}&expectedRevision=${encodeURIComponent(String(expectedRevision))}`,
     { method: "DELETE" }
   );
 }

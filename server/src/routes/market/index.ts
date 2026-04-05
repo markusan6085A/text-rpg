@@ -311,6 +311,7 @@ export async function marketRoutes(app: FastifyInstance) {
         characterId?: string;
         inventoryItemId?: string;
         listingKind?: string;
+        expectedRevision?: number;
         currency?: string;
         /** Загальна ціна лоту (старий клієнт): за весь стек одним платежем */
         price?: number;
@@ -332,12 +333,16 @@ export async function marketRoutes(app: FastifyInstance) {
       const legacyP = parsePositiveIntInput(bodyRec.price);
       const useUnitPrice = unitP !== null && unitP >= 1;
       const explicitAmount = hasExplicitBodyField(bodyRec, "amount");
+      const expectedRevision = Number(body.expectedRevision);
 
       if (!characterId) {
         return reply.code(400).send({ error: "characterId required" });
       }
       if (!isColListing && !inventoryItemId) {
         return reply.code(400).send({ error: "characterId and inventoryItemId required" });
+      }
+      if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+        return reply.code(400).send({ error: "expectedRevision required" });
       }
       if (!isColListing && inventoryItemId === "seven_seals_medal") {
         return reply.code(400).send({ error: "seven_seals_medal cannot be listed" });
@@ -351,9 +356,22 @@ export async function marketRoutes(app: FastifyInstance) {
 
       try {
         const result = await prisma.$transaction(async (tx) => {
-          const seller = await tx.character.findFirst({
-            where: { id: characterId, accountId: auth.accountId },
-          });
+          const lockedSeller = await tx.$queryRaw<Array<{ id: string; heroJson: any }>>`
+            SELECT "id", "heroJson"
+            FROM "Character"
+            WHERE "id" = ${characterId} AND "accountId" = ${auth.accountId}
+            FOR UPDATE
+          `;
+          if (lockedSeller.length === 0) return { err: 404 as const, msg: "character not found" };
+          const sellerCurrentRevision = Number((lockedSeller[0]?.heroJson as any)?.heroRevision ?? 0);
+          if (sellerCurrentRevision !== expectedRevision) {
+            return {
+              err: 409 as const,
+              msg: "revision_conflict",
+              revision: sellerCurrentRevision,
+            };
+          }
+          const seller = await tx.character.findUnique({ where: { id: characterId } });
           if (!seller) return { err: 404 as const, msg: "character not found" };
 
           const activeCount = await tx.playerMarketListing.count({
@@ -628,8 +646,9 @@ export async function marketRoutes(app: FastifyInstance) {
         if (result.err) {
           const code = result.err;
           const payload: any = { error: result.msg };
+          if ((result as any).revision !== undefined) payload.revision = (result as any).revision;
           if ((result as any).errors) payload.errors = (result as any).errors;
-          return reply.code(code === 404 ? 404 : 400).send(payload);
+          return reply.code(code === 404 ? 404 : code === 409 ? 409 : 400).send(payload);
         }
 
         const lm = (result as any).listMeta as {
@@ -672,11 +691,15 @@ export async function marketRoutes(app: FastifyInstance) {
       await expireStaleListings(app);
 
       const listingId = String((req.params as any)?.id || "").trim();
-      const body = req.body as { buyerCharacterId?: string; quantity?: unknown };
+      const body = req.body as { buyerCharacterId?: string; expectedRevision?: number; quantity?: unknown };
       const buyerCharacterId = String(body.buyerCharacterId || "").trim();
+      const expectedRevision = Number(body.expectedRevision);
       const qtyRequested = parsePositiveIntInput((body as Record<string, unknown>).quantity);
       if (!listingId || !buyerCharacterId) {
         return reply.code(400).send({ error: "listing id and buyerCharacterId required" });
+      }
+      if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+        return reply.code(400).send({ error: "expectedRevision required" });
       }
 
       try {
@@ -691,12 +714,19 @@ export async function marketRoutes(app: FastifyInstance) {
             return { err: 400 as const, msg: "cannot_buy_own_listing" };
           }
 
-          const buyer = await tx.character.findFirst({
-            where: { id: buyerCharacterId, accountId: auth.accountId },
-          });
-          if (!buyer) {
-            return { err: 404 as const, msg: "buyer not found" };
+          const lockedBuyer = await tx.$queryRaw<Array<{ id: string; heroJson: any }>>`
+            SELECT "id", "heroJson"
+            FROM "Character"
+            WHERE "id" = ${buyerCharacterId} AND "accountId" = ${auth.accountId}
+            FOR UPDATE
+          `;
+          if (lockedBuyer.length === 0) return { err: 404 as const, msg: "buyer not found" };
+          const buyerCurrentRevision = Number((lockedBuyer[0]?.heroJson as any)?.heroRevision ?? 0);
+          if (buyerCurrentRevision !== expectedRevision) {
+            return { err: 409 as const, msg: "revision_conflict", revision: buyerCurrentRevision };
           }
+          const buyer = await tx.character.findUnique({ where: { id: buyerCharacterId } });
+          if (!buyer) return { err: 404 as const, msg: "buyer not found" };
 
           const seller = await tx.character.findUnique({ where: { id: listing.sellerCharacterId } });
           if (!seller) {
@@ -898,6 +928,7 @@ export async function marketRoutes(app: FastifyInstance) {
           const status =
             out.err === 404 ? 404 : out.err === 409 ? 409 : out.err === 500 ? 500 : 400;
           const payload: any = { error: out.msg };
+          if ((out as any).revision !== undefined) payload.revision = (out as any).revision;
           if ((out as any).errors) payload.errors = (out as any).errors;
           return reply.code(status).send(payload);
         }
@@ -951,12 +982,28 @@ export async function marketRoutes(app: FastifyInstance) {
 
       const listingId = String((req.params as any)?.id || "").trim();
       const characterId = String((req.query as any)?.characterId || "").trim();
+      const expectedRevision = Number((req.query as any)?.expectedRevision);
       if (!listingId || !characterId) {
         return reply.code(400).send({ error: "listing id and characterId required" });
+      }
+      if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+        return reply.code(400).send({ error: "expectedRevision required" });
       }
 
       try {
         const result = await prisma.$transaction(async (tx) => {
+          const lockedSeller = await tx.$queryRaw<Array<{ id: string; heroJson: any }>>`
+            SELECT "id", "heroJson"
+            FROM "Character"
+            WHERE "id" = ${characterId} AND "accountId" = ${auth.accountId}
+            FOR UPDATE
+          `;
+          if (lockedSeller.length === 0) return { err: 404 as const, msg: "character not found" };
+          const sellerCurrentRevision = Number((lockedSeller[0]?.heroJson as any)?.heroRevision ?? 0);
+          if (sellerCurrentRevision !== expectedRevision) {
+            return { err: 409 as const, msg: "revision_conflict", revision: sellerCurrentRevision };
+          }
+
           const listing = await tx.playerMarketListing.findUnique({ where: { id: listingId } });
           if (!listing || listing.status !== "active") {
             return { err: 404 as const, msg: "listing_not_found" };
@@ -1006,8 +1053,10 @@ export async function marketRoutes(app: FastifyInstance) {
         });
 
         if (result.err) {
-          const code = result.err === 403 ? 403 : 404;
-          return reply.code(code).send({ error: result.msg });
+          const code = result.err === 403 ? 403 : result.err === 409 ? 409 : 404;
+          const payload: any = { error: result.msg };
+          if ((result as any).revision !== undefined) payload.revision = (result as any).revision;
+          return reply.code(code).send(payload);
         }
 
         const ch = result.character;

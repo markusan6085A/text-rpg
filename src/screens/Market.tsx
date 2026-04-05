@@ -203,6 +203,7 @@ export default function Market({ navigate }: MarketProps) {
     }
     setSellBusy(true);
     try {
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
       const res = await createMarketListingApi(cid, {
         inventoryItemId: rowId,
         currency: sellCurrency,
@@ -210,6 +211,7 @@ export default function Market({ navigate }: MarketProps) {
         amount: amt,
         itemSource: sellModalRow.source,
         itemIndex: sellModalRow.index,
+        expectedRevision,
       });
       showToast("Лот виставлено (24 год)", "success");
       setSellModalRow(null);
@@ -251,11 +253,13 @@ export default function Market({ navigate }: MarketProps) {
     }
     setColSellBusy(true);
     try {
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
       const res = await createMarketListingApi(cid, {
         listingKind: "coin_luck",
         currency: "adena",
         unitPrice: unit,
         amount: amt,
+        expectedRevision,
       });
       showToast("Лот Coin of Luck виставлено (24 год)", "success");
       setColSellOpen(false);
@@ -336,7 +340,8 @@ export default function Market({ navigate }: MarketProps) {
     }
     setBrowseBuyBusy(true);
     try {
-      const res = await buyMarketListingApi(L.id, cid, qty);
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+      const res = await buyMarketListingApi(L.id, cid, expectedRevision, qty);
       showToast("Куплено", "success");
       setBrowseDetailListing(null);
       await syncHeroAfterMarket(res.buyer);
@@ -360,7 +365,8 @@ export default function Market({ navigate }: MarketProps) {
     const colLot = wasCol && isCoinLuckMarketListing(wasCol);
     setCancelBusyId(listingId);
     try {
-      const res = await cancelMarketListingApi(listingId, cid);
+      const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
+      const res = await cancelMarketListingApi(listingId, cid, expectedRevision);
       showToast(colLot ? "Лот знято, Coin of Luck повернуто на баланс" : "Лот знято, предмет повернуто", "success");
       await syncHeroAfterMarket(res.character);
       await refreshBrowse();
