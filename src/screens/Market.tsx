@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useHeroStore } from "../state/heroStore";
 import { useCharacterStore } from "../state/characterStore";
-import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import {
   buyMarketListingApi,
@@ -162,10 +161,9 @@ export default function Market({ navigate }: MarketProps) {
     return [...invPart, ...ofPart];
   }, [hero, equippedIds]);
 
-  const syncHeroAfterMarket = async (c: Character) => {
+  /** Після market-мутації — тільки повний snapshot з API (без повторного GET). */
+  const applyLocalMarketSnapshot = (c: Character) => {
     applyMarketCharacterPatch(c);
-    const h = await loadHeroFromAPI();
-    if (h) useHeroStore.getState().setHero(h);
   };
 
   const openSellModal = (row: MarketSellRow) => {
@@ -217,7 +215,7 @@ export default function Market({ navigate }: MarketProps) {
       setSellModalRow(null);
       setSellUnitPrice("1");
       setSellAmount("1");
-      await syncHeroAfterMarket(res.character);
+      applyLocalMarketSnapshot(res.character);
       await refreshBrowse("items");
       await refreshMine();
       setTab("mine");
@@ -265,7 +263,7 @@ export default function Market({ navigate }: MarketProps) {
       setColSellOpen(false);
       setColSellUnit("1");
       setColSellAmount("1");
-      await syncHeroAfterMarket(res.character);
+      applyLocalMarketSnapshot(res.character);
       await refreshBrowse("coin_luck");
       await refreshMine();
       setTab("mine");
@@ -344,7 +342,7 @@ export default function Market({ navigate }: MarketProps) {
       const res = await buyMarketListingApi(L.id, cid, expectedRevision, qty);
       showToast("Куплено", "success");
       setBrowseDetailListing(null);
-      await syncHeroAfterMarket(res.buyer);
+      applyLocalMarketSnapshot(res.buyer);
       await refreshBrowse();
       await refreshMine();
     } catch (e: any) {
@@ -368,7 +366,7 @@ export default function Market({ navigate }: MarketProps) {
       const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
       const res = await cancelMarketListingApi(listingId, cid, expectedRevision);
       showToast(colLot ? "Лот знято, Coin of Luck повернуто на баланс" : "Лот знято, предмет повернуто", "success");
-      await syncHeroAfterMarket(res.character);
+      applyLocalMarketSnapshot(res.character);
       await refreshBrowse();
       await refreshMine();
     } catch (e: any) {

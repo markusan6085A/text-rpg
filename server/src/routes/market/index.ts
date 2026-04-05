@@ -68,6 +68,7 @@ function serializeCharacter(c: any) {
     exp: Number(c.exp),
     adena: Number(c.adena ?? 0),
     aa: Number(c.aa ?? 0),
+    sp: Number(c.sp ?? 0),
     coinLuck: Number(c.coinLuck ?? 0),
     coinsSilver: Number(c.coinsSilver ?? 0),
   };

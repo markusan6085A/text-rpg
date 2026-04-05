@@ -15,6 +15,12 @@ alwaysApply: true
 1. Відповідь мутації має містити **повний `character`**, узгоджений із каноном серіалізації (як у learn-skill / sell: числові `exp`, `adena`, `aa`, `coinLuck`, `coinsSilver`, повний `heroJson` тощо). Якщо endpoint ще повертає лише `heroJson` або скаляри — **спочатку** розширити API, потім UI.
 2. Клієнт після успіху застосовує **центральний хелпер** **`applyCharacterSnapshotFromApi`** з `src/state/heroStore.ts`. Не дублювати ручний збір полів і виклик `applyServerSync` «шматками» для нового коду.
 3. Після успіху **не** робити локальний перерахунок валюти/луту як джерело істини; **не** патчити економіку через `updateHero({ adena, inventory, ... })` замість snapshot.
+4. **Не** викликати `loadHeroFromAPI` / повне перезавантаження героя одразу після успішної мутації, якщо відповідь уже містить повний `character` — це дає race й відкат зі stale GET.
+
+## Де вже узгоджено (репозиторій)
+
+- Квест-шоп обмін срібла: `POST /characters/:id/quest-shop/exchange` → `{ character }` (селект як у learn-skill + числові `exp`, `adena`, `aa`, `sp`, `coinLuck`, `coinsSilver`); клієнт: `applyCharacterSnapshotFromApi` у `QuestShop.tsx`.
+- Ринок: `POST /market/listings` → `{ character }`; `POST /market/listings/:id/buy` → `{ buyer, seller }` (серіалізація через `serializeCharacter`); `DELETE /market/listings/:id` → `{ character }`. У `Market.tsx` після успіху лише `applyMarketCharacterPatch` / `applyCharacterSnapshotFromApi`, **без** додаткового GET героя.
 
 ## Зв’язок з іншими правилами
 

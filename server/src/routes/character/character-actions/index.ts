@@ -715,9 +715,11 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         character: {
           ...updated,
           exp: Number(updated.exp),
-          adena: Number(updated.adena),
-          coinLuck: Number(updated.coinLuck),
-          coinsSilver: Number(updated.coinsSilver),
+          adena: Number(updated.adena ?? 0),
+          aa: Number(updated.aa ?? 0),
+          sp: Number(updated.sp ?? 0),
+          coinLuck: Number(updated.coinLuck ?? 0),
+          coinsSilver: Number(updated.coinsSilver ?? 0),
         },
       });
     } catch (error) {
