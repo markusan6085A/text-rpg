@@ -270,6 +270,16 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     return;
   }
 
+  // During active battle, server-authoritative progress is persisted by /battle-finish.
+  // Any extra PUT /characters/:id from queued/debounced saves can race and produce revision_conflict (409).
+  // Keep only local snapshot while fighting; sync will continue normally after battle ends.
+  if (isActiveBattleForHero(hero)) {
+    if (import.meta.env.DEV) {
+      console.debug("[saveHeroToLocalStorage] Skip PUT while fighting (server-authoritative battle-finish)");
+    }
+    return;
+  }
+
   // Save via API
   try {
     // 🔥 КРИТИЧНО: Якщо вже в cooldown (429) — НЕ славимо PUT, тільки localStorage.
