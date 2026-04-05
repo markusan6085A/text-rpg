@@ -19,7 +19,10 @@ import { getZoneActivityLabel } from "../../data/world";
 import { usePartyStore } from "../partyStore";
 import { postPartyKillShare, postWorldMobKill } from "../../utils/api";
 import { applyWorldMobKillLocal } from "../worldMobHpStore";
-import { buildPartyMemberVictoryLogLines } from "./helpers/victoryLootLogLines";
+import {
+  buildPartyMemberVictoryLogLines,
+  mergeServerDropLinesIntoVictoryBattleLog,
+} from "./helpers/victoryLootLogLines";
 import { battleFinishAPI } from "../../utils/api/battleFinishAPI";
 import { maxRevisionFromConflictBody } from "../../utils/revisionConflictBody";
 import { battleStoreRef } from "../battleStoreRef";
@@ -467,7 +470,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
               !line.startsWith("Спойл:") &&
               !line.startsWith("Квест:")
           );
-          const newLog = [...serverDropLines, ...filteredLog];
+          const newLog = mergeServerDropLinesIntoVictoryBattleLog(filteredLog, serverDropLines);
           battleStoreRef.setState?.({ log: newLog });
         }
       } else if (finishResult?.ok && finishResult.heroJson) {
@@ -616,7 +619,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
               !line.startsWith("Спойл:") &&
               !line.startsWith("Квест:")
           );
-          const newLog = [...serverDropLines, ...filteredLog];
+          const newLog = mergeServerDropLinesIntoVictoryBattleLog(filteredLog, serverDropLines);
           battleStoreRef.setState?.({ log: newLog });
         }
       }
