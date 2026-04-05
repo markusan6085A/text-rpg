@@ -42,12 +42,16 @@ async function main() {
         ? { ...(hjRaw as Record<string, unknown>) }
         : {};
 
+    // ❗ Не передавати battle-бафи в перерахунок бази: з heroJson має бути порожній heroBuffs.
+    // recalculateAllStats НЕ читає heroBuffs сам — тільки масив buffs другим аргументом (нижче []).
+    // Але знімаємо знімок полів, що могли б зіпсувати «базу»: battleStats, вкладений heroJson, бафи.
     const hero: Record<string, unknown> = {
       ...hj,
       level: row.level ?? (hj.level as number) ?? 1,
       race: (hj.race as string) || row.race,
       klass: (hj.klass as string) || (hj.classId as string) || row.classId,
       classId: row.classId,
+      heroBuffs: [],
       hp: undefined,
       mp: undefined,
       cp: undefined,
@@ -58,10 +62,12 @@ async function main() {
       baseMaxCp: 999_999,
       maxCp: 999_999,
     };
+    delete hero.battleStats;
+    delete hero.heroJson;
 
     let rec: ReturnType<typeof recalculateAllStats>;
     try {
-      rec = recalculateAllStats(hero, []);
+      rec = recalculateAllStats(hero as any, []);
     } catch (e) {
       errors++;
       console.error(`[recomputeBaseCaps] FAIL id=${row.id} name=${row.name}`, e);

@@ -12,6 +12,7 @@
     "prisma:migrate:deploy:direct": "DATABASE_URL=\"$DIRECT_URL\" prisma migrate deploy || prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "recompute:base-caps": "tsx scripts/recomputeCharacterBaseCaps.ts",
+    "fix:existence-base-caps": "tsx scripts/applyExistenceManualBaseCaps.ts",
     "test": "echo \"No server tests yet (add Vitest/Jest in server/)\" && exit 0"
   },
   "keywords": [],
