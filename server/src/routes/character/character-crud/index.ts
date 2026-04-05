@@ -1488,6 +1488,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       inventoryItemIndex?: number | null;
       /** itemId of the target — сервер верифікує, що item[index].id збігається, щоб уникнути заточки не тієї зброї при розбіжності індексів */
       targetItemId?: string | null;
+      expectedRevision?: number;
     };
 
     const scrollId = String(body.scrollId ?? "").trim();
@@ -1495,14 +1496,32 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (body.slot == null && body.inventoryItemIndex == null) {
       return reply.code(400).send({ error: "slot or inventoryItemIndex required" });
     }
+    const expectedRevision = Number(body.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
 
-    const character = await prisma.character.findFirst({
-      where: { id, accountId: auth.accountId },
-    });
-    if (!character) return reply.code(404).send({ error: "character not found" });
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date; name: string }>>`
+        SELECT "heroJson", "updatedAt", "name"
+        FROM "Character"
+        WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
 
-    const heroJson: any = (character.heroJson as any) || {};
-    const inventory: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+      const row = locked[0];
+      const heroJson: any = (row.heroJson as any) || {};
+      const currentRevision = Number(heroJson.heroRevision ?? 0);
+      if (currentRevision !== expectedRevision) {
+        return {
+          ok: false as const,
+          reason: "revision_conflict" as const,
+          currentRevision,
+          updatedAt: row.updatedAt,
+        };
+      }
+      const inventory: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
 
     // Detect scroll type from ID
     const sid = scrollId.toLowerCase();
@@ -1686,28 +1705,49 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const oldRevision = Number(heroJson.heroRevision ?? 0);
     const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
 
-    await prisma.character.update({
-      where: { id },
-      data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+      await tx.character.update({
+        where: { id },
+        data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+      });
+
+      return {
+        ok: true as const,
+        success,
+        newEnchantLevel,
+        targetIsEquipped,
+        versionedHeroJson,
+        characterName: String(row.name ?? ""),
+      };
     });
+
+    if (!txRes.ok) {
+      if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+      return reply.code(409).send({
+        error: "revision_conflict",
+        message: "Character was modified by another session. Please reload and try again.",
+        currentRevision: txRes.currentRevision ?? 0,
+        updatedAt: txRes.updatedAt?.toISOString(),
+        serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+      });
+    }
 
     enqueuePlayerActivityLog({
       accountId: auth.accountId,
       characterId: id,
-      characterName: String((character.heroJson as any)?.name ?? character.name ?? ""),
+      characterName: txRes.characterName,
       action: "enchant",
       metadata: {
         scrollId,
         slot: body.slot ?? null,
         inventoryItemIndex: body.inventoryItemIndex ?? null,
-        success,
-        newEnchantLevel,
-        targetIsEquipped,
+        success: txRes.success,
+        newEnchantLevel: txRes.newEnchantLevel,
+        targetIsEquipped: txRes.targetIsEquipped,
       },
       clientIp: getClientIp(req),
     });
 
-    return reply.send({ ok: true, success, newEnchantLevel, heroJson: versionedHeroJson });
+    return reply.send({ ok: true, success: txRes.success, newEnchantLevel: txRes.newEnchantLevel, heroJson: txRes.versionedHeroJson });
   });
 
   // POST /characters/:id/use-buff-scroll — atomic buff scroll application (no client race)
@@ -1716,21 +1756,39 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const id = (req.params as any).id;
-    const body = req.body as { itemId?: string };
+    const body = req.body as { itemId?: string; expectedRevision?: number };
     const itemId = String(body.itemId ?? "").trim();
     if (!itemId) return reply.code(400).send({ error: "itemId required" });
+    const expectedRevision = Number(body.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
 
     const { GM_BLESS_SCROLL_EFFECTS, GM_BLESS_SCROLL_DURATION_MS } = await import("../../../data/gmBlessScrollBuffs");
     const buffDef = GM_BLESS_SCROLL_EFFECTS[itemId];
     if (!buffDef) return reply.code(400).send({ error: "unknown buff scroll" });
 
-    const character = await prisma.character.findFirst({
-      where: { id, accountId: auth.accountId },
-    });
-    if (!character) return reply.code(404).send({ error: "character not found" });
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date; name: string }>>`
+        SELECT "heroJson", "updatedAt", "name"
+        FROM "Character"
+        WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
 
-    const heroJson: any = (character.heroJson as any) || {};
-    const inventory: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+      const row = locked[0];
+      const heroJson: any = (row.heroJson as any) || {};
+      const currentRevision = Number(heroJson.heroRevision ?? 0);
+      if (currentRevision !== expectedRevision) {
+        return {
+          ok: false as const,
+          reason: "revision_conflict" as const,
+          currentRevision,
+          updatedAt: row.updatedAt,
+        };
+      }
+      const inventory: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
 
     // Знаходимо скрол в інвентарі (нормалізуємо shop_ префікс)
     const normalizeId = (s: string) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
@@ -1770,24 +1828,38 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     );
     const heroBuffs = [newBuff, ...filtered];
 
-    const updatedHeroJson = { ...heroJson, inventory, heroBuffs };
-    const versionedHeroJson = addVersioning(updatedHeroJson);
+      const updatedHeroJson = { ...heroJson, inventory, heroBuffs };
+      const versionedHeroJson = addVersioning(updatedHeroJson, currentRevision);
 
-    await prisma.character.update({
-      where: { id },
-      data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+      await tx.character.update({
+        where: { id },
+        data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+      });
+
+      return { ok: true as const, versionedHeroJson, characterName: String(row.name ?? "") };
     });
+
+    if (!txRes.ok) {
+      if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+      return reply.code(409).send({
+        error: "revision_conflict",
+        message: "Character was modified by another session. Please reload and try again.",
+        currentRevision: txRes.currentRevision ?? 0,
+        updatedAt: txRes.updatedAt?.toISOString(),
+        serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+      });
+    }
 
     enqueuePlayerActivityLog({
       accountId: auth.accountId,
       characterId: id,
-      characterName: String(heroJson.name ?? character.name ?? ""),
+      characterName: txRes.characterName,
       action: "use_buff_scroll",
       metadata: { itemId, buffName: buffDef.buffName },
       clientIp: getClientIp(req),
     });
 
-    return reply.send({ ok: true, heroJson: versionedHeroJson });
+    return reply.send({ ok: true, heroJson: txRes.versionedHeroJson });
   });
 
   // POST /characters/:id/battle-finish — server-authoritative drop calc + battle result save
@@ -2103,118 +2175,143 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       equipment?: Record<string, any>;
       inventory?: any[];
       equipmentEnchantLevels?: Record<string, number>;
+      expectedRevision?: number;
     };
 
     if (!body.equipment || !body.inventory) {
       return reply.code(400).send({ error: "equipment and inventory required" });
     }
+    const expectedRevision = Number(body.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
 
-    const character = await prisma.character.findFirst({
-      where: { id, accountId: auth.accountId },
+    const txRes = await prisma.$transaction(async (tx) => {
+      const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date; name: string }>>`
+        SELECT "heroJson", "updatedAt", "name"
+        FROM "Character"
+        WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+        FOR UPDATE
+      `;
+      if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+
+      const row = locked[0];
+      const heroJson: any = (row.heroJson as any) || {};
+      const currentRevision = Number(heroJson.heroRevision ?? 0);
+      if (currentRevision !== expectedRevision) {
+        return {
+          ok: false as const,
+          reason: "revision_conflict" as const,
+          currentRevision,
+          updatedAt: row.updatedAt,
+        };
+      }
+
+      const oldInventory: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+      const oldEquipment: Record<string, any> = heroJson.equipment ?? {};
+      const oldEnchantBySlot: Record<string, number> = heroJson.equipmentEnchantLevels ?? {};
+
+      const normId = (v: any) => String(v ?? "").replace(/^shop_/i, "").toLowerCase();
+      const bodyEquipment = body.equipment ?? {};
+      const bodyInventory = Array.isArray(body.inventory) ? body.inventory : [];
+      const bodyEnchantBySlot: Record<string, number> = body.equipmentEnchantLevels ?? {};
+
+      const allowedIds = new Set<string>();
+      const allowedCountById = new Map<string, number>();
+      const maxEnchantById = new Map<string, number>();
+      const incCount = (itemId: string, delta: number) => {
+        allowedCountById.set(itemId, Math.max(0, (allowedCountById.get(itemId) ?? 0) + delta));
+      };
+
+      for (const it of oldInventory) {
+        if (!it?.id) continue;
+        const itemId = normId(it.id);
+        if (!itemId) continue;
+        allowedIds.add(itemId);
+        incCount(itemId, Math.max(1, Number(it.count ?? 1) || 1));
+        maxEnchantById.set(itemId, Math.max(maxEnchantById.get(itemId) ?? 0, Math.max(0, Number(it.enchantLevel ?? 0) || 0)));
+      }
+      for (const [slot, itemIdRaw] of Object.entries(oldEquipment)) {
+        if (!itemIdRaw) continue;
+        const itemId = normId(itemIdRaw);
+        if (!itemId) continue;
+        allowedIds.add(itemId);
+        incCount(itemId, 1);
+        maxEnchantById.set(itemId, Math.max(maxEnchantById.get(itemId) ?? 0, Math.max(0, Number(oldEnchantBySlot[slot] ?? 0) || 0)));
+      }
+
+      for (const itemIdRaw of Object.values(bodyEquipment)) {
+        if (!itemIdRaw) continue;
+        const itemId = normId(itemIdRaw);
+        if (!allowedIds.has(itemId)) return { ok: false as const, reason: "invalid_commit" as const };
+      }
+
+      const requestedInvCountById = new Map<string, number>();
+      for (const it of bodyInventory) {
+        if (!it?.id) continue;
+        const itemId = normId(it.id);
+        const c = Math.max(1, Number(it.count ?? 1) || 1);
+        requestedInvCountById.set(itemId, (requestedInvCountById.get(itemId) ?? 0) + c);
+        if (!allowedIds.has(itemId)) return { ok: false as const, reason: "invalid_commit" as const };
+        const maxEnchant = maxEnchantById.get(itemId) ?? 0;
+        const requestedEnchant = Math.max(0, Number(it.enchantLevel ?? 0) || 0);
+        if (requestedEnchant > maxEnchant) return { ok: false as const, reason: "invalid_commit" as const };
+      }
+      for (const [itemId, count] of requestedInvCountById.entries()) {
+        if (count > (allowedCountById.get(itemId) ?? 0)) return { ok: false as const, reason: "invalid_commit" as const };
+      }
+      for (const [slot, itemIdRaw] of Object.entries(bodyEquipment)) {
+        if (!itemIdRaw) continue;
+        const itemId = normId(itemIdRaw);
+        const maxEnchant = maxEnchantById.get(itemId) ?? 0;
+        const requestedEnchant = Math.max(0, Number(bodyEnchantBySlot[slot] ?? 0) || 0);
+        if (requestedEnchant > maxEnchant) return { ok: false as const, reason: "invalid_commit" as const };
+      }
+
+      // Серверна очистка: видалити з inventory ВСІ рядки, id яких є в equipment
+      const normEquipId = (s: any) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
+      const equippedNormIds = new Set(
+        Object.values(body.equipment ?? {})
+          .filter(Boolean)
+          .map((v: any) => normEquipId(String(v)))
+      );
+      const cleanedInventory = (body.inventory ?? []).filter((item: any) => {
+        if (!item?.id) return true;
+        const itemId = normEquipId(String(item.id));
+        return !equippedNormIds.has(itemId);
+      });
+
+      const newHeroJson: any = {
+        ...heroJson,
+        equipment: body.equipment,
+        inventory: cleanedInventory,
+        equipmentEnchantLevels: body.equipmentEnchantLevels ?? heroJson.equipmentEnchantLevels ?? {},
+      };
+      const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+      await tx.character.update({
+        where: { id },
+        data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+      });
+      return {
+        ok: true as const,
+        versionedHeroJson,
+        characterName: String(row.name ?? ""),
+      };
     });
-    if (!character) return reply.code(404).send({ error: "character not found" });
 
-    const heroJson: any = (character.heroJson as any) || {};
-    const oldInventory: any[] = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
-    const oldEquipment: Record<string, any> = heroJson.equipment ?? {};
-    const oldEnchantBySlot: Record<string, number> = heroJson.equipmentEnchantLevels ?? {};
-
-    const normId = (v: any) => String(v ?? "").replace(/^shop_/i, "").toLowerCase();
-    const bodyEquipment = body.equipment ?? {};
-    const bodyInventory = Array.isArray(body.inventory) ? body.inventory : [];
-    const bodyEnchantBySlot: Record<string, number> = body.equipmentEnchantLevels ?? {};
-
-    const allowedIds = new Set<string>();
-    const allowedCountById = new Map<string, number>();
-    const maxEnchantById = new Map<string, number>();
-    const incCount = (id: string, delta: number) => {
-      allowedCountById.set(id, Math.max(0, (allowedCountById.get(id) ?? 0) + delta));
-    };
-
-    for (const it of oldInventory) {
-      if (!it?.id) continue;
-      const id = normId(it.id);
-      if (!id) continue;
-      allowedIds.add(id);
-      incCount(id, Math.max(1, Number(it.count ?? 1) || 1));
-      maxEnchantById.set(id, Math.max(maxEnchantById.get(id) ?? 0, Math.max(0, Number(it.enchantLevel ?? 0) || 0)));
-    }
-    for (const [slot, itemId] of Object.entries(oldEquipment)) {
-      if (!itemId) continue;
-      const id = normId(itemId);
-      if (!id) continue;
-      allowedIds.add(id);
-      incCount(id, 1);
-      maxEnchantById.set(id, Math.max(maxEnchantById.get(id) ?? 0, Math.max(0, Number(oldEnchantBySlot[slot] ?? 0) || 0)));
-    }
-
-    for (const itemId of Object.values(bodyEquipment)) {
-      if (!itemId) continue;
-      const id = normId(itemId);
-      if (!allowedIds.has(id)) {
-        return reply.code(400).send({ error: "invalid equipment commit" });
+    if (!txRes.ok) {
+      if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+      if (txRes.reason === "revision_conflict") {
+        return reply.code(409).send({
+          error: "revision_conflict",
+          message: "Character was modified by another session. Please reload and try again.",
+          currentRevision: txRes.currentRevision ?? 0,
+          updatedAt: txRes.updatedAt?.toISOString(),
+          serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+        });
       }
+      return reply.code(400).send({ error: "invalid equipment commit" });
     }
-
-    const requestedInvCountById = new Map<string, number>();
-    for (const it of bodyInventory) {
-      if (!it?.id) continue;
-      const id = normId(it.id);
-      const c = Math.max(1, Number(it.count ?? 1) || 1);
-      requestedInvCountById.set(id, (requestedInvCountById.get(id) ?? 0) + c);
-      if (!allowedIds.has(id)) {
-        return reply.code(400).send({ error: "invalid equipment commit" });
-      }
-      const maxEnchant = maxEnchantById.get(id) ?? 0;
-      const requestedEnchant = Math.max(0, Number(it.enchantLevel ?? 0) || 0);
-      if (requestedEnchant > maxEnchant) {
-        return reply.code(400).send({ error: "invalid equipment commit" });
-      }
-    }
-    for (const [id, count] of requestedInvCountById.entries()) {
-      if (count > (allowedCountById.get(id) ?? 0)) {
-        return reply.code(400).send({ error: "invalid equipment commit" });
-      }
-    }
-    for (const [slot, itemId] of Object.entries(bodyEquipment)) {
-      if (!itemId) continue;
-      const id = normId(itemId);
-      const maxEnchant = maxEnchantById.get(id) ?? 0;
-      const requestedEnchant = Math.max(0, Number(bodyEnchantBySlot[slot] ?? 0) || 0);
-      if (requestedEnchant > maxEnchant) {
-        return reply.code(400).send({ error: "invalid equipment commit" });
-      }
-    }
-
-    // Серверна очистка: видалити з inventory ВСІ рядки, id яких є в equipment
-    // (щоб не залишилося "тіней" від shop_ prefix розбіжностей або race conditions)
-    const normEquipId = (s: any) => String(s ?? "").replace(/^shop_/i, "").toLowerCase();
-    const equippedNormIds = new Set(
-      Object.values(body.equipment ?? {})
-        .filter(Boolean)
-        .map((v: any) => normEquipId(String(v)))
-    );
-    const cleanedInventory = (body.inventory ?? []).filter((item: any) => {
-      if (!item?.id) return true;
-      const normId = normEquipId(String(item.id));
-      // Якщо item є в одягненому equipment — прибрати з інвентаря
-      return !equippedNormIds.has(normId);
-    });
-
-    const newHeroJson: any = {
-      ...heroJson,
-      equipment: body.equipment,
-      inventory: cleanedInventory,
-      equipmentEnchantLevels: body.equipmentEnchantLevels ?? heroJson.equipmentEnchantLevels ?? {},
-    };
-
-    const oldRevision = Number(heroJson.heroRevision ?? 0);
-    const versionedHeroJson = addVersioning(newHeroJson, oldRevision);
-
-    await prisma.character.update({
-      where: { id },
-      data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
-    });
 
     // Count equipped slots for logging
     const equippedSlots = Object.entries(body.equipment ?? {})
@@ -2223,7 +2320,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     enqueuePlayerActivityLog({
       accountId: auth.accountId,
       characterId: id,
-      characterName: String((character.heroJson as any)?.name ?? character.name ?? ""),
+      characterName: txRes.characterName,
       action: "equip.commit",
       metadata: {
         equippedSlots,
@@ -2232,7 +2329,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       clientIp: getClientIp(req),
     });
 
-    return reply.send({ ok: true, heroJson: versionedHeroJson });
+    return reply.send({ ok: true, heroJson: txRes.versionedHeroJson });
   });
 
   // POST /characters/:id/shop/buy — server-side authoritative shop purchase (GM/regular/quest)

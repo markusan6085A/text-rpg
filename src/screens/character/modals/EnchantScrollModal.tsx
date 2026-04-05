@@ -77,12 +77,18 @@ export default function EnchantScrollModal({
 
     setEnchanting(true);
     try {
+      const expectedRevision = Number(
+        useHeroStore.getState().serverState?.heroRevision ??
+        (useHeroStore.getState().hero as any)?.heroJson?.heroRevision ??
+        0
+      );
       const result = await enchantItemAPI({
         scrollId: scrollItem.id,
         inventoryItemIndex: selectedInvIndex,
         // Передаємо ID предмета щоб сервер верифікував: якщо порядок inventory розбігся між
         // клієнтом і сервером, сервер сам знайде правильний предмет за ID
         targetItemId: targetRow.id ?? null,
+        expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
       });
 
       if (result.ok) {

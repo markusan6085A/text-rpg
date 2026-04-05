@@ -134,7 +134,15 @@ export async function applyGmBlessSoulScrollFromInventory(itemId: string): Promi
 
   try {
     const { useBuffScrollAPI } = await import("./api/useBuffScrollAPI");
-    const result = await useBuffScrollAPI(itemId);
+    const expectedRevision = Number(
+      store.serverState?.heroRevision ??
+      (store.hero as any)?.heroJson?.heroRevision ??
+      0
+    );
+    const result = await useBuffScrollAPI(
+      itemId,
+      Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0
+    );
     if (!result.ok) return { ok: false, message: "Сервер відхилив використання скрола" };
 
     // Застосовуємо стан з сервера (inventory + heroBuffs) — без PUT

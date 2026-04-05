@@ -6,12 +6,12 @@ export interface UseBuffScrollResult {
   heroJson: any;
 }
 
-export async function useBuffScrollAPI(itemId: string): Promise<UseBuffScrollResult> {
+export async function useBuffScrollAPI(itemId: string, expectedRevision: number): Promise<UseBuffScrollResult> {
   const characterId = useCharacterStore.getState().characterId;
   if (!characterId) throw new Error("no character id");
 
   return apiRequest<UseBuffScrollResult>(`/characters/${characterId}/use-buff-scroll`, {
     method: "POST",
-    body: JSON.stringify({ itemId }),
+    body: JSON.stringify({ itemId, expectedRevision }),
   });
 }

@@ -16,6 +16,7 @@ export async function commitEquipStateAPI(params: {
   equipment: Record<string, any>;
   inventory: any[];
   equipmentEnchantLevels: Record<string, number>;
+  expectedRevision: number;
 }): Promise<EquipCommitResult> {
   const characterId = useCharacterStore.getState().characterId;
   if (!characterId) throw new Error("no character id");

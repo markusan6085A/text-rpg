@@ -627,10 +627,16 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     get().updateHero(patch);
     // Atomic commit to server immediately (Phase 2: ensures no multi-device rollback)
     import("../utils/api/equipAPI").then(({ commitEquipStateAPI }) => {
+      const expectedRevision = Number(
+        get().serverState?.heroRevision ??
+        (get().hero as any)?.heroJson?.heroRevision ??
+        0
+      );
       commitEquipStateAPI({
         equipment: updated.equipment as Record<string, any>,
         inventory: updated.inventory,
         equipmentEnchantLevels: (updated.equipmentEnchantLevels ?? {}) as Record<string, number>,
+        expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
       }).then((result) => {
         if (result.ok && result.heroJson?.heroRevision) {
           get().updateServerState(
@@ -659,10 +665,16 @@ export const useHeroStore = create<HeroState>((set, get) => ({
     get().updateHero(patch);
     // Atomic commit to server immediately (Phase 2)
     import("../utils/api/equipAPI").then(({ commitEquipStateAPI }) => {
+      const expectedRevision = Number(
+        get().serverState?.heroRevision ??
+        (get().hero as any)?.heroJson?.heroRevision ??
+        0
+      );
       commitEquipStateAPI({
         equipment: updated.equipment as Record<string, any>,
         inventory: updated.inventory,
         equipmentEnchantLevels: (updated.equipmentEnchantLevels ?? {}) as Record<string, number>,
+        expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
       }).then((result) => {
         if (result.ok && result.heroJson?.heroRevision) {
           get().updateServerState(
