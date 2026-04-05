@@ -323,7 +323,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         0
       );
 
-      const finishPayload = {
+      let finishPayload = {
         mobId: String(mob.id ?? ""),
         finishNonce,
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
@@ -375,6 +375,16 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
               if (synced) useHeroStore.getState().setHero(synced);
             } catch {
               /* ignore secondary sync failure */
+            }
+            if (attempt === 0) {
+              const retryRevision = Number(
+                useHeroStore.getState().serverState?.heroRevision ?? currentRevision
+              );
+              if (Number.isFinite(retryRevision) && retryRevision >= 0) {
+                finishPayload = { ...finishPayload, expectedRevision: retryRevision };
+              }
+              await new Promise((resolve) => setTimeout(resolve, 150));
+              continue;
             }
             finishResult = null;
             break;
