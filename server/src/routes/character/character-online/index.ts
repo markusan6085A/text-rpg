@@ -4,8 +4,21 @@ import { getEffectiveNickColor } from "../../../effectiveNickColor";
 import { getAuth } from "../auth";
 import { effectiveCharacterLevel } from "../../../utils/effectiveCharacterLevel";
 
+function parseMaybeJsonObject(raw: any): Record<string, unknown> {
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw as Record<string, unknown>;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed as Record<string, unknown>;
+    } catch {
+      // ignore malformed legacy value
+    }
+  }
+  return {};
+}
+
 function buildPublicHeroJson(raw: any): Record<string, unknown> {
-  const src = raw && typeof raw === "object" ? raw : {};
+  const src = parseMaybeJsonObject(raw);
   const out: Record<string, unknown> = {};
   const copy = (k: string) => {
     if (Object.prototype.hasOwnProperty.call(src, k)) out[k] = src[k];
@@ -285,7 +298,7 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
         heroJson: buildPublicHeroJson((char as any).heroJson),
         createdAt: char.createdAt ? char.createdAt.toISOString() : new Date().toISOString(),
         updatedAt: char.updatedAt ? char.updatedAt.toISOString() : undefined,
-        nickColor: getEffectiveNickColor((char as any).heroJson ?? {}, (char as any).nickColor) || undefined,
+        nickColor: getEffectiveNickColor(parseMaybeJsonObject((char as any).heroJson), (char as any).nickColor) || undefined,
         lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
         clan: char.clanMember?.clan || null,
       };
@@ -360,7 +373,7 @@ export async function characterOnlineRoutes(app: FastifyInstance) {
         heroJson: buildPublicHeroJson((char as any).heroJson),
         createdAt: char.createdAt ? char.createdAt.toISOString() : new Date().toISOString(),
         updatedAt: char.updatedAt ? char.updatedAt.toISOString() : undefined,
-        nickColor: getEffectiveNickColor((char as any).heroJson ?? {}, (char as any).nickColor) || undefined,
+        nickColor: getEffectiveNickColor(parseMaybeJsonObject((char as any).heroJson), (char as any).nickColor) || undefined,
         lastActivityAt: char.lastActivityAt ? char.lastActivityAt.toISOString() : null,
         clan: char.clanMember?.clan || null,
       };

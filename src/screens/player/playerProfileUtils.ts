@@ -42,7 +42,19 @@ export function filterProfileBuffsByLearnedSkills(
 
 /** Об'єкт як Hero для екіпу / recalculateAllStats; має містити baseStats з heroJson (інакше стати — дефолтні). */
 export function characterToProfileHeroData(character: Character) {
-  const heroJson = character.heroJson || {};
+  const heroJson = (() => {
+    const raw = (character as any).heroJson;
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) return raw;
+    if (typeof raw === "string") {
+      try {
+        const p = JSON.parse(raw);
+        if (p && typeof p === "object" && !Array.isArray(p)) return p;
+      } catch {
+        // malformed legacy payload
+      }
+    }
+    return {};
+  })();
   const professionRaw = heroJson.profession || character.classId || "";
   return {
     id: character.id,
