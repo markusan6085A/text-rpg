@@ -247,8 +247,8 @@ export async function depositClanWarehouseItem(
   qty: number = 1,
   meta: any = {},
   expectedRevision: number
-): Promise<{ ok: boolean; item: ClanWarehouseItem }> {
-  const response = await apiRequest<{ ok: boolean; item: ClanWarehouseItem }>(`/clans/${clanId}/warehouse/deposit`, {
+): Promise<{ ok: boolean; item: ClanWarehouseItem; character?: any }> {
+  const response = await apiRequest<{ ok: boolean; item: ClanWarehouseItem; character?: any }>(`/clans/${clanId}/warehouse/deposit`, {
     method: 'POST',
     body: JSON.stringify({ itemId, qty, meta, expectedRevision }),
   });
@@ -259,8 +259,8 @@ export async function withdrawClanWarehouseItem(
   clanId: string,
   itemId: string,
   expectedRevision: number
-): Promise<{ ok: boolean }> {
-  const response = await apiRequest<{ ok: boolean }>(`/clans/${clanId}/warehouse/withdraw`, {
+): Promise<{ ok: boolean; character?: any }> {
+  const response = await apiRequest<{ ok: boolean; character?: any }>(`/clans/${clanId}/warehouse/withdraw`, {
     method: 'POST',
     body: JSON.stringify({ itemId, expectedRevision }),
   });
@@ -271,8 +271,8 @@ export async function depositClanAdena(
   clanId: string,
   amount: number,
   expectedRevision: number
-): Promise<{ ok: boolean }> {
-  const response = await apiRequest<{ ok: boolean }>(`/clans/${clanId}/adena/deposit`, {
+): Promise<{ ok: boolean; character?: any }> {
+  const response = await apiRequest<{ ok: boolean; character?: any }>(`/clans/${clanId}/adena/deposit`, {
     method: 'POST',
     body: JSON.stringify({ amount, expectedRevision }),
   });
@@ -283,8 +283,8 @@ export async function withdrawClanAdena(
   clanId: string,
   amount: number,
   expectedRevision: number
-): Promise<{ ok: boolean }> {
-  const response = await apiRequest<{ ok: boolean }>(`/clans/${clanId}/adena/withdraw`, {
+): Promise<{ ok: boolean; character?: any }> {
+  const response = await apiRequest<{ ok: boolean; character?: any }>(`/clans/${clanId}/adena/withdraw`, {
     method: 'POST',
     body: JSON.stringify({ amount, expectedRevision }),
   });
@@ -295,8 +295,8 @@ export async function depositClanCoinLuck(
   clanId: string,
   amount: number,
   expectedRevision: number
-): Promise<{ ok: boolean }> {
-  const response = await apiRequest<{ ok: boolean }>(`/clans/${clanId}/coin-luck/deposit`, {
+): Promise<{ ok: boolean; character?: any }> {
+  const response = await apiRequest<{ ok: boolean; character?: any }>(`/clans/${clanId}/coin-luck/deposit`, {
     method: 'POST',
     body: JSON.stringify({ amount, expectedRevision }),
   });
@@ -307,8 +307,8 @@ export async function withdrawClanCoinLuck(
   clanId: string,
   amount: number,
   expectedRevision: number
-): Promise<{ ok: boolean }> {
-  const response = await apiRequest<{ ok: boolean }>(`/clans/${clanId}/coin-luck/withdraw`, {
+): Promise<{ ok: boolean; character?: any }> {
+  const response = await apiRequest<{ ok: boolean; character?: any }>(`/clans/${clanId}/coin-luck/withdraw`, {
     method: 'POST',
     body: JSON.stringify({ amount, expectedRevision }),
   });

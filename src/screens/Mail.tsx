@@ -370,10 +370,47 @@ export default function Mail({ navigate }: MailProps) {
     try {
       const expectedRevision = Number((hero as any)?.heroJson?.heroRevision ?? 0);
       const claimRes = await collectItemFromLetter(letter.id, expectedRevision);
-      const serverHeroJson = claimRes.character?.heroJson || {};
-      useHeroStore.getState().updateHero({
-        inventory: Array.isArray(serverHeroJson.inventory) ? serverHeroJson.inventory : [],
-      });
+      const character = claimRes.character;
+      if (character && typeof character === "object") {
+        const heroJson = (character as any).heroJson && typeof (character as any).heroJson === "object"
+          ? (character as any).heroJson
+          : {};
+        const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+        const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : [];
+        const aaFromServer = Number(
+          (character as any).aa ??
+          (character as any).ancientAdena ??
+          (character as any).ancient_adena ??
+          0
+        );
+        const coinLuckFromServer = Number(
+          (character as any).coinLuck ??
+          (character as any).coinOfLuck ??
+          0
+        );
+        const revision = Number(heroJson.heroRevision ?? 0);
+        useHeroStore.getState().applyServerSync({
+          level: Number((character as any).level ?? hero.level ?? 1),
+          exp: Number((character as any).exp ?? hero.exp ?? 0),
+          sp: Number((character as any).sp ?? hero.sp ?? 0),
+          adena: Number((character as any).adena ?? hero.adena ?? 0),
+          aa: Number.isFinite(aaFromServer) ? aaFromServer : Number((hero as any).aa ?? 0),
+          coinOfLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : Number(hero.coinOfLuck ?? 0),
+          inventory,
+          activeDyes,
+          heroJson,
+        }, {
+          level: Number((character as any).level ?? hero.level ?? 1),
+          exp: Number((character as any).exp ?? hero.exp ?? 0),
+          sp: Number((character as any).sp ?? hero.sp ?? 0),
+          adena: Number((character as any).adena ?? hero.adena ?? 0),
+          coinLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : Number(hero.coinOfLuck ?? 0),
+          heroRevision: Number.isFinite(revision)
+            ? revision
+            : Number((hero as any)?.heroJson?.heroRevision ?? 0),
+          updatedAt: Date.now(),
+        });
+      }
       
       // Оновлюємо переписку (видаляємо цей лист з UI)
       setConversationLetters(prev => prev.filter(l => l.id !== letter.id));

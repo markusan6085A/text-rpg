@@ -30,10 +30,49 @@ export default function DepositItemsModal({
   onDepositSuccess,
 }: DepositItemsModalProps) {
   const hero = useHeroStore((s) => s.hero);
-  const heroStore = useHeroStore();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const isL2 = clanModalIsL2();
   const subLbl = isL2 ? "text-[12px] text-[#a89470] mb-2" : "text-[12px] text-[#c7ad80] mb-2";
+
+  const applyServerCharacterSnapshot = (character: any) => {
+    if (!character || typeof character !== "object") return;
+    const heroJson = (character as any).heroJson && typeof (character as any).heroJson === "object"
+      ? (character as any).heroJson
+      : {};
+    const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+    const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : [];
+    const aaFromServer = Number(
+      (character as any).aa ??
+      (character as any).ancientAdena ??
+      (character as any).ancient_adena ??
+      0
+    );
+    const coinLuckFromServer = Number(
+      (character as any).coinLuck ??
+      (character as any).coinOfLuck ??
+      0
+    );
+    const revision = Number(heroJson.heroRevision ?? 0);
+    useHeroStore.getState().applyServerSync({
+      level: Number((character as any).level ?? 1),
+      exp: Number((character as any).exp ?? 0),
+      sp: Number((character as any).sp ?? 0),
+      adena: Number((character as any).adena ?? 0),
+      aa: Number.isFinite(aaFromServer) ? aaFromServer : 0,
+      coinOfLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : 0,
+      inventory,
+      activeDyes,
+      heroJson,
+    }, {
+      level: Number((character as any).level ?? 1),
+      exp: Number((character as any).exp ?? 0),
+      sp: Number((character as any).sp ?? 0),
+      adena: Number((character as any).adena ?? 0),
+      coinLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : 0,
+      heroRevision: Number.isFinite(revision) ? revision : 0,
+      updatedAt: Date.now(),
+    });
+  };
 
   const handleDeposit = async (item: any) => {
     if (!clan) return;
@@ -48,24 +87,8 @@ export default function DepositItemsModal({
         expectedRevision
       );
       if (response.ok) {
+        applyServerCharacterSnapshot((response as any).character);
         onClose();
-        if (heroStore.hero && heroStore.hero.inventory) {
-          const depositCount = item.count || 1;
-          const updatedInventory = heroStore.hero.inventory
-            .map((invItem: any) => {
-              const invId = invItem.id || invItem.itemId;
-              if (invId === itemId) {
-                const newCount = (invItem.count || 1) - depositCount;
-                if (newCount <= 0) {
-                  return null;
-                }
-                return { ...invItem, count: newCount };
-              }
-              return invItem;
-            })
-            .filter((invItem: any) => invItem !== null);
-          heroStore.updateHero({ inventory: updatedInventory });
-        }
         onDepositSuccess();
       }
     } catch (err: any) {

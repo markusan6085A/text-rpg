@@ -9,6 +9,26 @@ import { registerClanApplicationNestedRoutes } from "../routes/clans/application
 import { registerClanMemberNestedRoutes } from "../routes/clans/members";
 import { ensureClanWarehouseTable } from "./ensureClanWarehouseTable";
 
+function serializeCharacterSnapshot(character: any) {
+  if (!character) return null;
+  return {
+    id: character.id,
+    name: character.name,
+    race: character.race,
+    classId: character.classId,
+    sex: character.sex,
+    level: Number(character.level ?? 1),
+    exp: Number(character.exp ?? 0),
+    sp: Number(character.sp ?? 0),
+    adena: Number(character.adena ?? 0),
+    aa: Number(character.aa ?? 0),
+    coinLuck: Number(character.coinLuck ?? 0),
+    coinsSilver: Number(character.coinsSilver ?? 0),
+    heroJson: (character.heroJson as any) || {},
+    updatedAt: character.updatedAt,
+  };
+}
+
 export async function clanNestedRoutes(app: FastifyInstance) {
   // POST /clans/:id/adena/deposit - покласти адену в клан
   app.post("/clans/:id/adena/deposit", async (req, reply) => {
@@ -77,7 +97,26 @@ export async function clanNestedRoutes(app: FastifyInstance) {
           metadata: { amount },
         },
       });
-      return { ok: true as const };
+      const updatedCharacter = await tx.character.findUnique({
+        where: { id: character.id },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          updatedAt: true,
+        },
+      });
+      return { ok: true as const, character: serializeCharacterSnapshot(updatedCharacter) };
     });
 
     if (!txRes.ok) {
@@ -89,7 +128,7 @@ export async function clanNestedRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "invalid input" });
     }
 
-    return { ok: true };
+    return { ok: true, character: (txRes as any).character ?? null };
   });
 
   // POST /clans/:id/adena/withdraw - забрати адену з клану (тільки для глави)
@@ -150,7 +189,26 @@ export async function clanNestedRoutes(app: FastifyInstance) {
           metadata: { amount },
         },
       });
-      return { ok: true as const };
+      const updatedCharacter = await tx.character.findUnique({
+        where: { id: character.id },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          updatedAt: true,
+        },
+      });
+      return { ok: true as const, character: serializeCharacterSnapshot(updatedCharacter) };
     });
 
     if (!txRes.ok) {
@@ -162,7 +220,7 @@ export async function clanNestedRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "invalid input" });
     }
 
-    return { ok: true };
+    return { ok: true, character: (txRes as any).character ?? null };
   });
 
   // POST /clans/:id/coin-luck/deposit - покласти Coin of Luck в клан
@@ -229,7 +287,26 @@ export async function clanNestedRoutes(app: FastifyInstance) {
           metadata: { amount },
         },
       });
-      return { ok: true as const };
+      const updatedCharacter = await tx.character.findUnique({
+        where: { id: character.id },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          updatedAt: true,
+        },
+      });
+      return { ok: true as const, character: serializeCharacterSnapshot(updatedCharacter) };
     });
 
     if (!txRes.ok) {
@@ -241,7 +318,7 @@ export async function clanNestedRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "invalid input" });
     }
 
-    return { ok: true };
+    return { ok: true, character: (txRes as any).character ?? null };
   });
 
   // POST /clans/:id/coin-luck/withdraw - забрати Coin of Luck з клану (тільки для глави)
@@ -302,7 +379,26 @@ export async function clanNestedRoutes(app: FastifyInstance) {
           metadata: { amount },
         },
       });
-      return { ok: true as const };
+      const updatedCharacter = await tx.character.findUnique({
+        where: { id: character.id },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          heroJson: true,
+          updatedAt: true,
+        },
+      });
+      return { ok: true as const, character: serializeCharacterSnapshot(updatedCharacter) };
     });
 
     if (!txRes.ok) {
@@ -314,7 +410,7 @@ export async function clanNestedRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "invalid input" });
     }
 
-    return { ok: true };
+    return { ok: true, character: (txRes as any).character ?? null };
   });
 
   // GET /clans/:id/warehouse - склад клану
@@ -544,9 +640,9 @@ export async function clanNestedRoutes(app: FastifyInstance) {
 
       app.log.info({ clanId: id, itemId, qty: qtyNum, metaData, depositedBy: character.id }, "Creating warehouse item");
 
-      let warehouseItem;
+      let mutationResult: { warehouseItem: any; character: any } | null = null;
       try {
-        warehouseItem = await prisma.$transaction(async (tx) => {
+        mutationResult = await prisma.$transaction(async (tx) => {
           const locked = await tx.$queryRaw<Array<{ id: string; heroJson: any }>>`
             SELECT "id", "heroJson"
             FROM "Character"
@@ -564,11 +660,27 @@ export async function clanNestedRoutes(app: FastifyInstance) {
           );
           const invariants = enforceCharacterMutationInvariants({ heroJson: updatedHeroJson });
           if (!invariants.ok) throw new Error("mutation_invariant_failed");
-          await tx.character.update({
+          const updatedCharacter = await tx.character.update({
             where: { id: character.id },
             data: { heroJson: invariants.heroJson },
+            select: {
+              id: true,
+              name: true,
+              race: true,
+              classId: true,
+              sex: true,
+              level: true,
+              exp: true,
+              sp: true,
+              adena: true,
+              aa: true,
+              coinLuck: true,
+              coinsSilver: true,
+              heroJson: true,
+              updatedAt: true,
+            },
           });
-          return tx.clanWarehouse.create({
+          const warehouseItem = await tx.clanWarehouse.create({
             data: {
               clanId: id,
               itemId: String(itemId),
@@ -577,6 +689,10 @@ export async function clanNestedRoutes(app: FastifyInstance) {
               depositedBy: character.id,
             },
           });
+          return {
+            warehouseItem,
+            character: serializeCharacterSnapshot(updatedCharacter),
+          };
         });
       } catch (createError: any) {
         app.log.warn({ error: createError.message, code: createError.code }, "Error during warehouse create, checking if table exists...");
@@ -585,7 +701,7 @@ export async function clanNestedRoutes(app: FastifyInstance) {
           await ensureClanWarehouseTable(app);
           await new Promise(resolve => setTimeout(resolve, 100));
           try {
-            warehouseItem = await prisma.$transaction(async (tx) => {
+            mutationResult = await prisma.$transaction(async (tx) => {
               const locked = await tx.$queryRaw<Array<{ id: string; heroJson: any }>>`
                 SELECT "id", "heroJson"
                 FROM "Character"
@@ -603,11 +719,27 @@ export async function clanNestedRoutes(app: FastifyInstance) {
               );
               const invariants = enforceCharacterMutationInvariants({ heroJson: updatedHeroJson });
               if (!invariants.ok) throw new Error("mutation_invariant_failed");
-              await tx.character.update({
+              const updatedCharacter = await tx.character.update({
                 where: { id: character.id },
                 data: { heroJson: invariants.heroJson },
+                select: {
+                  id: true,
+                  name: true,
+                  race: true,
+                  classId: true,
+                  sex: true,
+                  level: true,
+                  exp: true,
+                  sp: true,
+                  adena: true,
+                  aa: true,
+                  coinLuck: true,
+                  coinsSilver: true,
+                  heroJson: true,
+                  updatedAt: true,
+                },
               });
-              return tx.clanWarehouse.create({
+              const warehouseItem = await tx.clanWarehouse.create({
                 data: {
                   clanId: id,
                   itemId: String(itemId),
@@ -616,8 +748,12 @@ export async function clanNestedRoutes(app: FastifyInstance) {
                   depositedBy: character.id,
                 },
               });
+              return {
+                warehouseItem,
+                character: serializeCharacterSnapshot(updatedCharacter),
+              };
             });
-            app.log.info({ warehouseItemId: warehouseItem.id }, "Create successful after table creation");
+            app.log.info({ warehouseItemId: mutationResult?.warehouseItem?.id }, "Create successful after table creation");
           } catch (retryError: any) {
             app.log.error({ error: retryError.message }, "Create failed even after table creation");
             throw retryError;
@@ -627,7 +763,7 @@ export async function clanNestedRoutes(app: FastifyInstance) {
         }
       }
 
-      app.log.info({ warehouseItemId: warehouseItem.id }, "Warehouse item created");
+      app.log.info({ warehouseItemId: mutationResult?.warehouseItem?.id }, "Warehouse item created");
 
       // Додаємо лог
       try {
@@ -647,13 +783,14 @@ export async function clanNestedRoutes(app: FastifyInstance) {
 
       return {
         ok: true,
+        character: mutationResult?.character ?? null,
         item: {
-          id: warehouseItem.id,
-          itemId: warehouseItem.itemId,
-          qty: warehouseItem.qty,
-          meta: warehouseItem.meta || {},
-          depositedBy: warehouseItem.depositedBy || null,
-          depositedAt: warehouseItem.depositedAt,
+          id: mutationResult?.warehouseItem?.id,
+          itemId: mutationResult?.warehouseItem?.itemId,
+          qty: mutationResult?.warehouseItem?.qty,
+          meta: mutationResult?.warehouseItem?.meta || {},
+          depositedBy: mutationResult?.warehouseItem?.depositedBy || null,
+          depositedAt: mutationResult?.warehouseItem?.depositedAt,
         },
       };
     } catch (error: any) {
@@ -757,6 +894,7 @@ export async function clanNestedRoutes(app: FastifyInstance) {
       return reply.code(400).send({ error: "mutation_invariant_failed" });
     }
 
+    let updatedCharacterSnapshot: any = null;
     try {
       await prisma.$transaction(async (tx) => {
         const locked = await tx.$queryRaw<Array<{ id: string; heroJson: any }>>`
@@ -769,10 +907,27 @@ export async function clanNestedRoutes(app: FastifyInstance) {
         const currentRevision = Number((locked[0]?.heroJson as any)?.heroRevision ?? 0);
         if (currentRevision !== expectedRevNum) throw new Error("revision_conflict");
 
-        await tx.character.update({
+        const updatedCharacter = await tx.character.update({
           where: { id: character.id },
           data: { heroJson: invariants.heroJson },
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            coinsSilver: true,
+            heroJson: true,
+            updatedAt: true,
+          },
         });
+        updatedCharacterSnapshot = serializeCharacterSnapshot(updatedCharacter);
         await tx.clanWarehouse.delete({
           where: { id: warehouseItem.id },
         });
@@ -793,7 +948,7 @@ export async function clanNestedRoutes(app: FastifyInstance) {
       throw error;
     }
 
-    return { ok: true };
+    return { ok: true, character: updatedCharacterSnapshot };
   });
 
   // POST /clans/:id/emblem - встановити емблему клану (тільки для глави)

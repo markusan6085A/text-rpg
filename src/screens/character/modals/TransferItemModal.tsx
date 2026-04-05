@@ -17,7 +17,6 @@ interface TransferItemModalProps {
 export default function TransferItemModal({ item, onClose, onSuccess }: TransferItemModalProps) {
   const l2 = isCharacterModalL2();
   const currentHero = useHeroStore((s) => s.hero);
-  const updateHero = useHeroStore((s) => s.updateHero);
   
   const [recipientName, setRecipientName] = useState("");
   const initialQuantity = Math.max(1, Number((item as any).__initialQuantity) || 1);
@@ -92,11 +91,47 @@ export default function TransferItemModal({ item, onClose, onSuccess }: Transfer
       });
 
       // 3. Оновлюємо локального героя тільки з серверного snapshot
-      const serverHeroJson = transferRes.character?.heroJson || {};
-      updateHero({
-        adena: Number(transferRes.character?.adena ?? currentAdena - transferFee),
-        inventory: Array.isArray(serverHeroJson.inventory) ? serverHeroJson.inventory : [],
-      });
+      const character = transferRes.character;
+      if (character && typeof character === "object") {
+        const heroJson = (character as any).heroJson && typeof (character as any).heroJson === "object"
+          ? (character as any).heroJson
+          : {};
+        const inventory = Array.isArray(heroJson.inventory) ? heroJson.inventory : [];
+        const activeDyes = Array.isArray(heroJson.activeDyes) ? heroJson.activeDyes : [];
+        const aaFromServer = Number(
+          (character as any).aa ??
+          (character as any).ancientAdena ??
+          (character as any).ancient_adena ??
+          0
+        );
+        const coinLuckFromServer = Number(
+          (character as any).coinLuck ??
+          (character as any).coinOfLuck ??
+          0
+        );
+        const revision = Number(heroJson.heroRevision ?? 0);
+        useHeroStore.getState().applyServerSync({
+          level: Number((character as any).level ?? currentHero.level ?? 1),
+          exp: Number((character as any).exp ?? currentHero.exp ?? 0),
+          sp: Number((character as any).sp ?? currentHero.sp ?? 0),
+          adena: Number((character as any).adena ?? currentAdena - transferFee),
+          aa: Number.isFinite(aaFromServer) ? aaFromServer : Number((currentHero as any).aa ?? 0),
+          coinOfLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : Number(currentHero.coinOfLuck ?? 0),
+          inventory,
+          activeDyes,
+          heroJson,
+        }, {
+          level: Number((character as any).level ?? currentHero.level ?? 1),
+          exp: Number((character as any).exp ?? currentHero.exp ?? 0),
+          sp: Number((character as any).sp ?? currentHero.sp ?? 0),
+          adena: Number((character as any).adena ?? currentAdena - transferFee),
+          coinLuck: Number.isFinite(coinLuckFromServer) ? coinLuckFromServer : Number(currentHero.coinOfLuck ?? 0),
+          heroRevision: Number.isFinite(revision)
+            ? revision
+            : Number((currentHero as any)?.heroJson?.heroRevision ?? 0),
+          updatedAt: Date.now(),
+        });
+      }
 
       showToast(`Предмет успішно відправлено гравцю ${recipientName}!`, "success");
       onSuccess();
