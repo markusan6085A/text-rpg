@@ -154,6 +154,16 @@ function getServerSellUnitPrice(row: any): number | null {
     return GRADE_BASE_SELL[grade] ?? 15000;
   }
 
+  // Legacy inventory rows may miss slot/kind metadata for equipment.
+  // In this case we still allow selling by using a conservative grade fallback.
+  const looksLikeEquipmentId =
+    /(^|_)(sword|dagger|bow|crossbow|blunt|mace|staff|spear|pole|fists|dualsword|armor|robe|gaiter|helmet|glove|gloves|boots|shield|sigil|ring|earring|necklace|belt|cloak|circlet)(_|$)/i
+      .test(itemId);
+  if (looksLikeEquipmentId) {
+    const grade = String(row?.grade ?? "D").toUpperCase();
+    return GRADE_BASE_SELL[grade] ?? 15000;
+  }
+
   if (slot === "resource") return getResourceSellPrice(itemId);
   return null;
 }
