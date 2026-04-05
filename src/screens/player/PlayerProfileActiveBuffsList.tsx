@@ -1,6 +1,7 @@
 import React from "react";
 import type { Character } from "../../utils/api";
-import { filterProfileBuffsByLearnedSkills } from "./playerProfileUtils";
+import { cleanupBuffs } from "../../state/battle/helpers";
+import { prepareBuffsForStatsView } from "./playerProfileUtils";
 
 /** Активні бафи з heroJson.heroBuffs або character.heroBuffs; `now` для expiresAt. */
 export function PlayerProfileActiveBuffsList(props: {
@@ -14,8 +15,7 @@ export function PlayerProfileActiveBuffsList(props: {
   const useHeroJsonBuffs = Array.isArray(hjBuffs);
   const fromChar = Array.isArray((character as any).heroBuffs) ? (character as any).heroBuffs : [];
   const rawBuffs = useHeroJsonBuffs ? hjBuffs : fromChar;
-  const learned = Array.isArray(heroJson.skills) ? heroJson.skills : [];
-  const allBuffs = filterProfileBuffsByLearnedSkills(rawBuffs, learned as any);
+  const allBuffs = cleanupBuffs(prepareBuffsForStatsView(rawBuffs), now);
 
   const getExpiresAt = (b: any): number => {
     const v = b.expiresAt;
@@ -31,7 +31,7 @@ export function PlayerProfileActiveBuffsList(props: {
     return exp > now;
   });
 
-  if (allBuffs.length === 0) return null;
+  if (rawBuffs.length === 0) return null;
 
   return (
     <div

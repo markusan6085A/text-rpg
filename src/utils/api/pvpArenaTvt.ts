@@ -53,6 +53,19 @@ export interface PkSessionFighter {
   darkResist?: number;
   prefersMagic: boolean;
   skills: PkSessionSkill[];
+  /** heroJson.heroBuffs знімок з сервера (PK) */
+  buffs?: Array<{
+    id?: number;
+    name?: string;
+    icon?: string;
+    effects?: any[];
+    expiresAt?: number;
+    startedAt?: number;
+    durationMs?: number;
+    stackType?: string;
+    buffGroup?: string;
+    source?: string;
+  }>;
 }
 
 export interface PkSessionState {

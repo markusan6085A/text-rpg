@@ -7,6 +7,20 @@ export type PkSkill = {
   powerBonus: number;
 };
 
+/** Знімок heroJson.heroBuffs для відображення на клієнті (бафи суперника в PK). */
+export type PkFighterBuff = {
+  id?: number;
+  name?: string;
+  icon?: string;
+  effects?: any[];
+  expiresAt?: number;
+  startedAt?: number;
+  durationMs?: number;
+  stackType?: string;
+  buffGroup?: string;
+  source?: string;
+};
+
 export type PkFighter = {
   id: string;
   name: string;
@@ -42,6 +56,8 @@ export type PkFighter = {
   physSkillPower: number;
   prefersMagic: boolean;
   skills: PkSkill[];
+  /** Актуальні бафи з БД (оновлюються при get/act сесії) */
+  buffs?: PkFighterBuff[];
 };
 
 export type PkSession = {

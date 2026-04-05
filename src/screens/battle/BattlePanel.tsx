@@ -48,6 +48,8 @@ export interface BattlePanelProps {
   target: BattlePanelTarget;
   /** Дебафи на цілі (PvE: useBattleStore.mobBuffs). Для PK/арени зазвичай порожньо. */
   targetDebuffs?: BattleBuff[];
+  /** Бафи на цілі (PK: суперник). */
+  targetBuffs?: BattleBuff[];
   /** Бафи героя — один спільний BuffBar для мобів, PK і PvP-арени (див. JSDoc BattlePanel). */
   buffs: BattleBuff[];
   /** Поточний час (мс) для таймерів бафів */
@@ -77,6 +79,7 @@ export interface BattlePanelProps {
 export function BattlePanel({
   target,
   targetDebuffs,
+  targetBuffs,
   buffs,
   now,
   log,
@@ -138,6 +141,7 @@ export function BattlePanel({
           <div className={pad}>
             <div className="flex flex-col items-center gap-2 w-full">
               <BuffBar buffs={targetDebuffs ?? []} now={now} />
+              {(targetBuffs?.length ?? 0) > 0 && <BuffBar buffs={targetBuffs ?? []} now={now} />}
               <div className="flex justify-center -mt-1 shrink-0 w-full max-w-full">
                 <BattleTargetCard
                   name={target.name}

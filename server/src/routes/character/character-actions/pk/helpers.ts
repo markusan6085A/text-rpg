@@ -1,5 +1,5 @@
 import { prisma } from "../../../../db";
-import type { PkFighter, PkSession, PkSkill } from "./types";
+import type { PkFighter, PkFighterBuff, PkSession, PkSkill } from "./types";
 import { calcPhysicalSkillCooldown } from "./combatSpeed";
 
 export function getLocation(heroJson: any): string {
@@ -10,6 +10,23 @@ export function isOnline(lastActivityAt: Date | null | undefined, updatedAt?: Da
   const effective = lastActivityAt ?? updatedAt ?? null;
   if (!effective) return false;
   return new Date(effective).getTime() >= Date.now() - 10 * 60 * 1000;
+}
+
+export function extractPkBuffsFromHeroJson(heroJson: unknown): PkFighterBuff[] {
+  const hj = (heroJson as any) || {};
+  const raw = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
+  return raw.map((b: any) => ({
+    id: b?.id != null ? Number(b.id) : undefined,
+    name: b?.name,
+    icon: b?.icon,
+    effects: Array.isArray(b?.effects) ? b.effects : [],
+    expiresAt: typeof b?.expiresAt === "number" ? b.expiresAt : Number(b?.expiresAt) || 0,
+    startedAt: b?.startedAt,
+    durationMs: b?.durationMs,
+    stackType: b?.stackType,
+    buffGroup: b?.buffGroup,
+    source: b?.source,
+  }));
 }
 
 export function normalizeSkills(heroJson: any): PkSkill[] {
@@ -129,6 +146,7 @@ export function buildPkFighter(character: {
     physSkillPower,
     prefersMagic,
     skills,
+    buffs: extractPkBuffsFromHeroJson(heroJson),
   };
 }
 
@@ -169,6 +187,12 @@ export async function refreshPkFighterStatsFromDb(session: PkSession): Promise<v
       0,
       Number(bs?.attackSpeed ?? bs?.atkSpeed ?? session.defender.attackSpeed ?? 200) || 200
     );
+  }
+  if (attackerChar?.heroJson) {
+    session.attacker.buffs = extractPkBuffsFromHeroJson(attackerChar.heroJson);
+  }
+  if (defenderChar?.heroJson) {
+    session.defender.buffs = extractPkBuffsFromHeroJson(defenderChar.heroJson);
   }
 }
 

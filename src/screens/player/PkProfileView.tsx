@@ -13,6 +13,7 @@ import type { BattleBuff } from "../../state/battle/types";
 import { writeDeathGate } from "../../utils/deathGate";
 import { unequipItemLogic } from "../../state/heroStore/heroInventory";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
+import { applyBattleLoadoutFromHeroJson, sanitizeBattleLoadoutSlots, loadLoadout } from "../../state/battle/loadout";
 
 interface PkProfileViewProps {
   character: Character;
@@ -90,6 +91,21 @@ export default function PkProfileView({
   ) as BattleBuff[];
 
   const pkDeathAppliedForSessionRef = useRef<string | null>(null);
+
+  const opponentBuffsForPanel = React.useMemo(() => {
+    if (!pkSession || !myHero?.id) return [] as BattleBuff[];
+    const isAttacker = myHero.id === pkSession.attackerId;
+    const opp = isAttacker ? pkSession.defender : pkSession.attacker;
+    const raw = Array.isArray(opp?.buffs) ? opp.buffs : [];
+    const mapped = raw.map(
+      (b) =>
+        ({
+          ...b,
+          effects: Array.isArray(b.effects) ? b.effects : [],
+        }) as BattleBuff
+    );
+    return cleanupBuffs(mapped, nowTs);
+  }, [pkSession, myHero?.id, nowTs]);
 
   /** Поразка в PK: та сама клієнтська смерть, що processMobAttack (deathGate, isDead, HP 0, зняття Зарича) */
   useEffect(() => {
@@ -176,6 +192,19 @@ export default function PkProfileView({
       const readyAt = Number(v) + serverTimeDrift;
       if (!Number.isNaN(id) && !Number.isNaN(readyAt)) cooldowns[id] = readyAt;
     });
+    let loadoutSlotsNext: (number | string | null)[] | undefined;
+    let professionForLoadoutNext: string | undefined;
+    if (heroNow?.name) {
+      applyBattleLoadoutFromHeroJson(heroNow as any);
+      const savedBt = loadBattle(heroNow.name);
+      const rawSlots =
+        savedBt?.loadoutSlots && savedBt.loadoutSlots.length > 0
+          ? savedBt.loadoutSlots
+          : loadLoadout(heroNow.name);
+      loadoutSlotsNext = sanitizeBattleLoadoutSlots(rawSlots, heroNow as any);
+      professionForLoadoutNext = heroNow.profession;
+    }
+
     useBattleStore.setState({
       pkSessionId: pkSession.id,
       mob,
@@ -184,6 +213,9 @@ export default function PkProfileView({
       cooldowns,
       status: battleStatus,
       heroBuffs: uniqueBuffs,
+      ...(loadoutSlotsNext
+        ? { loadoutSlots: loadoutSlotsNext, professionForLoadout: professionForLoadoutNext }
+        : {}),
       ...(iLost ? { pkActorBuffs: [], activeChargeSlots: [] } : {}),
     });
   }, [pkSession, myHero?.id, character, uniqueBuffs, serverTimeDrift, pkActorBuffsFromStore]);
@@ -288,6 +320,7 @@ export default function PkProfileView({
     >
       <BattlePanel
         target={target}
+        targetBuffs={opponentBuffsForPanel}
         buffs={uniqueBuffs}
         now={nowTs}
         backLabel={displayBackLabel}
