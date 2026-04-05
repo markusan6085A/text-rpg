@@ -3,7 +3,7 @@ import { useCharacterStore } from "../../characterStore";
 import { useAuthStore } from "../../authStore";
 import { battleStoreRef } from "../../battleStoreRef";
 import { pveBattleTickAPI } from "../../../utils/api/characters";
-import { applyBuffsToStats, cleanupBuffs } from "../helpers";
+import { applyBuffsToStats, cleanupBuffs, mergeServerHeroBuffsRespectLocalToggleOff } from "../helpers";
 import { persistBattle, loadBattle } from "../persist";
 import type { BattleState } from "../types";
 import {
@@ -91,17 +91,24 @@ export function schedulePveMobTickOnline(): void {
       const tickNow = Date.now();
       const clientBattle = cleanupBuffs(battleStoreRef.getState()?.heroBuffs || [], tickNow);
       const hSync = store.hero;
-      const mergedBuffs = mergeServerAndClientBuffsForResourceScaling(mergedHj.heroBuffs, clientBattle);
+      const mergedToggleHeroBuffs = mergeServerHeroBuffsRespectLocalToggleOff(
+        hSync,
+        mergedHj.heroBuffs,
+        clientBattle,
+        tickNow,
+      );
+      const mergedBuffs = mergeServerAndClientBuffsForResourceScaling(mergedToggleHeroBuffs, clientBattle);
       const buffsForScale = hSync
         ? cleanupBuffs(filterBuffsForHeroProfession(hSync, mergedBuffs), tickNow)
         : cleanupBuffs(mergedBuffs, tickNow);
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(mergedHj, buffsForScale, tickNow);
+      const hjTickMerged = { ...mergedHj, heroBuffs: mergedToggleHeroBuffs };
       store.applyServerSync(
         {
           hp: scaledRes.hp,
           mp: scaledRes.mp,
           cp: scaledRes.cp,
-          heroJson: { ...prevHj, ...mergedHj },
+          heroJson: { ...prevHj, ...hjTickMerged },
         } as any,
         {
           heroRevision: mergedHj.heroRevision,

@@ -5,7 +5,7 @@ import { pveBattleAttackAPI } from "../../../utils/api/characters";
 import { useHeroStore, applyRevisionConflictFromApiError } from "../../heroStore";
 import { useCharacterStore } from "../../characterStore";
 import { battleStoreRef } from "../../battleStoreRef";
-import { cleanupBuffs } from "../helpers";
+import { cleanupBuffs, mergeServerHeroBuffsRespectLocalToggleOff } from "../helpers";
 import { loadBattle, persistBattle } from "../persist";
 import { commitMobVictoryToHeroStore } from "../commitMobVictory";
 import { buildVictoryResourceLogLines } from "../helpers/victoryLootLogLines";
@@ -98,17 +98,28 @@ export function schedulePveAttackSkillOnline(args: {
       const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
       const tickNow = Date.now();
       const clientBattle = cleanupBuffs(state.heroBuffs || [], tickNow);
+      const heroForBuffMerge = store.hero ?? hero;
+      const mergedHeroBuffs = mergeServerHeroBuffsRespectLocalToggleOff(
+        heroForBuffMerge,
+        hj.heroBuffs,
+        state.heroBuffs,
+        tickNow,
+      );
       const buffsForScale = cleanupBuffs(
-        filterBuffsForHeroProfession(hero, mergeServerAndClientBuffsForResourceScaling(hj.heroBuffs, clientBattle)),
+        filterBuffsForHeroProfession(
+          hero,
+          mergeServerAndClientBuffsForResourceScaling(mergedHeroBuffs, clientBattle),
+        ),
         tickNow,
       );
       const scaledRes = scalePveSnapshotHpMpCpToBuffed(hj, buffsForScale, tickNow);
+      const hjMerged = { ...hj, heroBuffs: mergedHeroBuffs };
       store.applyServerSync(
         {
           hp: scaledRes.hp,
           mp: scaledRes.mp,
           cp: scaledRes.cp,
-          heroJson: { ...prevHj, ...hj },
+          heroJson: { ...prevHj, ...hjMerged },
         } as any,
         {
           heroRevision: hj.heroRevision,
@@ -143,8 +154,10 @@ export function schedulePveAttackSkillOnline(args: {
 
       if (killed && state.mob && heroAfter) {
         const buffsForVictory = cleanupBuffs(
-          Array.isArray(hj.heroBuffs) ? (hj.heroBuffs as any[]) : state.heroBuffs || [],
-          Date.now()
+          Array.isArray((heroAfter as any).heroJson?.heroBuffs)
+            ? ((heroAfter as any).heroJson.heroBuffs as any[])
+            : mergedHeroBuffs,
+          Date.now(),
         );
         const v = commitMobVictoryToHeroStore({
           mob: state.mob,
@@ -214,8 +227,10 @@ export function schedulePveAttackSkillOnline(args: {
 
       const mergedLog = [...logLines, ...(bs?.log || [])].slice(0, 30);
       const nextHeroBuffs = cleanupBuffs(
-        Array.isArray(hj.heroBuffs) ? (hj.heroBuffs as any[]) : bs?.heroBuffs || [],
-        Date.now()
+        Array.isArray((heroAfter as any).heroJson?.heroBuffs)
+          ? ((heroAfter as any).heroJson.heroBuffs as any[])
+          : mergedHeroBuffs,
+        Date.now(),
       );
       if (battleStoreRef.setState) {
         battleStoreRef.setState({

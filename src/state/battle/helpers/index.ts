@@ -8,4 +8,5 @@ export {
   createMobStunVisualBuff,
   mergeMobStunVisualIntoMobBuffs,
 } from "./mobStunVisual";
+export { mergeServerHeroBuffsRespectLocalToggleOff } from "./mergeServerHeroBuffsRespectLocalToggleOff";
 

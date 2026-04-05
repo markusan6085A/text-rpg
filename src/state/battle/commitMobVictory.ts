@@ -21,9 +21,10 @@ import { postPartyKillShare, postWorldMobKill } from "../../utils/api";
 import { applyWorldMobKillLocal } from "../worldMobHpStore";
 import { buildPartyMemberVictoryLogLines } from "./helpers/victoryLootLogLines";
 import { battleFinishAPI } from "../../utils/api/battleFinishAPI";
+import { maxRevisionFromConflictBody } from "../../utils/revisionConflictBody";
 import { battleStoreRef } from "../battleStoreRef";
 import { itemsDB } from "../../data/items/itemsDB";
-import { cleanupBuffs } from "./helpers";
+import { cleanupBuffs, mergeServerHeroBuffsRespectLocalToggleOff } from "./helpers";
 import { persistBattle, loadBattle } from "./persist";
 
 export type MobVictoryCommitParams = {
@@ -371,7 +372,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
             String(err?.message ?? "").includes("revision_conflict") ||
             String(err?.message ?? "").includes("Character was modified");
           if (isRevisionConflict) {
-            const currentRevision = Number(err?.body?.currentRevision ?? 0);
+            const currentRevision = maxRevisionFromConflictBody(err?.body) ?? 0;
             if (Number.isFinite(currentRevision) && currentRevision >= 0) {
               useHeroStore.getState().updateServerState({
                 heroRevision: currentRevision,
@@ -411,8 +412,22 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
 
         let cleanedFinishBuffs: ReturnType<typeof cleanupBuffs> | null = null;
         const hAfter = useHeroStore.getState().hero;
-        if (hAfter && Array.isArray((hAfter as any).heroJson?.heroBuffs)) {
-          cleanedFinishBuffs = cleanupBuffs((hAfter as any).heroJson.heroBuffs, Date.now());
+        const n = hAfter?.name;
+        if (hAfter && n) {
+          const saved = loadBattle(n) || {};
+          const localBattle = Array.isArray(saved.heroBuffs)
+            ? saved.heroBuffs
+            : battleStoreRef.getState()?.heroBuffs || [];
+          const srvBuffs = Array.isArray((hAfter as any).heroJson?.heroBuffs)
+            ? (hAfter as any).heroJson.heroBuffs
+            : [];
+          const mergedFinishBuffs = mergeServerHeroBuffsRespectLocalToggleOff(
+            hAfter,
+            srvBuffs,
+            localBattle,
+            Date.now(),
+          );
+          cleanedFinishBuffs = cleanupBuffs(mergedFinishBuffs, Date.now());
           useHeroStore.getState().updateHero(
             {
               heroJson: {
@@ -420,13 +435,8 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
                 heroBuffs: cleanedFinishBuffs,
               },
             },
-            { skipServer: true }
+            { skipServer: true },
           );
-        }
-
-        if (cleanedFinishBuffs && useHeroStore.getState().hero?.name) {
-          const n = useHeroStore.getState().hero!.name;
-          const saved = loadBattle(n) || {};
           persistBattle({ ...saved, heroBuffs: cleanedFinishBuffs }, n);
           battleStoreRef.setState?.({ heroBuffs: cleanedFinishBuffs });
         }
