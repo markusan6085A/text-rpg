@@ -304,12 +304,14 @@ export function calculateServerDrops(
   let effectiveDrops: ServerDropEntry[] = mob.drops ?? [];
   let effectiveSpoil: ServerDropEntry[] = mob.spoil ?? [];
 
+  const fallbackZoneId = zoneId || mob.zoneId;
+
   if (mob.isRaidBoss && effectiveDrops.length === 0) {
     effectiveDrops = buildRaidBossFallbackDrops(mob.level);
-  } else if (effectiveDrops.length === 0 && zoneId) {
+  } else if (effectiveDrops.length === 0 && fallbackZoneId) {
     const tiered = /^l2dop_\d/.test(mob.id)
-      ? applyTieredLootToMob(mob.id, mob.level, zoneId)
-      : applyTieredLootFallback(mob.id, mob.level, zoneId);
+      ? applyTieredLootToMob(mob.id, mob.level, fallbackZoneId)
+      : applyTieredLootFallback(mob.id, mob.level, fallbackZoneId);
     effectiveDrops = tiered.drops;
     effectiveSpoil = tiered.spoil;
   }
@@ -319,8 +321,8 @@ export function calculateServerDrops(
     const hasResourceRows = effectiveDrops.some(
       (d) => d.kind === "resource" || String(d.id).startsWith("l2item_")
     );
-    if (!hasResourceRows && zoneId) {
-      const fallback = applyTieredLootFallback(mob.id, mob.level, zoneId).drops;
+    if (!hasResourceRows && fallbackZoneId) {
+      const fallback = applyTieredLootFallback(mob.id, mob.level, fallbackZoneId).drops;
       const resourceRows = fallback.filter(
         (d) => d.kind === "resource" || String(d.id).startsWith("l2item_")
       );
