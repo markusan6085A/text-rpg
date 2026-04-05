@@ -705,8 +705,8 @@ export function processSummonAttack(
     // Не встановлюємо mob = undefined тут, щоб модалка могла використовувати інформацію про моба
     // mob буде очищено при reset() або startBattle()
     updates.log = [
-      `${mob.name} повержен.`,
-      mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
+      `ПЕРЕМОГА!`,
+      mobSpoiled ? `Auto Spoil: моб автоматично спойлено.` : null,
       ...buildVictoryResourceLogLines(
         curHero.name ?? "Герой",
         displayExp,

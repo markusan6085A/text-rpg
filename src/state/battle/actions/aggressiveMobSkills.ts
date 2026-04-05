@@ -67,7 +67,7 @@ export function rollAggressiveMobSkills(
       source: "mob_skill",
     };
     buffs = upsertByStackType(buffs, b);
-    logLines.push(`${label}: -20% фіз. захисту на ${BUFF_DURATION_MS / 1000} сек.`);
+    logLines.push(`[${label}] накладає на вас [${b.name}].`);
   } else if (r < 0.466) {
     const b: BattleBuff = {
       id: -91002,
@@ -81,7 +81,7 @@ export function rollAggressiveMobSkills(
       source: "mob_skill",
     };
     buffs = upsertByStackType(buffs, b);
-    logLines.push(`${label}: -20% маг. захисту на ${BUFF_DURATION_MS / 1000} сек.`);
+    logLines.push(`[${label}] накладає на вас [${b.name}].`);
   } else if (r < 0.699) {
     const b: BattleBuff = {
       id: -91003,
@@ -98,7 +98,7 @@ export function rollAggressiveMobSkills(
       bleedPercentMaxHp: 15,
     };
     buffs = upsertByStackType(buffs, b);
-    logLines.push(`${label}: кровотеча! 15% від макс. HP щосек (5 сек).`);
+    logLines.push(`[${label}] накладає на вас [${b.name}].`);
   } else {
     heroStunnedUntil = now + STUN_MS;
     const stunBuff: BattleBuff = {
@@ -113,7 +113,7 @@ export function rollAggressiveMobSkills(
       source: "mob_skill",
     };
     buffs = upsertByStackType(buffs, stunBuff);
-    logLines.push(`${label}: оглушення 3 сек.`);
+    logLines.push(`[${label}] накладає на вас [${stunBuff.name}].`);
   }
 
   return { buffs, heroStunnedUntil, logLines };

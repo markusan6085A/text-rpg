@@ -49,7 +49,17 @@ export const createRegenTick =
     if (isHeroDead(hero)) return; // мертвий — не оновлюємо hp/mp/cp і не персистимо snapshot
 
     const now = Date.now();
-    const cleanedBuffs = cleanupBuffs(state.heroBuffs || [], now);
+    const rawHeroBuffs = state.heroBuffs || [];
+    const expiredAuraLines = rawHeroBuffs
+      .filter(
+        (b) =>
+          b &&
+          typeof b.expiresAt === "number" &&
+          b.expiresAt !== Number.MAX_SAFE_INTEGER &&
+          b.expiresAt <= now
+      )
+      .map((b) => `Ваша аура [${String(b.name ?? "Невідомо")}] закінчилася.`);
+    const cleanedBuffs = cleanupBuffs(rawHeroBuffs, now);
     const cleanedSummonBuffs = cleanupSummonBuffs(state.summonBuffs || [], now);
 
     // Обробляємо toggle tick ефекти (споживання MP/HP для активних toggle скілів)
@@ -152,7 +162,11 @@ export const createRegenTick =
     }
 
     // Додаємо повідомлення про toggle ticks і кровотечу в лог (якщо є)
-    const tickAndBleedMessages = [...tickLogMessages, ...bleedResult.messages];
+    const tickAndBleedMessages = [
+      ...expiredAuraLines,
+      ...tickLogMessages,
+      ...bleedResult.messages,
+    ];
     const newLog =
       tickAndBleedMessages.length > 0
         ? [...tickAndBleedMessages, ...state.log].slice(0, 30)

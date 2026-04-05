@@ -190,7 +190,9 @@ export const createStartBattle =
         mobNextAttackAt: saved.mobNextAttackAt ?? now + 1000 + Math.random() * 5000,
         heroNextAttackAt: heroNextAttackAtResume,
         status: saved.status === "victory" ? "victory" : saved.status ?? "fighting",
-        log: [`Fight resumed with ${displayMobName(saved.mob?.name || mob.name)}`],
+        log: [
+          `Бій відновлено: [${displayMobName(saved.mob?.name || mob.name)}] (ур. ${(saved.mob as Mob)?.level ?? mob.level ?? 1})`,
+        ],
         cooldowns,
         loadoutSlots: loadoutSlotsResume,
         professionForLoadout: hero?.profession ?? undefined,
@@ -296,14 +298,15 @@ export const createStartBattle =
     
     // 🔥 Завантажуємо збережені логи бою (останні 10 протягом 5 хвилин)
     const savedLogs = loadBattleLogs(heroName);
-    
+    const battleStartLine = `Бій розпочато: [${displayMobName(mob.name)}] (ур. ${mob.level ?? 1})`;
+
     // Зберігаємо попередній лог, додаючи новий запис про початок бою
     // Спочатку перевіряємо savedLogs, потім prevState.log, потім новий запис
     const preservedLog = savedLogs.length > 0
-      ? [`Fight started with ${displayMobName(mob.name)}`, ...savedLogs].slice(0, 10)
+      ? [battleStartLine, ...savedLogs].slice(0, 10)
       : prevState.log && prevState.log.length > 0
-      ? [`Fight started with ${displayMobName(mob.name)}`, ...prevState.log].slice(0, 10)
-      : [`Fight started with ${displayMobName(mob.name)}`];
+      ? [battleStartLine, ...prevState.log].slice(0, 10)
+      : [battleStartLine];
     
     // 🔥 Оновлюємо location в heroJson при зміні локації (для відображення в профілі)
     if (hero && zone) {

@@ -47,6 +47,36 @@ export function getColorForPkLine(line: string, myHeroName: string): string {
   return "#d9c4a3";
 }
 
+/** PvE-бій: порядок правил важливий (специфічні шаблони перед загальними). */
+export function getPveBattleLogColor(line: string): string {
+  const t = String(line ?? "").trim();
+  const lower = t.toLowerCase();
+
+  if (lower.startsWith("перемога!")) return "#22c55e";
+  if (lower.startsWith("знайдено:")) return "#FFFF00";
+  if (lower.startsWith("отримано:") && lower.includes("exp") && lower.includes("sp")) return "#FFBA00";
+
+  if (lower.includes("physical mirror") || (lower.includes("відбиває") && lower.includes("урону"))) {
+    return "#60a5fa";
+  }
+
+  if (lower.includes("ви використовуєте")) return "#177245";
+
+  if (lower.includes("накладає на вас")) return "#900020";
+
+  if (lower.includes("ви ухилилися")) return "#A9A9A9";
+
+  if (lower.includes("промахнувся")) return "#2F4F4F";
+
+  if (lower.includes("ви наносите") && lower.includes("урону")) return "#CD00CD";
+
+  if (lower.includes("ви отримуєте") && lower.includes("урону")) return "#B7410E";
+
+  if (lower.includes("ваша аура [") && lower.includes("закінчилася")) return "#120A8F";
+
+  return getColor(line);
+}
+
 export const getColor = (line: string) => {
   const lower = String(line ?? "").toLowerCase();
   
@@ -267,6 +297,20 @@ const parseVypaloLine = (line: string): React.ReactNode | null => {
   );
 };
 
+/** «Бій розпочато: [Ім’я] (ур. N)» / «Бій відновлено: …» — ім’я моба акцентним кольором. */
+const parseBattleStartLine = (line: string): React.ReactNode | null => {
+  const m = line.match(/^Бій (розпочато|відновлено):\s*\[(.+?)\]\s*\(ур\.\s*(\d+)\)\s*$/);
+  if (!m) return null;
+  const [, verb, mobName, lvl] = m;
+  return (
+    <div style={{ color: "#d9c4a3" }}>
+      Бій {verb}:{" "}
+      <span style={{ color: "#5D8AA8", fontWeight: 600 }}>[{mobName}]</span>{" "}
+      (ур. {lvl})
+    </div>
+  );
+};
+
 /** Книги гільдії магів: повідомлення з mysticSpellbookDrops (не префікс «Дроп:»). Без емодзі — одна іконка предмета. */
 const parseSpellbookLootLine = (line: string): React.ReactNode | null => {
   const m = line.match(/^(?:📕\s*)?Книга заклинания:\s*(.+)$/i);
@@ -332,6 +376,10 @@ export function BattleLog({
     <div className="space-y-1 text-[12px] leading-[1.35]">
       {lines.map((line, idx) => {
         const lineStr = String(line ?? "");
+        const battleStart = parseBattleStartLine(lineStr);
+        if (battleStart) {
+          return <div key={idx}>{battleStart}</div>;
+        }
         const dobychaLine = parseDobychaLine(lineStr);
         if (dobychaLine) {
           return <div key={idx}>{dobychaLine}</div>;
@@ -356,8 +404,10 @@ export function BattleLog({
         if (lootDrop) {
           return <div key={idx}>{lootDrop}</div>;
         }
-        let displayLine = isPk ? replaceSkillIdsWithNames(lineStr) : lineStr;
-        const color = isPk ? getColorForPkLine(displayLine, heroName ?? "") : getColor(lineStr);
+        let displayLine = replaceSkillIdsWithNames(lineStr);
+        const color = isPk
+          ? getColorForPkLine(displayLine, heroName ?? "")
+          : getPveBattleLogColor(lineStr);
         // Не використовувати includes("наносит") — підрядок входить у «наносите» (ваш урон), інакше «По вам:» з’являється на «Вы наносите…».
         const isIncoming =
           isPk &&

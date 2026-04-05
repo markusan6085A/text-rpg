@@ -65,9 +65,9 @@ export function processToggleTicks(
       const newHP = curHP + hpChange + totalHpChange;
       const newMP = curMP + mpChange + totalMpChange;
 
-      // Якщо ресурсів недостатньо - вимикаємо toggle (тихо, без повідомлення в лог)
+      // Якщо ресурсів недостатньо - вимикаємо toggle
       if (newHP <= 0 || newMP < 0) {
-        // Не додаємо цей баф до updatedBuffs (вимикаємо)
+        logMessages.push(`Ваша аура [${buff.name || "Невідомо"}] закінчилася.`);
         continue;
       }
 

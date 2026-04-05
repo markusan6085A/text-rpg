@@ -53,7 +53,7 @@ export const createProcessMobAttack =
       // Моб все ще оглушений - пропускаємо атаку
       const remainingStunTime = Math.ceil((state.mobStunnedUntil! - now) / 1000);
       const newLog = [
-        `${displayMobName(state.mob.name)} оглушен и не может атаковать (осталось ${remainingStunTime} сек).`,
+        `[${displayMobName(state.mob.name)}] оглушено — не атакує (залишилось ${remainingStunTime} сек).`,
         ...state.log,
       ].slice(0, 30);
       
@@ -103,7 +103,7 @@ export const createProcessMobAttack =
     const updateHero = useHeroStore.getState().updateHero;
 
     if (isMiss) {
-      const newLog = [`${displayMobName(state.mob.name)} промахнулся.`, ...state.log].slice(0, 30);
+      const newLog = [`Ви ухилилися від атаки монстра.`, ...state.log].slice(0, 30);
       const updates: Partial<BattleState> = {
         mobNextAttackAt: scheduleNext(now),
         log: newLog,
@@ -204,13 +204,16 @@ export const createProcessMobAttack =
     // Перевіряємо блок щита (якщо надітий щит)
     const shieldBlockRate = heroStats.shieldBlockRate ?? 0;
     let shieldBlocked = false;
+    let shieldAbsorbed = 0;
     
     if (hasShieldEquipped(hero) && shieldBlockRate > 0) {
       shieldBlocked = checkShieldBlock(shieldBlockRate);
       
       if (shieldBlocked) {
+        const mitigatedBeforeShieldBlock = mitigated;
         // Якщо блок спрацював, зменшуємо урон на pDef щита
         mitigated = Math.max(1, mitigated - shieldDefense);
+        shieldAbsorbed = Math.max(0, mitigatedBeforeShieldBlock - mitigated);
         
         if (import.meta.env.DEV) {
           const preBlock = applyMobToHeroMitigation(raw, atkForMitigation, defense);
@@ -353,15 +356,16 @@ export const createProcessMobAttack =
         const aggressiveDodgeChance = dodgeChance * 0.7; // Агресивні моби точніші
         const aggressiveIsMiss = Math.random() * 100 < aggressiveDodgeChance;
         
+        const aggDisp = displayMobName(aggressiveMob.name);
         if (aggressiveIsMiss) {
-          aggressiveDamageLines.push(`${aggressiveMob.name} промахнулся.`);
+          aggressiveDamageLines.push(`[${aggDisp}] промахнувся.`);
         } else {
           totalAggressiveDamage += aggressiveMitigated;
-          const critTag = aggressiveCrit ? " (крит!)" : "";
+          const critTag = aggressiveCrit ? " (Крит!)" : "";
           if (aggressiveShieldBlocked) {
-            aggressiveDamageLines.push(`${aggressiveMob.name} атакует, щит блокирует! (${Math.round(aggressiveMitigated)} урона${critTag})`);
+            aggressiveDamageLines.push(`Ви отримуєте ${Math.round(aggressiveMitigated)} урону від [${aggDisp}]. (Щит зменшив удар)${critTag}`);
           } else {
-            aggressiveDamageLines.push(`${aggressiveMob.name} наносит ${Math.round(aggressiveMitigated)} урона${critTag}.`);
+            aggressiveDamageLines.push(`Ви отримуєте ${Math.round(aggressiveMitigated)} урону від [${aggDisp}].${critTag}`);
           }
         }
       }
@@ -389,29 +393,32 @@ export const createProcessMobAttack =
     const nextHeroHP = Math.max(0, curHeroHP - heroDamage);
 
     const lines: string[] = [...skillRoll.logLines];
-    
-    // Логіка блоку щита
-    if (shieldBlocked) {
-      lines.push(
-        `Щит заблокував атаку! Урон зменшено на ${shieldDefense}.`
-      );
-    }
-    
+    const mainMobDisp = displayMobName(state.mob.name);
+
     // Логіка відбиття урону
     if (reflectResult.reflected) {
       lines.push(
-        `Physical Mirror отразил ${Math.round(reflectedDamage)} урона обратно на ${displayMobName(state.mob.name)}!`
+        `Physical Mirror відбиває ${Math.round(reflectedDamage)} урону на [${mainMobDisp}]!`
       );
       if (nextMobHP <= 0) {
-        lines.push(`${displayMobName(state.mob.name)} побежден отраженным уроном!`);
+        lines.push(`[${mainMobDisp}] переможений відбитим уроном!`);
       }
+    } else if (magicParryProc) {
+      lines.push(
+        `Магічне парування! Ви наносите [${mainMobDisp}] ${Math.round(reflectedDamage)} урону.`
+      );
     } else {
-      // Звичайний урон
       if (heroDamage === 0) {
-        lines.push(`${displayMobName(state.mob.name)} попал, но не нанес урона.`);
+        lines.push(`[${mainMobDisp}] влучає, але ви не отримуєте шкоди.`);
       } else {
-        const critTag = mobCritFromMob ? " (крит!)" : "";
-        lines.push(`${displayMobName(state.mob.name)} наносит вам ${Math.round(heroDamage)} урона${critTag}.`);
+        const critTag = mobCritFromMob ? " (Крит!)" : "";
+        const shieldPart =
+          shieldBlocked && shieldAbsorbed > 0
+            ? ` (Поглинуто щитом: ${Math.round(shieldAbsorbed)})`
+            : "";
+        lines.push(
+          `Ви отримуєте ${Math.round(heroDamage)} урону.${critTag}${shieldPart}`
+        );
       }
     }
     
@@ -610,7 +617,7 @@ export const createProcessMobAttack =
         mobNextAttackAt: null,
         heroBuffs: buffsAfterDeath,
         mobBuffs: cleanedMobBuffs,
-        log: ["Вы мертвы.", ...finalLog].slice(0, 30),
+        log: ["Ви мертві.", ...finalLog].slice(0, 30),
         cooldowns: state.cooldowns || {},
         summon: nextSummon,
         heroStunnedUntil,
@@ -636,8 +643,8 @@ export const createProcessMobAttack =
         mobIndex: state.mobIndex,
       });
       const lootLines = [
-        `${displayMobName(state.mob.name)} повержен.`,
-        v.mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
+        `ПЕРЕМОГА!`,
+        v.mobSpoiled ? `Auto Spoil: моб автоматично спойлено.` : null,
         ...buildVictoryResourceLogLines(
           hero.name ?? "Герой",
           v.displayExp,

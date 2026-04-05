@@ -268,9 +268,11 @@ export function handleBaseAttack(
   
   let attackLog = healFromVamp > 0
     ? (isCrit
-        ? `Критический удар! Вы наносите ${Math.round(damage)} и восстанавливаете ${Math.round(healFromVamp)} HP.`
-        : `Вы наносите ${Math.round(damage)} и восстанавливаете ${Math.round(healFromVamp)} HP.`)
-    : (isCrit ? `Критический удар! Вы наносите ${Math.round(damage)}.` : `Вы наносите ${Math.round(damage)}.`);
+        ? `Ви наносите ${Math.round(damage)} урону. (Крит!) Відновлено ${Math.round(healFromVamp)} HP.`
+        : `Ви наносите ${Math.round(damage)} урону. Відновлено ${Math.round(healFromVamp)} HP.`)
+    : (isCrit
+        ? `Ви наносите ${Math.round(damage)} урону. (Крит!)`
+        : `Ви наносите ${Math.round(damage)} урону.`);
   
   // Add cleave damage logs
   if (cleaveLogs.length > 0) {
@@ -321,8 +323,8 @@ export function handleBaseAttack(
     const nextAutoAttackAt = now + autoAttackInterval;
     
     const lootMessages: (string | null)[] = [
-      `${state.mob?.name} повержен.`,
-      mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
+      `ПЕРЕМОГА!`,
+      mobSpoiled ? `Auto Spoil: моб автоматично спойлено.` : null,
     ];
     
     // Add Whirlwind Attack loot multiplier message
@@ -330,13 +332,9 @@ export function handleBaseAttack(
       lootMessages.push(`Whirlwind Attack: добыча умножена на ${lootMultiplier} (убито ${cleaveKills} дополнительных врагов)`);
     }
     
-    const [lootLine1, lootLine2] = buildVictoryResourceLogLines(
-      hero.name ?? "Герой",
-      displayExp,
-      displaySp,
-      displayAdena
+    lootMessages.push(
+      ...buildVictoryResourceLogLines(hero.name ?? "Герой", displayExp, displaySp, displayAdena)
     );
-    lootMessages.push(lootLine1, lootLine2);
     
     // Додаємо повідомлення про дропи
     if (dropMessages.length > 0) {

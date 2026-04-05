@@ -15,6 +15,7 @@ import { canAttackWithBow, useArrow, isBowEquipped, getWeaponGrade } from "./arr
 import { getWeaponTypeFromEquipment } from "../../../../utils/stats/applyPassiveSkills";
 import { getMobTargetStatsForHeroDamage } from "../../helpers/mobTargetStats";
 import { cleanupBuffs, createMobStunVisualBuff, mergeMobStunVisualIntoMobBuffs } from "../../helpers";
+import { displayMobName } from "../../../../utils/worldDisplay";
 
 export function handleAttackSkill(
   skillId: number,
@@ -199,20 +200,19 @@ export function handleAttackSkill(
   const heroWithHealedHp = { ...hero, hp: healedHeroHP };
   const recalculatedHealed = recalculateAllStats(heroWithHealedHp, updatedBuffs);
 
+  const mobDisp = state.mob ? displayMobName(state.mob.name) : "";
   const newLog = [
     healFromVamp > 0
-      ? `Вы использовали ${def.name} и восстановили ${Math.round(healFromVamp)} HP`
-      : `Вы использовали ${def.name}`,
+      ? `Ви використовуєте [${def.name}]. Відновлено ${Math.round(healFromVamp)} HP.`
+      : `Ви використовуєте [${def.name}].`,
     isCrit
-      ? (isMagic
-          ? `Магічний критичний удар! Ви наносите ${Math.round(totalDamage)}.`
-          : `Критический удар! Вы наносите ${Math.round(totalDamage)}.`)
-      : `Вы наносите ${Math.round(totalDamage)}.`,
-    skillEffects.stun?.applied 
-      ? `${state.mob?.name} оглушен на ${skillEffects.stun.duration / 1000} секунд!`
+      ? `Ви наносите ${Math.round(totalDamage)} урону. (Крит!)`
+      : `Ви наносите ${Math.round(totalDamage)} урону.`,
+    skillEffects.stun?.applied
+      ? `[${mobDisp}] оглушено на ${skillEffects.stun.duration / 1000} сек!`
       : skillEffects.stun && !skillEffects.stun.applied
-      ? `${state.mob?.name} устоял против оглушения.`
-      : null,
+        ? `[${mobDisp}] встояло проти оглушення.`
+        : null,
     ...state.log,
   ].filter((msg) => msg !== null).slice(0, 30);
 
@@ -238,8 +238,8 @@ export function handleAttackSkill(
       mobStunnedUntil: undefined, // Скидаємо stun при смерті моба
       mobBuffs: [],
       log: [
-        `${state.mob?.name} повержен.`,
-        mobSpoiled ? `Auto Spoil: моб автоматически спойлен.` : null,
+        `ПЕРЕМОГА!`,
+        mobSpoiled ? `Auto Spoil: моб автоматично спойлено.` : null,
         ...buildVictoryResourceLogLines(
           hero.name ?? "Герой",
           displayExp,

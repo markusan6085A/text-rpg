@@ -9,7 +9,7 @@ export function formatLootIntEn(n: number): string {
 }
 
 /**
- * Рядок нагороди для бортового логу (лише «Выпало: …», без «получил …»).
+ * Два рядки нагороди для бортового логу (адена жовта, EXP/SP помаранчеві через BattleLog.getColor).
  */
 export function buildVictoryResourceLogLines(
   _heroName: string,
@@ -20,7 +20,7 @@ export function buildVictoryResourceLogLines(
   const e = formatLootInt(displayExp);
   const s = formatLootInt(displaySp);
   const a = formatLootInt(displayAdena);
-  return [`Выпало: ${a} аден, ${e} EXP и ${s} SP`];
+  return [`Знайдено: ${a} аден.`, `Отримано: ${e} EXP та ${s} SP.`];
 }
 
 /** Рядки для союзників у пати (рівна частка EXP/адена/SP, як на сервері kill-share). */
