@@ -270,7 +270,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     };
 
     return victoryUpdates;
-  });
+  }, { skipServer: true });
 
   if (partySharePayload) {
     void postPartyKillShare(partySharePayload).catch(() => {});
