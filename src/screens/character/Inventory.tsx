@@ -325,7 +325,8 @@ export default function Inventory() {
             equipmentEnchantLevels: (live as any).equipmentEnchantLevels ?? {},
             expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
           });
-          applyHeroJsonSnapshotFromApi((legacyRes as any).heroJson);
+          if ((legacyRes as any).character) applyCharacterSnapshotFromApi((legacyRes as any).character);
+          else applyHeroJsonSnapshotFromApi((legacyRes as any).heroJson);
           setSelectedItem(null);
           setDeleteConfirmItem(null);
           return;

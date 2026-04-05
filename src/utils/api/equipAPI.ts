@@ -1,10 +1,11 @@
 // Клієнтський хелпер для атомарного збереження екіпу (Phase 2)
 import { apiRequest } from "./core";
 import { useCharacterStore } from "../../state/characterStore";
+import type { Character } from "./typesAuthCharacter";
 
 export interface EquipCommitResult {
   ok: boolean;
-  heroJson: any;
+  character: Character;
 }
 
 /**

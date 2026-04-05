@@ -258,9 +258,9 @@ async function syncHeroBuffsAttempt(
   characterId: string,
   heroBuffs: any[],
   expectedRevision: number
-): Promise<{ ok: boolean; heroJson: any; priorRevisionUsed: number }> {
+): Promise<{ ok: boolean; character: Character; priorRevisionUsed: number }> {
   try {
-    const res = await apiRequest<{ ok: boolean; heroJson: any }>(
+    const res = await apiRequest<{ ok: boolean; character: Character }>(
       `/characters/${encodeURIComponent(characterId)}/hero-buffs-sync`,
       {
         method: "POST",
@@ -274,8 +274,7 @@ async function syncHeroBuffsAttempt(
       syncHeroBuffs: heroBuffs,
       expectedRevision,
     });
-    const hj = parseHeroJsonFromCharacter((character as any)?.heroJson);
-    return { ok: true, heroJson: hj, priorRevisionUsed: expectedRevision };
+    return { ok: true, character, priorRevisionUsed: expectedRevision };
   }
 }
 
@@ -286,7 +285,7 @@ async function syncHeroBuffsAttempt(
 export async function syncHeroBuffsAPI(
   characterId: string,
   data: { heroBuffs: any[]; expectedRevision: number }
-): Promise<{ ok: boolean; heroJson: any; priorRevisionUsed: number }> {
+): Promise<{ ok: boolean; character: Character; priorRevisionUsed: number }> {
   let rev = data.expectedRevision;
   try {
     rev = await readHeroRevisionFromGetCharacter(characterId);

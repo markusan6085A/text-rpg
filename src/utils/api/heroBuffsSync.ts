@@ -1,4 +1,4 @@
-import { useHeroStore } from "../../state/heroStore";
+import { useHeroStore, applyCharacterSnapshotFromApi } from "../../state/heroStore";
 import { useCharacterStore } from "../../state/characterStore";
 import { syncHeroBuffsAPI } from "./characters";
 
@@ -22,21 +22,14 @@ export function scheduleHeroBuffsSync(heroBuffs: any[]): void {
     expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
   })
     .then((res) => {
-      if (!res?.ok || !res.heroJson) return;
+      if (!res?.ok || !res.character) return;
+      const hj = (res.character as any)?.heroJson ?? {};
       const prior = Number(res.priorRevisionUsed ?? 0);
-      const nextRev = Number(res.heroJson.heroRevision ?? 0);
+      const nextRev = Number(hj.heroRevision ?? 0);
       // Бекенд без sync: revision не зростає — не підміняти локальні бафи відповіддю зі старим heroBuffs.
       if (!Number.isFinite(nextRev) || nextRev <= prior) return;
+      applyCharacterSnapshotFromApi(res.character);
       const store = useHeroStore.getState();
-      store.applyServerSync(
-        {
-          heroJson: {
-            ...(store.hero as any)?.heroJson,
-            heroBuffs: res.heroJson.heroBuffs,
-          },
-        },
-        { heroRevision: res.heroJson.heroRevision, updatedAt: Date.now() }
-      );
       const heroName = store.hero?.name;
       if (heroName) {
         void (async () => {
@@ -44,7 +37,7 @@ export function scheduleHeroBuffsSync(heroBuffs: any[]): void {
             const { cleanupBuffs } = await import("../../state/battle/helpers");
             const { persistBattle, loadBattle } = await import("../../state/battle/persist");
             const { battleStoreRef } = await import("../../state/battleStoreRef");
-            const raw = Array.isArray(res.heroJson.heroBuffs) ? res.heroJson.heroBuffs : [];
+            const raw = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
             const cleaned = cleanupBuffs(raw as any, Date.now());
             const saved = loadBattle(heroName) || {};
             persistBattle({ ...saved, heroBuffs: cleaned }, heroName);

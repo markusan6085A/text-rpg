@@ -5,6 +5,37 @@ import { addVersioning } from "../../../heroJsonValidator";
 import { registerPkSessionRoutes } from "./pk";
 import { registerTvtRoutes } from "./tvt/routes";
 
+/** Повна JSON-відповідь персонажа після мутації (узгоджено з learn-skill / sell). */
+function serializeCharacterRow(c: Record<string, any>) {
+  return {
+    ...c,
+    exp: Number(c.exp ?? 0),
+    adena: Number(c.adena ?? 0),
+    aa: Number(c.aa ?? 0),
+    sp: Number(c.sp ?? 0),
+    coinLuck: Number(c.coinLuck ?? 0),
+    coinsSilver: Number(c.coinsSilver ?? 0),
+  };
+}
+
+const CHARACTER_SNAPSHOT_SELECT = {
+  id: true,
+  name: true,
+  race: true,
+  classId: true,
+  sex: true,
+  level: true,
+  exp: true,
+  sp: true,
+  adena: true,
+  aa: true,
+  coinLuck: true,
+  coinsSilver: true,
+  heroJson: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
 /**
  * Дії з персонажем (PK/арена винесені в ./pk/*).
  */
@@ -66,7 +97,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
             nickColor,
             heroJson: updatedHeroJson,
           },
-          select: { id: true, coinLuck: true, nickColor: true, heroJson: true, name: true, level: true, exp: true, sp: true, adena: true, aa: true, updatedAt: true },
+          select: { ...CHARACTER_SNAPSHOT_SELECT, nickColor: true },
         });
         return { ok: true as const, updated };
       });
@@ -77,7 +108,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "not enough coinLuck", coinLuck: txRes.coinLuck });
       }
 
-      return reply.send({ ok: true, character: { ...txRes.updated, exp: Number(txRes.updated.exp) } });
+      return reply.send({ ok: true, character: serializeCharacterRow(txRes.updated as any) });
     } catch (error) {
       app.log.error(error, "Error colorize-nick:");
       return reply.code(500).send({
@@ -139,7 +170,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
             name: newName,
             heroJson: updatedHeroJson,
           },
-          select: { id: true, coinLuck: true, name: true, heroJson: true, level: true, exp: true, sp: true, adena: true, aa: true, updatedAt: true },
+          select: { ...CHARACTER_SNAPSHOT_SELECT, nickColor: true },
         });
         return { ok: true as const, updated };
       });
@@ -150,7 +181,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         return reply.code(400).send({ error: "not enough coinLuck", coinLuck: txRes.coinLuck });
       }
 
-      return reply.send({ ok: true, character: { ...txRes.updated, exp: Number(txRes.updated.exp) } });
+      return reply.send({ ok: true, character: serializeCharacterRow(txRes.updated as any) });
     } catch (error) {
       app.log.error(error, "Error rename-nick:");
       return reply.code(500).send({
@@ -460,7 +491,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         const updated = await tx.character.update({
           where: { id: ch.id },
           data: { heroJson: versionedHeroJson, lastActivityAt: new Date() },
-          select: { id: true, name: true, race: true, classId: true, sex: true, level: true, exp: true, sp: true, adena: true, aa: true, coinLuck: true, coinsSilver: true, heroJson: true, updatedAt: true },
+          select: { ...CHARACTER_SNAPSHOT_SELECT, nickColor: true },
         });
         return { ok: true as const, updated };
       });
@@ -471,7 +502,7 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         }
         return reply.code(404).send({ error: "character not found" });
       }
-      return reply.send({ ok: true, character: { ...txRes.updated, exp: Number(txRes.updated.exp) } });
+      return reply.send({ ok: true, character: serializeCharacterRow(txRes.updated as any) });
     } catch (error) {
       app.log.error(error, "Error resurrect character:");
       return reply.code(500).send({
@@ -532,34 +563,12 @@ export async function characterActionsRoutes(app: FastifyInstance) {
         const updated = await tx.character.update({
           where: { id: myChar.id },
           data: { adena: BigInt(nextAdena), heroJson: versionedHeroJson as any },
-          select: {
-            id: true,
-            name: true,
-            race: true,
-            classId: true,
-            sex: true,
-            level: true,
-            exp: true,
-            sp: true,
-            adena: true,
-            aa: true,
-            coinLuck: true,
-            coinsSilver: true,
-            heroJson: true,
-            updatedAt: true,
-          },
+          select: { ...CHARACTER_SNAPSHOT_SELECT, nickColor: true },
         });
         return {
           ok: true as const,
           nextAdena,
-          character: {
-            ...updated,
-            exp: Number((updated as any).exp ?? 0),
-            adena: Number((updated as any).adena ?? 0),
-            aa: Number((updated as any).aa ?? 0),
-            coinLuck: Number((updated as any).coinLuck ?? 0),
-            coinsSilver: Number((updated as any).coinsSilver ?? 0),
-          },
+          character: serializeCharacterRow(updated as any),
         };
       });
 

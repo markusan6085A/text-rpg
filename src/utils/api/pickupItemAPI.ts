@@ -1,10 +1,11 @@
 // Клієнтський хелпер для серверного pickup-item
 import { apiRequest } from "./core";
 import { useCharacterStore } from "../../state/characterStore";
+import type { Character } from "./typesAuthCharacter";
 
 export interface PickupItemResult {
   ok: boolean;
-  heroJson: any;
+  character: Character;
 }
 
 export interface PickupItemEntry {

@@ -3762,14 +3762,32 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         }
 
         const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
-        await tx.character.update({
+        const updated = await tx.character.update({
           where: { id },
           data: {
             heroJson: versionedHeroJson as any,
             lastActivityAt: new Date(),
           },
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            coinsSilver: true,
+            nickColor: true,
+            heroJson: true,
+            createdAt: true,
+            updatedAt: true,
+          },
         });
-        return { ok: true as const, versionedHeroJson };
+        return { ok: true as const, updated };
       });
 
       if (!txRes.ok) {
@@ -3789,7 +3807,19 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         });
       }
 
-      return reply.send({ ok: true, heroJson: txRes.versionedHeroJson });
+      const buffCh = txRes.updated as any;
+      return reply.send({
+        ok: true,
+        character: {
+          ...buffCh,
+          exp: Number(buffCh.exp),
+          adena: Number(buffCh.adena ?? 0),
+          aa: Number(buffCh.aa ?? 0),
+          sp: Number(buffCh.sp ?? 0),
+          coinLuck: Number(buffCh.coinLuck ?? 0),
+          coinsSilver: Number(buffCh.coinsSilver ?? 0),
+        },
+      });
     } catch (e) {
       console.error("[hero-buffs-sync]", e);
       return reply.code(500).send({ error: "internal_error" });
@@ -4544,13 +4574,31 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         equipmentEnchantLevels: body.equipmentEnchantLevels ?? heroJson.equipmentEnchantLevels ?? {},
       };
       const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
-      await tx.character.update({
+      const updated = await tx.character.update({
         where: { id },
         data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          nickColor: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       });
       return {
         ok: true as const,
-        versionedHeroJson,
+        updated,
         characterName: String(row.name ?? ""),
       };
     });
@@ -4585,7 +4633,18 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       clientIp: getClientIp(req),
     });
 
-    return reply.send({ ok: true, heroJson: txRes.versionedHeroJson });
+    const eqCh = txRes.updated as any;
+    const serializedEquip = {
+      ...eqCh,
+      exp: Number(eqCh.exp),
+      adena: Number(eqCh.adena ?? 0),
+      aa: Number(eqCh.aa ?? 0),
+      sp: Number(eqCh.sp ?? 0),
+      coinLuck: Number(eqCh.coinLuck ?? 0),
+      coinsSilver: Number(eqCh.coinsSilver ?? 0),
+    };
+
+    return reply.send({ ok: true, character: serializedEquip });
   });
 
   // POST /characters/:id/shop/buy — server-side authoritative shop purchase (GM/regular/quest)
@@ -5170,14 +5229,32 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
       const newHeroJson: any = { ...heroJson, inventory, overflowChest: overflowItems };
       const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
-      await tx.character.update({
+      const updatedPickup = await tx.character.update({
         where: { id },
         data: { heroJson: versionedHeroJson as any, lastActivityAt: new Date() },
+        select: {
+          id: true,
+          name: true,
+          race: true,
+          classId: true,
+          sex: true,
+          level: true,
+          exp: true,
+          sp: true,
+          adena: true,
+          aa: true,
+          coinLuck: true,
+          coinsSilver: true,
+          nickColor: true,
+          heroJson: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       });
 
       return {
         ok: true as const,
-        heroJson: versionedHeroJson,
+        updated: updatedPickup,
         characterName: String(row.name ?? ""),
         addedItems,
         overflowCount:
@@ -5209,6 +5286,18 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       clientIp: getClientIp(req),
     });
 
-    return reply.send({ ok: true, heroJson: txRes.heroJson });
+    const pu = txRes.updated as any;
+    return reply.send({
+      ok: true,
+      character: {
+        ...pu,
+        exp: Number(pu.exp),
+        adena: Number(pu.adena ?? 0),
+        aa: Number(pu.aa ?? 0),
+        sp: Number(pu.sp ?? 0),
+        coinLuck: Number(pu.coinLuck ?? 0),
+        coinsSilver: Number(pu.coinsSilver ?? 0),
+      },
+    });
   });
 }

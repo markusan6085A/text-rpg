@@ -674,11 +674,8 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         equipmentEnchantLevels: (updated.equipmentEnchantLevels ?? {}) as Record<string, number>,
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
       }).then((result) => {
-        if (result.ok && result.heroJson?.heroRevision) {
-          get().updateServerState(
-            { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() },
-            {}
-          );
+        if (result.ok && (result as any).character) {
+          applyCharacterSnapshotFromApi((result as any).character);
         }
       }).catch(() => { /* regular PUT will still save the state */ });
     }).catch(() => {});
@@ -712,11 +709,8 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         equipmentEnchantLevels: (updated.equipmentEnchantLevels ?? {}) as Record<string, number>,
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
       }).then((result) => {
-        if (result.ok && result.heroJson?.heroRevision) {
-          get().updateServerState(
-            { heroRevision: result.heroJson.heroRevision, updatedAt: Date.now() },
-            {}
-          );
+        if (result.ok && (result as any).character) {
+          applyCharacterSnapshotFromApi((result as any).character);
         }
       }).catch(() => {});
     }).catch(() => {});
@@ -831,6 +825,15 @@ export function applyCharacterSnapshotFromApi(character: unknown, opts?: ApplyCh
   heroJson.overflowChest = overflowChest;
   heroJson.activeDyes = activeDyes;
 
+  const eqFromHj =
+    serverHj.equipment != null && typeof serverHj.equipment === "object"
+      ? (serverHj.equipment as Record<string, unknown>)
+      : null;
+  const encFromHj =
+    serverHj.equipmentEnchantLevels != null && typeof serverHj.equipmentEnchantLevels === "object"
+      ? (serverHj.equipmentEnchantLevels as Record<string, number>)
+      : null;
+
   const coinLuckFromServer = Number(c.coinLuck ?? currentHero.coinOfLuck ?? 0);
   const aaFromServer = Number(
     c.aa ?? c.ancientAdena ?? c.ancient_adena ?? (currentHero as any).aa ?? 0
@@ -866,6 +869,8 @@ export function applyCharacterSnapshotFromApi(character: unknown, opts?: ApplyCh
     overflowChest,
     activeDyes,
     heroJson,
+    ...(eqFromHj ? { equipment: { ...eqFromHj } as any } : {}),
+    ...(encFromHj ? { equipmentEnchantLevels: { ...encFromHj } } : {}),
   };
 
   if (typeof c.name === "string" && c.name.trim()) {
