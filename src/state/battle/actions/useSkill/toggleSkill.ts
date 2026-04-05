@@ -54,8 +54,7 @@ export function handleToggleOff(
   } catch (e) {
     console.warn("[handleToggleOff] recalculateAllStats failed", e);
   }
-  // heroJson.heroBuffs інакше лишається зі старим toggle — saveHeroToLocalStorageOnly мерджить json+battle
-  // з пріоритетом json і «Продолжить» після вбивства знову піднімає тогл.
+  // Відправка знімка на сервер (hero-buffs-sync): канонічні бафи після відповіді — з БД (applyServerSync).
   const hj =
     (hero as any).heroJson && typeof (hero as any).heroJson === "object" ? { ...(hero as any).heroJson } : {};
   updateHero({

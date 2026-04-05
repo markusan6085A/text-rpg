@@ -441,7 +441,7 @@ export function handleBuffSkill(
       ? { battleStats: recalculated.baseFinalStats }
       : {}),
   });
-  // Усі зміни heroBuffs (не лише тогл): інакше PUT ігнорує бафи, а в профілі інших гравців бафи зʼявляються лише після kill/battle-finish.
+  // Онлайн: знімок бафів одразу відправляється на сервер (hero-buffs-sync / CAS). Канонічний список у store — з відповіді applyServerSync.
   void import("../../../../utils/api/heroBuffsSync")
     .then(({ scheduleHeroBuffsSync }) => scheduleHeroBuffsSync(newBuffs))
     .catch(() => {});
