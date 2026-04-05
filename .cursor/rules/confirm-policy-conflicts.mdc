@@ -18,6 +18,8 @@ alwaysApply: true
 | `common-pitfalls.mdc` | Типові технічні помилки (TS, бій, PK, бафи тощо). |
 | `resource-icons-from-l2dop.mdc` | Політика іконок ресурсів з l2dop. |
 | `new-features-persistence.mdc` | Новий контент (шоп, скроли, бафи) має зберігатися після F5/API merge, не «тільки в UI». |
+| `game-server-snapshot-only.mdc` | Нова логіка на сервері; після мутації — повний `character`, клієнт — `applyCharacterSnapshotFromApi`. |
+| `server-snapshot-mutations.mdc` | CAS/revision, lock, заборона локальних економічних патчів після мутації. |
 
 **Те, що вже працює і покрито цими правилами, не переписувати**, якщо задача цього не вимагає.
 

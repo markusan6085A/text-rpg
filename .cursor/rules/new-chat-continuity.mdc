@@ -9,6 +9,7 @@ alwaysApply: true
 
 ## Активна ініціатива (text-rpg)
 
+- **Сервер + Snapshot Only:** нова логіка й економіка — лише на бекенді; після мутації API повертає повний `character`, клієнт — **`applyCharacterSnapshotFromApi`**. Див. `.cursor/rules/game-server-snapshot-only.mdc` та `server-snapshot-mutations.mdc`.
 - **Теплий L2-UI** для екранів: `getCityUiVariant()` з `src/utils/cityUiVariant.ts`, палітра та рамки як у канону в `.cursor/rules/l2-warm-ui-screens.mdc` (референс-список файлів там же).
 - **Пакети роботи:** по **2 логічні одиниці** (екрани/модалки) → `npx tsc -b` → за потреби оновити список у `l2-warm-ui-screens.mdc` → `git add` / `git commit` / `git push` (див. `.cursor/rules/always-push-changes.mdc`).
 - **Не чіпати** логіку героя/merge/coinLuck/localStorage — див. `hero-currency-merge-and-storage.mdc`; **скіли після зміни класу та екіп/заточка між пристроями** — `hero-loadapi-skills-equip-sync.mdc`; мінімальні патчі — `do-not-break-what-works.mdc`.
