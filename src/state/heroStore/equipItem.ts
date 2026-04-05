@@ -81,6 +81,9 @@ function findMatchingInventoryIndex(inventory: HeroInventoryItem[], item: HeroIn
   const itemInsertedLS = (item as any).insertedLS;
   const itemInsertedCrystal = (item as any).insertedCrystal;
   const itemEnchantLevel = (item as any).enchantLevel ?? null;
+  const candidatesById = inventory.filter((i: any) => i && i.id === item.id);
+  const hasAmbiguousEnchantById =
+    new Set(candidatesById.map((i: any) => Number(i?.enchantLevel ?? 0))).size > 1;
 
   // Pass 1: точний збіг з enchantLevel + LS + crystal
   let itemIndex = inventory.findIndex((i: any) => {
@@ -94,7 +97,9 @@ function findMatchingInventoryIndex(inventory: HeroInventoryItem[], item: HeroIn
   });
 
   // Pass 2: LS/crystal збіг без enchantLevel (fallback для предметів без enchantLevel)
-  if (itemIndex < 0) {
+  // Якщо в інвентарі є кілька однакових id з різною заточкою — без enchantLevel fallback заборонено:
+  // інакше можемо зняти +0, коли гравець одягає +30.
+  if (itemIndex < 0 && !hasAmbiguousEnchantById) {
     itemIndex = inventory.findIndex((i: any) => {
       if (!i || i.id !== item.id) return false;
       if (itemInsertedLS != null && (i.insertedLS ?? null) !== itemInsertedLS) return false;
@@ -105,7 +110,9 @@ function findMatchingInventoryIndex(inventory: HeroInventoryItem[], item: HeroIn
   }
 
   // Pass 3: ID-only fallback (останній захід)
-  if (itemIndex < 0) itemIndex = inventory.findIndex((i: any) => i && i.id === item.id);
+  if (itemIndex < 0 && candidatesById.length <= 1) {
+    itemIndex = inventory.findIndex((i: any) => i && i.id === item.id);
+  }
   return itemIndex;
 }
 
@@ -370,7 +377,8 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
   }
 
   const currentEquipped = hero.equipment?.[slot] || null;
-  let newInventory = [...(hero.inventory || [])];
+  const sourceInventory = hero.inventory || [];
+  let newInventory = [...sourceInventory];
   
   // Перевіряємо, чи це дворучна зброя в обох слотах
   let isTwoHandedInBothSlots = false;
@@ -391,14 +399,27 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
     }
   }
   
-  // Перевіряємо наявність того ж рядка, що й removeItemFromInventory (LS / crystal)
-  if (findMatchingInventoryIndex(newInventory, item) === -1) {
+  // Спочатку пробуємо точний рядок за посиланням (клік у UI), далі безпечний matcher.
+  const byReferenceIndex = sourceInventory.findIndex((i: any) => i === item);
+  const resolvedInventoryIndex =
+    byReferenceIndex >= 0 ? byReferenceIndex : findMatchingInventoryIndex(newInventory, item);
+  if (resolvedInventoryIndex === -1) {
     console.warn(`[equipItemLogic] ⚠️ ITEM NOT FOUND IN INVENTORY! Aborting equip.`, { itemId: item.id });
     return hero;
   }
+  const resolvedInventoryItem = sourceInventory[resolvedInventoryIndex] ?? item;
   
   // Видаляємо предмет з інвентаря
-  newInventory = removeItemFromInventory(newInventory, item, isTwoHandedInBothSlots);
+  if (resolvedInventoryIndex >= 0 && resolvedInventoryIndex < newInventory.length) {
+    const existingItem = newInventory[resolvedInventoryIndex];
+    if (existingItem.count && existingItem.count > 1) {
+      newInventory[resolvedInventoryIndex] = { ...existingItem, count: existingItem.count - 1 };
+    } else {
+      newInventory.splice(resolvedInventoryIndex, 1);
+    }
+  } else {
+    newInventory = removeItemFromInventory(newInventory, resolvedInventoryItem, isTwoHandedInBothSlots);
+  }
 
   // Перевіряємо, чи це комплектний торс
   let isSetTorsoBeingRemoved = false;
@@ -457,8 +478,8 @@ export function equipItemLogic(hero: Hero, item: HeroInventoryItem): Hero {
   let newEquipmentEnchantLevels: Record<string, number> = {
     ...(hero.equipmentEnchantLevels || {}),
   };
-  if (item.enchantLevel !== undefined) {
-    newEquipmentEnchantLevels[slot] = item.enchantLevel;
+  if ((resolvedInventoryItem as any).enchantLevel !== undefined) {
+    newEquipmentEnchantLevels[slot] = Number((resolvedInventoryItem as any).enchantLevel ?? 0);
   } else {
     newEquipmentEnchantLevels[slot] = 0;
   }
