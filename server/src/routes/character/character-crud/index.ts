@@ -365,6 +365,8 @@ const CLIENT_PUT_HEROJSON_ALLOWLIST = new Set<string>([
   "mobsKilled",
   "pkCount",
   "pvpKills",
+  /** Косметика ніка (те саме що POST /colorize-nick); колонка Character.nickColor синхронізується при PUT. */
+  "nickColor",
 ]);
 
 const CLIENT_PUT_HEROJSON_DENYLIST = new Set<string>([
@@ -387,6 +389,21 @@ function sanitizeClientHeroJsonForPut(
   for (const key of Object.keys(incoming)) {
     if (CLIENT_PUT_HEROJSON_DENYLIST.has(key)) {
       rejectedKeys.push(key);
+      continue;
+    }
+    if (key === "nickColor") {
+      const raw = incoming[key];
+      if (raw === undefined) continue;
+      if (raw === null || raw === "") {
+        sanitized[key] = "";
+        continue;
+      }
+      const s = String(raw).trim();
+      if (!/^#[0-9A-Fa-f]{6}$/.test(s)) {
+        rejectedKeys.push(key);
+        continue;
+      }
+      sanitized[key] = s;
       continue;
     }
     if (CLIENT_PUT_HEROJSON_ALLOWLIST.has(key) || Object.prototype.hasOwnProperty.call(existing, key)) {
@@ -2101,6 +2118,15 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         const oldRevision = oldHeroJson.heroRevision || 0;
         const versionedHeroJson = addVersioning(invariantResult.heroJson, oldRevision);
         updateData.heroJson = versionedHeroJson;
+        const ncRaw = (versionedHeroJson as any)?.nickColor;
+        if (ncRaw !== undefined && ncRaw !== null) {
+          const nc = String(ncRaw).trim();
+          if (nc === "") {
+            (updateData as any).nickColor = null;
+          } else if (/^#[0-9A-Fa-f]{6}$/.test(nc)) {
+            (updateData as any).nickColor = nc;
+          }
+        }
         app.log.info({
           accountId: auth.accountId,
           characterId: id,
@@ -2201,6 +2227,11 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             params.push((updateData as any).coinsSilver);
             paramIndex++;
           }
+          if (Object.prototype.hasOwnProperty.call(updateData, "nickColor")) {
+            setParts.push(`"nickColor" = $${paramIndex}`);
+            params.push((updateData as any).nickColor);
+            paramIndex++;
+          }
           if (updateData.lastActivityAt) {
             setParts.push(`"lastActivityAt" = $${paramIndex}`);
             params.push(updateData.lastActivityAt);
@@ -2244,6 +2275,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
               coinLuck: true,
               coinsSilver: true,
               heroJson: true,
+              nickColor: true,
               updatedAt: true,
             },
           });
@@ -2299,6 +2331,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             coinLuck: true,
             coinsSilver: true,
             heroJson: true,
+            nickColor: true,
             updatedAt: true,
           },
         });
