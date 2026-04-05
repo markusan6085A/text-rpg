@@ -1,0 +1,7731 @@
+{
+  "version": 1,
+  "skills": {
+    "1": {
+      "id": 1,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 42,
+          "power": 517
+        },
+        "2": {
+          "mpCost": 43,
+          "power": 549
+        },
+        "3": {
+          "mpCost": 45,
+          "power": 583
+        },
+        "4": {
+          "mpCost": 45,
+          "power": 619
+        },
+        "5": {
+          "mpCost": 46,
+          "power": 656
+        },
+        "6": {
+          "mpCost": 47,
+          "power": 694
+        },
+        "7": {
+          "mpCost": 49,
+          "power": 735
+        },
+        "8": {
+          "mpCost": 50,
+          "power": 777
+        },
+        "9": {
+          "mpCost": 52,
+          "power": 820
+        },
+        "10": {
+          "mpCost": 53,
+          "power": 865
+        },
+        "11": {
+          "mpCost": 55,
+          "power": 912
+        },
+        "12": {
+          "mpCost": 56,
+          "power": 960
+        },
+        "13": {
+          "mpCost": 58,
+          "power": 1010
+        },
+        "14": {
+          "mpCost": 58,
+          "power": 1062
+        },
+        "15": {
+          "mpCost": 59,
+          "power": 1115
+        },
+        "16": {
+          "mpCost": 61,
+          "power": 1169
+        },
+        "17": {
+          "mpCost": 62,
+          "power": 1225
+        },
+        "18": {
+          "mpCost": 64,
+          "power": 1283
+        },
+        "19": {
+          "mpCost": 65,
+          "power": 1342
+        },
+        "20": {
+          "mpCost": 67,
+          "power": 1402
+        },
+        "21": {
+          "mpCost": 68,
+          "power": 1464
+        },
+        "22": {
+          "mpCost": 70,
+          "power": 1527
+        },
+        "23": {
+          "mpCost": 71,
+          "power": 1591
+        },
+        "24": {
+          "mpCost": 71,
+          "power": 1656
+        },
+        "25": {
+          "mpCost": 73,
+          "power": 1722
+        },
+        "26": {
+          "mpCost": 74,
+          "power": 1789
+        },
+        "27": {
+          "mpCost": 75,
+          "power": 1857
+        },
+        "28": {
+          "mpCost": 77,
+          "power": 1926
+        },
+        "29": {
+          "mpCost": 78,
+          "power": 1995
+        },
+        "30": {
+          "mpCost": 79,
+          "power": 2065
+        },
+        "31": {
+          "mpCost": 80,
+          "power": 2135
+        },
+        "32": {
+          "mpCost": 82,
+          "power": 2206
+        },
+        "33": {
+          "mpCost": 83,
+          "power": 2277
+        },
+        "34": {
+          "mpCost": 84,
+          "power": 2347
+        },
+        "35": {
+          "mpCost": 85,
+          "power": 2417
+        },
+        "36": {
+          "mpCost": 86,
+          "power": 2488
+        },
+        "37": {
+          "mpCost": 86,
+          "power": 2557
+        }
+      }
+    },
+    "3": {
+      "id": 3,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 10,
+          "power": 25
+        },
+        "2": {
+          "mpCost": 10,
+          "power": 27
+        },
+        "3": {
+          "mpCost": 11,
+          "power": 30
+        },
+        "4": {
+          "mpCost": 13,
+          "power": 39
+        },
+        "5": {
+          "mpCost": 13,
+          "power": 42
+        },
+        "6": {
+          "mpCost": 14,
+          "power": 46
+        },
+        "7": {
+          "mpCost": 17,
+          "power": 60
+        },
+        "8": {
+          "mpCost": 18,
+          "power": 65
+        },
+        "9": {
+          "mpCost": 19,
+          "power": 70
+        }
+      }
+    },
+    "5": {
+      "id": 5,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 59,
+          "power": 918
+        },
+        "2": {
+          "mpCost": 60,
+          "power": 971
+        },
+        "3": {
+          "mpCost": 62,
+          "power": 1025
+        },
+        "4": {
+          "mpCost": 64,
+          "power": 1081
+        },
+        "5": {
+          "mpCost": 66,
+          "power": 1140
+        },
+        "6": {
+          "mpCost": 67,
+          "power": 1200
+        },
+        "7": {
+          "mpCost": 69,
+          "power": 1262
+        },
+        "8": {
+          "mpCost": 69,
+          "power": 1327
+        },
+        "9": {
+          "mpCost": 71,
+          "power": 1393
+        },
+        "10": {
+          "mpCost": 73,
+          "power": 1461
+        },
+        "11": {
+          "mpCost": 75,
+          "power": 1531
+        },
+        "12": {
+          "mpCost": 76,
+          "power": 1603
+        },
+        "13": {
+          "mpCost": 78,
+          "power": 1677
+        },
+        "14": {
+          "mpCost": 80,
+          "power": 1753
+        },
+        "15": {
+          "mpCost": 82,
+          "power": 1830
+        },
+        "16": {
+          "mpCost": 83,
+          "power": 1908
+        },
+        "17": {
+          "mpCost": 85,
+          "power": 1988
+        },
+        "18": {
+          "mpCost": 85,
+          "power": 2070
+        },
+        "19": {
+          "mpCost": 87,
+          "power": 2153
+        },
+        "20": {
+          "mpCost": 89,
+          "power": 2237
+        },
+        "21": {
+          "mpCost": 90,
+          "power": 2322
+        },
+        "22": {
+          "mpCost": 92,
+          "power": 2408
+        },
+        "23": {
+          "mpCost": 93,
+          "power": 2494
+        },
+        "24": {
+          "mpCost": 95,
+          "power": 2581
+        },
+        "25": {
+          "mpCost": 96,
+          "power": 2669
+        },
+        "26": {
+          "mpCost": 98,
+          "power": 2757
+        },
+        "27": {
+          "mpCost": 99,
+          "power": 2846
+        },
+        "28": {
+          "mpCost": 101,
+          "power": 2934
+        },
+        "29": {
+          "mpCost": 102,
+          "power": 3022
+        },
+        "30": {
+          "mpCost": 104,
+          "power": 3109
+        },
+        "31": {
+          "mpCost": 105,
+          "power": 3196
+        }
+      }
+    },
+    "6": {
+      "id": 6,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 25,
+          "power": 369
+        },
+        "2": {
+          "mpCost": 26,
+          "power": 392
+        },
+        "3": {
+          "mpCost": 27,
+          "power": 417
+        },
+        "4": {
+          "mpCost": 27,
+          "power": 442
+        },
+        "5": {
+          "mpCost": 28,
+          "power": 469
+        },
+        "6": {
+          "mpCost": 29,
+          "power": 496
+        },
+        "7": {
+          "mpCost": 30,
+          "power": 525
+        },
+        "8": {
+          "mpCost": 30,
+          "power": 555
+        },
+        "9": {
+          "mpCost": 31,
+          "power": 586
+        },
+        "10": {
+          "mpCost": 32,
+          "power": 618
+        },
+        "11": {
+          "mpCost": 33,
+          "power": 651
+        },
+        "12": {
+          "mpCost": 34,
+          "power": 686
+        },
+        "13": {
+          "mpCost": 35,
+          "power": 722
+        },
+        "14": {
+          "mpCost": 35,
+          "power": 758
+        },
+        "15": {
+          "mpCost": 36,
+          "power": 796
+        },
+        "16": {
+          "mpCost": 37,
+          "power": 835
+        },
+        "17": {
+          "mpCost": 38,
+          "power": 875
+        },
+        "18": {
+          "mpCost": 38,
+          "power": 916
+        },
+        "19": {
+          "mpCost": 39,
+          "power": 959
+        },
+        "20": {
+          "mpCost": 40,
+          "power": 1002
+        },
+        "21": {
+          "mpCost": 41,
+          "power": 1046
+        },
+        "22": {
+          "mpCost": 42,
+          "power": 1091
+        },
+        "23": {
+          "mpCost": 43,
+          "power": 1136
+        },
+        "24": {
+          "mpCost": 43,
+          "power": 1183
+        },
+        "25": {
+          "mpCost": 44,
+          "power": 1230
+        },
+        "26": {
+          "mpCost": 45,
+          "power": 1278
+        },
+        "27": {
+          "mpCost": 45,
+          "power": 1327
+        },
+        "28": {
+          "mpCost": 46,
+          "power": 1376
+        },
+        "29": {
+          "mpCost": 47,
+          "power": 1425
+        },
+        "30": {
+          "mpCost": 48,
+          "power": 1475
+        },
+        "31": {
+          "mpCost": 48,
+          "power": 1525
+        },
+        "32": {
+          "mpCost": 49,
+          "power": 1576
+        },
+        "33": {
+          "mpCost": 50,
+          "power": 1626
+        },
+        "34": {
+          "mpCost": 51,
+          "power": 1677
+        },
+        "35": {
+          "mpCost": 51,
+          "power": 1727
+        },
+        "36": {
+          "mpCost": 52,
+          "power": 1777
+        },
+        "37": {
+          "mpCost": 53,
+          "power": 1827
+        }
+      }
+    },
+    "7": {
+      "id": 7,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 55,
+          "power": 155
+        },
+        "2": {
+          "mpCost": 56,
+          "power": 163
+        },
+        "3": {
+          "mpCost": 58,
+          "power": 172
+        },
+        "4": {
+          "mpCost": 62,
+          "power": 209
+        },
+        "5": {
+          "mpCost": 64,
+          "power": 219
+        },
+        "6": {
+          "mpCost": 65,
+          "power": 229
+        },
+        "7": {
+          "mpCost": 67,
+          "power": 240
+        },
+        "8": {
+          "mpCost": 69,
+          "power": 251
+        },
+        "9": {
+          "mpCost": 70,
+          "power": 262
+        },
+        "10": {
+          "mpCost": 71,
+          "power": 273
+        },
+        "11": {
+          "mpCost": 73,
+          "power": 284
+        },
+        "12": {
+          "mpCost": 73,
+          "power": 296
+        },
+        "13": {
+          "mpCost": 75,
+          "power": 308
+        },
+        "14": {
+          "mpCost": 76,
+          "power": 320
+        },
+        "15": {
+          "mpCost": 77,
+          "power": 332
+        },
+        "16": {
+          "mpCost": 79,
+          "power": 344
+        },
+        "17": {
+          "mpCost": 80,
+          "power": 357
+        },
+        "18": {
+          "mpCost": 81,
+          "power": 369
+        },
+        "19": {
+          "mpCost": 83,
+          "power": 382
+        },
+        "20": {
+          "mpCost": 84,
+          "power": 394
+        },
+        "21": {
+          "mpCost": 85,
+          "power": 407
+        },
+        "22": {
+          "mpCost": 86,
+          "power": 420
+        },
+        "23": {
+          "mpCost": 88,
+          "power": 432
+        },
+        "24": {
+          "mpCost": 89,
+          "power": 445
+        },
+        "25": {
+          "mpCost": 90,
+          "power": 457
+        }
+      }
+    },
+    "9": {
+      "id": 9,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 46,
+          "power": 111
+        },
+        "2": {
+          "mpCost": 47,
+          "power": 118
+        },
+        "3": {
+          "mpCost": 49,
+          "power": 124
+        },
+        "4": {
+          "mpCost": 50,
+          "power": 132
+        },
+        "5": {
+          "mpCost": 52,
+          "power": 139
+        },
+        "6": {
+          "mpCost": 53,
+          "power": 147
+        },
+        "7": {
+          "mpCost": 55,
+          "power": 155
+        },
+        "8": {
+          "mpCost": 56,
+          "power": 163
+        },
+        "9": {
+          "mpCost": 58,
+          "power": 172
+        },
+        "10": {
+          "mpCost": 59,
+          "power": 181
+        },
+        "11": {
+          "mpCost": 59,
+          "power": 190
+        },
+        "12": {
+          "mpCost": 61,
+          "power": 199
+        },
+        "13": {
+          "mpCost": 62,
+          "power": 209
+        },
+        "14": {
+          "mpCost": 64,
+          "power": 219
+        },
+        "15": {
+          "mpCost": 65,
+          "power": 229
+        },
+        "16": {
+          "mpCost": 67,
+          "power": 240
+        },
+        "17": {
+          "mpCost": 69,
+          "power": 251
+        },
+        "18": {
+          "mpCost": 70,
+          "power": 262
+        },
+        "19": {
+          "mpCost": 71,
+          "power": 273
+        },
+        "20": {
+          "mpCost": 73,
+          "power": 284
+        },
+        "21": {
+          "mpCost": 73,
+          "power": 296
+        },
+        "22": {
+          "mpCost": 75,
+          "power": 308
+        },
+        "23": {
+          "mpCost": 76,
+          "power": 320
+        },
+        "24": {
+          "mpCost": 77,
+          "power": 332
+        },
+        "25": {
+          "mpCost": 79,
+          "power": 344
+        },
+        "26": {
+          "mpCost": 80,
+          "power": 357
+        },
+        "27": {
+          "mpCost": 81,
+          "power": 369
+        },
+        "28": {
+          "mpCost": 83,
+          "power": 382
+        },
+        "29": {
+          "mpCost": 84,
+          "power": 394
+        },
+        "30": {
+          "mpCost": 85,
+          "power": 407
+        },
+        "31": {
+          "mpCost": 86,
+          "power": 420
+        },
+        "32": {
+          "mpCost": 88,
+          "power": 432
+        },
+        "33": {
+          "mpCost": 89,
+          "power": 445
+        },
+        "34": {
+          "mpCost": 90,
+          "power": 457
+        }
+      }
+    },
+    "16": {
+      "id": 16,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 9,
+          "power": 73
+        },
+        "2": {
+          "mpCost": 9,
+          "power": 80
+        },
+        "3": {
+          "mpCost": 10,
+          "power": 88
+        },
+        "4": {
+          "mpCost": 11,
+          "power": 115
+        },
+        "5": {
+          "mpCost": 12,
+          "power": 126
+        },
+        "6": {
+          "mpCost": 13,
+          "power": 137
+        },
+        "7": {
+          "mpCost": 16,
+          "power": 178
+        },
+        "8": {
+          "mpCost": 16,
+          "power": 193
+        },
+        "9": {
+          "mpCost": 17,
+          "power": 210
+        },
+        "10": {
+          "mpCost": 19,
+          "power": 268
+        },
+        "11": {
+          "mpCost": 20,
+          "power": 291
+        },
+        "12": {
+          "mpCost": 20,
+          "power": 314
+        },
+        "13": {
+          "mpCost": 21,
+          "power": 367
+        },
+        "14": {
+          "mpCost": 22,
+          "power": 396
+        },
+        "15": {
+          "mpCost": 23,
+          "power": 427
+        },
+        "16": {
+          "mpCost": 25,
+          "power": 494
+        },
+        "17": {
+          "mpCost": 26,
+          "power": 531
+        },
+        "18": {
+          "mpCost": 27,
+          "power": 571
+        },
+        "19": {
+          "mpCost": 28,
+          "power": 656
+        },
+        "20": {
+          "mpCost": 28,
+          "power": 703
+        },
+        "21": {
+          "mpCost": 29,
+          "power": 752
+        },
+        "22": {
+          "mpCost": 32,
+          "power": 859
+        },
+        "23": {
+          "mpCost": 33,
+          "power": 916
+        },
+        "24": {
+          "mpCost": 34,
+          "power": 977
+        }
+      }
+    },
+    "17": {
+      "id": 17,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 59,
+          "power": 129
+        },
+        "2": {
+          "mpCost": 61,
+          "power": 137
+        },
+        "3": {
+          "mpCost": 63,
+          "power": 145
+        },
+        "4": {
+          "mpCost": 65,
+          "power": 153
+        },
+        "5": {
+          "mpCost": 67,
+          "power": 162
+        },
+        "6": {
+          "mpCost": 69,
+          "power": 171
+        },
+        "7": {
+          "mpCost": 71,
+          "power": 181
+        },
+        "8": {
+          "mpCost": 73,
+          "power": 190
+        },
+        "9": {
+          "mpCost": 75,
+          "power": 200
+        },
+        "10": {
+          "mpCost": 77,
+          "power": 211
+        },
+        "11": {
+          "mpCost": 77,
+          "power": 222
+        },
+        "12": {
+          "mpCost": 79,
+          "power": 233
+        },
+        "13": {
+          "mpCost": 81,
+          "power": 244
+        },
+        "14": {
+          "mpCost": 83,
+          "power": 256
+        },
+        "15": {
+          "mpCost": 85,
+          "power": 268
+        },
+        "16": {
+          "mpCost": 87,
+          "power": 280
+        },
+        "17": {
+          "mpCost": 89,
+          "power": 293
+        },
+        "18": {
+          "mpCost": 91,
+          "power": 305
+        },
+        "19": {
+          "mpCost": 93,
+          "power": 318
+        },
+        "20": {
+          "mpCost": 94,
+          "power": 332
+        },
+        "21": {
+          "mpCost": 95,
+          "power": 345
+        },
+        "22": {
+          "mpCost": 97,
+          "power": 359
+        },
+        "23": {
+          "mpCost": 98,
+          "power": 373
+        },
+        "24": {
+          "mpCost": 100,
+          "power": 387
+        },
+        "25": {
+          "mpCost": 102,
+          "power": 402
+        },
+        "26": {
+          "mpCost": 104,
+          "power": 416
+        },
+        "27": {
+          "mpCost": 105,
+          "power": 431
+        },
+        "28": {
+          "mpCost": 107,
+          "power": 445
+        },
+        "29": {
+          "mpCost": 109,
+          "power": 460
+        },
+        "30": {
+          "mpCost": 110,
+          "power": 475
+        },
+        "31": {
+          "mpCost": 112,
+          "power": 489
+        },
+        "32": {
+          "mpCost": 113,
+          "power": 504
+        },
+        "33": {
+          "mpCost": 115,
+          "power": 519
+        },
+        "34": {
+          "mpCost": 116,
+          "power": 533
+        }
+      }
+    },
+    "19": {
+      "id": 19,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 80,
+          "power": 984
+        },
+        "2": {
+          "mpCost": 82,
+          "power": 1046
+        },
+        "3": {
+          "mpCost": 85,
+          "power": 1110
+        },
+        "4": {
+          "mpCost": 85,
+          "power": 1178
+        },
+        "5": {
+          "mpCost": 87,
+          "power": 1249
+        },
+        "6": {
+          "mpCost": 90,
+          "power": 1322
+        },
+        "7": {
+          "mpCost": 93,
+          "power": 1399
+        },
+        "8": {
+          "mpCost": 95,
+          "power": 1479
+        },
+        "9": {
+          "mpCost": 98,
+          "power": 1562
+        },
+        "10": {
+          "mpCost": 101,
+          "power": 1647
+        },
+        "11": {
+          "mpCost": 104,
+          "power": 1736
+        },
+        "12": {
+          "mpCost": 107,
+          "power": 1828
+        },
+        "13": {
+          "mpCost": 109,
+          "power": 1923
+        },
+        "14": {
+          "mpCost": 110,
+          "power": 2021
+        },
+        "15": {
+          "mpCost": 112,
+          "power": 2123
+        },
+        "16": {
+          "mpCost": 115,
+          "power": 2227
+        },
+        "17": {
+          "mpCost": 118,
+          "power": 2333
+        },
+        "18": {
+          "mpCost": 121,
+          "power": 2443
+        },
+        "19": {
+          "mpCost": 124,
+          "power": 2555
+        },
+        "20": {
+          "mpCost": 126,
+          "power": 2670
+        },
+        "21": {
+          "mpCost": 129,
+          "power": 2788
+        },
+        "22": {
+          "mpCost": 132,
+          "power": 2908
+        },
+        "23": {
+          "mpCost": 135,
+          "power": 3030
+        },
+        "24": {
+          "mpCost": 135,
+          "power": 3154
+        },
+        "25": {
+          "mpCost": 138,
+          "power": 3280
+        },
+        "26": {
+          "mpCost": 140,
+          "power": 3408
+        },
+        "27": {
+          "mpCost": 143,
+          "power": 3537
+        },
+        "28": {
+          "mpCost": 145,
+          "power": 3668
+        },
+        "29": {
+          "mpCost": 148,
+          "power": 3800
+        },
+        "30": {
+          "mpCost": 150,
+          "power": 3933
+        },
+        "31": {
+          "mpCost": 153,
+          "power": 4067
+        },
+        "32": {
+          "mpCost": 155,
+          "power": 4201
+        },
+        "33": {
+          "mpCost": 157,
+          "power": 4336
+        },
+        "34": {
+          "mpCost": 160,
+          "power": 4470
+        },
+        "35": {
+          "mpCost": 162,
+          "power": 4604
+        },
+        "36": {
+          "mpCost": 164,
+          "power": 4738
+        },
+        "37": {
+          "mpCost": 166,
+          "power": 4870
+        }
+      }
+    },
+    "24": {
+      "id": 24,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 139,
+          "power": 350
+        },
+        "2": {
+          "mpCost": 143,
+          "power": 370
+        },
+        "3": {
+          "mpCost": 147,
+          "power": 391
+        },
+        "4": {
+          "mpCost": 151,
+          "power": 412
+        },
+        "5": {
+          "mpCost": 155,
+          "power": 434
+        },
+        "6": {
+          "mpCost": 160,
+          "power": 457
+        },
+        "7": {
+          "mpCost": 164,
+          "power": 481
+        },
+        "8": {
+          "mpCost": 164,
+          "power": 506
+        },
+        "9": {
+          "mpCost": 168,
+          "power": 531
+        },
+        "10": {
+          "mpCost": 173,
+          "power": 557
+        },
+        "11": {
+          "mpCost": 177,
+          "power": 584
+        },
+        "12": {
+          "mpCost": 181,
+          "power": 611
+        },
+        "13": {
+          "mpCost": 185,
+          "power": 639
+        },
+        "14": {
+          "mpCost": 189,
+          "power": 668
+        },
+        "15": {
+          "mpCost": 194,
+          "power": 697
+        },
+        "16": {
+          "mpCost": 198,
+          "power": 727
+        },
+        "17": {
+          "mpCost": 202,
+          "power": 758
+        },
+        "18": {
+          "mpCost": 202,
+          "power": 789
+        },
+        "19": {
+          "mpCost": 206,
+          "power": 820
+        },
+        "20": {
+          "mpCost": 210,
+          "power": 852
+        },
+        "21": {
+          "mpCost": 214,
+          "power": 885
+        },
+        "22": {
+          "mpCost": 218,
+          "power": 917
+        },
+        "23": {
+          "mpCost": 222,
+          "power": 950
+        },
+        "24": {
+          "mpCost": 225,
+          "power": 984
+        },
+        "25": {
+          "mpCost": 229,
+          "power": 1017
+        },
+        "26": {
+          "mpCost": 232,
+          "power": 1051
+        },
+        "27": {
+          "mpCost": 236,
+          "power": 1084
+        },
+        "28": {
+          "mpCost": 239,
+          "power": 1118
+        },
+        "29": {
+          "mpCost": 243,
+          "power": 1151
+        },
+        "30": {
+          "mpCost": 246,
+          "power": 1185
+        },
+        "31": {
+          "mpCost": 249,
+          "power": 1218
+        }
+      }
+    },
+    "29": {
+      "id": 29,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 11,
+          "power": 29
+        },
+        "2": {
+          "mpCost": 12,
+          "power": 31
+        },
+        "3": {
+          "mpCost": 13,
+          "power": 34
+        },
+        "4": {
+          "mpCost": 15,
+          "power": 45
+        },
+        "5": {
+          "mpCost": 15,
+          "power": 49
+        },
+        "6": {
+          "mpCost": 16,
+          "power": 54
+        },
+        "7": {
+          "mpCost": 20,
+          "power": 69
+        },
+        "8": {
+          "mpCost": 21,
+          "power": 76
+        },
+        "9": {
+          "mpCost": 22,
+          "power": 82
+        },
+        "10": {
+          "mpCost": 25,
+          "power": 105
+        },
+        "11": {
+          "mpCost": 26,
+          "power": 113
+        },
+        "12": {
+          "mpCost": 26,
+          "power": 123
+        },
+        "13": {
+          "mpCost": 27,
+          "power": 143
+        },
+        "14": {
+          "mpCost": 28,
+          "power": 154
+        },
+        "15": {
+          "mpCost": 29,
+          "power": 166
+        },
+        "16": {
+          "mpCost": 32,
+          "power": 193
+        },
+        "17": {
+          "mpCost": 33,
+          "power": 207
+        },
+        "18": {
+          "mpCost": 34,
+          "power": 222
+        },
+        "19": {
+          "mpCost": 37,
+          "power": 256
+        },
+        "20": {
+          "mpCost": 37,
+          "power": 274
+        },
+        "21": {
+          "mpCost": 38,
+          "power": 293
+        },
+        "22": {
+          "mpCost": 41,
+          "power": 334
+        },
+        "23": {
+          "mpCost": 42,
+          "power": 357
+        },
+        "24": {
+          "mpCost": 44,
+          "power": 380
+        }
+      }
+    },
+    "30": {
+      "id": 30,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 53,
+          "power": 1107
+        },
+        "2": {
+          "mpCost": 55,
+          "power": 1176
+        },
+        "3": {
+          "mpCost": 57,
+          "power": 1249
+        },
+        "4": {
+          "mpCost": 57,
+          "power": 1325
+        },
+        "5": {
+          "mpCost": 58,
+          "power": 1405
+        },
+        "6": {
+          "mpCost": 60,
+          "power": 1488
+        },
+        "7": {
+          "mpCost": 62,
+          "power": 1574
+        },
+        "8": {
+          "mpCost": 64,
+          "power": 1664
+        },
+        "9": {
+          "mpCost": 66,
+          "power": 1757
+        },
+        "10": {
+          "mpCost": 67,
+          "power": 1853
+        },
+        "11": {
+          "mpCost": 69,
+          "power": 1953
+        },
+        "12": {
+          "mpCost": 71,
+          "power": 2057
+        },
+        "13": {
+          "mpCost": 73,
+          "power": 2164
+        },
+        "14": {
+          "mpCost": 73,
+          "power": 2274
+        },
+        "15": {
+          "mpCost": 75,
+          "power": 2388
+        },
+        "16": {
+          "mpCost": 77,
+          "power": 2505
+        },
+        "17": {
+          "mpCost": 79,
+          "power": 2625
+        },
+        "18": {
+          "mpCost": 81,
+          "power": 2748
+        },
+        "19": {
+          "mpCost": 83,
+          "power": 2875
+        },
+        "20": {
+          "mpCost": 84,
+          "power": 3004
+        },
+        "21": {
+          "mpCost": 86,
+          "power": 3136
+        },
+        "22": {
+          "mpCost": 88,
+          "power": 3271
+        },
+        "23": {
+          "mpCost": 90,
+          "power": 3408
+        },
+        "24": {
+          "mpCost": 90,
+          "power": 3548
+        },
+        "25": {
+          "mpCost": 92,
+          "power": 3690
+        },
+        "26": {
+          "mpCost": 94,
+          "power": 3834
+        },
+        "27": {
+          "mpCost": 95,
+          "power": 3980
+        },
+        "28": {
+          "mpCost": 97,
+          "power": 4127
+        },
+        "29": {
+          "mpCost": 99,
+          "power": 4275
+        },
+        "30": {
+          "mpCost": 100,
+          "power": 4425
+        },
+        "31": {
+          "mpCost": 102,
+          "power": 4575
+        },
+        "32": {
+          "mpCost": 104,
+          "power": 4726
+        },
+        "33": {
+          "mpCost": 105,
+          "power": 4878
+        },
+        "34": {
+          "mpCost": 107,
+          "power": 5029
+        },
+        "35": {
+          "mpCost": 108,
+          "power": 5180
+        },
+        "36": {
+          "mpCost": 110,
+          "power": 5330
+        },
+        "37": {
+          "mpCost": 111,
+          "power": 5479
+        }
+      }
+    },
+    "35": {
+      "id": 35,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 71,
+          "power": 181
+        },
+        "2": {
+          "mpCost": 73,
+          "power": 190
+        },
+        "3": {
+          "mpCost": 75,
+          "power": 200
+        },
+        "4": {
+          "mpCost": 77,
+          "power": 211
+        },
+        "5": {
+          "mpCost": 77,
+          "power": 222
+        },
+        "6": {
+          "mpCost": 79,
+          "power": 233
+        },
+        "7": {
+          "mpCost": 81,
+          "power": 244
+        },
+        "8": {
+          "mpCost": 83,
+          "power": 256
+        },
+        "9": {
+          "mpCost": 85,
+          "power": 268
+        },
+        "10": {
+          "mpCost": 87,
+          "power": 280
+        },
+        "11": {
+          "mpCost": 89,
+          "power": 293
+        },
+        "12": {
+          "mpCost": 91,
+          "power": 305
+        },
+        "13": {
+          "mpCost": 93,
+          "power": 318
+        },
+        "14": {
+          "mpCost": 94,
+          "power": 332
+        },
+        "15": {
+          "mpCost": 95,
+          "power": 345
+        },
+        "16": {
+          "mpCost": 97,
+          "power": 359
+        },
+        "17": {
+          "mpCost": 98,
+          "power": 373
+        },
+        "18": {
+          "mpCost": 100,
+          "power": 387
+        },
+        "19": {
+          "mpCost": 102,
+          "power": 402
+        },
+        "20": {
+          "mpCost": 104,
+          "power": 416
+        },
+        "21": {
+          "mpCost": 105,
+          "power": 431
+        },
+        "22": {
+          "mpCost": 107,
+          "power": 445
+        },
+        "23": {
+          "mpCost": 109,
+          "power": 460
+        },
+        "24": {
+          "mpCost": 110,
+          "power": 475
+        },
+        "25": {
+          "mpCost": 112,
+          "power": 489
+        },
+        "26": {
+          "mpCost": 113,
+          "power": 504
+        },
+        "27": {
+          "mpCost": 115,
+          "power": 519
+        },
+        "28": {
+          "mpCost": 116,
+          "power": 533
+        }
+      }
+    },
+    "36": {
+      "id": 36,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 40,
+          "power": 369
+        },
+        "2": {
+          "mpCost": 41,
+          "power": 392
+        },
+        "3": {
+          "mpCost": 43,
+          "power": 417
+        },
+        "4": {
+          "mpCost": 43,
+          "power": 442
+        },
+        "5": {
+          "mpCost": 44,
+          "power": 469
+        },
+        "6": {
+          "mpCost": 45,
+          "power": 496
+        },
+        "7": {
+          "mpCost": 47,
+          "power": 525
+        },
+        "8": {
+          "mpCost": 48,
+          "power": 555
+        },
+        "9": {
+          "mpCost": 49,
+          "power": 586
+        },
+        "10": {
+          "mpCost": 51,
+          "power": 618
+        },
+        "11": {
+          "mpCost": 52,
+          "power": 651
+        },
+        "12": {
+          "mpCost": 54,
+          "power": 686
+        },
+        "13": {
+          "mpCost": 55,
+          "power": 722
+        },
+        "14": {
+          "mpCost": 55,
+          "power": 758
+        },
+        "15": {
+          "mpCost": 56,
+          "power": 796
+        },
+        "16": {
+          "mpCost": 58,
+          "power": 835
+        },
+        "17": {
+          "mpCost": 59,
+          "power": 875
+        },
+        "18": {
+          "mpCost": 61,
+          "power": 916
+        },
+        "19": {
+          "mpCost": 62,
+          "power": 959
+        },
+        "20": {
+          "mpCost": 63,
+          "power": 1002
+        },
+        "21": {
+          "mpCost": 65,
+          "power": 1046
+        },
+        "22": {
+          "mpCost": 66,
+          "power": 1091
+        },
+        "23": {
+          "mpCost": 68,
+          "power": 1136
+        },
+        "24": {
+          "mpCost": 68,
+          "power": 1183
+        },
+        "25": {
+          "mpCost": 69,
+          "power": 1230
+        },
+        "26": {
+          "mpCost": 70,
+          "power": 1278
+        },
+        "27": {
+          "mpCost": 72,
+          "power": 1327
+        },
+        "28": {
+          "mpCost": 73,
+          "power": 1376
+        },
+        "29": {
+          "mpCost": 74,
+          "power": 1425
+        },
+        "30": {
+          "mpCost": 75,
+          "power": 1475
+        },
+        "31": {
+          "mpCost": 77,
+          "power": 1525
+        },
+        "32": {
+          "mpCost": 78,
+          "power": 1576
+        },
+        "33": {
+          "mpCost": 79,
+          "power": 1626
+        },
+        "34": {
+          "mpCost": 80,
+          "power": 1677
+        },
+        "35": {
+          "mpCost": 81,
+          "power": 1727
+        },
+        "36": {
+          "mpCost": 82,
+          "power": 1777
+        },
+        "37": {
+          "mpCost": 83,
+          "power": 1827
+        }
+      }
+    },
+    "48": {
+      "id": 48,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 40,
+          "power": 123
+        },
+        "2": {
+          "mpCost": 41,
+          "power": 131
+        },
+        "3": {
+          "mpCost": 43,
+          "power": 139
+        },
+        "4": {
+          "mpCost": 43,
+          "power": 148
+        },
+        "5": {
+          "mpCost": 44,
+          "power": 157
+        },
+        "6": {
+          "mpCost": 45,
+          "power": 166
+        },
+        "7": {
+          "mpCost": 47,
+          "power": 175
+        },
+        "8": {
+          "mpCost": 48,
+          "power": 185
+        },
+        "9": {
+          "mpCost": 49,
+          "power": 196
+        },
+        "10": {
+          "mpCost": 51,
+          "power": 206
+        },
+        "11": {
+          "mpCost": 52,
+          "power": 217
+        },
+        "12": {
+          "mpCost": 54,
+          "power": 229
+        },
+        "13": {
+          "mpCost": 55,
+          "power": 241
+        },
+        "14": {
+          "mpCost": 55,
+          "power": 253
+        },
+        "15": {
+          "mpCost": 56,
+          "power": 266
+        },
+        "16": {
+          "mpCost": 58,
+          "power": 279
+        },
+        "17": {
+          "mpCost": 59,
+          "power": 292
+        },
+        "18": {
+          "mpCost": 61,
+          "power": 306
+        },
+        "19": {
+          "mpCost": 62,
+          "power": 320
+        },
+        "20": {
+          "mpCost": 63,
+          "power": 334
+        },
+        "21": {
+          "mpCost": 65,
+          "power": 349
+        },
+        "22": {
+          "mpCost": 66,
+          "power": 364
+        },
+        "23": {
+          "mpCost": 68,
+          "power": 379
+        },
+        "24": {
+          "mpCost": 68,
+          "power": 395
+        },
+        "25": {
+          "mpCost": 69,
+          "power": 410
+        },
+        "26": {
+          "mpCost": 70,
+          "power": 426
+        },
+        "27": {
+          "mpCost": 72,
+          "power": 443
+        },
+        "28": {
+          "mpCost": 73,
+          "power": 459
+        },
+        "29": {
+          "mpCost": 74,
+          "power": 475
+        },
+        "30": {
+          "mpCost": 75,
+          "power": 492
+        },
+        "31": {
+          "mpCost": 77,
+          "power": 509
+        },
+        "32": {
+          "mpCost": 78,
+          "power": 526
+        },
+        "33": {
+          "mpCost": 79,
+          "power": 542
+        },
+        "34": {
+          "mpCost": 80,
+          "power": 559
+        },
+        "35": {
+          "mpCost": 81,
+          "power": 576
+        },
+        "36": {
+          "mpCost": 82,
+          "power": 593
+        },
+        "37": {
+          "mpCost": 83,
+          "power": 609
+        }
+      }
+    },
+    "49": {
+      "id": 49,
+      "category": "magic_attack",
+      "element": "holy",
+      "levels": {
+        "1": {
+          "mpCost": 20,
+          "power": 47
+        },
+        "2": {
+          "mpCost": 22,
+          "power": 49
+        },
+        "3": {
+          "mpCost": 22,
+          "power": 51
+        },
+        "4": {
+          "mpCost": 23,
+          "power": 53
+        },
+        "5": {
+          "mpCost": 23,
+          "power": 55
+        },
+        "6": {
+          "mpCost": 24,
+          "power": 57
+        },
+        "7": {
+          "mpCost": 25,
+          "power": 59
+        },
+        "8": {
+          "mpCost": 25,
+          "power": 61
+        },
+        "9": {
+          "mpCost": 27,
+          "power": 63
+        },
+        "10": {
+          "mpCost": 28,
+          "power": 66
+        },
+        "11": {
+          "mpCost": 28,
+          "power": 67
+        },
+        "12": {
+          "mpCost": 28,
+          "power": 68
+        },
+        "13": {
+          "mpCost": 29,
+          "power": 70
+        },
+        "14": {
+          "mpCost": 29,
+          "power": 71
+        },
+        "15": {
+          "mpCost": 30,
+          "power": 72
+        },
+        "16": {
+          "mpCost": 30,
+          "power": 74
+        },
+        "17": {
+          "mpCost": 30,
+          "power": 75
+        },
+        "18": {
+          "mpCost": 32,
+          "power": 77
+        },
+        "19": {
+          "mpCost": 32,
+          "power": 78
+        },
+        "20": {
+          "mpCost": 33,
+          "power": 79
+        },
+        "21": {
+          "mpCost": 33,
+          "power": 80
+        },
+        "22": {
+          "mpCost": 33,
+          "power": 82
+        },
+        "23": {
+          "mpCost": 34,
+          "power": 83
+        },
+        "24": {
+          "mpCost": 34,
+          "power": 84
+        },
+        "25": {
+          "mpCost": 34,
+          "power": 85
+        },
+        "26": {
+          "mpCost": 35,
+          "power": 87
+        }
+      }
+    },
+    "54": {
+      "id": 54,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 19,
+          "power": 143
+        },
+        "2": {
+          "mpCost": 20,
+          "power": 154
+        },
+        "3": {
+          "mpCost": 21,
+          "power": 166
+        },
+        "4": {
+          "mpCost": 22,
+          "power": 193
+        },
+        "5": {
+          "mpCost": 23,
+          "power": 207
+        },
+        "6": {
+          "mpCost": 24,
+          "power": 222
+        },
+        "7": {
+          "mpCost": 26,
+          "power": 256
+        },
+        "8": {
+          "mpCost": 26,
+          "power": 274
+        },
+        "9": {
+          "mpCost": 27,
+          "power": 293
+        },
+        "10": {
+          "mpCost": 29,
+          "power": 334
+        },
+        "11": {
+          "mpCost": 30,
+          "power": 357
+        },
+        "12": {
+          "mpCost": 31,
+          "power": 380
+        },
+        "13": {
+          "mpCost": 33,
+          "power": 431
+        },
+        "14": {
+          "mpCost": 34,
+          "power": 458
+        },
+        "15": {
+          "mpCost": 35,
+          "power": 486
+        },
+        "16": {
+          "mpCost": 35,
+          "power": 516
+        },
+        "17": {
+          "mpCost": 36,
+          "power": 547
+        },
+        "18": {
+          "mpCost": 37,
+          "power": 579
+        },
+        "19": {
+          "mpCost": 38,
+          "power": 612
+        },
+        "20": {
+          "mpCost": 39,
+          "power": 647
+        },
+        "21": {
+          "mpCost": 40,
+          "power": 683
+        },
+        "22": {
+          "mpCost": 42,
+          "power": 721
+        },
+        "23": {
+          "mpCost": 43,
+          "power": 760
+        },
+        "24": {
+          "mpCost": 44,
+          "power": 800
+        },
+        "25": {
+          "mpCost": 45,
+          "power": 842
+        },
+        "26": {
+          "mpCost": 45,
+          "power": 885
+        },
+        "27": {
+          "mpCost": 46,
+          "power": 929
+        },
+        "28": {
+          "mpCost": 47,
+          "power": 974
+        },
+        "29": {
+          "mpCost": 48,
+          "power": 1021
+        },
+        "30": {
+          "mpCost": 50,
+          "power": 1069
+        },
+        "31": {
+          "mpCost": 51,
+          "power": 1118
+        },
+        "32": {
+          "mpCost": 52,
+          "power": 1169
+        },
+        "33": {
+          "mpCost": 53,
+          "power": 1220
+        },
+        "34": {
+          "mpCost": 54,
+          "power": 1272
+        },
+        "35": {
+          "mpCost": 55,
+          "power": 1326
+        },
+        "36": {
+          "mpCost": 55,
+          "power": 1380
+        },
+        "37": {
+          "mpCost": 57,
+          "power": 1435
+        },
+        "38": {
+          "mpCost": 58,
+          "power": 1491
+        },
+        "39": {
+          "mpCost": 59,
+          "power": 1548
+        },
+        "40": {
+          "mpCost": 60,
+          "power": 1605
+        },
+        "41": {
+          "mpCost": 61,
+          "power": 1663
+        },
+        "42": {
+          "mpCost": 62,
+          "power": 1721
+        },
+        "43": {
+          "mpCost": 63,
+          "power": 1780
+        },
+        "44": {
+          "mpCost": 64,
+          "power": 1838
+        },
+        "45": {
+          "mpCost": 65,
+          "power": 1897
+        },
+        "46": {
+          "mpCost": 66,
+          "power": 1956
+        },
+        "47": {
+          "mpCost": 66,
+          "power": 2015
+        },
+        "48": {
+          "mpCost": 67,
+          "power": 2073
+        },
+        "49": {
+          "mpCost": 68,
+          "power": 2131
+        }
+      }
+    },
+    "56": {
+      "id": 56,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 19,
+          "power": 65
+        },
+        "2": {
+          "mpCost": 20,
+          "power": 71
+        },
+        "3": {
+          "mpCost": 21,
+          "power": 78
+        },
+        "4": {
+          "mpCost": 25,
+          "power": 102
+        },
+        "5": {
+          "mpCost": 26,
+          "power": 112
+        },
+        "6": {
+          "mpCost": 27,
+          "power": 122
+        },
+        "7": {
+          "mpCost": 34,
+          "power": 158
+        },
+        "8": {
+          "mpCost": 36,
+          "power": 172
+        },
+        "9": {
+          "mpCost": 37,
+          "power": 187
+        },
+        "10": {
+          "mpCost": 43,
+          "power": 239
+        },
+        "11": {
+          "mpCost": 44,
+          "power": 258
+        },
+        "12": {
+          "mpCost": 44,
+          "power": 279
+        },
+        "13": {
+          "mpCost": 46,
+          "power": 326
+        },
+        "14": {
+          "mpCost": 48,
+          "power": 352
+        },
+        "15": {
+          "mpCost": 50,
+          "power": 379
+        },
+        "16": {
+          "mpCost": 54,
+          "power": 440
+        },
+        "17": {
+          "mpCost": 57,
+          "power": 472
+        },
+        "18": {
+          "mpCost": 59,
+          "power": 507
+        },
+        "19": {
+          "mpCost": 62,
+          "power": 584
+        },
+        "20": {
+          "mpCost": 62,
+          "power": 625
+        },
+        "21": {
+          "mpCost": 65,
+          "power": 669
+        },
+        "22": {
+          "mpCost": 69,
+          "power": 763
+        },
+        "23": {
+          "mpCost": 72,
+          "power": 814
+        },
+        "24": {
+          "mpCost": 74,
+          "power": 865
+        }
+      }
+    },
+    "70": {
+      "id": 70,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 12,
+          "power": 20
+        },
+        "2": {
+          "mpCost": 13,
+          "power": 22
+        },
+        "3": {
+          "mpCost": 14,
+          "power": 24
+        },
+        "4": {
+          "mpCost": 15,
+          "power": 26
+        },
+        "5": {
+          "mpCost": 15,
+          "power": 28
+        },
+        "6": {
+          "mpCost": 17,
+          "power": 29
+        },
+        "7": {
+          "mpCost": 17,
+          "power": 31
+        },
+        "8": {
+          "mpCost": 18,
+          "power": 33
+        },
+        "9": {
+          "mpCost": 19,
+          "power": 34
+        },
+        "10": {
+          "mpCost": 19,
+          "power": 35
+        },
+        "11": {
+          "mpCost": 20,
+          "power": 38
+        },
+        "12": {
+          "mpCost": 20,
+          "power": 39
+        },
+        "13": {
+          "mpCost": 22,
+          "power": 40
+        },
+        "14": {
+          "mpCost": 23,
+          "power": 43
+        },
+        "15": {
+          "mpCost": 23,
+          "power": 44
+        },
+        "16": {
+          "mpCost": 24,
+          "power": 46
+        },
+        "17": {
+          "mpCost": 25,
+          "power": 49
+        },
+        "18": {
+          "mpCost": 27,
+          "power": 50
+        },
+        "19": {
+          "mpCost": 27,
+          "power": 52
+        },
+        "20": {
+          "mpCost": 28,
+          "power": 53
+        },
+        "21": {
+          "mpCost": 28,
+          "power": 55
+        },
+        "22": {
+          "mpCost": 29,
+          "power": 57
+        },
+        "23": {
+          "mpCost": 30,
+          "power": 58
+        },
+        "24": {
+          "mpCost": 30,
+          "power": 60
+        },
+        "25": {
+          "mpCost": 32,
+          "power": 61
+        },
+        "26": {
+          "mpCost": 32,
+          "power": 63
+        },
+        "27": {
+          "mpCost": 33,
+          "power": 65
+        },
+        "28": {
+          "mpCost": 34,
+          "power": 66
+        },
+        "29": {
+          "mpCost": 34,
+          "power": 68
+        },
+        "30": {
+          "mpCost": 35,
+          "power": 70
+        },
+        "31": {
+          "mpCost": 35,
+          "power": 72
+        },
+        "32": {
+          "mpCost": 37,
+          "power": 73
+        },
+        "33": {
+          "mpCost": 38,
+          "power": 75
+        },
+        "34": {
+          "mpCost": 38,
+          "power": 77
+        },
+        "35": {
+          "mpCost": 39,
+          "power": 78
+        },
+        "36": {
+          "mpCost": 40,
+          "power": 80
+        },
+        "37": {
+          "mpCost": 40,
+          "power": 82
+        },
+        "38": {
+          "mpCost": 42,
+          "power": 84
+        },
+        "39": {
+          "mpCost": 42,
+          "power": 85
+        },
+        "40": {
+          "mpCost": 43,
+          "power": 87
+        },
+        "41": {
+          "mpCost": 44,
+          "power": 89
+        },
+        "42": {
+          "mpCost": 44,
+          "power": 90
+        },
+        "43": {
+          "mpCost": 45,
+          "power": 92
+        },
+        "44": {
+          "mpCost": 45,
+          "power": 94
+        },
+        "45": {
+          "mpCost": 47,
+          "power": 96
+        },
+        "46": {
+          "mpCost": 48,
+          "power": 97
+        },
+        "47": {
+          "mpCost": 48,
+          "power": 99
+        },
+        "48": {
+          "mpCost": 49,
+          "power": 100
+        },
+        "49": {
+          "mpCost": 49,
+          "power": 102
+        },
+        "50": {
+          "mpCost": 50,
+          "power": 104
+        },
+        "51": {
+          "mpCost": 50,
+          "power": 105
+        },
+        "52": {
+          "mpCost": 52,
+          "power": 107
+        },
+        "53": {
+          "mpCost": 52,
+          "power": 108
+        }
+      }
+    },
+    "81": {
+      "id": 81,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 0,
+          "power": 4580
+        },
+        "2": {
+          "mpCost": 0,
+          "power": 6332
+        },
+        "3": {
+          "mpCost": 0,
+          "power": 9132
+        }
+      }
+    },
+    "92": {
+      "id": 92,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 22,
+          "power": 80
+        },
+        "2": {
+          "mpCost": 22,
+          "power": 80
+        },
+        "3": {
+          "mpCost": 22,
+          "power": 80
+        },
+        "4": {
+          "mpCost": 23,
+          "power": 80
+        },
+        "5": {
+          "mpCost": 24,
+          "power": 80
+        },
+        "6": {
+          "mpCost": 25,
+          "power": 80
+        },
+        "7": {
+          "mpCost": 27,
+          "power": 80
+        },
+        "8": {
+          "mpCost": 29,
+          "power": 80
+        },
+        "9": {
+          "mpCost": 30,
+          "power": 80
+        },
+        "10": {
+          "mpCost": 31,
+          "power": 80
+        },
+        "11": {
+          "mpCost": 31,
+          "power": 80
+        },
+        "12": {
+          "mpCost": 33,
+          "power": 80
+        },
+        "13": {
+          "mpCost": 35,
+          "power": 80
+        },
+        "14": {
+          "mpCost": 36,
+          "power": 80
+        },
+        "15": {
+          "mpCost": 37,
+          "power": 80
+        }
+      }
+    },
+    "96": {
+      "id": 96,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 32,
+          "power": 65
+        },
+        "2": {
+          "mpCost": 41,
+          "power": 85
+        },
+        "3": {
+          "mpCost": 67,
+          "power": 110
+        },
+        "4": {
+          "mpCost": 81,
+          "power": 135
+        },
+        "5": {
+          "mpCost": 93,
+          "power": 155
+        },
+        "6": {
+          "mpCost": 99,
+          "power": 170
+        }
+      }
+    },
+    "98": {
+      "id": 98,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 120,
+          "power": 229
+        },
+        "2": {
+          "mpCost": 133,
+          "power": 284
+        },
+        "3": {
+          "mpCost": 142,
+          "power": 321
+        },
+        "4": {
+          "mpCost": 152,
+          "power": 382
+        },
+        "5": {
+          "mpCost": 160,
+          "power": 432
+        }
+      }
+    },
+    "100": {
+      "id": 100,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 22,
+          "power": 30
+        },
+        "2": {
+          "mpCost": 22,
+          "power": 33
+        },
+        "3": {
+          "mpCost": 22,
+          "power": 35
+        },
+        "4": {
+          "mpCost": 23,
+          "power": 41
+        },
+        "5": {
+          "mpCost": 24,
+          "power": 44
+        },
+        "6": {
+          "mpCost": 25,
+          "power": 48
+        },
+        "7": {
+          "mpCost": 27,
+          "power": 55
+        },
+        "8": {
+          "mpCost": 29,
+          "power": 59
+        },
+        "9": {
+          "mpCost": 30,
+          "power": 64
+        },
+        "10": {
+          "mpCost": 31,
+          "power": 73
+        },
+        "11": {
+          "mpCost": 31,
+          "power": 79
+        },
+        "12": {
+          "mpCost": 33,
+          "power": 84
+        },
+        "13": {
+          "mpCost": 35,
+          "power": 96
+        },
+        "14": {
+          "mpCost": 36,
+          "power": 102
+        },
+        "15": {
+          "mpCost": 37,
+          "power": 109
+        }
+      }
+    },
+    "101": {
+      "id": 101,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 69,
+          "power": 287
+        },
+        "2": {
+          "mpCost": 72,
+          "power": 306
+        },
+        "3": {
+          "mpCost": 74,
+          "power": 326
+        },
+        "4": {
+          "mpCost": 80,
+          "power": 369
+        },
+        "5": {
+          "mpCost": 82,
+          "power": 392
+        },
+        "6": {
+          "mpCost": 85,
+          "power": 417
+        },
+        "7": {
+          "mpCost": 85,
+          "power": 442
+        },
+        "8": {
+          "mpCost": 87,
+          "power": 469
+        },
+        "9": {
+          "mpCost": 90,
+          "power": 496
+        },
+        "10": {
+          "mpCost": 93,
+          "power": 525
+        },
+        "11": {
+          "mpCost": 95,
+          "power": 555
+        },
+        "12": {
+          "mpCost": 98,
+          "power": 586
+        },
+        "13": {
+          "mpCost": 101,
+          "power": 618
+        },
+        "14": {
+          "mpCost": 104,
+          "power": 651
+        },
+        "15": {
+          "mpCost": 107,
+          "power": 686
+        },
+        "16": {
+          "mpCost": 109,
+          "power": 722
+        },
+        "17": {
+          "mpCost": 110,
+          "power": 758
+        },
+        "18": {
+          "mpCost": 112,
+          "power": 796
+        },
+        "19": {
+          "mpCost": 115,
+          "power": 835
+        },
+        "20": {
+          "mpCost": 118,
+          "power": 875
+        },
+        "21": {
+          "mpCost": 121,
+          "power": 916
+        },
+        "22": {
+          "mpCost": 124,
+          "power": 959
+        },
+        "23": {
+          "mpCost": 126,
+          "power": 1002
+        },
+        "24": {
+          "mpCost": 129,
+          "power": 1046
+        },
+        "25": {
+          "mpCost": 132,
+          "power": 1091
+        },
+        "26": {
+          "mpCost": 135,
+          "power": 1136
+        },
+        "27": {
+          "mpCost": 135,
+          "power": 1183
+        },
+        "28": {
+          "mpCost": 138,
+          "power": 1230
+        },
+        "29": {
+          "mpCost": 140,
+          "power": 1278
+        },
+        "30": {
+          "mpCost": 143,
+          "power": 1327
+        },
+        "31": {
+          "mpCost": 145,
+          "power": 1376
+        },
+        "32": {
+          "mpCost": 148,
+          "power": 1425
+        },
+        "33": {
+          "mpCost": 150,
+          "power": 1475
+        },
+        "34": {
+          "mpCost": 153,
+          "power": 1525
+        },
+        "35": {
+          "mpCost": 155,
+          "power": 1576
+        },
+        "36": {
+          "mpCost": 157,
+          "power": 1626
+        },
+        "37": {
+          "mpCost": 160,
+          "power": 1677
+        },
+        "38": {
+          "mpCost": 162,
+          "power": 1727
+        },
+        "39": {
+          "mpCost": 164,
+          "power": 1777
+        },
+        "40": {
+          "mpCost": 166,
+          "power": 1827
+        }
+      }
+    },
+    "105": {
+      "id": 105,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 15,
+          "power": 26
+        },
+        "2": {
+          "mpCost": 17,
+          "power": 28
+        },
+        "3": {
+          "mpCost": 18,
+          "power": 30
+        },
+        "4": {
+          "mpCost": 18,
+          "power": 31
+        },
+        "5": {
+          "mpCost": 19,
+          "power": 33
+        },
+        "6": {
+          "mpCost": 19,
+          "power": 34
+        },
+        "7": {
+          "mpCost": 20,
+          "power": 36
+        },
+        "8": {
+          "mpCost": 22,
+          "power": 37
+        },
+        "9": {
+          "mpCost": 23,
+          "power": 39
+        },
+        "10": {
+          "mpCost": 23,
+          "power": 40
+        },
+        "11": {
+          "mpCost": 24,
+          "power": 42
+        },
+        "12": {
+          "mpCost": 24,
+          "power": 43
+        },
+        "13": {
+          "mpCost": 25,
+          "power": 45
+        },
+        "14": {
+          "mpCost": 25,
+          "power": 46
+        },
+        "15": {
+          "mpCost": 27,
+          "power": 48
+        },
+        "16": {
+          "mpCost": 28,
+          "power": 49
+        },
+        "17": {
+          "mpCost": 28,
+          "power": 51
+        },
+        "18": {
+          "mpCost": 29,
+          "power": 53
+        },
+        "19": {
+          "mpCost": 30,
+          "power": 56
+        },
+        "20": {
+          "mpCost": 32,
+          "power": 58
+        },
+        "21": {
+          "mpCost": 33,
+          "power": 59
+        },
+        "22": {
+          "mpCost": 33,
+          "power": 61
+        },
+        "23": {
+          "mpCost": 34,
+          "power": 63
+        },
+        "24": {
+          "mpCost": 35,
+          "power": 65
+        }
+      }
+    },
+    "120": {
+      "id": 120,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 22,
+          "power": 38
+        },
+        "2": {
+          "mpCost": 22,
+          "power": 41
+        },
+        "3": {
+          "mpCost": 22,
+          "power": 44
+        },
+        "4": {
+          "mpCost": 23,
+          "power": 51
+        },
+        "5": {
+          "mpCost": 24,
+          "power": 55
+        },
+        "6": {
+          "mpCost": 25,
+          "power": 60
+        },
+        "7": {
+          "mpCost": 27,
+          "power": 69
+        },
+        "8": {
+          "mpCost": 29,
+          "power": 74
+        },
+        "9": {
+          "mpCost": 30,
+          "power": 80
+        },
+        "10": {
+          "mpCost": 31,
+          "power": 92
+        },
+        "11": {
+          "mpCost": 31,
+          "power": 98
+        },
+        "12": {
+          "mpCost": 33,
+          "power": 105
+        },
+        "13": {
+          "mpCost": 35,
+          "power": 120
+        },
+        "14": {
+          "mpCost": 36,
+          "power": 128
+        },
+        "15": {
+          "mpCost": 37,
+          "power": 136
+        }
+      }
+    },
+    "190": {
+      "id": 190,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 40,
+          "power": 615
+        },
+        "2": {
+          "mpCost": 41,
+          "power": 654
+        },
+        "3": {
+          "mpCost": 43,
+          "power": 694
+        },
+        "4": {
+          "mpCost": 43,
+          "power": 737
+        },
+        "5": {
+          "mpCost": 44,
+          "power": 781
+        },
+        "6": {
+          "mpCost": 45,
+          "power": 827
+        },
+        "7": {
+          "mpCost": 47,
+          "power": 875
+        },
+        "8": {
+          "mpCost": 48,
+          "power": 924
+        },
+        "9": {
+          "mpCost": 49,
+          "power": 976
+        },
+        "10": {
+          "mpCost": 51,
+          "power": 1030
+        },
+        "11": {
+          "mpCost": 52,
+          "power": 1085
+        },
+        "12": {
+          "mpCost": 54,
+          "power": 1143
+        },
+        "13": {
+          "mpCost": 55,
+          "power": 1202
+        },
+        "14": {
+          "mpCost": 55,
+          "power": 1264
+        },
+        "15": {
+          "mpCost": 56,
+          "power": 1327
+        },
+        "16": {
+          "mpCost": 58,
+          "power": 1392
+        },
+        "17": {
+          "mpCost": 59,
+          "power": 1459
+        },
+        "18": {
+          "mpCost": 61,
+          "power": 1527
+        },
+        "19": {
+          "mpCost": 62,
+          "power": 1597
+        },
+        "20": {
+          "mpCost": 63,
+          "power": 1669
+        },
+        "21": {
+          "mpCost": 65,
+          "power": 1743
+        },
+        "22": {
+          "mpCost": 66,
+          "power": 1817
+        },
+        "23": {
+          "mpCost": 68,
+          "power": 1894
+        },
+        "24": {
+          "mpCost": 68,
+          "power": 1971
+        },
+        "25": {
+          "mpCost": 69,
+          "power": 2050
+        },
+        "26": {
+          "mpCost": 70,
+          "power": 2130
+        },
+        "27": {
+          "mpCost": 72,
+          "power": 2211
+        },
+        "28": {
+          "mpCost": 73,
+          "power": 2293
+        },
+        "29": {
+          "mpCost": 74,
+          "power": 2375
+        },
+        "30": {
+          "mpCost": 75,
+          "power": 2459
+        },
+        "31": {
+          "mpCost": 77,
+          "power": 2542
+        },
+        "32": {
+          "mpCost": 78,
+          "power": 2626
+        },
+        "33": {
+          "mpCost": 79,
+          "power": 2710
+        },
+        "34": {
+          "mpCost": 80,
+          "power": 2794
+        },
+        "35": {
+          "mpCost": 81,
+          "power": 2878
+        },
+        "36": {
+          "mpCost": 82,
+          "power": 2961
+        },
+        "37": {
+          "mpCost": 83,
+          "power": 3044
+        }
+      }
+    },
+    "223": {
+      "id": 223,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 23,
+          "power": 82
+        },
+        "2": {
+          "mpCost": 24,
+          "power": 88
+        },
+        "3": {
+          "mpCost": 25,
+          "power": 95
+        },
+        "4": {
+          "mpCost": 27,
+          "power": 110
+        },
+        "5": {
+          "mpCost": 29,
+          "power": 118
+        },
+        "6": {
+          "mpCost": 30,
+          "power": 127
+        },
+        "7": {
+          "mpCost": 31,
+          "power": 146
+        },
+        "8": {
+          "mpCost": 31,
+          "power": 157
+        },
+        "9": {
+          "mpCost": 33,
+          "power": 168
+        },
+        "10": {
+          "mpCost": 35,
+          "power": 191
+        },
+        "11": {
+          "mpCost": 36,
+          "power": 204
+        },
+        "12": {
+          "mpCost": 37,
+          "power": 217
+        },
+        "13": {
+          "mpCost": 40,
+          "power": 123
+        },
+        "14": {
+          "mpCost": 41,
+          "power": 131
+        },
+        "15": {
+          "mpCost": 43,
+          "power": 139
+        },
+        "16": {
+          "mpCost": 43,
+          "power": 148
+        },
+        "17": {
+          "mpCost": 44,
+          "power": 157
+        },
+        "18": {
+          "mpCost": 45,
+          "power": 166
+        },
+        "19": {
+          "mpCost": 47,
+          "power": 175
+        },
+        "20": {
+          "mpCost": 48,
+          "power": 185
+        },
+        "21": {
+          "mpCost": 49,
+          "power": 196
+        },
+        "22": {
+          "mpCost": 51,
+          "power": 206
+        },
+        "23": {
+          "mpCost": 52,
+          "power": 217
+        },
+        "24": {
+          "mpCost": 54,
+          "power": 229
+        },
+        "25": {
+          "mpCost": 55,
+          "power": 241
+        },
+        "26": {
+          "mpCost": 55,
+          "power": 253
+        },
+        "27": {
+          "mpCost": 56,
+          "power": 266
+        },
+        "28": {
+          "mpCost": 58,
+          "power": 279
+        },
+        "29": {
+          "mpCost": 59,
+          "power": 292
+        },
+        "30": {
+          "mpCost": 61,
+          "power": 306
+        },
+        "31": {
+          "mpCost": 62,
+          "power": 320
+        },
+        "32": {
+          "mpCost": 63,
+          "power": 334
+        },
+        "33": {
+          "mpCost": 65,
+          "power": 349
+        },
+        "34": {
+          "mpCost": 66,
+          "power": 364
+        },
+        "35": {
+          "mpCost": 68,
+          "power": 379
+        },
+        "36": {
+          "mpCost": 68,
+          "power": 395
+        },
+        "37": {
+          "mpCost": 69,
+          "power": 410
+        },
+        "38": {
+          "mpCost": 70,
+          "power": 426
+        },
+        "39": {
+          "mpCost": 72,
+          "power": 443
+        },
+        "40": {
+          "mpCost": 73,
+          "power": 459
+        },
+        "41": {
+          "mpCost": 74,
+          "power": 475
+        },
+        "42": {
+          "mpCost": 75,
+          "power": 492
+        },
+        "43": {
+          "mpCost": 77,
+          "power": 509
+        },
+        "44": {
+          "mpCost": 78,
+          "power": 526
+        },
+        "45": {
+          "mpCost": 79,
+          "power": 542
+        },
+        "46": {
+          "mpCost": 80,
+          "power": 559
+        },
+        "47": {
+          "mpCost": 81,
+          "power": 576
+        },
+        "48": {
+          "mpCost": 82,
+          "power": 593
+        },
+        "49": {
+          "mpCost": 83,
+          "power": 609
+        }
+      }
+    },
+    "245": {
+      "id": 245,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 22,
+          "power": 90
+        },
+        "2": {
+          "mpCost": 22,
+          "power": 97
+        },
+        "3": {
+          "mpCost": 22,
+          "power": 105
+        },
+        "4": {
+          "mpCost": 23,
+          "power": 123
+        },
+        "5": {
+          "mpCost": 24,
+          "power": 132
+        },
+        "6": {
+          "mpCost": 25,
+          "power": 143
+        },
+        "7": {
+          "mpCost": 27,
+          "power": 165
+        },
+        "8": {
+          "mpCost": 29,
+          "power": 177
+        },
+        "9": {
+          "mpCost": 30,
+          "power": 191
+        },
+        "10": {
+          "mpCost": 31,
+          "power": 219
+        },
+        "11": {
+          "mpCost": 31,
+          "power": 235
+        },
+        "12": {
+          "mpCost": 33,
+          "power": 251
+        },
+        "13": {
+          "mpCost": 35,
+          "power": 287
+        },
+        "14": {
+          "mpCost": 36,
+          "power": 306
+        },
+        "15": {
+          "mpCost": 37,
+          "power": 326
+        }
+      }
+    },
+    "255": {
+      "id": 255,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 22,
+          "power": 90
+        },
+        "2": {
+          "mpCost": 22,
+          "power": 97
+        },
+        "3": {
+          "mpCost": 22,
+          "power": 105
+        },
+        "4": {
+          "mpCost": 23,
+          "power": 123
+        },
+        "5": {
+          "mpCost": 24,
+          "power": 132
+        },
+        "6": {
+          "mpCost": 25,
+          "power": 143
+        },
+        "7": {
+          "mpCost": 27,
+          "power": 165
+        },
+        "8": {
+          "mpCost": 29,
+          "power": 177
+        },
+        "9": {
+          "mpCost": 30,
+          "power": 191
+        },
+        "10": {
+          "mpCost": 31,
+          "power": 219
+        },
+        "11": {
+          "mpCost": 31,
+          "power": 235
+        },
+        "12": {
+          "mpCost": 33,
+          "power": 251
+        },
+        "13": {
+          "mpCost": 35,
+          "power": 287
+        },
+        "14": {
+          "mpCost": 36,
+          "power": 306
+        },
+        "15": {
+          "mpCost": 37,
+          "power": 326
+        }
+      }
+    },
+    "260": {
+      "id": 260,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 40,
+          "power": 123
+        },
+        "2": {
+          "mpCost": 41,
+          "power": 131
+        },
+        "3": {
+          "mpCost": 43,
+          "power": 139
+        },
+        "4": {
+          "mpCost": 43,
+          "power": 148
+        },
+        "5": {
+          "mpCost": 44,
+          "power": 157
+        },
+        "6": {
+          "mpCost": 45,
+          "power": 166
+        },
+        "7": {
+          "mpCost": 47,
+          "power": 175
+        },
+        "8": {
+          "mpCost": 48,
+          "power": 185
+        },
+        "9": {
+          "mpCost": 49,
+          "power": 196
+        },
+        "10": {
+          "mpCost": 51,
+          "power": 206
+        },
+        "11": {
+          "mpCost": 52,
+          "power": 217
+        },
+        "12": {
+          "mpCost": 54,
+          "power": 229
+        },
+        "13": {
+          "mpCost": 55,
+          "power": 241
+        },
+        "14": {
+          "mpCost": 55,
+          "power": 253
+        },
+        "15": {
+          "mpCost": 56,
+          "power": 266
+        },
+        "16": {
+          "mpCost": 58,
+          "power": 279
+        },
+        "17": {
+          "mpCost": 59,
+          "power": 292
+        },
+        "18": {
+          "mpCost": 61,
+          "power": 306
+        },
+        "19": {
+          "mpCost": 62,
+          "power": 320
+        },
+        "20": {
+          "mpCost": 63,
+          "power": 334
+        },
+        "21": {
+          "mpCost": 65,
+          "power": 349
+        },
+        "22": {
+          "mpCost": 66,
+          "power": 364
+        },
+        "23": {
+          "mpCost": 68,
+          "power": 379
+        },
+        "24": {
+          "mpCost": 68,
+          "power": 395
+        },
+        "25": {
+          "mpCost": 69,
+          "power": 410
+        },
+        "26": {
+          "mpCost": 70,
+          "power": 426
+        },
+        "27": {
+          "mpCost": 72,
+          "power": 443
+        },
+        "28": {
+          "mpCost": 73,
+          "power": 459
+        },
+        "29": {
+          "mpCost": 74,
+          "power": 475
+        },
+        "30": {
+          "mpCost": 75,
+          "power": 492
+        },
+        "31": {
+          "mpCost": 77,
+          "power": 509
+        },
+        "32": {
+          "mpCost": 78,
+          "power": 526
+        },
+        "33": {
+          "mpCost": 79,
+          "power": 542
+        },
+        "34": {
+          "mpCost": 80,
+          "power": 559
+        },
+        "35": {
+          "mpCost": 81,
+          "power": 576
+        },
+        "36": {
+          "mpCost": 82,
+          "power": 593
+        },
+        "37": {
+          "mpCost": 83,
+          "power": 609
+        }
+      }
+    },
+    "261": {
+      "id": 261,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 114,
+          "power": 1948
+        },
+        "2": {
+          "mpCost": 117,
+          "power": 2042
+        },
+        "3": {
+          "mpCost": 120,
+          "power": 2138
+        },
+        "4": {
+          "mpCost": 123,
+          "power": 2236
+        },
+        "5": {
+          "mpCost": 125,
+          "power": 2337
+        },
+        "6": {
+          "mpCost": 128,
+          "power": 2439
+        },
+        "7": {
+          "mpCost": 131,
+          "power": 2544
+        },
+        "8": {
+          "mpCost": 134,
+          "power": 2651
+        },
+        "9": {
+          "mpCost": 134,
+          "power": 2760
+        },
+        "10": {
+          "mpCost": 137,
+          "power": 2870
+        },
+        "11": {
+          "mpCost": 139,
+          "power": 2982
+        },
+        "12": {
+          "mpCost": 142,
+          "power": 3095
+        },
+        "13": {
+          "mpCost": 144,
+          "power": 3210
+        },
+        "14": {
+          "mpCost": 147,
+          "power": 3325
+        },
+        "15": {
+          "mpCost": 149,
+          "power": 3442
+        },
+        "16": {
+          "mpCost": 152,
+          "power": 3559
+        },
+        "17": {
+          "mpCost": 154,
+          "power": 3676
+        },
+        "18": {
+          "mpCost": 156,
+          "power": 3794
+        },
+        "19": {
+          "mpCost": 158,
+          "power": 3911
+        },
+        "20": {
+          "mpCost": 161,
+          "power": 4029
+        },
+        "21": {
+          "mpCost": 163,
+          "power": 4146
+        },
+        "22": {
+          "mpCost": 165,
+          "power": 4262
+        }
+      }
+    },
+    "263": {
+      "id": 263,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 36,
+          "power": 1107
+        },
+        "2": {
+          "mpCost": 37,
+          "power": 1176
+        },
+        "3": {
+          "mpCost": 38,
+          "power": 1249
+        },
+        "4": {
+          "mpCost": 38,
+          "power": 1325
+        },
+        "5": {
+          "mpCost": 40,
+          "power": 1405
+        },
+        "6": {
+          "mpCost": 41,
+          "power": 1488
+        },
+        "7": {
+          "mpCost": 42,
+          "power": 1574
+        },
+        "8": {
+          "mpCost": 43,
+          "power": 1664
+        },
+        "9": {
+          "mpCost": 44,
+          "power": 1757
+        },
+        "10": {
+          "mpCost": 46,
+          "power": 1853
+        },
+        "11": {
+          "mpCost": 47,
+          "power": 1953
+        },
+        "12": {
+          "mpCost": 48,
+          "power": 2057
+        },
+        "13": {
+          "mpCost": 50,
+          "power": 2164
+        },
+        "14": {
+          "mpCost": 50,
+          "power": 2274
+        },
+        "15": {
+          "mpCost": 51,
+          "power": 2388
+        },
+        "16": {
+          "mpCost": 52,
+          "power": 2505
+        },
+        "17": {
+          "mpCost": 53,
+          "power": 2625
+        },
+        "18": {
+          "mpCost": 55,
+          "power": 2748
+        },
+        "19": {
+          "mpCost": 56,
+          "power": 2875
+        },
+        "20": {
+          "mpCost": 57,
+          "power": 3004
+        },
+        "21": {
+          "mpCost": 58,
+          "power": 3136
+        },
+        "22": {
+          "mpCost": 60,
+          "power": 3271
+        },
+        "23": {
+          "mpCost": 61,
+          "power": 3408
+        },
+        "24": {
+          "mpCost": 61,
+          "power": 3548
+        },
+        "25": {
+          "mpCost": 62,
+          "power": 3690
+        },
+        "26": {
+          "mpCost": 63,
+          "power": 3834
+        },
+        "27": {
+          "mpCost": 65,
+          "power": 3980
+        },
+        "28": {
+          "mpCost": 66,
+          "power": 4127
+        },
+        "29": {
+          "mpCost": 67,
+          "power": 4275
+        },
+        "30": {
+          "mpCost": 68,
+          "power": 4425
+        },
+        "31": {
+          "mpCost": 69,
+          "power": 4575
+        },
+        "32": {
+          "mpCost": 70,
+          "power": 4726
+        },
+        "33": {
+          "mpCost": 71,
+          "power": 4878
+        },
+        "34": {
+          "mpCost": 72,
+          "power": 5029
+        },
+        "35": {
+          "mpCost": 73,
+          "power": 5180
+        },
+        "36": {
+          "mpCost": 74,
+          "power": 5330
+        },
+        "37": {
+          "mpCost": 75,
+          "power": 5479
+        }
+      }
+    },
+    "280": {
+      "id": 280,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 47,
+          "power": 431
+        },
+        "2": {
+          "mpCost": 48,
+          "power": 458
+        },
+        "3": {
+          "mpCost": 50,
+          "power": 486
+        },
+        "4": {
+          "mpCost": 50,
+          "power": 516
+        },
+        "5": {
+          "mpCost": 51,
+          "power": 547
+        },
+        "6": {
+          "mpCost": 53,
+          "power": 579
+        },
+        "7": {
+          "mpCost": 54,
+          "power": 612
+        },
+        "8": {
+          "mpCost": 56,
+          "power": 647
+        },
+        "9": {
+          "mpCost": 57,
+          "power": 683
+        },
+        "10": {
+          "mpCost": 59,
+          "power": 721
+        },
+        "11": {
+          "mpCost": 61,
+          "power": 760
+        },
+        "12": {
+          "mpCost": 62,
+          "power": 800
+        },
+        "13": {
+          "mpCost": 64,
+          "power": 842
+        },
+        "14": {
+          "mpCost": 64,
+          "power": 885
+        },
+        "15": {
+          "mpCost": 66,
+          "power": 929
+        },
+        "16": {
+          "mpCost": 67,
+          "power": 974
+        },
+        "17": {
+          "mpCost": 69,
+          "power": 1021
+        },
+        "18": {
+          "mpCost": 71,
+          "power": 1069
+        },
+        "19": {
+          "mpCost": 72,
+          "power": 1118
+        },
+        "20": {
+          "mpCost": 74,
+          "power": 1169
+        },
+        "21": {
+          "mpCost": 76,
+          "power": 1220
+        },
+        "22": {
+          "mpCost": 77,
+          "power": 1272
+        },
+        "23": {
+          "mpCost": 79,
+          "power": 1326
+        },
+        "24": {
+          "mpCost": 79,
+          "power": 1380
+        },
+        "25": {
+          "mpCost": 81,
+          "power": 1435
+        },
+        "26": {
+          "mpCost": 82,
+          "power": 1491
+        },
+        "27": {
+          "mpCost": 84,
+          "power": 1548
+        },
+        "28": {
+          "mpCost": 85,
+          "power": 1605
+        },
+        "29": {
+          "mpCost": 86,
+          "power": 1663
+        },
+        "30": {
+          "mpCost": 88,
+          "power": 1721
+        },
+        "31": {
+          "mpCost": 89,
+          "power": 1780
+        },
+        "32": {
+          "mpCost": 91,
+          "power": 1838
+        },
+        "33": {
+          "mpCost": 92,
+          "power": 1897
+        },
+        "34": {
+          "mpCost": 93,
+          "power": 1956
+        },
+        "35": {
+          "mpCost": 95,
+          "power": 2015
+        },
+        "36": {
+          "mpCost": 96,
+          "power": 2073
+        },
+        "37": {
+          "mpCost": 97,
+          "power": 2131
+        }
+      }
+    },
+    "281": {
+      "id": 281,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 37,
+          "power": 406
+        },
+        "2": {
+          "mpCost": 38,
+          "power": 432
+        },
+        "3": {
+          "mpCost": 39,
+          "power": 458
+        },
+        "4": {
+          "mpCost": 39,
+          "power": 486
+        },
+        "5": {
+          "mpCost": 40,
+          "power": 515
+        },
+        "6": {
+          "mpCost": 42,
+          "power": 546
+        },
+        "7": {
+          "mpCost": 43,
+          "power": 577
+        },
+        "8": {
+          "mpCost": 44,
+          "power": 610
+        },
+        "9": {
+          "mpCost": 45,
+          "power": 644
+        },
+        "10": {
+          "mpCost": 46,
+          "power": 680
+        },
+        "11": {
+          "mpCost": 48,
+          "power": 717
+        },
+        "12": {
+          "mpCost": 49,
+          "power": 754
+        },
+        "13": {
+          "mpCost": 50,
+          "power": 794
+        },
+        "14": {
+          "mpCost": 51,
+          "power": 834
+        },
+        "15": {
+          "mpCost": 52,
+          "power": 876
+        },
+        "16": {
+          "mpCost": 53,
+          "power": 919
+        },
+        "17": {
+          "mpCost": 54,
+          "power": 963
+        },
+        "18": {
+          "mpCost": 55,
+          "power": 1008
+        },
+        "19": {
+          "mpCost": 57,
+          "power": 1054
+        },
+        "20": {
+          "mpCost": 58,
+          "power": 1102
+        },
+        "21": {
+          "mpCost": 59,
+          "power": 1150
+        },
+        "22": {
+          "mpCost": 60,
+          "power": 1200
+        },
+        "23": {
+          "mpCost": 62,
+          "power": 1250
+        },
+        "24": {
+          "mpCost": 62,
+          "power": 1301
+        },
+        "25": {
+          "mpCost": 63,
+          "power": 1353
+        },
+        "26": {
+          "mpCost": 64,
+          "power": 1406
+        },
+        "27": {
+          "mpCost": 66,
+          "power": 1460
+        },
+        "28": {
+          "mpCost": 67,
+          "power": 1513
+        },
+        "29": {
+          "mpCost": 68,
+          "power": 1568
+        },
+        "30": {
+          "mpCost": 69,
+          "power": 1623
+        },
+        "31": {
+          "mpCost": 70,
+          "power": 1678
+        },
+        "32": {
+          "mpCost": 71,
+          "power": 1733
+        },
+        "33": {
+          "mpCost": 72,
+          "power": 1789
+        },
+        "34": {
+          "mpCost": 73,
+          "power": 1844
+        },
+        "35": {
+          "mpCost": 74,
+          "power": 1900
+        },
+        "36": {
+          "mpCost": 75,
+          "power": 1955
+        },
+        "37": {
+          "mpCost": 76,
+          "power": 2009
+        }
+      }
+    },
+    "284": {
+      "id": 284,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 49,
+          "power": 501
+        },
+        "2": {
+          "mpCost": 50,
+          "power": 535
+        },
+        "3": {
+          "mpCost": 52,
+          "power": 570
+        },
+        "4": {
+          "mpCost": 56,
+          "power": 607
+        },
+        "5": {
+          "mpCost": 58,
+          "power": 646
+        },
+        "6": {
+          "mpCost": 59,
+          "power": 729
+        },
+        "7": {
+          "mpCost": 59,
+          "power": 773
+        },
+        "8": {
+          "mpCost": 61,
+          "power": 820
+        },
+        "9": {
+          "mpCost": 63,
+          "power": 868
+        },
+        "10": {
+          "mpCost": 65,
+          "power": 918
+        },
+        "11": {
+          "mpCost": 67,
+          "power": 971
+        },
+        "12": {
+          "mpCost": 69,
+          "power": 1025
+        },
+        "13": {
+          "mpCost": 71,
+          "power": 1081
+        },
+        "14": {
+          "mpCost": 73,
+          "power": 1140
+        },
+        "15": {
+          "mpCost": 75,
+          "power": 1200
+        },
+        "16": {
+          "mpCost": 77,
+          "power": 1262
+        },
+        "17": {
+          "mpCost": 77,
+          "power": 1327
+        },
+        "18": {
+          "mpCost": 79,
+          "power": 1393
+        },
+        "19": {
+          "mpCost": 81,
+          "power": 1461
+        },
+        "20": {
+          "mpCost": 83,
+          "power": 1531
+        },
+        "21": {
+          "mpCost": 85,
+          "power": 1603
+        },
+        "22": {
+          "mpCost": 87,
+          "power": 1677
+        },
+        "23": {
+          "mpCost": 89,
+          "power": 1753
+        },
+        "24": {
+          "mpCost": 91,
+          "power": 1830
+        },
+        "25": {
+          "mpCost": 93,
+          "power": 1908
+        },
+        "26": {
+          "mpCost": 94,
+          "power": 1988
+        },
+        "27": {
+          "mpCost": 95,
+          "power": 2070
+        },
+        "28": {
+          "mpCost": 97,
+          "power": 2153
+        },
+        "29": {
+          "mpCost": 98,
+          "power": 2237
+        },
+        "30": {
+          "mpCost": 100,
+          "power": 2322
+        },
+        "31": {
+          "mpCost": 102,
+          "power": 2408
+        },
+        "32": {
+          "mpCost": 104,
+          "power": 2494
+        },
+        "33": {
+          "mpCost": 105,
+          "power": 2581
+        },
+        "34": {
+          "mpCost": 107,
+          "power": 2669
+        },
+        "35": {
+          "mpCost": 109,
+          "power": 2757
+        },
+        "36": {
+          "mpCost": 110,
+          "power": 2846
+        },
+        "37": {
+          "mpCost": 112,
+          "power": 2934
+        },
+        "38": {
+          "mpCost": 113,
+          "power": 3022
+        },
+        "39": {
+          "mpCost": 115,
+          "power": 3109
+        },
+        "40": {
+          "mpCost": 116,
+          "power": 3196
+        }
+      }
+    },
+    "289": {
+      "id": 289,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 27,
+          "power": 26
+        },
+        "2": {
+          "mpCost": 29,
+          "power": 29
+        },
+        "3": {
+          "mpCost": 32,
+          "power": 32
+        },
+        "4": {
+          "mpCost": 34,
+          "power": 33
+        },
+        "5": {
+          "mpCost": 36,
+          "power": 36
+        },
+        "6": {
+          "mpCost": 38,
+          "power": 39
+        },
+        "7": {
+          "mpCost": 40,
+          "power": 41
+        },
+        "8": {
+          "mpCost": 42,
+          "power": 43
+        },
+        "9": {
+          "mpCost": 44,
+          "power": 45
+        },
+        "10": {
+          "mpCost": 45,
+          "power": 47
+        },
+        "11": {
+          "mpCost": 47,
+          "power": 48
+        },
+        "12": {
+          "mpCost": 48,
+          "power": 50
+        },
+        "13": {
+          "mpCost": 49,
+          "power": 51
+        },
+        "14": {
+          "mpCost": 50,
+          "power": 53
+        },
+        "15": {
+          "mpCost": 52,
+          "power": 54
+        }
+      }
+    },
+    "314": {
+      "id": 314,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 129,
+          "power": 2908
+        },
+        "2": {
+          "mpCost": 132,
+          "power": 3030
+        },
+        "3": {
+          "mpCost": 135,
+          "power": 3154
+        },
+        "4": {
+          "mpCost": 135,
+          "power": 3280
+        },
+        "5": {
+          "mpCost": 138,
+          "power": 3408
+        },
+        "6": {
+          "mpCost": 140,
+          "power": 3537
+        },
+        "7": {
+          "mpCost": 143,
+          "power": 3668
+        },
+        "8": {
+          "mpCost": 145,
+          "power": 3800
+        },
+        "9": {
+          "mpCost": 148,
+          "power": 3933
+        },
+        "10": {
+          "mpCost": 150,
+          "power": 4067
+        },
+        "11": {
+          "mpCost": 153,
+          "power": 4201
+        },
+        "12": {
+          "mpCost": 155,
+          "power": 4336
+        },
+        "13": {
+          "mpCost": 157,
+          "power": 4470
+        },
+        "14": {
+          "mpCost": 160,
+          "power": 4604
+        },
+        "15": {
+          "mpCost": 162,
+          "power": 4738
+        },
+        "16": {
+          "mpCost": 164,
+          "power": 4870
+        }
+      }
+    },
+    "315": {
+      "id": 315,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 0,
+          "power": 4558
+        },
+        "2": {
+          "mpCost": 0,
+          "power": 4750
+        },
+        "3": {
+          "mpCost": 0,
+          "power": 4944
+        },
+        "4": {
+          "mpCost": 0,
+          "power": 5142
+        },
+        "5": {
+          "mpCost": 0,
+          "power": 5342
+        },
+        "6": {
+          "mpCost": 0,
+          "power": 5545
+        },
+        "7": {
+          "mpCost": 0,
+          "power": 5751
+        },
+        "8": {
+          "mpCost": 0,
+          "power": 5958
+        },
+        "9": {
+          "mpCost": 0,
+          "power": 6166
+        },
+        "10": {
+          "mpCost": 0,
+          "power": 6376
+        },
+        "11": {
+          "mpCost": 0,
+          "power": 6586
+        },
+        "12": {
+          "mpCost": 0,
+          "power": 6797
+        },
+        "13": {
+          "mpCost": 0,
+          "power": 7006
+        },
+        "14": {
+          "mpCost": 0,
+          "power": 7218
+        },
+        "15": {
+          "mpCost": 0,
+          "power": 7427
+        },
+        "16": {
+          "mpCost": 0,
+          "power": 7635
+        }
+      }
+    },
+    "320": {
+      "id": 320,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 73,
+          "power": 7
+        },
+        "2": {
+          "mpCost": 74,
+          "power": 10
+        },
+        "3": {
+          "mpCost": 75,
+          "power": 12
+        },
+        "4": {
+          "mpCost": 77,
+          "power": 15
+        },
+        "5": {
+          "mpCost": 78,
+          "power": 17
+        },
+        "6": {
+          "mpCost": 79,
+          "power": 20
+        },
+        "7": {
+          "mpCost": 80,
+          "power": 22
+        },
+        "8": {
+          "mpCost": 81,
+          "power": 25
+        },
+        "9": {
+          "mpCost": 82,
+          "power": 27
+        },
+        "10": {
+          "mpCost": 83,
+          "power": 30
+        }
+      }
+    },
+    "321": {
+      "id": 321,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 133,
+          "power": 2751
+        },
+        "2": {
+          "mpCost": 135,
+          "power": 2850
+        },
+        "3": {
+          "mpCost": 137,
+          "power": 2950
+        },
+        "4": {
+          "mpCost": 139,
+          "power": 3050
+        },
+        "5": {
+          "mpCost": 141,
+          "power": 3151
+        },
+        "6": {
+          "mpCost": 143,
+          "power": 3252
+        },
+        "7": {
+          "mpCost": 145,
+          "power": 3353
+        },
+        "8": {
+          "mpCost": 147,
+          "power": 3453
+        },
+        "9": {
+          "mpCost": 149,
+          "power": 3553
+        },
+        "10": {
+          "mpCost": 151,
+          "power": 3653
+        }
+      }
+    },
+    "343": {
+      "id": 343,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 170,
+          "power": 5132
+        }
+      }
+    },
+    "344": {
+      "id": 344,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 85,
+          "power": 5773
+        }
+      }
+    },
+    "345": {
+      "id": 345,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 5,
+          "power": 7
+        }
+      }
+    },
+    "346": {
+      "id": 346,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 5,
+          "power": 7
+        }
+      }
+    },
+    "347": {
+      "id": 347,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 87,
+          "power": 4040
+        }
+      }
+    },
+    "352": {
+      "id": 352,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 35,
+          "power": 1
+        }
+      }
+    },
+    "354": {
+      "id": 354,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 129,
+          "power": 1973
+        }
+      }
+    },
+    "361": {
+      "id": 361,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 65,
+          "power": 1973
+        }
+      }
+    },
+    "362": {
+      "id": 362,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 65,
+          "power": 1973
+        }
+      }
+    },
+    "369": {
+      "id": 369,
+      "category": "physical_attack",
+      "levels": {
+        "1": {
+          "mpCost": 130,
+          "power": 2020
+        }
+      }
+    },
+    "1028": {
+      "id": 1028,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 34,
+          "power": 39
+        },
+        "2": {
+          "mpCost": 35,
+          "power": 42
+        },
+        "3": {
+          "mpCost": 38,
+          "power": 44
+        },
+        "4": {
+          "mpCost": 39,
+          "power": 47
+        },
+        "5": {
+          "mpCost": 42,
+          "power": 49
+        },
+        "6": {
+          "mpCost": 44,
+          "power": 52
+        },
+        "7": {
+          "mpCost": 45,
+          "power": 55
+        },
+        "8": {
+          "mpCost": 48,
+          "power": 57
+        },
+        "9": {
+          "mpCost": 49,
+          "power": 60
+        },
+        "10": {
+          "mpCost": 52,
+          "power": 63
+        },
+        "11": {
+          "mpCost": 54,
+          "power": 66
+        },
+        "12": {
+          "mpCost": 55,
+          "power": 68
+        },
+        "13": {
+          "mpCost": 58,
+          "power": 71
+        },
+        "14": {
+          "mpCost": 60,
+          "power": 74
+        },
+        "15": {
+          "mpCost": 62,
+          "power": 77
+        },
+        "16": {
+          "mpCost": 64,
+          "power": 79
+        },
+        "17": {
+          "mpCost": 65,
+          "power": 82
+        },
+        "18": {
+          "mpCost": 67,
+          "power": 84
+        },
+        "19": {
+          "mpCost": 69,
+          "power": 87
+        }
+      }
+    },
+    "1031": {
+      "id": 1031,
+      "category": "magic_attack",
+      "element": "holy",
+      "levels": {
+        "1": {
+          "mpCost": 14,
+          "power": 19
+        },
+        "2": {
+          "mpCost": 16,
+          "power": 21
+        },
+        "3": {
+          "mpCost": 17,
+          "power": 24
+        },
+        "4": {
+          "mpCost": 18,
+          "power": 25
+        },
+        "5": {
+          "mpCost": 20,
+          "power": 28
+        },
+        "6": {
+          "mpCost": 21,
+          "power": 30
+        },
+        "7": {
+          "mpCost": 23,
+          "power": 33
+        },
+        "8": {
+          "mpCost": 24,
+          "power": 36
+        }
+      }
+    },
+    "1090": {
+      "id": 1090,
+      "category": "magic_attack",
+      "element": "dark",
+      "levels": {
+        "1": {
+          "mpCost": 20,
+          "power": 15
+        },
+        "2": {
+          "mpCost": 30,
+          "power": 21
+        },
+        "3": {
+          "mpCost": 39,
+          "power": 26
+        },
+        "4": {
+          "mpCost": 44,
+          "power": 32
+        },
+        "5": {
+          "mpCost": 53,
+          "power": 38
+        },
+        "6": {
+          "mpCost": 60,
+          "power": 44
+        }
+      }
+    },
+    "1100": {
+      "id": 1100,
+      "category": "magic_attack",
+      "element": "water",
+      "levels": {
+        "1": {
+          "mpCost": 15,
+          "power": 20
+        },
+        "2": {
+          "mpCost": 23,
+          "power": 30
+        }
+      }
+    },
+    "1101": {
+      "id": 1101,
+      "category": "magic_attack",
+      "element": "fire",
+      "levels": {
+        "1": {
+          "mpCost": 50,
+          "power": 44
+        },
+        "2": {
+          "mpCost": 68,
+          "power": 60
+        }
+      }
+    },
+    "1107": {
+      "id": 1107,
+      "category": "magic_attack",
+      "element": "water",
+      "levels": {
+        "1": {
+          "mpCost": 29,
+          "power": 44
+        },
+        "2": {
+          "mpCost": 40,
+          "power": 60
+        }
+      }
+    },
+    "1108": {
+      "id": 1108,
+      "category": "magic_attack",
+      "element": "fire",
+      "levels": {
+        "1": {
+          "mpCost": 97,
+          "power": 77
+        }
+      }
+    },
+    "1147": {
+      "id": 1147,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 20,
+          "power": 18
+        },
+        "2": {
+          "mpCost": 22,
+          "power": 21
+        },
+        "3": {
+          "mpCost": 25,
+          "power": 23
+        },
+        "4": {
+          "mpCost": 28,
+          "power": 26
+        },
+        "5": {
+          "mpCost": 30,
+          "power": 29
+        },
+        "6": {
+          "mpCost": 32,
+          "power": 32
+        }
+      }
+    },
+    "1148": {
+      "id": 1148,
+      "category": "magic_attack",
+      "element": "dark",
+      "levels": {
+        "1": {
+          "mpCost": 23,
+          "power": 58
+        },
+        "2": {
+          "mpCost": 27,
+          "power": 65
+        },
+        "3": {
+          "mpCost": 30,
+          "power": 72
+        },
+        "4": {
+          "mpCost": 35,
+          "power": 78
+        },
+        "5": {
+          "mpCost": 36,
+          "power": 82
+        },
+        "6": {
+          "mpCost": 38,
+          "power": 85
+        },
+        "7": {
+          "mpCost": 40,
+          "power": 89
+        },
+        "8": {
+          "mpCost": 41,
+          "power": 92
+        },
+        "9": {
+          "mpCost": 43,
+          "power": 96
+        },
+        "10": {
+          "mpCost": 45,
+          "power": 99
+        },
+        "11": {
+          "mpCost": 46,
+          "power": 102
+        },
+        "12": {
+          "mpCost": 47,
+          "power": 105
+        },
+        "13": {
+          "mpCost": 50,
+          "power": 108
+        }
+      }
+    },
+    "1155": {
+      "id": 1155,
+      "category": "magic_attack",
+      "element": "dark",
+      "levels": {
+        "1": {
+          "mpCost": 42,
+          "power": 31
+        },
+        "2": {
+          "mpCost": 44,
+          "power": 33
+        },
+        "3": {
+          "mpCost": 45,
+          "power": 34
+        },
+        "4": {
+          "mpCost": 48,
+          "power": 36
+        },
+        "5": {
+          "mpCost": 49,
+          "power": 38
+        },
+        "6": {
+          "mpCost": 52,
+          "power": 39
+        },
+        "7": {
+          "mpCost": 54,
+          "power": 41
+        },
+        "8": {
+          "mpCost": 55,
+          "power": 43
+        },
+        "9": {
+          "mpCost": 58,
+          "power": 45
+        },
+        "10": {
+          "mpCost": 60,
+          "power": 46
+        },
+        "11": {
+          "mpCost": 62,
+          "power": 48
+        },
+        "12": {
+          "mpCost": 64,
+          "power": 50
+        },
+        "13": {
+          "mpCost": 65,
+          "power": 51
+        },
+        "14": {
+          "mpCost": 67,
+          "power": 53
+        },
+        "15": {
+          "mpCost": 69,
+          "power": 54
+        }
+      }
+    },
+    "1159": {
+      "id": 1159,
+      "category": "magic_attack",
+      "element": "dark",
+      "levels": {
+        "1": {
+          "mpCost": 45,
+          "power": 68
+        },
+        "2": {
+          "mpCost": 48,
+          "power": 72
+        },
+        "3": {
+          "mpCost": 49,
+          "power": 75
+        },
+        "4": {
+          "mpCost": 52,
+          "power": 78
+        },
+        "5": {
+          "mpCost": 53,
+          "power": 80
+        },
+        "6": {
+          "mpCost": 54,
+          "power": 82
+        },
+        "7": {
+          "mpCost": 55,
+          "power": 84
+        },
+        "8": {
+          "mpCost": 55,
+          "power": 85
+        },
+        "9": {
+          "mpCost": 57,
+          "power": 87
+        },
+        "10": {
+          "mpCost": 58,
+          "power": 89
+        },
+        "11": {
+          "mpCost": 59,
+          "power": 90
+        },
+        "12": {
+          "mpCost": 60,
+          "power": 92
+        },
+        "13": {
+          "mpCost": 60,
+          "power": 94
+        },
+        "14": {
+          "mpCost": 62,
+          "power": 96
+        },
+        "15": {
+          "mpCost": 63,
+          "power": 97
+        },
+        "16": {
+          "mpCost": 64,
+          "power": 99
+        },
+        "17": {
+          "mpCost": 64,
+          "power": 100
+        },
+        "18": {
+          "mpCost": 65,
+          "power": 102
+        },
+        "19": {
+          "mpCost": 67,
+          "power": 104
+        },
+        "20": {
+          "mpCost": 67,
+          "power": 105
+        },
+        "21": {
+          "mpCost": 68,
+          "power": 107
+        },
+        "22": {
+          "mpCost": 69,
+          "power": 108
+        }
+      }
+    },
+    "1171": {
+      "id": 1171,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 50,
+          "power": 29
+        },
+        "2": {
+          "mpCost": 53,
+          "power": 30
+        },
+        "3": {
+          "mpCost": 55,
+          "power": 32
+        },
+        "4": {
+          "mpCost": 59,
+          "power": 34
+        },
+        "5": {
+          "mpCost": 62,
+          "power": 36
+        },
+        "6": {
+          "mpCost": 65,
+          "power": 38
+        },
+        "7": {
+          "mpCost": 68,
+          "power": 40
+        },
+        "8": {
+          "mpCost": 70,
+          "power": 42
+        },
+        "9": {
+          "mpCost": 74,
+          "power": 44
+        },
+        "10": {
+          "mpCost": 77,
+          "power": 46
+        },
+        "11": {
+          "mpCost": 80,
+          "power": 48
+        },
+        "12": {
+          "mpCost": 83,
+          "power": 50
+        },
+        "13": {
+          "mpCost": 87,
+          "power": 52
+        },
+        "14": {
+          "mpCost": 89,
+          "power": 55
+        },
+        "15": {
+          "mpCost": 93,
+          "power": 57
+        },
+        "16": {
+          "mpCost": 95,
+          "power": 58
+        },
+        "17": {
+          "mpCost": 98,
+          "power": 60
+        },
+        "18": {
+          "mpCost": 100,
+          "power": 62
+        },
+        "19": {
+          "mpCost": 103,
+          "power": 64
+        }
+      }
+    },
+    "1172": {
+      "id": 1172,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 18,
+          "power": 19
+        },
+        "2": {
+          "mpCost": 20,
+          "power": 21
+        },
+        "3": {
+          "mpCost": 22,
+          "power": 24
+        },
+        "4": {
+          "mpCost": 23,
+          "power": 25
+        },
+        "5": {
+          "mpCost": 25,
+          "power": 28
+        },
+        "6": {
+          "mpCost": 27,
+          "power": 30
+        },
+        "7": {
+          "mpCost": 29,
+          "power": 33
+        },
+        "8": {
+          "mpCost": 30,
+          "power": 36
+        }
+      }
+    },
+    "1176": {
+      "id": 1176,
+      "category": "magic_attack",
+      "element": "wind",
+      "levels": {
+        "1": {
+          "mpCost": 62,
+          "power": 31
+        },
+        "2": {
+          "mpCost": 65,
+          "power": 33
+        },
+        "3": {
+          "mpCost": 68,
+          "power": 34
+        },
+        "4": {
+          "mpCost": 70,
+          "power": 36
+        },
+        "5": {
+          "mpCost": 74,
+          "power": 38
+        },
+        "6": {
+          "mpCost": 77,
+          "power": 39
+        },
+        "7": {
+          "mpCost": 80,
+          "power": 41
+        },
+        "8": {
+          "mpCost": 83,
+          "power": 43
+        },
+        "9": {
+          "mpCost": 87,
+          "power": 45
+        },
+        "10": {
+          "mpCost": 89,
+          "power": 46
+        },
+        "11": {
+          "mpCost": 93,
+          "power": 48
+        },
+        "12": {
+          "mpCost": 95,
+          "power": 50
+        },
+        "13": {
+          "mpCost": 98,
+          "power": 51
+        },
+        "14": {
+          "mpCost": 100,
+          "power": 53
+        },
+        "15": {
+          "mpCost": 103,
+          "power": 54
+        }
+      }
+    },
+    "1177": {
+      "id": 1177,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 9,
+          "power": 12
+        },
+        "2": {
+          "mpCost": 9,
+          "power": 13
+        },
+        "3": {
+          "mpCost": 10,
+          "power": 15
+        },
+        "4": {
+          "mpCost": 14,
+          "power": 18
+        },
+        "5": {
+          "mpCost": 15,
+          "power": 21
+        }
+      }
+    },
+    "1178": {
+      "id": 1178,
+      "category": "magic_attack",
+      "element": "wind",
+      "levels": {
+        "1": {
+          "mpCost": 34,
+          "power": 49
+        },
+        "2": {
+          "mpCost": 35,
+          "power": 52
+        },
+        "3": {
+          "mpCost": 38,
+          "power": 55
+        },
+        "4": {
+          "mpCost": 39,
+          "power": 58
+        },
+        "5": {
+          "mpCost": 42,
+          "power": 61
+        },
+        "6": {
+          "mpCost": 44,
+          "power": 65
+        },
+        "7": {
+          "mpCost": 45,
+          "power": 68
+        },
+        "8": {
+          "mpCost": 48,
+          "power": 72
+        },
+        "9": {
+          "mpCost": 49,
+          "power": 75
+        },
+        "10": {
+          "mpCost": 52,
+          "power": 78
+        },
+        "11": {
+          "mpCost": 53,
+          "power": 80
+        },
+        "12": {
+          "mpCost": 54,
+          "power": 82
+        },
+        "13": {
+          "mpCost": 55,
+          "power": 84
+        },
+        "14": {
+          "mpCost": 56,
+          "power": 86
+        },
+        "15": {
+          "mpCost": 57,
+          "power": 88
+        },
+        "16": {
+          "mpCost": 58,
+          "power": 89
+        },
+        "17": {
+          "mpCost": 59,
+          "power": 91
+        },
+        "18": {
+          "mpCost": 60,
+          "power": 92
+        },
+        "19": {
+          "mpCost": 61,
+          "power": 93
+        },
+        "20": {
+          "mpCost": 62,
+          "power": 94
+        },
+        "21": {
+          "mpCost": 64,
+          "power": 95
+        }
+      }
+    },
+    "1179": {
+      "id": 1179,
+      "category": "magic_attack",
+      "element": "water",
+      "levels": {
+        "1": {
+          "mpCost": 34,
+          "power": 30
+        },
+        "2": {
+          "mpCost": 35,
+          "power": 31
+        },
+        "3": {
+          "mpCost": 38,
+          "power": 33
+        },
+        "4": {
+          "mpCost": 39,
+          "power": 35
+        },
+        "5": {
+          "mpCost": 42,
+          "power": 37
+        },
+        "6": {
+          "mpCost": 44,
+          "power": 39
+        },
+        "7": {
+          "mpCost": 45,
+          "power": 41
+        },
+        "8": {
+          "mpCost": 48,
+          "power": 43
+        },
+        "9": {
+          "mpCost": 49,
+          "power": 45
+        },
+        "10": {
+          "mpCost": 52,
+          "power": 47
+        },
+        "11": {
+          "mpCost": 54,
+          "power": 49
+        },
+        "12": {
+          "mpCost": 55,
+          "power": 51
+        },
+        "13": {
+          "mpCost": 57,
+          "power": 53
+        },
+        "14": {
+          "mpCost": 59,
+          "power": 54
+        },
+        "15": {
+          "mpCost": 61,
+          "power": 56
+        },
+        "16": {
+          "mpCost": 63,
+          "power": 57
+        }
+      }
+    },
+    "1181": {
+      "id": 1181,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 29,
+          "power": 13
+        },
+        "2": {
+          "mpCost": 34,
+          "power": 16
+        },
+        "3": {
+          "mpCost": 40,
+          "power": 19
+        }
+      }
+    },
+    "1183": {
+      "id": 1183,
+      "category": "magic_attack",
+      "element": "water",
+      "levels": {
+        "1": {
+          "mpCost": 38,
+          "power": 28
+        },
+        "2": {
+          "mpCost": 40,
+          "power": 29
+        },
+        "3": {
+          "mpCost": 43,
+          "power": 31
+        },
+        "4": {
+          "mpCost": 45,
+          "power": 33
+        },
+        "5": {
+          "mpCost": 48,
+          "power": 34
+        },
+        "6": {
+          "mpCost": 49,
+          "power": 36
+        },
+        "7": {
+          "mpCost": 52,
+          "power": 38
+        },
+        "8": {
+          "mpCost": 54,
+          "power": 39
+        },
+        "9": {
+          "mpCost": 57,
+          "power": 41
+        },
+        "10": {
+          "mpCost": 59,
+          "power": 43
+        },
+        "11": {
+          "mpCost": 62,
+          "power": 44
+        },
+        "12": {
+          "mpCost": 64,
+          "power": 46
+        },
+        "13": {
+          "mpCost": 67,
+          "power": 48
+        }
+      }
+    },
+    "1184": {
+      "id": 1184,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 9,
+          "power": 8
+        },
+        "2": {
+          "mpCost": 10,
+          "power": 9
+        },
+        "3": {
+          "mpCost": 14,
+          "power": 11
+        },
+        "4": {
+          "mpCost": 15,
+          "power": 13
+        },
+        "5": {
+          "mpCost": 18,
+          "power": 14
+        },
+        "6": {
+          "mpCost": 20,
+          "power": 16
+        }
+      }
+    },
+    "1220": {
+      "id": 1220,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 44,
+          "power": 65
+        },
+        "2": {
+          "mpCost": 49,
+          "power": 73
+        },
+        "3": {
+          "mpCost": 54,
+          "power": 81
+        },
+        "4": {
+          "mpCost": 59,
+          "power": 89
+        },
+        "5": {
+          "mpCost": 64,
+          "power": 98
+        },
+        "6": {
+          "mpCost": 67,
+          "power": 102
+        },
+        "7": {
+          "mpCost": 69,
+          "power": 107
+        },
+        "8": {
+          "mpCost": 72,
+          "power": 111
+        },
+        "9": {
+          "mpCost": 74,
+          "power": 115
+        },
+        "10": {
+          "mpCost": 77,
+          "power": 119
+        }
+      }
+    },
+    "1221": {
+      "id": 1221,
+      "category": "magic_attack",
+      "element": "fire",
+      "levels": {
+        "1": {
+          "mpCost": 14,
+          "power": 23
+        },
+        "2": {
+          "mpCost": 16,
+          "power": 26
+        },
+        "3": {
+          "mpCost": 17,
+          "power": 29
+        },
+        "4": {
+          "mpCost": 18,
+          "power": 32
+        },
+        "5": {
+          "mpCost": 20,
+          "power": 35
+        },
+        "6": {
+          "mpCost": 21,
+          "power": 38
+        },
+        "7": {
+          "mpCost": 23,
+          "power": 42
+        },
+        "8": {
+          "mpCost": 24,
+          "power": 44
+        }
+      }
+    },
+    "1230": {
+      "id": 1230,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 30,
+          "power": 1
+        },
+        "2": {
+          "mpCost": 35,
+          "power": 52
+        },
+        "3": {
+          "mpCost": 38,
+          "power": 55
+        },
+        "4": {
+          "mpCost": 39,
+          "power": 58
+        },
+        "5": {
+          "mpCost": 42,
+          "power": 61
+        },
+        "6": {
+          "mpCost": 44,
+          "power": 65
+        },
+        "7": {
+          "mpCost": 45,
+          "power": 68
+        },
+        "8": {
+          "mpCost": 48,
+          "power": 72
+        },
+        "9": {
+          "mpCost": 49,
+          "power": 75
+        },
+        "10": {
+          "mpCost": 52,
+          "power": 78
+        },
+        "11": {
+          "mpCost": 53,
+          "power": 80
+        },
+        "12": {
+          "mpCost": 54,
+          "power": 82
+        },
+        "13": {
+          "mpCost": 55,
+          "power": 84
+        },
+        "14": {
+          "mpCost": 55,
+          "power": 85
+        },
+        "15": {
+          "mpCost": 57,
+          "power": 87
+        },
+        "16": {
+          "mpCost": 58,
+          "power": 89
+        },
+        "17": {
+          "mpCost": 59,
+          "power": 90
+        },
+        "18": {
+          "mpCost": 60,
+          "power": 92
+        },
+        "19": {
+          "mpCost": 60,
+          "power": 94
+        },
+        "20": {
+          "mpCost": 62,
+          "power": 96
+        },
+        "21": {
+          "mpCost": 63,
+          "power": 97
+        },
+        "22": {
+          "mpCost": 64,
+          "power": 99
+        },
+        "23": {
+          "mpCost": 64,
+          "power": 100
+        },
+        "24": {
+          "mpCost": 65,
+          "power": 102
+        },
+        "25": {
+          "mpCost": 67,
+          "power": 104
+        },
+        "26": {
+          "mpCost": 67,
+          "power": 105
+        },
+        "27": {
+          "mpCost": 68,
+          "power": 107
+        },
+        "28": {
+          "mpCost": 69,
+          "power": 108
+        }
+      }
+    },
+    "1231": {
+      "id": 1231,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 34,
+          "power": 39
+        },
+        "2": {
+          "mpCost": 35,
+          "power": 42
+        },
+        "3": {
+          "mpCost": 38,
+          "power": 44
+        },
+        "4": {
+          "mpCost": 39,
+          "power": 47
+        },
+        "5": {
+          "mpCost": 42,
+          "power": 49
+        },
+        "6": {
+          "mpCost": 44,
+          "power": 52
+        },
+        "7": {
+          "mpCost": 45,
+          "power": 55
+        },
+        "8": {
+          "mpCost": 48,
+          "power": 57
+        },
+        "9": {
+          "mpCost": 49,
+          "power": 60
+        },
+        "10": {
+          "mpCost": 52,
+          "power": 63
+        },
+        "11": {
+          "mpCost": 53,
+          "power": 64
+        },
+        "12": {
+          "mpCost": 54,
+          "power": 66
+        },
+        "13": {
+          "mpCost": 55,
+          "power": 67
+        },
+        "14": {
+          "mpCost": 56,
+          "power": 69
+        },
+        "15": {
+          "mpCost": 57,
+          "power": 70
+        },
+        "16": {
+          "mpCost": 58,
+          "power": 72
+        },
+        "17": {
+          "mpCost": 59,
+          "power": 73
+        },
+        "18": {
+          "mpCost": 60,
+          "power": 75
+        },
+        "19": {
+          "mpCost": 61,
+          "power": 76
+        },
+        "20": {
+          "mpCost": 62,
+          "power": 77
+        },
+        "21": {
+          "mpCost": 64,
+          "power": 79
+        },
+        "22": {
+          "mpCost": 64,
+          "power": 79
+        },
+        "23": {
+          "mpCost": 64,
+          "power": 80
+        },
+        "24": {
+          "mpCost": 65,
+          "power": 82
+        },
+        "25": {
+          "mpCost": 67,
+          "power": 83
+        },
+        "26": {
+          "mpCost": 67,
+          "power": 84
+        },
+        "27": {
+          "mpCost": 68,
+          "power": 85
+        },
+        "28": {
+          "mpCost": 69,
+          "power": 87
+        }
+      }
+    },
+    "1234": {
+      "id": 1234,
+      "category": "magic_attack",
+      "element": "dark",
+      "levels": {
+        "1": {
+          "mpCost": 60,
+          "power": 49
+        },
+        "2": {
+          "mpCost": 63,
+          "power": 52
+        },
+        "3": {
+          "mpCost": 67,
+          "power": 55
+        },
+        "4": {
+          "mpCost": 70,
+          "power": 58
+        },
+        "5": {
+          "mpCost": 74,
+          "power": 61
+        },
+        "6": {
+          "mpCost": 78,
+          "power": 65
+        },
+        "7": {
+          "mpCost": 82,
+          "power": 68
+        },
+        "8": {
+          "mpCost": 85,
+          "power": 72
+        },
+        "9": {
+          "mpCost": 89,
+          "power": 75
+        },
+        "10": {
+          "mpCost": 93,
+          "power": 78
+        },
+        "11": {
+          "mpCost": 94,
+          "power": 80
+        },
+        "12": {
+          "mpCost": 97,
+          "power": 82
+        },
+        "13": {
+          "mpCost": 98,
+          "power": 84
+        },
+        "14": {
+          "mpCost": 100,
+          "power": 85
+        },
+        "15": {
+          "mpCost": 102,
+          "power": 87
+        },
+        "16": {
+          "mpCost": 104,
+          "power": 89
+        },
+        "17": {
+          "mpCost": 105,
+          "power": 90
+        },
+        "18": {
+          "mpCost": 107,
+          "power": 92
+        },
+        "19": {
+          "mpCost": 109,
+          "power": 94
+        },
+        "20": {
+          "mpCost": 110,
+          "power": 96
+        },
+        "21": {
+          "mpCost": 112,
+          "power": 97
+        },
+        "22": {
+          "mpCost": 114,
+          "power": 99
+        },
+        "23": {
+          "mpCost": 115,
+          "power": 100
+        },
+        "24": {
+          "mpCost": 117,
+          "power": 102
+        },
+        "25": {
+          "mpCost": 119,
+          "power": 104
+        },
+        "26": {
+          "mpCost": 120,
+          "power": 105
+        },
+        "27": {
+          "mpCost": 122,
+          "power": 107
+        },
+        "28": {
+          "mpCost": 123,
+          "power": 108
+        }
+      }
+    },
+    "1239": {
+      "id": 1239,
+      "category": "magic_attack",
+      "element": "wind",
+      "levels": {
+        "1": {
+          "mpCost": 34,
+          "power": 49
+        },
+        "2": {
+          "mpCost": 35,
+          "power": 52
+        },
+        "3": {
+          "mpCost": 38,
+          "power": 55
+        },
+        "4": {
+          "mpCost": 39,
+          "power": 58
+        },
+        "5": {
+          "mpCost": 42,
+          "power": 61
+        },
+        "6": {
+          "mpCost": 44,
+          "power": 65
+        },
+        "7": {
+          "mpCost": 45,
+          "power": 68
+        },
+        "8": {
+          "mpCost": 48,
+          "power": 72
+        },
+        "9": {
+          "mpCost": 49,
+          "power": 75
+        },
+        "10": {
+          "mpCost": 52,
+          "power": 78
+        },
+        "11": {
+          "mpCost": 53,
+          "power": 80
+        },
+        "12": {
+          "mpCost": 54,
+          "power": 82
+        },
+        "13": {
+          "mpCost": 55,
+          "power": 84
+        },
+        "14": {
+          "mpCost": 55,
+          "power": 85
+        },
+        "15": {
+          "mpCost": 57,
+          "power": 87
+        },
+        "16": {
+          "mpCost": 58,
+          "power": 89
+        },
+        "17": {
+          "mpCost": 59,
+          "power": 90
+        },
+        "18": {
+          "mpCost": 60,
+          "power": 92
+        },
+        "19": {
+          "mpCost": 60,
+          "power": 94
+        },
+        "20": {
+          "mpCost": 62,
+          "power": 96
+        },
+        "21": {
+          "mpCost": 63,
+          "power": 97
+        },
+        "22": {
+          "mpCost": 64,
+          "power": 99
+        },
+        "23": {
+          "mpCost": 64,
+          "power": 100
+        },
+        "24": {
+          "mpCost": 65,
+          "power": 102
+        },
+        "25": {
+          "mpCost": 67,
+          "power": 104
+        },
+        "26": {
+          "mpCost": 67,
+          "power": 105
+        },
+        "27": {
+          "mpCost": 68,
+          "power": 107
+        },
+        "28": {
+          "mpCost": 69,
+          "power": 108
+        }
+      }
+    },
+    "1245": {
+      "id": 1245,
+      "category": "magic_attack",
+      "element": "dark",
+      "levels": {
+        "1": {
+          "mpCost": 70,
+          "power": 52
+        },
+        "2": {
+          "mpCost": 78,
+          "power": 58
+        },
+        "3": {
+          "mpCost": 87,
+          "power": 65
+        },
+        "4": {
+          "mpCost": 94,
+          "power": 72
+        },
+        "5": {
+          "mpCost": 103,
+          "power": 78
+        },
+        "6": {
+          "mpCost": 107,
+          "power": 82
+        },
+        "7": {
+          "mpCost": 110,
+          "power": 85
+        },
+        "8": {
+          "mpCost": 115,
+          "power": 89
+        },
+        "9": {
+          "mpCost": 119,
+          "power": 92
+        },
+        "10": {
+          "mpCost": 123,
+          "power": 96
+        },
+        "11": {
+          "mpCost": 127,
+          "power": 99
+        },
+        "12": {
+          "mpCost": 130,
+          "power": 102
+        },
+        "13": {
+          "mpCost": 133,
+          "power": 105
+        },
+        "14": {
+          "mpCost": 137,
+          "power": 108
+        }
+      }
+    },
+    "1266": {
+      "id": 1266,
+      "category": "magic_attack",
+      "element": "dark",
+      "levels": {
+        "1": {
+          "mpCost": 28,
+          "power": 39
+        },
+        "2": {
+          "mpCost": 33,
+          "power": 47
+        },
+        "3": {
+          "mpCost": 38,
+          "power": 55
+        }
+      }
+    },
+    "1267": {
+      "id": 1267,
+      "category": "magic_attack",
+      "element": "dark",
+      "levels": {
+        "1": {
+          "mpCost": 44,
+          "power": 65
+        },
+        "2": {
+          "mpCost": 49,
+          "power": 73
+        },
+        "3": {
+          "mpCost": 54,
+          "power": 81
+        },
+        "4": {
+          "mpCost": 59,
+          "power": 89
+        },
+        "5": {
+          "mpCost": 64,
+          "power": 98
+        },
+        "6": {
+          "mpCost": 67,
+          "power": 102
+        },
+        "7": {
+          "mpCost": 69,
+          "power": 107
+        },
+        "8": {
+          "mpCost": 73,
+          "power": 111
+        },
+        "9": {
+          "mpCost": 74,
+          "power": 115
+        },
+        "10": {
+          "mpCost": 77,
+          "power": 119
+        },
+        "11": {
+          "mpCost": 79,
+          "power": 123
+        },
+        "12": {
+          "mpCost": 82,
+          "power": 127
+        },
+        "13": {
+          "mpCost": 84,
+          "power": 131
+        },
+        "14": {
+          "mpCost": 85,
+          "power": 135
+        }
+      }
+    },
+    "1274": {
+      "id": 1274,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 10,
+          "power": 13
+        },
+        "2": {
+          "mpCost": 12,
+          "power": 16
+        },
+        "3": {
+          "mpCost": 14,
+          "power": 19
+        },
+        "4": {
+          "mpCost": 15,
+          "power": 22
+        }
+      }
+    },
+    "1275": {
+      "id": 1275,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 18,
+          "power": 26
+        },
+        "2": {
+          "mpCost": 20,
+          "power": 29
+        },
+        "3": {
+          "mpCost": 23,
+          "power": 33
+        },
+        "4": {
+          "mpCost": 24,
+          "power": 36
+        },
+        "5": {
+          "mpCost": 27,
+          "power": 39
+        },
+        "6": {
+          "mpCost": 28,
+          "power": 41
+        },
+        "7": {
+          "mpCost": 28,
+          "power": 43
+        },
+        "8": {
+          "mpCost": 29,
+          "power": 45
+        },
+        "9": {
+          "mpCost": 30,
+          "power": 46
+        },
+        "10": {
+          "mpCost": 32,
+          "power": 48
+        },
+        "11": {
+          "mpCost": 33,
+          "power": 50
+        },
+        "12": {
+          "mpCost": 33,
+          "power": 51
+        },
+        "13": {
+          "mpCost": 34,
+          "power": 53
+        },
+        "14": {
+          "mpCost": 35,
+          "power": 54
+        }
+      }
+    },
+    "1285": {
+      "id": 1285,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 250,
+          "power": 1
+        }
+      }
+    },
+    "1286": {
+      "id": 1286,
+      "category": "magic_attack",
+      "element": "water",
+      "levels": {
+        "1": {
+          "mpCost": 68,
+          "power": 48
+        },
+        "2": {
+          "mpCost": 70,
+          "power": 50
+        },
+        "3": {
+          "mpCost": 74,
+          "power": 53
+        },
+        "4": {
+          "mpCost": 77,
+          "power": 55
+        },
+        "5": {
+          "mpCost": 79,
+          "power": 56
+        },
+        "6": {
+          "mpCost": 80,
+          "power": 57
+        },
+        "7": {
+          "mpCost": 82,
+          "power": 59
+        },
+        "8": {
+          "mpCost": 84,
+          "power": 60
+        },
+        "9": {
+          "mpCost": 85,
+          "power": 61
+        },
+        "10": {
+          "mpCost": 87,
+          "power": 62
+        },
+        "11": {
+          "mpCost": 88,
+          "power": 63
+        },
+        "12": {
+          "mpCost": 89,
+          "power": 65
+        },
+        "13": {
+          "mpCost": 90,
+          "power": 66
+        },
+        "14": {
+          "mpCost": 93,
+          "power": 67
+        },
+        "15": {
+          "mpCost": 94,
+          "power": 68
+        },
+        "16": {
+          "mpCost": 95,
+          "power": 69
+        },
+        "17": {
+          "mpCost": 97,
+          "power": 70
+        },
+        "18": {
+          "mpCost": 98,
+          "power": 72
+        },
+        "19": {
+          "mpCost": 99,
+          "power": 73
+        },
+        "20": {
+          "mpCost": 100,
+          "power": 74
+        },
+        "21": {
+          "mpCost": 102,
+          "power": 75
+        },
+        "22": {
+          "mpCost": 103,
+          "power": 76
+        }
+      }
+    },
+    "1288": {
+      "id": 1288,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 250,
+          "power": 350
+        }
+      }
+    },
+    "1289": {
+      "id": 1289,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 250,
+          "power": -118
+        }
+      }
+    },
+    "1291": {
+      "id": 1291,
+      "category": "magic_attack",
+      "element": "wind",
+      "levels": {
+        "1": {
+          "mpCost": 250,
+          "power": 350
+        }
+      }
+    },
+    "1292": {
+      "id": 1292,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 250,
+          "power": 500
+        }
+      }
+    },
+    "1296": {
+      "id": 1296,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 54,
+          "power": 41
+        },
+        "2": {
+          "mpCost": 55,
+          "power": 43
+        },
+        "3": {
+          "mpCost": 58,
+          "power": 45
+        },
+        "4": {
+          "mpCost": 60,
+          "power": 46
+        },
+        "5": {
+          "mpCost": 62,
+          "power": 48
+        },
+        "6": {
+          "mpCost": 64,
+          "power": 50
+        },
+        "7": {
+          "mpCost": 65,
+          "power": 51
+        },
+        "8": {
+          "mpCost": 67,
+          "power": 53
+        },
+        "9": {
+          "mpCost": 69,
+          "power": 54
+        }
+      }
+    },
+    "1338": {
+      "id": 1338,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 72,
+          "power": 1
+        }
+      }
+    },
+    "1339": {
+      "id": 1339,
+      "category": "magic_attack",
+      "element": "fire",
+      "levels": {
+        "1": {
+          "mpCost": 105,
+          "power": 140
+        }
+      }
+    },
+    "1340": {
+      "id": 1340,
+      "category": "magic_attack",
+      "element": "water",
+      "levels": {
+        "1": {
+          "mpCost": 105,
+          "power": 140
+        }
+      }
+    },
+    "1341": {
+      "id": 1341,
+      "category": "magic_attack",
+      "element": "wind",
+      "levels": {
+        "1": {
+          "mpCost": 105,
+          "power": 140
+        }
+      }
+    },
+    "1342": {
+      "id": 1342,
+      "category": "magic_attack",
+      "element": "holy",
+      "levels": {
+        "1": {
+          "mpCost": 105,
+          "power": 139
+        }
+      }
+    },
+    "1343": {
+      "id": 1343,
+      "category": "magic_attack",
+      "element": "dark",
+      "levels": {
+        "1": {
+          "mpCost": 105,
+          "power": 139
+        }
+      }
+    },
+    "1453": {
+      "id": 1453,
+      "category": "magic_attack",
+      "levels": {
+        "1": {
+          "mpCost": 22,
+          "power": 52
+        },
+        "2": {
+          "mpCost": 22,
+          "power": 55
+        },
+        "3": {
+          "mpCost": 23,
+          "power": 58
+        },
+        "4": {
+          "mpCost": 23,
+          "power": 61
+        },
+        "5": {
+          "mpCost": 24,
+          "power": 64
+        },
+        "6": {
+          "mpCost": 24,
+          "power": 67
+        },
+        "7": {
+          "mpCost": 25,
+          "power": 70
+        },
+        "8": {
+          "mpCost": 25,
+          "power": 73
+        },
+        "9": {
+          "mpCost": 26,
+          "power": 76
+        },
+        "10": {
+          "mpCost": 26,
+          "power": 79
+        },
+        "11": {
+          "mpCost": 27,
+          "power": 82
+        },
+        "12": {
+          "mpCost": 27,
+          "power": 85
+        },
+        "13": {
+          "mpCost": 28,
+          "power": 88
+        },
+        "14": {
+          "mpCost": 28,
+          "power": 91
+        },
+        "15": {
+          "mpCost": 29,
+          "power": 94
+        },
+        "16": {
+          "mpCost": 29,
+          "power": 97
+        },
+        "17": {
+          "mpCost": 30,
+          "power": 100
+        },
+        "18": {
+          "mpCost": 30,
+          "power": 103
+        },
+        "19": {
+          "mpCost": 31,
+          "power": 106
+        },
+        "20": {
+          "mpCost": 31,
+          "power": 108
+        },
+        "21": {
+          "mpCost": 32,
+          "power": 110
+        }
+      }
+    }
+  },
+  "professionToSkillIds": {
+    "human_fighter": [
+      3,
+      16,
+      56
+    ],
+    "human_fighter_warrior": [
+      3,
+      16,
+      56,
+      100,
+      245,
+      255
+    ],
+    "human_fighter_gladiator": [
+      1,
+      3,
+      5,
+      6,
+      7,
+      9,
+      16,
+      56,
+      100,
+      190,
+      245,
+      255,
+      260,
+      261
+    ],
+    "human_fighter_duelist": [
+      1,
+      3,
+      5,
+      6,
+      7,
+      9,
+      16,
+      56,
+      100,
+      190,
+      245,
+      255,
+      260,
+      261,
+      345
+    ],
+    "human_fighter_warlord": [
+      3,
+      16,
+      36,
+      48,
+      56,
+      100,
+      245,
+      255,
+      320
+    ],
+    "human_fighter_paladin": [
+      3,
+      16,
+      49,
+      56,
+      70,
+      92
+    ],
+    "human_fighter_phoenix_knight": [
+      3,
+      16,
+      49,
+      56,
+      70,
+      92
+    ],
+    "human_fighter_hell_knight": [
+      3,
+      16,
+      49,
+      56,
+      70,
+      92
+    ],
+    "human_fighter_dark_avenger": [
+      3,
+      16,
+      56,
+      70,
+      92
+    ],
+    "human_fighter_dreadnought": [
+      3,
+      16,
+      36,
+      48,
+      56,
+      100,
+      245,
+      255,
+      320,
+      347,
+      361
+    ],
+    "human_fighter_human_knight": [
+      3,
+      16,
+      56,
+      70,
+      92
+    ],
+    "human_fighter_rogue": [
+      3,
+      16,
+      56,
+      101
+    ],
+    "human_fighter_hawkeye": [
+      3,
+      16,
+      19,
+      24,
+      56,
+      101
+    ],
+    "human_fighter_treasure_hunter": [
+      3,
+      16,
+      30,
+      56,
+      101,
+      263
+    ],
+    "human_fighter_sagittarius": [
+      3,
+      16,
+      19,
+      24,
+      56,
+      101,
+      343,
+      354
+    ],
+    "human_fighter_adventurer": [
+      3,
+      16,
+      30,
+      56,
+      101,
+      263,
+      344
+    ],
+    "human_mystic_base": [
+      1147,
+      1177,
+      1184
+    ],
+    "human_mystic_cleric": [
+      1031,
+      1147,
+      1177,
+      1184
+    ],
+    "human_mystic_wizard": [
+      1147,
+      1172,
+      1177,
+      1181,
+      1184,
+      1220,
+      1274
+    ],
+    "human_mystic_warlock": [
+      1147,
+      1172,
+      1177,
+      1181,
+      1184,
+      1220,
+      1274,
+      1453
+    ],
+    "human_mystic_sorcerer": [
+      1147,
+      1171,
+      1172,
+      1177,
+      1181,
+      1184,
+      1220,
+      1230,
+      1231,
+      1274,
+      1275,
+      1285,
+      1288,
+      1289,
+      1292,
+      1296
+    ],
+    "human_mystic_necromancer": [
+      1147,
+      1148,
+      1155,
+      1159,
+      1172,
+      1177,
+      1181,
+      1184,
+      1220,
+      1234,
+      1274
+    ],
+    "human_mystic_arcana_lord": [
+      1147,
+      1172,
+      1177,
+      1181,
+      1184,
+      1220,
+      1274,
+      1453
+    ],
+    "human_mystic_soultaker": [
+      1147,
+      1148,
+      1155,
+      1159,
+      1172,
+      1177,
+      1181,
+      1184,
+      1220,
+      1234,
+      1274
+    ],
+    "human_mystic_archmage": [
+      1147,
+      1171,
+      1172,
+      1177,
+      1181,
+      1184,
+      1220,
+      1230,
+      1231,
+      1274,
+      1275,
+      1285,
+      1288,
+      1289,
+      1292,
+      1296,
+      1338,
+      1339
+    ],
+    "human_mystic_bishop": [
+      1028,
+      1031,
+      1147,
+      1177,
+      1184,
+      1453
+    ],
+    "human_mystic_prophet": [
+      1031,
+      1147,
+      1177,
+      1184,
+      1453
+    ],
+    "human_mystic_hierophant": [
+      1031,
+      1147,
+      1177,
+      1184,
+      1453
+    ],
+    "human_mystic_cardinal": [
+      1028,
+      1031,
+      1147,
+      1177,
+      1184,
+      1453
+    ],
+    "dark_mystic_base": [
+      1147,
+      1177,
+      1184
+    ],
+    "dark_mystic_oracle": [
+      1031,
+      1147,
+      1177,
+      1184
+    ],
+    "dark_mystic_dark_wizard": [
+      1147,
+      1172,
+      1177,
+      1178,
+      1181,
+      1184,
+      1266
+    ],
+    "dark_mystic_spellhowler": [
+      1147,
+      1148,
+      1159,
+      1172,
+      1176,
+      1177,
+      1178,
+      1181,
+      1184,
+      1234,
+      1239,
+      1266,
+      1267
+    ],
+    "dark_mystic_storm_screamer": [
+      1147,
+      1148,
+      1159,
+      1172,
+      1176,
+      1177,
+      1178,
+      1181,
+      1184,
+      1234,
+      1239,
+      1266,
+      1267,
+      1289,
+      1291,
+      1292,
+      1341,
+      1343
+    ],
+    "dark_mystic_shillien_elder": [
+      1031,
+      1147,
+      1177,
+      1184,
+      1221,
+      1453
+    ],
+    "dark_mystic_shillien_saint": [
+      1031,
+      1147,
+      1177,
+      1184,
+      1453
+    ],
+    "dark_mystic_phantom_summoner": [
+      1147,
+      1172,
+      1177,
+      1178,
+      1181,
+      1184,
+      1266,
+      1453
+    ],
+    "dark_mystic_spectral_master": [
+      1147,
+      1172,
+      1177,
+      1178,
+      1181,
+      1184,
+      1266,
+      1453
+    ],
+    "orc_fighter": [
+      3,
+      29
+    ],
+    "orc_fighter_raider": [
+      3,
+      29,
+      100,
+      245,
+      255
+    ],
+    "orc_fighter_destroyer": [
+      3,
+      29,
+      36,
+      100,
+      190,
+      245,
+      255,
+      260,
+      315,
+      320
+    ],
+    "orc_fighter_titan": [
+      3,
+      29,
+      36,
+      100,
+      190,
+      245,
+      255,
+      260,
+      315,
+      320,
+      347,
+      362
+    ],
+    "orc_fighter_monk": [
+      3,
+      29,
+      54,
+      120,
+      284
+    ],
+    "orc_fighter_tyrant": [
+      3,
+      17,
+      29,
+      35,
+      54,
+      81,
+      120,
+      280,
+      281,
+      284
+    ],
+    "orc_fighter_grand_khavatari": [
+      3,
+      17,
+      29,
+      35,
+      54,
+      81,
+      120,
+      280,
+      281,
+      284,
+      346
+    ],
+    "orc_mystic_base": [
+      1090,
+      1100
+    ],
+    "orc_mystic_shaman": [
+      100,
+      1090,
+      1100,
+      1101,
+      1107
+    ],
+    "orc_mystic_warcryer": [
+      100,
+      260,
+      1090,
+      1100,
+      1101,
+      1107,
+      1245
+    ],
+    "orc_mystic_overlord": [
+      100,
+      260,
+      1090,
+      1100,
+      1101,
+      1107,
+      1108,
+      1245
+    ],
+    "orc_mystic_dominator": [
+      100,
+      260,
+      1090,
+      1100,
+      1101,
+      1107,
+      1108,
+      1245
+    ],
+    "orc_mystic_doomcryer": [
+      100,
+      260,
+      1090,
+      1100,
+      1101,
+      1107,
+      1245
+    ],
+    "dwarven_fighter_scavenger": [
+      100,
+      245
+    ],
+    "dwarven_fighter_bounty_hunter": [
+      36,
+      100,
+      245,
+      260,
+      320
+    ],
+    "dwarven_fighter_fortune_seeker": [
+      36,
+      100,
+      245,
+      260,
+      320,
+      347,
+      362
+    ],
+    "dwarven_fighter_artisan": [
+      100,
+      245
+    ],
+    "dwarven_fighter_warsmith": [
+      36,
+      100,
+      245,
+      260,
+      320
+    ],
+    "dwarven_fighter_maestro": [
+      36,
+      100,
+      245,
+      260,
+      320,
+      347,
+      362
+    ],
+    "dark_fighter": [
+      3,
+      16,
+      56,
+      70
+    ],
+    "dark_fighter_assassin": [
+      3,
+      16,
+      56,
+      70,
+      96,
+      101,
+      105,
+      223
+    ],
+    "dark_fighter_phantom_ranger": [
+      3,
+      16,
+      19,
+      56,
+      70,
+      96,
+      101,
+      105,
+      223,
+      314
+    ],
+    "dark_fighter_ghost_sentinel": [
+      3,
+      16,
+      19,
+      56,
+      70,
+      96,
+      101,
+      105,
+      223,
+      314,
+      343,
+      354,
+      369
+    ],
+    "dark_fighter_palus_knight": [
+      3,
+      16,
+      56,
+      70,
+      105,
+      223
+    ],
+    "dark_fighter_shillien_knight": [
+      3,
+      16,
+      56,
+      70,
+      105,
+      223,
+      289
+    ],
+    "dark_fighter_shillien_templar": [
+      3,
+      16,
+      56,
+      70,
+      105,
+      223,
+      289,
+      352
+    ],
+    "dark_fighter_bladedancer": [
+      3,
+      16,
+      56,
+      70,
+      105,
+      223
+    ],
+    "dark_fighter_spectral_dancer": [
+      3,
+      16,
+      56,
+      70,
+      105,
+      223
+    ],
+    "elven_fighter": [
+      3,
+      16,
+      56
+    ],
+    "elven_fighter_elven_knight": [
+      3,
+      16,
+      56
+    ],
+    "elven_fighter_swordsinger": [
+      3,
+      16,
+      56,
+      98
+    ],
+    "elven_fighter_sword_muse": [
+      3,
+      16,
+      56,
+      98
+    ],
+    "elven_fighter_temple_knight": [
+      3,
+      16,
+      56
+    ],
+    "elven_fighter_evas_templar": [
+      3,
+      16,
+      56,
+      352
+    ],
+    "elven_fighter_elven_scout": [
+      3,
+      16,
+      56,
+      96,
+      101
+    ],
+    "elven_fighter_silver_ranger": [
+      3,
+      16,
+      19,
+      24,
+      56,
+      96,
+      101
+    ],
+    "elven_fighter_moonlight_sentinel": [
+      3,
+      16,
+      19,
+      24,
+      56,
+      96,
+      101,
+      343,
+      354,
+      369
+    ],
+    "elven_fighter_plainswalker": [
+      3,
+      16,
+      30,
+      56,
+      96,
+      101,
+      263,
+      321
+    ],
+    "elven_fighter_wind_rider": [
+      3,
+      16,
+      30,
+      56,
+      96,
+      101,
+      263,
+      321,
+      344
+    ],
+    "elven_mystic": [
+      1177,
+      1184
+    ],
+    "elven_mystic_oracle": [
+      1031,
+      1177,
+      1184
+    ],
+    "elven_mystic_elven_elder": [
+      1028,
+      1031,
+      1177,
+      1184,
+      1453
+    ],
+    "elven_mystic_elven_wizard": [
+      1172,
+      1178,
+      1181,
+      1184,
+      1231,
+      1274
+    ],
+    "elven_mystic_elemental_summoner": [
+      1172,
+      1177,
+      1178,
+      1181,
+      1184,
+      1230,
+      1231,
+      1274,
+      1453
+    ],
+    "elven_mystic_elemental_master": [
+      1172,
+      1177,
+      1178,
+      1181,
+      1184,
+      1230,
+      1231,
+      1274,
+      1453
+    ],
+    "elven_mystic_spellsinger": [
+      1178,
+      1179,
+      1183,
+      1220,
+      1231,
+      1275,
+      1286
+    ],
+    "elven_mystic_mystic_muse": [
+      1172,
+      1177,
+      1178,
+      1179,
+      1181,
+      1183,
+      1184,
+      1220,
+      1230,
+      1231,
+      1274,
+      1275,
+      1286,
+      1338,
+      1340,
+      1342
+    ],
+    "elven_mystic_evas_saint": [
+      1028,
+      1031,
+      1177,
+      1184,
+      1453
+    ]
+  }
+}

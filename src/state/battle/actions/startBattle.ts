@@ -74,6 +74,25 @@ export const createStartBattle =
       return;
     }
 
+    if (zoneId !== "fishing") {
+      const { useAuthStore } = await import("../../authStore");
+      const { useCharacterStore } = await import("../../characterStore");
+      const token = useAuthStore.getState().accessToken;
+      const cid = String(useCharacterStore.getState().characterId ?? "").trim();
+      const hid = String((hero as any)?.id ?? "").trim();
+      if (!token || !cid || !hero?.name || hid !== cid) {
+        set({
+          zoneId,
+          mobIndex,
+          status: "idle",
+          mob: undefined,
+          log: ["Увійдіть в акаунт і оберіть персонажа, щоб почати бій."],
+        });
+        persistSnapshot(get, persistBattle);
+        return;
+      }
+    }
+
     await ensureWorldZoneLoaded(zoneId, { force: true }).catch(() => {});
 
     // Перевіряємо, чи моб на респавні
@@ -287,7 +306,63 @@ export const createStartBattle =
     // Обчислюємо інтервал auto-attack на основі attackSpeed
     // Для риболовлі: фіксований інтервал 0.4 сек (400 мс)
     // isFishingZone вже визначено вище
-    const buffedStats = applyBuffsToStats(hero.battleStats || {}, savedBuffs);
+    let heroForBattle = hero;
+    let serverSessionMobHp: number | null = null;
+    if (!isFishingZone) {
+      try {
+        const { battleStartAPI } = await import("../../../utils/api/characters");
+        const { useCharacterStore } = await import("../../characterStore");
+        const cid = String(useCharacterStore.getState().characterId ?? "").trim();
+        const hj0 = ((hero as any)?.heroJson || {}) as Record<string, any>;
+        const revRaw =
+          useHeroStore.getState().serverState?.heroRevision ?? hj0.heroRevision ?? 0;
+        const rev = Number(revRaw);
+        const ch = await battleStartAPI(cid, {
+          expectedRevision: Number.isFinite(rev) && rev >= 0 ? rev : 0,
+          zoneId,
+          mobIndex,
+          mobId: mob.id,
+          clientMobMaxHp: getMobEffectiveMaxHp(mob),
+          mobIsRaidBoss: (mob as any).isRaidBoss === true,
+        });
+        const hj = (ch as any)?.heroJson && typeof (ch as any).heroJson === "object" ? (ch as any).heroJson : {};
+        const store = useHeroStore.getState();
+        const prevHj = ((store.hero as any)?.heroJson || {}) as Record<string, any>;
+        store.applyServerSync(
+          {
+            hp: (hj as any).hp,
+            mp: (hj as any).mp,
+            cp: (hj as any).cp,
+            heroJson: { ...prevHj, ...hj },
+          } as any,
+          {
+            heroRevision: (hj as any).heroRevision,
+            updatedAt: (ch as any).updatedAt ? new Date((ch as any).updatedAt).getTime() : Date.now(),
+          }
+        );
+        heroForBattle = useHeroStore.getState().hero ?? hero;
+        const sessHp = Number((ch as any)?.sessionMobHp);
+        if (Number.isFinite(sessHp) && sessHp > 0) serverSessionMobHp = sessHp;
+        else {
+          const sess = (heroForBattle as any)?.heroJson?.battleSession;
+          if (sess && typeof sess.mobHP === "number" && sess.mobHP > 0) serverSessionMobHp = sess.mobHP;
+        }
+      } catch (e: any) {
+        if (e?.status !== 404) {
+          set({
+            zoneId,
+            mobIndex,
+            status: "idle",
+            mob: undefined,
+            log: ["Сервер не дозволив почати бій. Перезавантажте сторінку або спробуйте пізніше."],
+          });
+          persistSnapshot(get, persistBattle);
+          return;
+        }
+      }
+    }
+
+    const buffedStats = applyBuffsToStats(heroForBattle.battleStats || {}, savedBuffs);
     const attackSpeed = buffedStats?.attackSpeed ?? buffedStats?.atkSpeed ?? 0;
     const autoAttackInterval = isFishingZone ? 400 : calcAutoAttackInterval(attackSpeed);
     
@@ -310,8 +385,11 @@ export const createStartBattle =
       : [battleStartLine];
     
     // 🔥 Оновлюємо location в heroJson при зміні локації (для відображення в профілі)
-    if (hero && zone) {
-      const currentLocation = (hero as any).location ?? (hero as any).currentLocation ?? (hero as any).zone;
+    if (heroForBattle && zone) {
+      const currentLocation =
+        (heroForBattle as any).location ??
+        (heroForBattle as any).currentLocation ??
+        (heroForBattle as any).zone;
       if (currentLocation !== zone.name) {
         // Оновлюємо location в hero через updateHero (автоматично збережеться в heroJson)
         useHeroStore.getState().updateHero(
@@ -341,9 +419,11 @@ export const createStartBattle =
     const maxFromDef = getMobEffectiveMaxHp(mob);
     const serverSlotNew = getWorldMobHpForSlot(zoneId, mobIndex);
     const effectiveMobHp =
-      serverSlotNew && serverSlotNew.currentHp > 0
-        ? Math.max(1, Math.min(serverSlotNew.currentHp, serverSlotNew.maxHp))
-        : maxFromDef;
+      serverSessionMobHp != null && serverSessionMobHp > 0
+        ? serverSessionMobHp
+        : serverSlotNew && serverSlotNew.currentHp > 0
+          ? Math.max(1, Math.min(serverSlotNew.currentHp, serverSlotNew.maxHp))
+          : maxFromDef;
     const initial: Partial<BattleState> = {
       heroName: heroName,
       zoneId,
@@ -361,7 +441,7 @@ export const createStartBattle =
       log: preservedLog,
       cooldowns: availableCooldowns,
       loadoutSlots: loadoutSlotsNew,
-      professionForLoadout: hero?.profession ?? undefined,
+      professionForLoadout: heroForBattle?.profession ?? undefined,
       activeChargeSlots: activeChargeSlotsForNewBattle,
       lastReward: undefined,
       heroBuffs: classOrLoadoutMismatch ? [] : (preservedSummon ? savedBuffs : savedBuffs.filter((b) => b.id !== 1262 && b.id !== 1332)),

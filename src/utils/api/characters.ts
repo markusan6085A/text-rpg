@@ -309,6 +309,112 @@ export async function syncHeroBuffsAPI(
 }
 
 /** PvE buff/toggle — повний character snapshot після мутації (CAS). */
+/** PvE старт бою — battleSession у heroJson (CAS). */
+export async function battleStartAPI(
+  characterId: string,
+  data: {
+    expectedRevision: number;
+    zoneId: string;
+    mobIndex: number;
+    mobId: string;
+    clientMobMaxHp: number;
+    mobIsRaidBoss?: boolean;
+  }
+): Promise<Character & { sessionMobHp?: number; sessionMobMaxHp?: number }> {
+  let rev = data.expectedRevision;
+  try {
+    rev = await readHeroRevisionFromGetCharacter(characterId);
+  } catch {
+    rev = data.expectedRevision;
+  }
+  const url = `/characters/${encodeURIComponent(characterId)}/pve-battle-start`;
+  const body = { ...data, expectedRevision: rev };
+  try {
+    const res = await apiRequest<{
+      ok: boolean;
+      character: Character;
+      sessionMobHp?: number;
+      sessionMobMaxHp?: number;
+    }>(url, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    if (!res?.character) throw new Error("no character");
+    return Object.assign(res.character, {
+      sessionMobHp: res.sessionMobHp,
+      sessionMobMaxHp: res.sessionMobMaxHp,
+    });
+  } catch (e: any) {
+    if (e?.status !== 409) throw e;
+    let rev2: number;
+    try {
+      rev2 = await readHeroRevisionFromGetCharacter(characterId);
+    } catch {
+      throw e;
+    }
+    const res = await apiRequest<{
+      ok: boolean;
+      character: Character;
+      sessionMobHp?: number;
+      sessionMobMaxHp?: number;
+    }>(url, {
+      method: "POST",
+      body: JSON.stringify({ ...data, expectedRevision: rev2 }),
+    });
+    if (!res?.character) throw new Error("no character");
+    return Object.assign(res.character, {
+      sessionMobHp: res.sessionMobHp,
+      sessionMobMaxHp: res.sessionMobMaxHp,
+    });
+  }
+}
+
+/** PvE атакуючий скил — урон і MP на сервері (CAS). */
+export async function pveBattleAttackAPI(
+  characterId: string,
+  data: {
+    skillId: number;
+    expectedRevision: number;
+    heroCombatStats: Record<string, number>;
+    skillName?: string;
+  }
+): Promise<{
+  ok: boolean;
+  character: Character;
+  logLines?: string[];
+  damage?: number;
+  isCrit?: boolean;
+  mobHpAfter?: number;
+  killed?: boolean;
+}> {
+  let rev = data.expectedRevision;
+  try {
+    rev = await readHeroRevisionFromGetCharacter(characterId);
+  } catch {
+    rev = data.expectedRevision;
+  }
+  const url = `/characters/${encodeURIComponent(characterId)}/pve-battle-attack`;
+  const payload = { ...data, expectedRevision: rev };
+  try {
+    return await apiRequest(url, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  } catch (e: any) {
+    if (e?.status !== 409) throw e;
+    let rev2: number;
+    try {
+      rev2 = await readHeroRevisionFromGetCharacter(characterId);
+    } catch {
+      throw e;
+    }
+    return await apiRequest(url, {
+      method: "POST",
+      body: JSON.stringify({ ...data, expectedRevision: rev2 }),
+    });
+  }
+}
+
 export async function pveCastSelfBuffAPI(
   characterId: string,
   data: { skillId: number; expectedRevision: number }

@@ -29,6 +29,8 @@ import { EXP_TABLE, MAX_LEVEL } from "../../../expTable";
 import shopCatalogRaw from "../../../data/shopCatalog.generated.json";
 import { runQuestCompleteMutation, runQuestPickRewardMutation } from "../../../quest/questCompleteServer";
 import { applyPveSelfBuffSnapshot } from "../../../pveSelfBuffCast/applyPveSelfBuff";
+import { applyPveBattleStartSnapshot } from "../../../pveBattle/applyPveBattleStart";
+import { applyPveBattleAttackSnapshot } from "../../../pveBattle/applyPveBattleAttack";
 
 function getExpToNext(level: number): number {
   const lvl = Math.max(1, Math.min(MAX_LEVEL, Number(level) || 1));
@@ -3310,6 +3312,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
     // ── Build updated heroJson ─────────────────────────────────────────────
     const newHeroJson: any = { ...heroJson };
+    delete newHeroJson.battleSession;
 
     // Server-authoritative progression: ignore client newLevel/newExp/newSp.
     const baseline = pickBestLevelExpPair(character.level, character.exp, heroJson.level, heroJson.exp);
@@ -3873,6 +3876,331 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       return reply.send({ ok: true, character: serialized, logLine: txRes.logLine });
     } catch (e) {
       console.error("[pve-self-buff]", e);
+      return reply.code(500).send({ error: "internal_error" });
+    }
+  });
+
+  // POST /characters/:id/pve-battle-start — знямок сесії бою (revision CAS)
+  app.post("/characters/:id/pve-battle-start", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as {
+      expectedRevision?: number;
+      zoneId?: string;
+      mobIndex?: number;
+      mobId?: string;
+      clientMobMaxHp?: number;
+      mobIsRaidBoss?: boolean;
+    };
+    const expectedRevision = Number(body?.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+
+    try {
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{ id: string; name: string; classId: string; heroJson: any; updatedAt: Date }>
+        >`
+          SELECT "id", "name", "classId", "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+        const row = locked[0];
+        const oldHeroJson = (row.heroJson as any) || {};
+        const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: row.updatedAt,
+          };
+        }
+
+        const started = applyPveBattleStartSnapshot({
+          heroJson: oldHeroJson,
+          body: {
+            zoneId: String(body.zoneId ?? ""),
+            mobIndex: Math.floor(Number(body.mobIndex ?? -1)),
+            mobId: String(body.mobId ?? ""),
+            clientMobMaxHp: Math.floor(Number(body.clientMobMaxHp ?? 0)),
+            mobIsRaidBoss: body.mobIsRaidBoss === true,
+          },
+        });
+        if (!started.ok) {
+          return {
+            ok: false as const,
+            reason: "apply_failed" as const,
+            code: started.code,
+            message: started.message,
+          };
+        }
+
+        const newHeroJson = { ...started.nextHeroJson };
+        const validation = validateHeroJson(newHeroJson);
+        if (!validation.valid) {
+          return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
+        }
+        const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+        const updated = await tx.character.update({
+          where: { id: row.id },
+          data: {
+            heroJson: versionedHeroJson as any,
+            lastActivityAt: new Date(),
+          },
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            coinsSilver: true,
+            heroJson: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+        return {
+          ok: true as const,
+          updated,
+          characterName: row.name,
+          sessionMobHp: started.sessionMobHp,
+          sessionMobMaxHp: started.sessionMobMaxHp,
+        };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            message: "Character was modified by another session. Please reload and try again.",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: {
+              heroRevision: txRes.currentRevision ?? 0,
+              updatedAt: txRes.updatedAt?.toISOString(),
+            },
+          });
+        }
+        if (txRes.reason === "invalid_hero_json") {
+          return reply.code(400).send({ error: "invalid_hero_json", errors: txRes.errors });
+        }
+        if (txRes.reason === "apply_failed") {
+          return reply.code(400).send({ error: txRes.code || "invalid_input", message: txRes.message });
+        }
+        return reply.code(400).send({ error: "invalid input" });
+      }
+
+      const updated = txRes.updated;
+      const serialized = {
+        ...updated,
+        exp: Number(updated.exp),
+        adena: Number(updated.adena ?? 0),
+        aa: Number(updated.aa ?? 0),
+        coinLuck: Number(updated.coinLuck ?? 0),
+        coinsSilver: Number(updated.coinsSilver ?? 0),
+      };
+
+      enqueuePlayerActivityLog({
+        accountId: auth.accountId,
+        characterId: id,
+        characterName: txRes.characterName ?? updated.name,
+        action: "pve.battle_start",
+        metadata: { zoneId: body.zoneId, mobId: body.mobId, mobIndex: body.mobIndex },
+        clientIp: getClientIp(req),
+      });
+
+      return reply.send({
+        ok: true,
+        character: serialized,
+        sessionMobHp: txRes.sessionMobHp,
+        sessionMobMaxHp: txRes.sessionMobMaxHp,
+      });
+    } catch (e) {
+      console.error("[pve-battle-start]", e);
+      return reply.code(500).send({ error: "internal_error" });
+    }
+  });
+
+  // POST /characters/:id/pve-battle-attack — удар атакуючим скилом (revision CAS + snapshot)
+  app.post("/characters/:id/pve-battle-attack", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as {
+      expectedRevision?: number;
+      skillId?: number;
+      heroCombatStats?: Record<string, number>;
+      skillName?: string;
+    };
+    const skillId = Math.floor(Number(body?.skillId));
+    const expectedRevision = Number(body?.expectedRevision);
+    if (!Number.isFinite(skillId) || skillId < 1) {
+      return reply.code(400).send({ error: "skillId required" });
+    }
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+
+    try {
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{ id: string; name: string; classId: string; heroJson: any; updatedAt: Date }>
+        >`
+          SELECT "id", "name", "classId", "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+        const row = locked[0];
+        const oldHeroJson = (row.heroJson as any) || {};
+        const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: row.updatedAt,
+          };
+        }
+
+        const applied = applyPveBattleAttackSnapshot({
+          heroJson: oldHeroJson,
+          classId: String(row.classId ?? ""),
+          skillId,
+          heroCombatStats: body.heroCombatStats,
+          skillNameFallback: typeof body.skillName === "string" ? body.skillName.slice(0, 120) : undefined,
+        });
+        if (!applied.ok) {
+          return {
+            ok: false as const,
+            reason: "apply_failed" as const,
+            code: applied.code,
+            message: applied.message,
+          };
+        }
+
+        const newHeroJson = { ...applied.nextHeroJson };
+        const validation = validateHeroJson(newHeroJson);
+        if (!validation.valid) {
+          return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
+        }
+        const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+        const updated = await tx.character.update({
+          where: { id: row.id },
+          data: {
+            heroJson: versionedHeroJson as any,
+            lastActivityAt: new Date(),
+          },
+          select: {
+            id: true,
+            name: true,
+            race: true,
+            classId: true,
+            sex: true,
+            level: true,
+            exp: true,
+            sp: true,
+            adena: true,
+            aa: true,
+            coinLuck: true,
+            coinsSilver: true,
+            heroJson: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+        return {
+          ok: true as const,
+          updated,
+          characterName: row.name,
+          logLines: applied.logLines,
+          damage: applied.damage,
+          isCrit: applied.isCrit,
+          mobHpAfter: applied.mobHpAfter,
+          killed: applied.killed,
+        };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            message: "Character was modified by another session. Please reload and try again.",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: {
+              heroRevision: txRes.currentRevision ?? 0,
+              updatedAt: txRes.updatedAt?.toISOString(),
+            },
+          });
+        }
+        if (txRes.reason === "invalid_hero_json") {
+          return reply.code(400).send({ error: "invalid_hero_json", errors: txRes.errors });
+        }
+        if (txRes.reason === "apply_failed") {
+          const c = txRes.code;
+          if (c === "not_enough_mp") {
+            return reply.code(400).send({ error: "not_enough_mp", message: txRes.message });
+          }
+          return reply.code(400).send({ error: c || "invalid_input", message: txRes.message });
+        }
+        return reply.code(400).send({ error: "invalid input" });
+      }
+
+      const updated = txRes.updated;
+      const serialized = {
+        ...updated,
+        exp: Number(updated.exp),
+        adena: Number(updated.adena ?? 0),
+        aa: Number(updated.aa ?? 0),
+        coinLuck: Number(updated.coinLuck ?? 0),
+        coinsSilver: Number(updated.coinsSilver ?? 0),
+      };
+
+      enqueuePlayerActivityLog({
+        accountId: auth.accountId,
+        characterId: id,
+        characterName: txRes.characterName ?? updated.name,
+        action: "pve.battle_attack",
+        metadata: { skillId, damage: txRes.damage, killed: txRes.killed },
+        clientIp: getClientIp(req),
+      });
+
+      return reply.send({
+        ok: true,
+        character: serialized,
+        logLines: txRes.logLines,
+        damage: txRes.damage,
+        isCrit: txRes.isCrit,
+        mobHpAfter: txRes.mobHpAfter,
+        killed: txRes.killed,
+      });
+    } catch (e) {
+      console.error("[pve-battle-attack]", e);
       return reply.code(500).send({ error: "internal_error" });
     }
   });

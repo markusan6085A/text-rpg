@@ -7,7 +7,8 @@ import {
 } from "../helpers";
 import { getMaxResources } from "../helpers/getMaxResources";
 import { BASE_ATTACK, getSkillDef, getSkillDefForBattle, skillDefIsBuff, skillDefIsToggle } from "../loadout";
-import type { SkillDefinition } from "../../../data/skills/types";
+import type { SkillDefinition, SkillLevelDefinition } from "../../../data/skills/types";
+import type { Hero } from "../../../types/Hero";
 import type { BattleState } from "../types";
 import { checkSkillConditions } from "../../../utils/stats/applyPassiveSkills";
 import { canAttackWithBow, isBowEquipped } from "./useSkill/arrowHelpers";
@@ -42,8 +43,30 @@ import {
   type Setter,
 } from "./useSkill/helpers";
 import { schedulePveSelfBuffOnline } from "./pveSelfBuffOnline";
+import { schedulePveAttackSkillOnline } from "./pveAttackSkillOnline";
+import { useAuthStore } from "../../authStore";
 import { createIsSameBuff } from "./useSkill/buffHelpers";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
+
+function isEligiblePveServerAttack(
+  skillId: number,
+  def: SkillDefinition,
+  state: BattleState,
+  hero: Hero,
+  levelDef: SkillLevelDefinition
+): boolean {
+  if (state.zoneId === "fishing") return false;
+  if (def.category !== "physical_attack" && def.category !== "magic_attack") return false;
+  if (def.itemConsume) return false;
+  if (SONIC_CONSUMERS.has(skillId) || FOCUSED_FORCE_CONSUMERS.has(skillId)) return false;
+  const rawMp = Math.max(0, Number(levelDef.mpCost ?? 0));
+  if ((hero.mp ?? 0) < rawMp) return false;
+  if (!useAuthStore.getState().accessToken) return false;
+  const cid = String(useCharacterStore.getState().characterId ?? "").trim();
+  const hid = String((hero as any)?.id ?? "").trim();
+  if (!cid || hid !== cid) return false;
+  return true;
+}
 
 function isEligiblePveServerSelfCast(def: SkillDefinition): boolean {
   if (SUMMON_SKILLS.has(def.id)) return false;
@@ -553,41 +576,65 @@ export const createUseSkill =
 
     // Attack skills
     if (isAttack) {
-      if (import.meta.env.DEV && skillId === 92) {
-        console.log(`[useSkill] Calling handleAttackSkill for Shield Stun:`, {
+      const runLocalAttack = () => {
+        if (import.meta.env.DEV && skillId === 92) {
+          console.log(`[useSkill] Calling handleAttackSkill for Shield Stun:`, {
+            skillId,
+            skillName: def.name,
+            isMagic,
+            isPhysical,
+            isAttack,
+            mpCost,
+            heroMP: hero.mp,
+            power: levelDef.power,
+          });
+        }
+        const handled = handleAttackSkill(
           skillId,
-          skillName: def.name,
+          def,
+          levelDef,
+          state,
+          hero,
+          heroStats,
+          mpCost,
+          now,
+          activeBuffs,
+          computeMaxNow,
+          cooldownMs,
           isMagic,
           isPhysical,
-          isAttack,
-          mpCost,
-          heroMP: hero.mp,
-          power: levelDef.power,
-        });
+          critChance,
+          critMult,
+          updateHero,
+          setAndPersist,
+          get
+        );
+        if (import.meta.env.DEV && skillId === 92) {
+          console.log(`[useSkill] handleAttackSkill returned:`, handled);
+        }
+      };
+
+      if (isEligiblePveServerAttack(skillId, def, state, hero, levelDef)) {
+        const cid =
+          String(useCharacterStore.getState().characterId ?? "").trim() ||
+          String((hero as any)?.id ?? "").trim();
+        if (cid) {
+          const baseCooldownSec = def.cooldown ?? 5;
+          const currentCooldownMs = cooldownMs(baseCooldownSec, false);
+          schedulePveAttackSkillOnline({
+            skillId,
+            def,
+            levelDef,
+            hero,
+            heroStats,
+            state,
+            cooldownDurationMs: currentCooldownMs,
+            now,
+            onFallback: runLocalAttack,
+          });
+          return;
+        }
       }
-      const handled = handleAttackSkill(
-        skillId,
-        def,
-        levelDef,
-        state,
-        hero,
-        heroStats,
-        mpCost,
-        now,
-        activeBuffs,
-        computeMaxNow,
-        cooldownMs,
-        isMagic,
-        isPhysical,
-        critChance,
-        critMult,
-        updateHero,
-        setAndPersist,
-        get
-      );
-      if (import.meta.env.DEV && skillId === 92) {
-        console.log(`[useSkill] handleAttackSkill returned:`, handled);
-      }
-      if (handled) return;
+      runLocalAttack();
     }
   };

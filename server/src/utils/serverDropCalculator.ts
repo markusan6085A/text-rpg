@@ -68,7 +68,8 @@ type MobRegistryEntry = {
   dropProfileId?: string;
 };
 
-function lookupMob(mobId: string, zoneId?: string): MobRegistryEntry | null {
+/** Експорт для PvE battle-start (перевірка mobId/zoneId). */
+export function lookupMobRegistry(mobId: string, zoneId?: string): MobRegistryEntry | null {
   const reg = mobDropRegistry as Record<string, MobRegistryEntry>;
   if (zoneId) {
     const exact = reg[`${mobId}::${zoneId}`];
@@ -272,7 +273,7 @@ export function calculateServerDrops(
   let adena = 0;
   let zaricheEquip: ZaricheEquipUpdate | undefined;
 
-  const mob = lookupMob(mobId, zoneId);
+  const mob = lookupMobRegistry(mobId, zoneId);
   if (!mob) {
     return { items, adena, messages, questProgressUpdates };
   }
