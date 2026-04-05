@@ -129,11 +129,17 @@ function getServerSellUnitPrice(row: any): number | null {
   if (!itemId || NO_SELL_IDS.has(itemId)) return null;
   if (itemId.startsWith("dye_")) return GREATER_DYE_SELL_ADENA;
 
-  const regular = serverShopCatalog.regular?.[itemId];
+  const regular =
+    serverShopCatalog.regular?.[rawId.trim().toLowerCase()] ??
+    serverShopCatalog.regular?.[itemId] ??
+    serverShopCatalog.regular?.[`shop_${itemId}`];
   if (regular?.unitPrice != null && Number.isFinite(Number(regular.unitPrice))) {
     return Math.max(0, Math.floor(Number(regular.unitPrice) * 0.3));
   }
-  const quest = serverShopCatalog.quest?.[itemId];
+  const quest =
+    serverShopCatalog.quest?.[rawId.trim().toLowerCase()] ??
+    serverShopCatalog.quest?.[itemId] ??
+    serverShopCatalog.quest?.[`quest_${itemId}`];
   if (quest?.unitPrice != null && Number.isFinite(Number(quest.unitPrice))) {
     return Math.max(0, Math.floor(Number(quest.unitPrice) * 0.3));
   }
@@ -3536,7 +3542,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       canonicalMeta.id = normalizedItemId;
     } else {
       const bucket = shopType === "regular" ? serverShopCatalog.regular : serverShopCatalog.quest;
-      const entry = bucket?.[normalizedItemId];
+      const prefixedId = `${shopType === "regular" ? "shop" : "quest"}_${normalizedItemId}`;
+      const rawItemId = itemIdRaw.toLowerCase();
+      const entry = bucket?.[rawItemId] ?? bucket?.[normalizedItemId] ?? bucket?.[prefixedId];
       if (!entry) return reply.code(400).send({ error: "item not available in shop" });
       unitPrice = Math.max(0, Number(entry.unitPrice) || 0);
       currency = entry.currency === "coins_silver" ? "coins_silver" : "adena";
