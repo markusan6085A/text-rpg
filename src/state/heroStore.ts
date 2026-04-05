@@ -514,12 +514,34 @@ export const useHeroStore = create<HeroState>((set, get) => ({
         };
       }
     }
-    // 🔥 Адена: ніколи не зменшувати — якщо PUT від попереднього продажу прийшов пізно, не перезаписати новішу adena
+    // Адена: Math.max(local, partial) лишає роздуту локальну адену й ламає UI після sell/shop (сервер правильний, екран не росте).
+    // Якщо в snapshot є нова heroRevision > попередньої — беремо server.adena з відповіді мутації як джерело правди.
+    // Якщо ревізія не виросла (запізнілий PUT з меншою аденою) — лишаємо max, щоб не відкотити новішу адену.
     const prevAdena = Number(prev.adena ?? 0);
     const partialAdena = Number((partial as any).adena ?? 0);
-    const maxAdena = Math.max(prevAdena, partialAdena);
-    if (!Number.isNaN(maxAdena)) {
-      (merged as any).adena = maxAdena;
+    const prevHeroRev = Number(prevHj.heroRevision ?? (prev as any).heroRevision ?? 0);
+    const srvRevRawAdena = (server as any)?.heroRevision;
+    const srvRevForAdena =
+      srvRevRawAdena != null && Number.isFinite(Number(srvRevRawAdena)) ? Number(srvRevRawAdena) : NaN;
+    const serverAdenaIn = (server as any)?.adena;
+    const hasServerAdena = serverAdenaIn !== undefined && serverAdenaIn !== null;
+    const serverAdenaNum = hasServerAdena ? Number(serverAdenaIn) : NaN;
+    if (
+      hasServerAdena &&
+      Number.isFinite(serverAdenaNum) &&
+      !Number.isNaN(serverAdenaNum) &&
+      Number.isFinite(srvRevForAdena) &&
+      srvRevForAdena > prevHeroRev
+    ) {
+      (merged as any).adena = serverAdenaNum;
+      if ((merged as any).heroJson && typeof (merged as any).heroJson === "object") {
+        (merged as any).heroJson = { ...(merged as any).heroJson, adena: serverAdenaNum };
+      }
+    } else {
+      const maxAdena = Math.max(prevAdena, partialAdena);
+      if (!Number.isNaN(maxAdena)) {
+        (merged as any).adena = maxAdena;
+      }
     }
     // Щоденні завдання: partial ніколи не містить їх з сервера — завжди беремо з prev, щоб не перезаписати порожнім
     if ((partial as any).dailyQuestsProgress === undefined && prev.dailyQuestsProgress != null && typeof prev.dailyQuestsProgress === "object") {
