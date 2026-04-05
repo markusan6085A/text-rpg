@@ -271,9 +271,11 @@ export default function Battle({ navigate }: BattleProps) {
   }
 
   const { zone, city } = found;
+  const urlMob =
+    zone && mobIndex >= 0 && mobIndex < zone.mobs.length ? zone.mobs[mobIndex] : undefined;
 
   // SkillBar потребує hero — якщо hero ще не завантажений, показуємо завантаження
-  if (!hero && mob) {
+  if (!hero && (mob || urlMob)) {
     return (
       <div
         className={
@@ -370,47 +372,49 @@ export default function Battle({ navigate }: BattleProps) {
         </div>
       );
     }
-    return (
-      <div
-        className={
-          isModernBattle
-            ? `${battleShell} w-full min-w-0 my-1 flex items-center justify-center px-4 py-10 ${
-                isBattleTest ? "text-slate-200" : "text-[#d4c4a8]"
-              }`
-            : "text-white flex items-center justify-center px-4 py-8"
-        }
-      >
-        <div className="space-y-3 max-w-[380px] text-center">
-          <div
-            className={
-              isModernBattle
-                ? isBattleTest
-                  ? "mx-auto w-6 h-6 border-2 border-cyan-950 border-t-cyan-400 rounded-full animate-spin"
-                  : "mx-auto w-6 h-6 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin"
-                : "hidden"
-            }
-          />
-          <h1
-            className={
-              isBattleTest
-                ? "text-lg font-semibold text-cyan-200"
-                : isModernBattle
-                  ? "text-lg font-semibold text-[#e8c56e]"
-                  : "text-xl font-bold"
-            }
-          >
-            Завантаження...
-          </h1>
-          <p
-            className={
-              isBattleTest ? "text-sm text-slate-400" : isModernBattle ? "text-sm text-[#8a7a60]" : "text-sm text-gray-300"
-            }
-          >
-            Завантаження бою...
-          </p>
+    if (!urlMob) {
+      return (
+        <div
+          className={
+            isModernBattle
+              ? `${battleShell} w-full min-w-0 my-1 flex items-center justify-center px-4 py-10 ${
+                  isBattleTest ? "text-slate-200" : "text-[#d4c4a8]"
+                }`
+              : "text-white flex items-center justify-center px-4 py-8"
+          }
+        >
+          <div className="space-y-3 max-w-[380px] text-center">
+            <div
+              className={
+                isModernBattle
+                  ? isBattleTest
+                    ? "mx-auto w-6 h-6 border-2 border-cyan-950 border-t-cyan-400 rounded-full animate-spin"
+                    : "mx-auto w-6 h-6 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin"
+                  : "hidden"
+              }
+            />
+            <h1
+              className={
+                isBattleTest
+                  ? "text-lg font-semibold text-cyan-200"
+                  : isModernBattle
+                    ? "text-lg font-semibold text-[#e8c56e]"
+                    : "text-xl font-bold"
+              }
+            >
+              Завантаження...
+            </h1>
+            <p
+              className={
+                isBattleTest ? "text-sm text-slate-400" : isModernBattle ? "text-sm text-[#8a7a60]" : "text-sm text-gray-300"
+              }
+            >
+              Завантаження бою...
+            </p>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   // Екран перемоги лише коли це той самий бій, що в URL (інакше під стартом нового моба лишається старий snapshot).
@@ -419,6 +423,8 @@ export default function Battle({ navigate }: BattleProps) {
     mobIndex >= 0 &&
     battleZoneId === zoneId &&
     battleMobIndex === mobIndex;
+
+  const displayMob = victoryContextOk ? mob ?? urlMob ?? undefined : urlMob ?? mob ?? undefined;
 
   if (status === "victory" && lastReward && mob && victoryContextOk) {
     const handleHitNextMob = () => {
@@ -664,58 +670,15 @@ export default function Battle({ navigate }: BattleProps) {
     );
   }
 
-  if (status === "victory" && !victoryContextOk) {
-    return (
-      <div
-        className={
-          isModernBattle
-            ? `${battleShell} w-full min-w-0 my-1 flex items-center justify-center px-4 py-10 ${
-                isBattleTest ? "text-slate-200" : "text-[#d4c4a8]"
-              }`
-            : "text-white flex items-center justify-center px-4 py-8"
-        }
-      >
-        <div className="space-y-3 max-w-[380px] text-center">
-          <div
-            className={
-              isModernBattle
-                ? isBattleTest
-                  ? "mx-auto w-6 h-6 border-2 border-cyan-950 border-t-cyan-400 rounded-full animate-spin"
-                  : "mx-auto w-6 h-6 border-2 border-[#5c4a32] border-t-[#c7ad80] rounded-full animate-spin"
-                : "hidden"
-            }
-          />
-          <h1
-            className={
-              isBattleTest
-                ? "text-lg font-semibold text-cyan-200"
-                : isModernBattle
-                  ? "text-lg font-semibold text-[#e8c56e]"
-                  : "text-xl font-bold"
-            }
-          >
-            Завантаження...
-          </h1>
-          <p
-            className={
-              isBattleTest ? "text-sm text-slate-400" : isModernBattle ? "text-sm text-[#8a7a60]" : "text-sm text-gray-300"
-            }
-          >
-            Підготовка бою...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  const mobMaxHp = mob ? getMobEffectiveMaxHp(mob) : 1;
-  const battleTarget = mob
+  const mobMaxHp = displayMob ? getMobEffectiveMaxHp(displayMob) : 1;
+  const battleTarget = displayMob
     ? {
-        name: displayMobName(mob.name),
-        level: mob.level,
-        currentHp: Number.isFinite(mobHP) ? mobHP : mobMaxHp,
+        name: displayMobName(displayMob.name),
+        level: displayMob.level,
+        currentHp:
+          victoryContextOk && mob && Number.isFinite(mobHP) ? mobHP : mobMaxHp,
         maxHp: mobMaxHp,
-        isAggressivePatrol: mob.aggressivePatrol === true,
+        isAggressivePatrol: displayMob.aggressivePatrol === true,
       }
     : { name: "", level: 1, currentHp: 0, maxHp: 1 };
 
@@ -749,7 +712,9 @@ export default function Battle({ navigate }: BattleProps) {
       backLabel={
         dead ? (resurrecting ? "..." : "Телепортироваться в город") : isModernBattle ? "Назад в околицю" : "Повернутися в локацію"
       }
-      showBackButton={dead || status === "fighting" || status === "idle"}
+      showBackButton={
+        dead || status === "fighting" || status === "idle" || (status === "victory" && !victoryContextOk)
+      }
       onBack={dead ? handleResurrectToCity : leaveBattleToLocation}
       isL2={isModernBattle}
       isBattleTest={isBattleTest}

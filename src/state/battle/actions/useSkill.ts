@@ -149,6 +149,15 @@ export const createUseSkill =
 
     const now = Date.now();
 
+    if (state.heroSkillsBlockedUntil && state.heroSkillsBlockedUntil > now) {
+      const remainingBlock = Math.max(0.1, (state.heroSkillsBlockedUntil - now) / 1000);
+      const setAndPersist = createSetAndPersist(set, get);
+      setAndPersist({
+        log: [`Навыки временно недоступны (${remainingBlock.toFixed(1)} с).`, ...state.log].slice(0, 30),
+      });
+      return;
+    }
+
     // Перевірка на stun гравця (крім базової атаки)
     if (skillId !== BASE_ATTACK.id) {
       if (state.heroStunnedUntil && state.heroStunnedUntil > now) {
@@ -156,16 +165,6 @@ export const createUseSkill =
         const setAndPersist = createSetAndPersist(set, get);
         setAndPersist({
           log: [`Вы оглушены и не можете использовать навыки (осталось ${remainingStunTime} сек).`, ...state.log].slice(0, 30),
-        });
-        return;
-      }
-
-      // Перевірка на блокування скілів
-      if (state.heroSkillsBlockedUntil && state.heroSkillsBlockedUntil > now) {
-        const remainingBlockTime = Math.ceil((state.heroSkillsBlockedUntil - now) / 1000);
-        const setAndPersist = createSetAndPersist(set, get);
-        setAndPersist({
-          log: [`Ваши навыки заблокированы (осталось ${remainingBlockTime} сек).`, ...state.log].slice(0, 30),
         });
         return;
       }

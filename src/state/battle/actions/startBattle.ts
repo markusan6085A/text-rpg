@@ -550,6 +550,7 @@ export const createStartBattle =
       }
     }
 
+    const openingSkillBlockUntil = Date.now() + 300;
     const initial: Partial<BattleState> = {
       heroName: heroName,
       zoneId,
@@ -560,7 +561,7 @@ export const createStartBattle =
       mobStunnedUntil: undefined,
       heroStunnedUntil: undefined,
       heroBuffsBlockedUntil: undefined,
-      heroSkillsBlockedUntil: undefined,
+      heroSkillsBlockedUntil: openingSkillBlockUntil,
       mobNextAttackAt: now + 1000 + Math.random() * 5000,
       heroNextAttackAt: now + autoAttackInterval,
       status: "fighting",

@@ -97,6 +97,18 @@ function skillReadyAt(
   return cooldowns[id] ?? 0;
 }
 
+function skillReadyAtWithOpeningBlock(
+  id: number | string | null,
+  slotInfo: { type?: string } | null,
+  cooldowns: Record<number, number>,
+  heroNextAttackAt: number | undefined,
+  heroSkillsBlockedUntil: number | undefined,
+): number {
+  const base = skillReadyAt(id, slotInfo, cooldowns, heroNextAttackAt);
+  const block = typeof heroSkillsBlockedUntil === "number" && Number.isFinite(heroSkillsBlockedUntil) ? heroSkillsBlockedUntil : 0;
+  return Math.max(base, block);
+}
+
 function SkillCooldownLayer({
   readyAt,
   now,
@@ -168,6 +180,7 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
   const uiBattleTest = cityUi === "l2test";
   const { useSkill, status, cooldowns, loadoutSlots, setLoadoutSkill, activeChargeSlots, toggleChargeSlot } = useBattleStore();
   const heroNextAttackAt = useBattleStore((s) => s.heroNextAttackAt);
+  const heroSkillsBlockedUntil = useBattleStore((s) => s.heroSkillsBlockedUntil);
   const zoneId = useBattleStore((s) => s.zoneId);
   const heroBuffsRaw = useBattleStore((s) => s.heroBuffs ?? []);
   const hero = useHeroStore((s) => s.hero);
@@ -398,7 +411,13 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
               const isCharge = isConsumable && isChargeBarItem(itemId);
               const isChargeActive = isCharge && (activeChargeSlots ?? []).includes(idx);
               const isItemEquipped = isItem && itemId && (hero?.equipment?.weapon === itemId || hero?.equipment?.shield === itemId);
-              const readyAt = skillReadyAt(id, slotInfo, cooldowns, heroNextAttackAt);
+              const readyAt = skillReadyAtWithOpeningBlock(
+                id,
+                slotInfo,
+                cooldowns,
+                heroNextAttackAt,
+                heroSkillsBlockedUntil,
+              );
               const isBaseAttackSkill = id === 0 && slotInfo?.type === "skill";
               const onCooldown = readyAt > now;
               const toggleSkillDef =
@@ -527,7 +546,13 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
               const isCharge = isConsumable && isChargeBarItem(itemId);
               const isChargeActive = isCharge && (activeChargeSlots ?? []).includes(slotIndex);
               const isItemEquipped = isItem && itemId && (hero?.equipment?.weapon === itemId || hero?.equipment?.shield === itemId);
-              const readyAt = skillReadyAt(id, slotInfo, cooldowns, heroNextAttackAt);
+              const readyAt = skillReadyAtWithOpeningBlock(
+                id,
+                slotInfo,
+                cooldowns,
+                heroNextAttackAt,
+                heroSkillsBlockedUntil,
+              );
               const isBaseAttackSkill = id === 0 && slotInfo?.type === "skill";
               const onCooldown = readyAt > now;
               const toggleSkillDef2 =
@@ -790,7 +815,13 @@ export function SkillBar({ onUseSkillOverride, onAttackOverride }: SkillBarProps
                     </button>
                   ))
                 : (currentList as LearnedSkill[]).map((s) => {
-                    const readyAtPick = skillReadyAt(s.id, { type: "skill" }, cooldowns, heroNextAttackAt);
+                    const readyAtPick = skillReadyAtWithOpeningBlock(
+                      s.id,
+                      { type: "skill" },
+                      cooldowns,
+                      heroNextAttackAt,
+                      heroSkillsBlockedUntil,
+                    );
                     const onCdPick = readyAtPick > now;
                     const disabled = (s.mpCost ?? 0) > heroMP || onCdPick;
                     return (
