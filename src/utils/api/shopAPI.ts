@@ -19,7 +19,7 @@ export async function shopBuyAPI(params: {
   shopType?: "gm" | "regular" | "quest";
   /** Метадані предмета для збереження в inventory (name, kind, slot, icon, etc.) */
   itemMeta?: Record<string, any>;
-  expectedRevision?: number;
+  expectedRevision: number;
 }): Promise<ShopBuyResult> {
   const characterId = useCharacterStore.getState().characterId;
   if (!characterId) throw new Error("no character id");

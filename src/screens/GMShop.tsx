@@ -75,17 +75,19 @@ export default function GMShop({ navigate }: GMShopProps) {
       ? { id: itemDef.id, name: itemDef.name, slot: itemDef.slot, kind: itemDef.kind, icon: itemDef.icon, description: itemDef.description, stats: itemDef.stats, grade: itemDef.grade || item.grade }
       : { id: item.itemId, name: item.name, slot: "consumable", kind: "consumable", icon: item.icon, description: item.description, grade: item.grade };
 
-    const expectedRevision =
+    const expectedRevisionRaw =
       typeof (hero as any)?.heroJson?.heroRevision === "number"
         ? Number((hero as any).heroJson.heroRevision)
-        : undefined;
+        : Number(useHeroStore.getState().serverState?.heroRevision ?? 0);
+    const expectedRevision =
+      Number.isFinite(expectedRevisionRaw) && expectedRevisionRaw >= 0 ? expectedRevisionRaw : 0;
     try {
       const result = await shopBuyAPI({
         itemId: item.itemId,
         quantity,
         shopType: "gm",
         itemMeta,
-        ...(expectedRevision !== undefined ? { expectedRevision } : {}),
+        expectedRevision,
       });
       if (!result?.ok || !result.heroJson) {
         showToast(`Помилка покупки: сервер відхилив запит`, "error");
@@ -209,17 +211,19 @@ export default function GMShop({ navigate }: GMShopProps) {
       description: itemDef.description,
       grade: itemDef.grade,
     };
-    const expectedRevision =
+    const expectedRevisionRaw =
       typeof (hero as any)?.heroJson?.heroRevision === "number"
         ? Number((hero as any).heroJson.heroRevision)
-        : undefined;
+        : Number(useHeroStore.getState().serverState?.heroRevision ?? 0);
+    const expectedRevision =
+      Number.isFinite(expectedRevisionRaw) && expectedRevisionRaw >= 0 ? expectedRevisionRaw : 0;
     try {
       const result = await shopBuyAPI({
         itemId,
         quantity,
         shopType: "gm",
         itemMeta,
-        ...(expectedRevision !== undefined ? { expectedRevision } : {}),
+        expectedRevision,
       });
       if (!result?.ok || !result.heroJson) {
         showToast(`Помилка покупки: сервер відхилив запит`, "error");

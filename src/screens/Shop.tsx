@@ -190,10 +190,12 @@ export default function Shop({ navigate }: ShopProps) {
       grade,
       armorType,
     };
-    const expectedRevision =
+    const expectedRevisionRaw =
       typeof (hero as any)?.heroJson?.heroRevision === "number"
         ? Number((hero as any).heroJson.heroRevision)
-        : undefined;
+        : Number(useHeroStore.getState().serverState?.heroRevision ?? 0);
+    const expectedRevision =
+      Number.isFinite(expectedRevisionRaw) && expectedRevisionRaw >= 0 ? expectedRevisionRaw : 0;
     setBuying(true);
     try {
       const result = await shopBuyAPI({
@@ -201,7 +203,7 @@ export default function Shop({ navigate }: ShopProps) {
         quantity,
         shopType: "regular",
         itemMeta,
-        ...(expectedRevision !== undefined ? { expectedRevision } : {}),
+        expectedRevision,
       });
       if (!result?.ok || !result.heroJson) {
         showToast("Сервер відхилив покупку.", "error");

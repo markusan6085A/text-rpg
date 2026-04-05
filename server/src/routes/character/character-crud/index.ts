@@ -2354,6 +2354,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       body.expectedRevision !== undefined ? Number(body.expectedRevision) : undefined;
 
     if (!normalizedItemId) return reply.code(400).send({ error: "itemId required" });
+    if (expectedRevision === undefined || !Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
     if (!Number.isFinite(quantity) || quantity < 1 || quantity > 30000) {
       return reply.code(400).send({ error: "invalid input" });
     }
@@ -2407,7 +2410,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       const row = locked[0];
       const heroJson = (row.heroJson as any) || {};
       const currentRevision = Number(heroJson.heroRevision ?? 0);
-      if (expectedRevision !== undefined && Number.isFinite(expectedRevision) && expectedRevision !== currentRevision) {
+      if (expectedRevision !== currentRevision) {
         return {
           ok: false as const,
           reason: "revision_conflict" as const,

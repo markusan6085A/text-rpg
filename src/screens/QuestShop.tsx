@@ -152,10 +152,12 @@ export default function QuestShop({ navigate }: QuestShopProps) {
       itemDef.kind === "gloves"
         ? autoDetectArmorType(itemsDBId)
         : undefined);
-    const expectedRevision =
+    const expectedRevisionRaw =
       typeof (hero as any)?.heroJson?.heroRevision === "number"
         ? Number((hero as any).heroJson.heroRevision)
-        : undefined;
+        : Number(useHeroStore.getState().serverState?.heroRevision ?? 0);
+    const expectedRevision =
+      Number.isFinite(expectedRevisionRaw) && expectedRevisionRaw >= 0 ? expectedRevisionRaw : 0;
     setBuyBusy(true);
     try {
       const result = await shopBuyAPI({
@@ -173,7 +175,7 @@ export default function QuestShop({ navigate }: QuestShopProps) {
           grade,
           armorType,
         },
-        ...(expectedRevision !== undefined ? { expectedRevision } : {}),
+        expectedRevision,
       });
       if (!result?.ok || !result.heroJson) {
         showToast("Сервер відхилив покупку.", "error");
