@@ -54,13 +54,29 @@ export function hydrateHero(hero: Hero | null): Hero | null {
 
   // 🔥 Синхронізуємо heroJson з hero (однонапрямкова синхронізація: hero → heroJson)
   // 🔥 КРИТИЧНО: Сервер вимагає обов'язкові поля в heroJson: name, race, classId/klass
-  // 🔥 dailyQuests — hero.dailyQuests* має пріоритет, інакше беремо з heroJson (для load)
-  const dailyQuestsProgress = (hero as any).dailyQuestsProgress !== undefined && typeof (hero as any).dailyQuestsProgress === "object"
-    ? (hero as any).dailyQuestsProgress
-    : (hj.dailyQuestsProgress && typeof hj.dailyQuestsProgress === "object" ? hj.dailyQuestsProgress : {});
-  const dailyQuestsCompleted = Array.isArray((hero as any).dailyQuestsCompleted) ? (hero as any).dailyQuestsCompleted
-    : (Array.isArray(hj.dailyQuestsCompleted) ? hj.dailyQuestsCompleted : []);
-  const dailyQuestsResetDate = (hero as any).dailyQuestsResetDate ?? hj.dailyQuestsResetDate ?? null;
+  // Щоденні квести: сервер пише прогрес у heroJson (battle-finish / GET). Раніше порожній hero.dailyQuestsProgress {}
+  // блокував злиття — у UI лишались нулі. Беремо max по ключах між root і hj; completed — union.
+  const heroDq = (hero as any).dailyQuestsProgress && typeof (hero as any).dailyQuestsProgress === "object" && !Array.isArray((hero as any).dailyQuestsProgress)
+    ? ((hero as any).dailyQuestsProgress as Record<string, number>)
+    : {};
+  const hjDq = hj.dailyQuestsProgress && typeof hj.dailyQuestsProgress === "object" && !Array.isArray(hj.dailyQuestsProgress)
+    ? (hj.dailyQuestsProgress as Record<string, number>)
+    : {};
+  const dqKeys = new Set([...Object.keys(heroDq), ...Object.keys(hjDq)]);
+  const dailyQuestsProgress: Record<string, number> = {};
+  for (const k of dqKeys) {
+    dailyQuestsProgress[k] = Math.max(Number(heroDq[k]) || 0, Number(hjDq[k]) || 0);
+  }
+  const dailyQuestsCompleted = Array.from(
+    new Set<string>([
+      ...(Array.isArray((hero as any).dailyQuestsCompleted) ? ((hero as any).dailyQuestsCompleted as string[]).map(String) : []),
+      ...(Array.isArray(hj.dailyQuestsCompleted) ? hj.dailyQuestsCompleted.map(String) : []),
+    ]),
+  );
+  const dailyQuestsResetDate =
+    hj.dailyQuestsResetDate != null && String(hj.dailyQuestsResetDate).trim() !== ""
+      ? hj.dailyQuestsResetDate
+      : ((hero as any).dailyQuestsResetDate ?? null);
   const activeQuests = Array.isArray(hero.activeQuests) ? hero.activeQuests
     : (Array.isArray(hj.activeQuests) ? hj.activeQuests : []);
 
