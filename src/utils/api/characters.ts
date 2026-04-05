@@ -233,6 +233,21 @@ export async function resurrectCharacter(
   });
   return response.character;
 }
+
+/** Атомарно зберегти heroBuffs (CAS); звичайний PUT персонажа не приймає heroBuffs з клієнта. */
+export async function syncHeroBuffsAPI(
+  characterId: string,
+  data: { heroBuffs: any[]; expectedRevision: number }
+): Promise<{ ok: boolean; heroJson: any }> {
+  return apiRequest<{ ok: boolean; heroJson: any }>(
+    `/characters/${encodeURIComponent(characterId)}/hero-buffs-sync`,
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+    }
+  );
+}
+
 // Player Admin API
 export async function healPlayer(
   characterId: string,

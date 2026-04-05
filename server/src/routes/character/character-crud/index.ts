@@ -3018,6 +3018,54 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     return reply.send({ ok: true, heroJson: txRes.versionedHeroJson });
   });
 
+  /** Знімок бафів з клієнта після kill: PUT /characters ігнорує heroBuffs, інакше toggle/бафи ніколи не пишуться в БД. */
+  function sanitizeBattleFinishHeroBuffs(raw: unknown): any[] {
+    if (!Array.isArray(raw)) return [];
+    const MAX = 96;
+    const out: any[] = [];
+    for (let i = 0; i < Math.min(raw.length, MAX); i++) {
+      const b = raw[i];
+      if (!b || typeof b !== "object") continue;
+      const o: any = {};
+      if (typeof (b as any).id === "number" && Number.isFinite((b as any).id)) o.id = (b as any).id;
+      if (typeof (b as any).name === "string") o.name = String((b as any).name).slice(0, 160);
+      if (typeof (b as any).icon === "string") o.icon = String((b as any).icon).slice(0, 240);
+      if (typeof (b as any).stackType === "string") o.stackType = String((b as any).stackType).slice(0, 120);
+      if (typeof (b as any).buffGroup === "string") o.buffGroup = String((b as any).buffGroup).slice(0, 120);
+      if (typeof (b as any).source === "string") o.source = String((b as any).source).slice(0, 80);
+      const exp = (b as any).expiresAt;
+      if (typeof exp === "number" && Number.isFinite(exp)) o.expiresAt = exp;
+      else if (exp === Number.MAX_SAFE_INTEGER) o.expiresAt = Number.MAX_SAFE_INTEGER;
+      if (typeof (b as any).startedAt === "number" && Number.isFinite((b as any).startedAt)) o.startedAt = (b as any).startedAt;
+      if (typeof (b as any).durationMs === "number" && Number.isFinite((b as any).durationMs)) o.durationMs = (b as any).durationMs;
+      if (typeof (b as any).tickInterval === "number" && Number.isFinite((b as any).tickInterval)) o.tickInterval = (b as any).tickInterval;
+      if (typeof (b as any).lastTickAt === "number" && Number.isFinite((b as any).lastTickAt)) o.lastTickAt = (b as any).lastTickAt;
+      if (typeof (b as any).hpPerTick === "number" && Number.isFinite((b as any).hpPerTick)) o.hpPerTick = (b as any).hpPerTick;
+      if (typeof (b as any).mpPerTick === "number" && Number.isFinite((b as any).mpPerTick)) o.mpPerTick = (b as any).mpPerTick;
+      if (typeof (b as any).bleedPercentMaxHp === "number" && Number.isFinite((b as any).bleedPercentMaxHp)) {
+        o.bleedPercentMaxHp = (b as any).bleedPercentMaxHp;
+      }
+      if (typeof (b as any).stacks === "number" && Number.isFinite((b as any).stacks)) {
+        o.stacks = Math.min(99, Math.floor((b as any).stacks));
+      }
+      if (Array.isArray((b as any).effects)) {
+        o.effects = (b as any).effects.slice(0, 64).map((e: any) => {
+          if (!e || typeof e !== "object") return {};
+          const m: any = {};
+          if (typeof e.stat === "string") m.stat = e.stat.slice(0, 64);
+          if (typeof e.mode === "string") m.mode = e.mode.slice(0, 32);
+          if (typeof e.value === "number" && Number.isFinite(e.value)) m.value = e.value;
+          if (typeof e.multiplier === "number" && Number.isFinite(e.multiplier)) m.multiplier = e.multiplier;
+          return m;
+        });
+      } else {
+        o.effects = [];
+      }
+      out.push(o);
+    }
+    return out;
+  }
+
   // POST /characters/:id/battle-finish — server-authoritative drop calc + battle result save
   app.post("/characters/:id/battle-finish", async (req, reply) => {
     const auth = getAuth(req);
@@ -3197,6 +3245,10 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       if (typeof patch.lastKillZoneName === "string") newHeroJson.lastKillZoneName = patch.lastKillZoneName.slice(0, 120);
       if (typeof patch.battleZoneId === "string") newHeroJson.battleZoneId = patch.battleZoneId.slice(0, 100);
       if (typeof patch.zoneId === "string") newHeroJson.zoneId = patch.zoneId.slice(0, 100);
+      // heroBuffs: PUT їх не приймає — єдиний масовий шлях після бою. Клієнт шле знімок з бою (toggle on/off).
+      if (Object.prototype.hasOwnProperty.call(patch, "heroBuffs")) {
+        newHeroJson.heroBuffs = sanitizeBattleFinishHeroBuffs(patch.heroBuffs);
+      }
     } else {
       const current = Math.max(0, Math.floor(Number(newHeroJson.mobsKilled ?? 0)));
       newHeroJson.mobsKilled = current + 1;
@@ -3479,6 +3531,97 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       heroJson: txRes.heroJson,
       serverDrops: txRes.serverDrops,
     });
+  });
+
+  // POST /characters/:id/hero-buffs-sync — зберегти heroBuffs атомарно (звичайний PUT ігнорує heroBuffs)
+  app.post("/characters/:id/hero-buffs-sync", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as { heroBuffs?: unknown; expectedRevision?: number };
+    const expectedRevision = Number(body?.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+    const sanitized = sanitizeBattleFinishHeroBuffs(body?.heroBuffs);
+
+    try {
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{
+            id: string;
+            name: string;
+            race: string;
+            classId: string;
+            heroJson: any;
+            updatedAt: Date;
+          }>
+        >`
+          SELECT "id", "name", "race", "classId", "heroJson", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+        const existing = locked[0];
+        const oldHeroJson = (existing.heroJson as any) || {};
+        const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: existing.updatedAt,
+          };
+        }
+
+        const newHeroJson = {
+          ...oldHeroJson,
+          heroBuffs: sanitized,
+        };
+        const validation = validateHeroJson(newHeroJson);
+        if (!validation.valid) {
+          return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
+        }
+
+        const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
+        await tx.character.update({
+          where: { id },
+          data: {
+            heroJson: versionedHeroJson as any,
+            lastActivityAt: new Date(),
+          },
+        });
+        return { ok: true as const, versionedHeroJson };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "invalid_hero_json") {
+          return reply.code(400).send({ error: "invalid_hero_json", errors: txRes.errors });
+        }
+        return reply.code(409).send({
+          error: "revision_conflict",
+          message: "Character was modified by another session. Please reload and try again.",
+          currentRevision: txRes.currentRevision ?? 0,
+          updatedAt: txRes.updatedAt?.toISOString(),
+          serverState: {
+            heroRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+          },
+        });
+      }
+
+      return reply.send({ ok: true, heroJson: txRes.versionedHeroJson });
+    } catch (e) {
+      console.error("[hero-buffs-sync]", e);
+      return reply.code(500).send({ error: "internal_error" });
+    }
   });
 
   // POST /characters/:id/equip-commit — atomic equip state save (Phase 2)

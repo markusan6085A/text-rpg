@@ -23,6 +23,8 @@ import { buildPartyMemberVictoryLogLines } from "./helpers/victoryLootLogLines";
 import { battleFinishAPI } from "../../utils/api/battleFinishAPI";
 import { battleStoreRef } from "../battleStoreRef";
 import { itemsDB } from "../../data/items/itemsDB";
+import { cleanupBuffs } from "./helpers";
+import { persistBattle, loadBattle } from "./persist";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -282,8 +284,14 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
       : recalculatedAfter.baseFinalStats;
 
     const hj = (curHero as any).heroJson || {};
+    const buffSnapshot = Array.isArray(heroBuffs)
+      ? heroBuffs.map((b: any) => ({ ...b }))
+      : Array.isArray(hj.heroBuffs)
+        ? hj.heroBuffs.map((b: any) => ({ ...b }))
+        : [];
     (victoryUpdates as any).heroJson = {
       ...hj,
+      heroBuffs: buffSnapshot,
       lastKillMobId: mob.id,
       lastKillMobName: String(mob.name ?? "").slice(0, 200),
       lastKillZoneId: zoneId ?? hj.lastKillZoneId,
@@ -348,6 +356,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
           lastKillZoneName: heroJson.lastKillZoneName,
           battleZoneId: heroJson.battleZoneId,
           zoneId: heroJson.zoneId,
+          heroBuffs: JSON.parse(JSON.stringify(Array.isArray(heroBuffs) ? heroBuffs : [])),
         },
       };
       let finishResult: Awaited<ReturnType<typeof battleFinishAPI>> | null = null;
@@ -528,10 +537,27 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
           }
         }
 
+        let cleanedFinishBuffs: ReturnType<typeof cleanupBuffs> | null = null;
+        if (Array.isArray(serverHj.heroBuffs)) {
+          cleanedFinishBuffs = cleanupBuffs(serverHj.heroBuffs, Date.now());
+          const hLive = useHeroStore.getState().hero;
+          (patch as any).heroJson = {
+            ...((hLive as any)?.heroJson || {}),
+            heroBuffs: cleanedFinishBuffs,
+          };
+        }
+
         if (Object.keys(patch).length > 0) {
           // Server already persisted this kill via /battle-finish.
           // Apply patch locally without scheduling an extra PUT that can race and produce 409.
           useHeroStore.getState().updateHero(patch, { skipServer: true });
+        }
+
+        if (cleanedFinishBuffs && useHeroStore.getState().hero?.name) {
+          const n = useHeroStore.getState().hero!.name;
+          const saved = loadBattle(n) || {};
+          persistBattle({ ...saved, heroBuffs: cleanedFinishBuffs }, n);
+          battleStoreRef.setState?.({ heroBuffs: cleanedFinishBuffs });
         }
 
         // Оновлюємо лог бою серверними дропами (щоб те, що показує гравцю = те, що реально в інвентарі)

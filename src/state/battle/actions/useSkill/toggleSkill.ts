@@ -78,6 +78,10 @@ export function handleToggleOff(
     cooldowns: updatedCooldowns,
     heroBuffs: filtered,
   });
+
+  void import("../../../../utils/api/heroBuffsSync")
+    .then(({ scheduleHeroBuffsSync }) => scheduleHeroBuffsSync(filtered))
+    .catch(() => {});
   
   return true; // Toggle вимкнено
 }

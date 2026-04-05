@@ -426,10 +426,13 @@ export function handleBuffSkill(
   // отримав нові бафи і правильно обрізав hp за buffedMaxHp (інакше Battle Roar та інші maxHp-бафи обрізають хіл)
   set((prev) => ({ ...(prev as any), ...(merged as any) }));
   persistSnapshot(get, persistBattle, merged);
+  const hjBase =
+    (hero as any).heroJson && typeof (hero as any).heroJson === "object" ? { ...(hero as any).heroJson } : {};
   updateHero({
     hp: newHeroHP,
     mp: newHeroMP,
     cp: newHeroCP,
+    heroJson: { ...hjBase, heroBuffs: newBuffs },
     ...(consumedInventory ? { inventory: consumedInventory } : {}),
     ...(recalculated.baseFinalStats.pAtk !== hero.battleStats?.pAtk ||
       recalculated.baseFinalStats.mAtk !== hero.battleStats?.mAtk ||
@@ -438,5 +441,10 @@ export function handleBuffSkill(
       ? { battleStats: recalculated.baseFinalStats }
       : {}),
   });
+  if (isToggle && buffWasAdded) {
+    void import("../../../../utils/api/heroBuffsSync")
+      .then(({ scheduleHeroBuffsSync }) => scheduleHeroBuffsSync(newBuffs))
+      .catch(() => {});
+  }
   return true;
 }
