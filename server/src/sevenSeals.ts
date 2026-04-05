@@ -294,13 +294,22 @@ export async function sevenSealsRoutes(app: FastifyInstance) {
     const body = req.body as { characterId: string; points?: number; seal?: string | null };
     const characterId = body.characterId;
     const add = Math.trunc(body.points ?? 0);
-    const seal = body.seal ?? null;
+    const sealRaw = typeof body.seal === "string" ? body.seal.trim().toLowerCase() : null;
+    const seal = sealRaw && ["dawn", "dusk", "none"].includes(sealRaw) ? sealRaw : null;
 
-    if (!characterId || !Number.isFinite(add)) {
+    if (!characterId || !Number.isFinite(add) || add <= 0 || add > 1000) {
       return reply.code(400).send({ ok: false, error: "bad_request" });
     }
 
     try {
+      const ownCharacter = await prisma.character.findFirst({
+        where: { id: characterId, accountId: auth.accountId },
+        select: { id: true },
+      });
+      if (!ownCharacter) {
+        return reply.code(404).send({ ok: false, error: "character_not_found" });
+      }
+
       const row = await prisma.sevenSealsScore.upsert({
         where: { characterId },
         create: { characterId, points: Math.max(0, add), seal },
