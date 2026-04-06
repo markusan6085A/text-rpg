@@ -31,6 +31,7 @@ import { cleanupBuffs, mergeServerHeroBuffsRespectLocalToggleOff } from "./helpe
 import { persistBattle, loadBattle } from "./persist";
 import { runSerializedPveMutation } from "./actions/pveMutationQueue";
 import { heroResourcesForBattleFinishPayload } from "../../utils/heroResourceSnapshotForBattleFinish";
+import { useCharacterStore } from "../characterStore";
 
 export type MobVictoryCommitParams = {
   mob: Mob;
@@ -61,8 +62,77 @@ let lastVictoryResult: {
   partyMemberLootLines: string[];
 } | null = null;
 
+/** Лише відображення / payload для POST battle-finish. Реальний стан героя після kill — тільки з відповіді сервера. */
+function computeVictoryEconomyDisplay(args: {
+  mob: Mob;
+  curHero: Hero;
+  rewardOverrides?: { adenaGain: number; expGain: number; spGain: number };
+  partyN: number;
+}): {
+  displayExp: number;
+  displaySp: number;
+  displayAdena: number;
+  partySharePayload: { baseExp: number; baseSp: number; baseAdena: number } | null;
+  partyLogMeta: { heroId: string; eEach: number; sEach: number; aEach: number } | null;
+} {
+  const { mob, curHero, rewardOverrides, partyN } = args;
+  let adenaGain: number;
+  let expGain: number;
+  let spGain: number;
+  if (rewardOverrides) {
+    adenaGain = rewardOverrides.adenaGain;
+    expGain = rewardOverrides.expGain;
+    spGain = rewardOverrides.spGain;
+  } else {
+    adenaGain = Math.round(((mob.adenaMin ?? 0) + (mob.adenaMax ?? 0)) / 2);
+    expGain = mob.exp ?? 0;
+    spGain = mobSpGainFromMob(mob);
+  }
+  const premiumMultiplier = getPremiumMultiplier(curHero);
+  const expEnabled = getGameSettings().expEnabled !== false;
+  const finalExpGain = expEnabled ? Math.round(expGain * premiumMultiplier) : 0;
+  const finalSpGain = Math.round(spGain * premiumMultiplier);
+  const finalAdenaGain = Math.round(adenaGain * premiumMultiplier);
+
+  let applyExpGain = finalExpGain;
+  let applySpGain = finalSpGain;
+  let applyAdenaGain = finalAdenaGain;
+  let partySharePayload: { baseExp: number; baseSp: number; baseAdena: number } | null = null;
+  let partyLogMeta: { heroId: string; eEach: number; sEach: number; aEach: number } | null = null;
+  if (partyN > 1) {
+    const eEach = Math.floor(finalExpGain / partyN);
+    const sEach = Math.floor(finalSpGain / partyN);
+    const aEach = Math.floor(finalAdenaGain / partyN);
+    applyExpGain = finalExpGain - eEach * (partyN - 1);
+    applySpGain = finalSpGain - sEach * (partyN - 1);
+    applyAdenaGain = finalAdenaGain - aEach * (partyN - 1);
+    partySharePayload = {
+      baseExp: finalExpGain,
+      baseSp: finalSpGain,
+      baseAdena: finalAdenaGain,
+    };
+    if (curHero.id) {
+      partyLogMeta = {
+        heroId: String(curHero.id),
+        eEach,
+        sEach,
+        aEach,
+      };
+    }
+  }
+  return {
+    displayExp: applyExpGain,
+    displaySp: applySpGain,
+    displayAdena: applyAdenaGain,
+    partySharePayload,
+    partyLogMeta,
+  };
+}
+
 /**
  * Нарахування EXP/SP/адени, дропу, щоденок після смерті моба (спільна логіка для baseAttack / skill / reflect).
+ *
+ * Онлайн (є `characterId`): не пишемо дроп/інвентар/exp у store до відповіді сервера — лише `applyCharacterSnapshotFromApi`.
  */
 export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
   displayExp: number;
@@ -129,6 +199,27 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     }
   })();
 
+  const preKillHeroSnapshot = useHeroStore.getState().hero;
+  const serverAuthoritativeKill =
+    !!useCharacterStore.getState().characterId && !!preKillHeroSnapshot;
+
+  if (serverAuthoritativeKill && preKillHeroSnapshot) {
+    curHeroForLog = preKillHeroSnapshot;
+    const econ = computeVictoryEconomyDisplay({
+      mob,
+      curHero: preKillHeroSnapshot,
+      rewardOverrides,
+      partyN,
+    });
+    displayExp = econ.displayExp;
+    displaySp = econ.displaySp;
+    displayAdena = econ.displayAdena;
+    partySharePayload = econ.partySharePayload;
+    partyLogMeta = econ.partyLogMeta;
+    dropMessages = [];
+    actualDroppedItems = [];
+    levelUpMessage = undefined;
+  } else {
   useHeroStore.getState().updateHero((prev) => {
     const curHero = prev ?? useHeroStore.getState().hero;
     if (!curHero) return {};
@@ -308,6 +399,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
 
     return victoryUpdates;
   }, { skipServer: true });
+  }
 
   if (partySharePayload) {
     void postPartyKillShare(partySharePayload).catch(() => {});
@@ -316,12 +408,12 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
   const heroSnapshotForFinish = useHeroStore.getState().hero;
   const heroJsonSnapshotForFinish = ((heroSnapshotForFinish as any)?.heroJson || {}) as any;
 
-  // Server-authoritative battle finish:
-  // 1. battle-finish: server calculates real drops, saves exp/sp/adena/inventory atomically
-  // 2. quest drops (client-calculated) are sent to server to be added to inventory
-  // 3. On response: apply server's heroJson.inventory to replace optimistic state
+  // Server-authoritative battle finish (єдине джерело правди для онлайн):
+  // після kill — тільки snapshot з відповіді; клієнт не накопичує дроп/exp у store до цього.
   void runSerializedPveMutation(async () => {
     try {
+      if (!useCharacterStore.getState().characterId) return;
+
       const updatedHero = heroSnapshotForFinish ?? useHeroStore.getState().hero;
       if (!updatedHero) return;
       const heroJson = heroJsonSnapshotForFinish;
@@ -363,13 +455,22 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         newCp: finishResources.cp,
         questDrops: questDropItems.length > 0 ? questDropItems : undefined,
         heroJsonPatch: {
-          mobsKilled: (updatedHero as any).mobsKilled,
-          lastKillMobId: heroJson.lastKillMobId,
-          lastKillMobName: heroJson.lastKillMobName,
-          lastKillZoneId: heroJson.lastKillZoneId,
-          lastKillZoneName: heroJson.lastKillZoneName,
-          battleZoneId: heroJson.battleZoneId,
-          zoneId: heroJson.zoneId,
+          mobsKilled: (() => {
+            const h = updatedHero as any;
+            const cur = Math.max(
+              0,
+              Math.floor(
+                Number(h?.mobsKilled ?? h?.mobs_killed ?? h?.killedMobs ?? h?.totalKills ?? 0)
+              )
+            );
+            return serverAuthoritativeKill ? cur + 1 : cur;
+          })(),
+          lastKillMobId: String(mob.id ?? "").slice(0, 100),
+          lastKillMobName: String(mob.name ?? "").slice(0, 200),
+          lastKillZoneId: zoneId ? String(zoneId).slice(0, 100) : (heroJson as any).lastKillZoneId,
+          lastKillZoneName: zoneId ? getZoneActivityLabel(zoneId) : (heroJson as any).lastKillZoneName,
+          battleZoneId: zoneId ? String(zoneId).slice(0, 100) : (heroJson as any).battleZoneId,
+          zoneId: zoneId ? String(zoneId).slice(0, 100) : (heroJson as any).zoneId,
           heroBuffs: JSON.parse(JSON.stringify(finishBuffsRaw)),
         },
       };
@@ -472,6 +573,31 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
           );
           const newLog = mergeServerDropLinesIntoVictoryBattleLog(filteredLog, serverDropLines);
           battleStoreRef.setState?.({ log: newLog });
+        }
+
+        if (serverAuthoritativeKill && (mob as any)?.isRaidBoss === true && finishResult.character) {
+          const ch = finishResult.character as Record<string, any>;
+          const sd = finishResult.serverDrops;
+          const items = Array.isArray(sd?.items) ? sd.items : [];
+          const rbItems = items.map((it: { id: string; count?: number; name?: string }) => ({
+            id: String(it.id),
+            name: String(it.name || itemsDB[it.id]?.name || it.id),
+            count: Math.max(1, Math.floor(Number(it.count ?? 1))),
+          }));
+          void reportRaidBossKill({
+            characterId: ch.id,
+            characterName: ch.name,
+            bossName: mob?.name || "",
+            bossLevel: mob?.level,
+            actualDroppedItems: rbItems,
+            killRewards: {
+              adena: displayAdena,
+              exp: displayExp,
+              sp: displaySp,
+            },
+          }).catch((err) => {
+            console.error("Error reporting raid boss kill:", err);
+          });
         }
       } else if (finishResult?.ok && finishResult.heroJson) {
         if (finishResult.heroJson.heroRevision) {
@@ -653,7 +779,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
   }
 
   const isRaidBoss = (mob as any)?.isRaidBoss === true;
-  if (isRaidBoss && curHeroForLog) {
+  if (!serverAuthoritativeKill && isRaidBoss && curHeroForLog) {
     reportRaidBossKill({
       characterId: curHeroForLog.id,
       characterName: curHeroForLog.name,
