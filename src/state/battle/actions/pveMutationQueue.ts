@@ -1,15 +1,49 @@
 /**
- * Одна серійна черга для усіх PvE CAS-мутацій (tick / attack / battle-start / self-buff / mob-debuff).
- * Поки попередній запит не завершився (включно з applyServerSync у caller), наступний не стартує —
- * усуває revision_conflict від паралельних tick+attack або кількох in-flight HTTP.
+ * Серійні PvE CAS-мутації (один рядок revision).
+ *
+ * `tick` (POST pve-battle-tick) не повинен стояти в черзі перед ударами гравця — інакше
+ * відчуваються великі затримки між кліком і відповіддю (особливо маг).
+ * Тому: спочатку всі очікуючі user-мутації, потім один tick, у циклі, поки є робота.
  */
-let chain: Promise<unknown> = Promise.resolve();
+const userQ: Array<() => Promise<unknown>> = [];
+const tickQ: Array<() => Promise<unknown>> = [];
+let draining = false;
 
-export function runSerializedPveMutation<T>(fn: () => Promise<T>): Promise<T> {
-  const next = chain.then(() => fn()) as Promise<T>;
-  chain = next.then(
-    () => undefined,
-    () => undefined
-  );
-  return next;
+async function drainQueues(): Promise<void> {
+  if (draining) return;
+  draining = true;
+  try {
+    for (;;) {
+      const run =
+        userQ.length > 0 ? userQ.shift()! : tickQ.length > 0 ? tickQ.shift()! : null;
+      if (!run) break;
+      try {
+        await run();
+      } catch {
+        /* відхилення вже передано в Promise з runSerializedPveMutation */
+      }
+    }
+  } finally {
+    draining = false;
+    if (userQ.length > 0 || tickQ.length > 0) void drainQueues();
+  }
+}
+
+export function runSerializedPveMutation<T>(
+  fn: () => Promise<T>,
+  lane: "user" | "tick" = "user"
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const run = () =>
+      (async () => {
+        try {
+          resolve(await fn());
+        } catch (e) {
+          reject(e);
+        }
+      })();
+    if (lane === "tick") tickQ.push(run);
+    else userQ.push(run);
+    void drainQueues();
+  });
 }

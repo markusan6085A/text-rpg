@@ -20,9 +20,6 @@ import {
 import { runSerializedPveMutation } from "./pveMutationQueue";
 import { getMaxResources } from "../helpers/getMaxResources";
 
-/** Жоден другий pve-battle-attack, поки попередній не завершив snapshot (разом із тіком у спільній черзі). */
-let attackRoundBusy = false;
-
 function pickCombatStatsForServer(heroStats: Record<string, any>): Record<string, number> {
   const keys = [
     "pAtk",
@@ -77,7 +74,6 @@ export function schedulePveAttackSkillOnline(args: {
   onFallback: () => void;
 }): void {
   const { skillId, def, hero, heroStats, state, cooldownDurationMs, now, onFallback } = args;
-  if (attackRoundBusy) return;
   const cid =
     String(useCharacterStore.getState().characterId ?? "").trim() ||
     String((hero as any)?.id ?? "").trim();
@@ -86,7 +82,6 @@ export function schedulePveAttackSkillOnline(args: {
     return;
   }
 
-  attackRoundBusy = true;
   void runSerializedPveMutation(async () => {
     const bs0 = battleStoreRef.getState();
     const rollbackCooldowns = bs0 ? { ...(bs0.cooldowns || {}) } : {};
@@ -423,8 +418,6 @@ export function schedulePveAttackSkillOnline(args: {
           showToast("Не вдалося застосувати удар. Спробуйте знову.", "error");
         }
       });
-    } finally {
-      attackRoundBusy = false;
     }
-  });
+  }, "user");
 }

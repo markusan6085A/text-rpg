@@ -352,7 +352,7 @@ export function schedulePveMobTickOnline(): void {
     } finally {
       tickScheduleBusy = false;
     }
-  });
+  }, "tick");
 }
 
 export function shouldUsePveServerMobTick(): boolean {
