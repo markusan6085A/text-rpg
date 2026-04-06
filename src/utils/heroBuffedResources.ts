@@ -38,6 +38,16 @@ export function getCombinedHeroBuffs(
 }
 
 export function getHeroBuffedResourceCaps(hero: Hero, inBattle: boolean) {
+  const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
+  const dr = hj.displayResources;
+  if (dr && typeof dr === "object") {
+    const mh = Math.floor(Number(dr.maxHp));
+    const mm = Math.floor(Number(dr.maxMp));
+    const mc = Math.floor(Number(dr.maxCp));
+    if (Number.isFinite(mh) && mh > 0 && Number.isFinite(mm) && mm > 0 && Number.isFinite(mc) && mc > 0) {
+      return { maxHp: mh, maxMp: mm, maxCp: mc };
+    }
+  }
   const baseMax = getMaxResources(hero);
   const buffs = getCombinedHeroBuffs(hero, inBattle);
   return computeBuffedMaxResources(baseMax, buffs);
@@ -45,14 +55,34 @@ export function getHeroBuffedResourceCaps(hero: Hero, inBattle: boolean) {
 
 /** Поточні HP/MP/CP і max з урахуванням бафів — одна логіка для HUD і екранів. */
 export function getHeroResourceValues(hero: Hero, inBattle: boolean) {
-  const { maxHp, maxMp, maxCp } = getHeroBuffedResourceCaps(hero, inBattle);
+  const caps = getHeroBuffedResourceCaps(hero, inBattle);
+  const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
+  const dr = hj.displayResources;
+  if (dr && typeof dr === "object") {
+    const mh = Math.floor(Number(dr.maxHp));
+    const mm = Math.floor(Number(dr.maxMp));
+    const mc = Math.floor(Number(dr.maxCp));
+    if (mh === caps.maxHp && mm === caps.maxMp && mc === caps.maxCp) {
+      const h = Number(dr.hp);
+      const m = Number(dr.mp);
+      const c = Number(dr.cp);
+      return {
+        hp: Number.isFinite(h) && h >= 0 ? h : hero.hp ?? caps.maxHp,
+        mp: Number.isFinite(m) && m >= 0 ? m : hero.mp ?? caps.maxMp,
+        cp: Number.isFinite(c) && c >= 0 ? c : hero.cp ?? caps.maxCp,
+        maxHp: caps.maxHp,
+        maxMp: caps.maxMp,
+        maxCp: caps.maxCp,
+      };
+    }
+  }
   return {
-    hp: hero.hp ?? maxHp,
-    mp: hero.mp ?? maxMp,
-    cp: hero.cp ?? maxCp,
-    maxHp,
-    maxMp,
-    maxCp,
+    hp: hero.hp ?? caps.maxHp,
+    mp: hero.mp ?? caps.maxMp,
+    cp: hero.cp ?? caps.maxCp,
+    maxHp: caps.maxHp,
+    maxMp: caps.maxMp,
+    maxCp: caps.maxCp,
   };
 }
 

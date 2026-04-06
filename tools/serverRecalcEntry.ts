@@ -3,6 +3,9 @@
  * (серверний tsc не може імпортувати кореневий src/ через rootDir).
  */
 import { recalculateAllStats } from "../src/utils/stats/recalculateAllStats";
+import { cleanupBuffs, computeBuffedMaxResources } from "../src/state/battle/helpers";
+import { filterBuffsForHeroProfession } from "../src/state/battle/loadout";
+import type { Hero } from "../types/Hero";
 
 const MAX_BASE_RESOURCE = 5_000_000;
 
@@ -60,4 +63,66 @@ export function recomputeBaseResourceColumnsFromHeroSnapshot(
   } catch {
     return coerceBaseResourceTriplet(fallbackCols);
   }
+}
+
+const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
+
+function normalizeStoredResourcePercent(raw: unknown): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return NaN;
+  if (n > 1 && n <= 100) return clamp01(n / 100);
+  return clamp01(n);
+}
+
+function resourceFillRatio(currentRaw: unknown, baseMax: number, storedPercentRaw: unknown): number {
+  const bm = Math.max(1, Math.floor(baseMax));
+  const cur = Number(currentRaw);
+  if (Number.isFinite(cur) && bm > 0) return clamp01(cur / bm);
+  const p = normalizeStoredResourcePercent(storedPercentRaw);
+  return Number.isFinite(p) ? p : 1;
+}
+
+/**
+ * Те саме масштабування, що buffedResourcesFromPveServerSnapshot на клієнті, але без liveHero —
+ * єдине джерело для HUD, якщо клієнт не рахує buffed локально.
+ */
+export function computeServerDisplayResources(args: {
+  heroJson: Record<string, any>;
+  baseCaps: { maxHp: number; maxMp: number; maxCp: number };
+  nowMs?: number;
+}): {
+  hp: number;
+  mp: number;
+  cp: number;
+  maxHp: number;
+  maxMp: number;
+  maxCp: number;
+} {
+  const now = args.nowMs ?? Date.now();
+  const hj = args.heroJson && typeof args.heroJson === "object" ? args.heroJson : {};
+  const baseCaps = {
+    maxHp: Math.max(1, Math.floor(Number(args.baseCaps.maxHp) || 1)),
+    maxMp: Math.max(1, Math.floor(Number(args.baseCaps.maxMp) || 1)),
+    maxCp: Math.max(1, Math.floor(Number(args.baseCaps.maxCp) || 1)),
+  };
+  const heroStub = {
+    name: String(hj.name ?? "hero"),
+    profession: hj.profession,
+    klass: hj.klass,
+    race: hj.race,
+  } as Hero;
+  const buffsRaw = Array.isArray(hj.heroBuffs) ? hj.heroBuffs : [];
+  const buffs = filterBuffsForHeroProfession(heroStub, cleanupBuffs(buffsRaw, now));
+  const buffedCaps = computeBuffedMaxResources(baseCaps, buffs);
+  const hpPct = resourceFillRatio(hj.hp, baseCaps.maxHp, hj.hpPercent);
+  const mpPct = resourceFillRatio(hj.mp, baseCaps.maxMp, hj.mpPercent);
+  const cpPct = resourceFillRatio(hj.cp, baseCaps.maxCp, hj.cpPercent);
+  return {
+    hp: Math.min(buffedCaps.maxHp, Math.max(0, Math.round(hpPct * buffedCaps.maxHp))),
+    mp: Math.min(buffedCaps.maxMp, Math.max(0, Math.round(mpPct * buffedCaps.maxMp))),
+    cp: Math.min(buffedCaps.maxCp, Math.max(0, Math.round(cpPct * buffedCaps.maxCp))),
+    maxHp: buffedCaps.maxHp,
+    maxMp: buffedCaps.maxMp,
+    maxCp: buffedCaps.maxCp,
+  };
 }

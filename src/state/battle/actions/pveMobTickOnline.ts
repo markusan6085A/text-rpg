@@ -166,12 +166,27 @@ export function schedulePveMobTickOnline(): void {
         tickNow,
       );
       const liveHero = store.hero;
-      const br = buffedResourcesFromPveServerSnapshot({
+      let br = buffedResourcesFromPveServerSnapshot({
         hj: mergedHj,
         liveHero,
         mergedHeroBuffs: mergedToggleHeroBuffs,
         fallbackBase: liveHero ? getMaxResources(liveHero) : null,
       });
+      const drSrv = mergedHj.displayResources;
+      if (drSrv && typeof drSrv === "object") {
+        const mh = Math.floor(Number(drSrv.maxHp));
+        const mm = Math.floor(Number(drSrv.maxMp));
+        const mc = Math.floor(Number(drSrv.maxCp));
+        if (Number.isFinite(mh) && mh > 0 && Number.isFinite(mm) && mm > 0 && Number.isFinite(mc) && mc > 0) {
+          br = {
+            ...br,
+            hp: Number(drSrv.hp),
+            mp: Number(drSrv.mp),
+            cp: Number(drSrv.cp),
+            buffedCaps: { maxHp: mh, maxMp: mm, maxCp: mc },
+          };
+        }
+      }
       const buffedCaps = br.buffedCaps;
       logPveBuffedResourceDebug("mob-tick", {
         serverBaseHp: br.rawBase.hp,

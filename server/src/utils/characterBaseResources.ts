@@ -1,7 +1,10 @@
 /**
  * DB-backed base max HP/MP/CP (level + equip, без бафів).
- * heroJson.maxHp/maxMp/maxCp у відповідях API мають збігатися з колонками — клієнт накладає бафи локально.
+ * heroJson.maxHp/maxMp/maxCp у відповідях API збігаються з колонками; displayResources — серверний buffed HUD (див. statsRecalc bundle).
  */
+
+import fs from "node:fs";
+import path from "node:path";
 
 export const MAX_BASE_RESOURCE = 5_000_000;
 
@@ -68,6 +71,43 @@ export function deriveBaseResourceColumnsFromHeroJson(
   });
 }
 
+function resolveStatsRecalcBundlePath(): string | null {
+  const candidates = [
+    path.join(__dirname, "../statsRecalc.cjs"),
+    path.join(__dirname, "../../dist/statsRecalc.cjs"),
+    path.join(process.cwd(), "server/dist/statsRecalc.cjs"),
+  ];
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return p;
+    } catch {
+      /* ignore */
+    }
+  }
+  return null;
+}
+
+/** Buffed HP/MP/CP для HUD — той самий computeBuffedMaxResources + ratio, що на клієнті (з bundle). */
+function attachServerDisplayResourcesForApi(
+  heroJson: Record<string, any>,
+  cols: BaseResourceColumns,
+): Record<string, any> {
+  const p = resolveStatsRecalcBundlePath();
+  if (!p) return heroJson;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const m = require(p) as { computeServerDisplayResources?: (a: any) => any };
+    if (typeof m.computeServerDisplayResources !== "function") return heroJson;
+    const dr = m.computeServerDisplayResources({
+      heroJson,
+      baseCaps: { maxHp: cols.baseMaxHp, maxMp: cols.baseMaxMp, maxCp: cols.baseMaxCp },
+    });
+    return { ...heroJson, displayResources: dr };
+  } catch {
+    return heroJson;
+  }
+}
+
 /** Відповідь API: синхронізувати heroJson.max* з колонками; якщо колонок у рядку немає — derive з heroJson. */
 export function attachBaseResourcesForApi(character: Record<string, any> | null | undefined): Record<string, any> {
   if (!character || typeof character !== "object") return character as any;
@@ -77,7 +117,8 @@ export function attachBaseResourcesForApi(character: Record<string, any> | null 
     baseMaxCp: character.baseMaxCp,
   });
   const cols = deriveBaseResourceColumnsFromHeroJson(character.heroJson, fromRow);
-  const heroJson = injectColumnBaseResourcesIntoHeroJson(character.heroJson, cols);
+  const injected = injectColumnBaseResourcesIntoHeroJson(character.heroJson, cols);
+  const heroJson = attachServerDisplayResourcesForApi(injected, cols);
   return {
     ...character,
     heroJson,

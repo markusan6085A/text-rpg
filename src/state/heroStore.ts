@@ -960,6 +960,16 @@ export function applyCharacterSnapshotFromApi(character: unknown, opts?: ApplyCh
     heroJson[key] = v;
   }
 
+  const drSnap = heroJson.displayResources;
+  if (drSnap && typeof drSnap === "object") {
+    const h = Number(drSnap.hp);
+    const m = Number(drSnap.mp);
+    const cpv = Number(drSnap.cp);
+    if (Number.isFinite(h) && h >= 0) partial.hp = h;
+    if (Number.isFinite(m) && m >= 0) partial.mp = m;
+    if (Number.isFinite(cpv) && cpv >= 0) partial.cp = cpv;
+  }
+
   store.applyServerSync(partial, {
     level,
     exp,
