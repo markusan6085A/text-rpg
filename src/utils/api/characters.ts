@@ -739,3 +739,31 @@ export async function postQuestPickRewardAPI(
   });
 }
 
+/** Відкриття treasure_box — валюта та інвентар тільки на сервері. */
+export async function openTreasureBoxAPI(
+  characterId: string,
+  data: { count: number; expectedRevision: number }
+): Promise<{
+  ok: boolean;
+  rewards: { adena: number; coinLuck: number; coinsSilver: number };
+  character: Character;
+}> {
+  const url = `/characters/${encodeURIComponent(characterId)}/open-treasure-box`;
+  let attemptRev = data.expectedRevision;
+  let lastErr: any;
+  for (let i = 0; i < 3; i++) {
+    try {
+      return await apiRequest(url, {
+        method: "POST",
+        body: JSON.stringify({ count: data.count, expectedRevision: attemptRev }),
+      });
+    } catch (e: any) {
+      lastErr = e;
+      if (e?.status !== 409) throw e;
+      applyRevisionConflictFromApiError(e);
+      attemptRev = await resolveRevisionAfter409Conflict(characterId, e);
+    }
+  }
+  throw lastErr;
+}
+

@@ -25,7 +25,7 @@ import {
   parseSkillIdFromRequestBody,
 } from "../../../learnSkillServer";
 import { calculateServerDrops } from "../../../utils/serverDropCalculator";
-import { computeBattleFinishKillRewards } from "../../../utils/battleFinishKillRewards";
+import { computeBattleFinishKillRewards, computeBattleFinishKillAdena } from "../../../utils/battleFinishKillRewards";
 import { EXP_TABLE, MAX_LEVEL } from "../../../expTable";
 import shopCatalogRaw from "../../../data/shopCatalog.generated.json";
 import { runQuestCompleteMutation, runQuestPickRewardMutation } from "../../../quest/questCompleteServer";
@@ -3497,6 +3497,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           exp: bigint;
           sp: number;
           coinLuck: bigint;
+          adena: bigint;
+          coinsSilver: bigint;
           name: string;
           updatedAt: Date;
           baseMaxHp: number;
@@ -3506,7 +3508,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           classId: string;
         }>
       >`
-        SELECT "heroJson", "level", "exp", "sp", "coinLuck", "name", "updatedAt",
+        SELECT "heroJson", "level", "exp", "sp", "coinLuck", "adena", "coinsSilver", "name", "updatedAt",
           "baseMaxHp", "baseMaxMp", "baseMaxCp", "race", "classId"
         FROM "Character"
         WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
@@ -3613,6 +3615,17 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const earnedExp = killRw.earnedExp;
     const earnedSp = killRw.earnedSp;
 
+    const killAdena = mobId
+      ? computeBattleFinishKillAdena({
+          mobId,
+          zoneId,
+          heroLevel: Number(heroJson.level ?? 1),
+          premiumUntil: Number(heroJson.premiumUntil ?? 0),
+          partySize: partySizeSafe,
+          lootMultiplier: lootMultSafe,
+        })
+      : 0;
+
     // ── Build updated heroJson ─────────────────────────────────────────────
     const newHeroJson: any = { ...heroJson };
     delete newHeroJson.battleSession;
@@ -3626,9 +3639,15 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
     // HP/MP/CP з body.new* клампимо після серверного перерахунку base max (нижче), щоб не було зрізу по бафнутому max з клієнта.
 
-    // Adena is server-authoritative: from server drop calculator, not client payload.
-    const serverAdenaReward = Math.max(0, Math.floor(Number(serverDropResult.adena ?? 0)));
-    newHeroJson.adena = Number(heroJson.adena ?? 0) + serverAdenaReward;
+    // Adena: spoil/item table + базовий дроп з моба (колонка БД — джерело бази, не heroJson).
+    const serverAdenaReward =
+      Math.max(0, Math.floor(Number(serverDropResult.adena ?? 0))) + killAdena;
+    const baseAdenaDb = Math.max(0, Math.floor(Number(row.adena ?? 0n)));
+    newHeroJson.adena = baseAdenaDb + serverAdenaReward;
+
+    const baseSilverDb = Math.max(0, Math.floor(Number(row.coinsSilver ?? 0n)));
+    const hjSilver = Math.max(0, Math.floor(Number(heroJson.coins_silver ?? 0)));
+    newHeroJson.coins_silver = Math.max(baseSilverDb, hjSilver);
 
     // Patch only a strict allowlist with basic shape guards.
     // Security: daily quest progression/completion is server-authoritative and must not be set directly by client payload.
@@ -3898,6 +3917,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     updateData.adena = BigInt(Math.max(0, Math.floor(Number(newHeroJsonSynced.adena))));
     updateData.sp = Math.max(0, Math.floor(Number(newHeroJsonSynced.sp ?? character.sp ?? 0)));
     updateData.coinLuck = BigInt(Math.max(0, Math.floor(Number(newHeroJsonSynced.coinOfLuck ?? character.coinLuck ?? 0))));
+    updateData.coinsSilver = BigInt(
+      Math.max(0, Math.floor(Number(newHeroJsonSynced.coins_silver ?? row.coinsSilver ?? 0n))),
+    );
 
       await tx.character.update({
         where: { id },
@@ -5960,6 +5982,158 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     } catch (e: any) {
       app.log.error(e, `[POST /characters/:id/tattoo/remove] Error for character ${id}`);
       return reply.code(500).send({ error: e.message || "Internal server error" });
+    }
+  });
+
+  // POST /characters/:id/open-treasure-box — валюта + інвентар тільки на сервері (онлайн)
+  app.post("/characters/:id/open-treasure-box", {
+    preHandler: async (req, reply) => {
+      await rateLimitMiddleware(rateLimiters.characterUpdate, "character-update")(req, reply);
+    },
+  }, async (req, reply) => {
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
+
+    const id = (req.params as any).id;
+    const body = req.body as { count?: number; expectedRevision?: number };
+    const expectedRevision = Number(body?.expectedRevision);
+    if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+      return reply.code(400).send({ error: "expectedRevision required" });
+    }
+    const openCount = Math.min(100, Math.max(1, Math.floor(Number(body?.count ?? 1))));
+
+    const rollTreasureBox = (): { adena: number; coinLuck: number; coinsSilver: number } => {
+      const r = Math.random();
+      if (r < 0.6) return { adena: 10000, coinLuck: 0, coinsSilver: 0 };
+      if (r < 0.8) return { adena: 0, coinLuck: 1, coinsSilver: 0 };
+      return { adena: 0, coinLuck: 0, coinsSilver: 1 };
+    };
+
+    try {
+      const txRes = await prisma.$transaction(async (tx) => {
+        const locked = await tx.$queryRaw<
+          Array<{
+            heroJson: any;
+            adena: bigint;
+            coinLuck: bigint;
+            coinsSilver: bigint;
+            updatedAt: Date;
+            name: string;
+          }>
+        >`
+          SELECT "heroJson", "adena", "coinLuck", "coinsSilver", "name", "updatedAt"
+          FROM "Character"
+          WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
+          FOR UPDATE
+        `;
+        if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
+        const row = locked[0];
+        const heroJson: any = { ...((row.heroJson as any) || {}) };
+        const currentRevision = Number(heroJson.heroRevision ?? 0);
+        if (currentRevision !== expectedRevision) {
+          return {
+            ok: false as const,
+            reason: "revision_conflict" as const,
+            currentRevision,
+            updatedAt: row.updatedAt,
+          };
+        }
+
+        const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
+        const tbIdx = inventory.findIndex(
+          (i: any) => i && String(i.id ?? "").replace(/^shop_/i, "") === "treasure_box",
+        );
+        if (tbIdx < 0) return { ok: false as const, reason: "no_treasure_box" as const };
+        const curN = Math.max(0, Math.floor(Number(inventory[tbIdx].count ?? 1)));
+        if (curN < openCount) return { ok: false as const, reason: "not_enough_boxes" as const };
+
+        let addAdena = 0;
+        let addLuck = 0;
+        let addSilver = 0;
+        for (let i = 0; i < openCount; i++) {
+          const z = rollTreasureBox();
+          addAdena += z.adena;
+          addLuck += z.coinLuck;
+          addSilver += z.coinsSilver;
+        }
+
+        const nextCount = curN - openCount;
+        if (nextCount <= 0) inventory.splice(tbIdx, 1);
+        else inventory[tbIdx] = { ...inventory[tbIdx], count: nextCount };
+
+        const dbAdena = Math.max(0, Math.floor(Number(row.adena ?? 0n)));
+        const dbLuck = Math.max(0, Math.floor(Number(row.coinLuck ?? 0n)));
+        const dbSilver = Math.max(0, Math.floor(Number(row.coinsSilver ?? 0n)));
+
+        const nextHeroJson: any = {
+          ...heroJson,
+          inventory,
+          adena: dbAdena + addAdena,
+          coinOfLuck: dbLuck + addLuck,
+          coins_silver: dbSilver + addSilver,
+        };
+
+        const validation = validateHeroJson(nextHeroJson);
+        if (!validation.valid) {
+          return { ok: false as const, reason: "invalid_hero_json" as const, errors: validation.errors };
+        }
+
+        const versioned = addVersioning(nextHeroJson, currentRevision);
+        const updated = await tx.character.update({
+          where: { id },
+          data: {
+            heroJson: versioned as any,
+            adena: BigInt(nextHeroJson.adena),
+            coinLuck: BigInt(nextHeroJson.coinOfLuck),
+            coinsSilver: BigInt(nextHeroJson.coins_silver),
+            lastActivityAt: new Date(),
+          },
+          select: BATTLE_FINISH_CHARACTER_SELECT,
+        });
+
+        return {
+          ok: true as const,
+          updated,
+          rewards: { adena: addAdena, coinLuck: addLuck, coinsSilver: addSilver },
+        };
+      });
+
+      if (!txRes.ok) {
+        if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+        if (txRes.reason === "revision_conflict") {
+          return reply.code(409).send({
+            error: "revision_conflict",
+            message: "Character was modified by another session. Please reload and try again.",
+            currentRevision: txRes.currentRevision ?? 0,
+            updatedAt: txRes.updatedAt?.toISOString(),
+            serverState: { heroRevision: txRes.currentRevision ?? 0, updatedAt: txRes.updatedAt?.toISOString() },
+          });
+        }
+        if (txRes.reason === "no_treasure_box") return reply.code(400).send({ error: "no_treasure_box" });
+        if (txRes.reason === "not_enough_boxes") return reply.code(400).send({ error: "not_enough_boxes" });
+        if (txRes.reason === "invalid_hero_json") {
+          return reply.code(400).send({ error: "invalid_hero_json", errors: (txRes as any).errors });
+        }
+        return reply.code(400).send({ error: "invalid_input" });
+      }
+
+      enqueuePlayerActivityLog({
+        accountId: auth.accountId,
+        characterId: id,
+        characterName: String((txRes.updated as any)?.name ?? ""),
+        action: "open_treasure_box",
+        metadata: { count: openCount, rewards: txRes.rewards },
+        clientIp: getClientIp(req),
+      });
+
+      return reply.send({
+        ok: true,
+        rewards: txRes.rewards,
+        character: serializeBattleFinishCharacterRow(txRes.updated as any),
+      });
+    } catch (e: any) {
+      app.log.error(e, `[open-treasure-box] ${id}`);
+      return reply.code(500).send({ error: "internal_error" });
     }
   });
 

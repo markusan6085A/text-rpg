@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import type { Hero, HeroInventoryItem } from "../../../types/Hero";
 import { itemsDB } from "../../../data/items/itemsDB";
-import { useHeroStore } from "../../../state/heroStore";
+import { useHeroStore, getExpectedHeroRevisionForMutation, applyCharacterSnapshotFromApi } from "../../../state/heroStore";
+import { useAuthStore } from "../../../state/authStore";
+import { useCharacterStore } from "../../../state/characterStore";
+import { openTreasureBoxAPI } from "../../../utils/api/characters";
 import {
   characterModalPanelClass,
   isCharacterModalL2,
@@ -71,7 +74,7 @@ export default function TreasureBoxModal({
     onDelete(deleteAmount);
   };
 
-  const handleOpen = () => {
+  const handleOpen = async () => {
     if (openAmount < 1 || openAmount > maxCount) return;
 
     const currentHero = useHeroStore.getState().hero;
@@ -81,24 +84,52 @@ export default function TreasureBoxModal({
     const invItem = inventory.find((i: HeroInventoryItem) => i.id === item.id);
     if (!invItem || (invItem.count ?? 0) < openAmount) return;
 
-    // Обробляємо кожну скарбничку окремо
+    const token = useAuthStore.getState().accessToken;
+    const cid = String(useCharacterStore.getState().characterId ?? "").trim();
+    const hid = String((currentHero as any)?.id ?? "").trim();
+    const online = Boolean(token && cid && hid === cid);
+
+    if (online) {
+      try {
+        const res = await openTreasureBoxAPI(cid, {
+          count: openAmount,
+          expectedRevision: getExpectedHeroRevisionForMutation(),
+        });
+        if (res?.character) applyCharacterSnapshotFromApi(res.character);
+        const rw = res?.rewards ?? { adena: 0, coinLuck: 0, coinsSilver: 0 };
+        setOpenResult({
+          type: rw.adena > 0 ? "adena" : rw.coinLuck > 0 ? "coinOfLuck" : "coins_silver",
+          adena: rw.adena,
+          coinOfLuck: rw.coinLuck,
+          coins_silver: rw.coinsSilver,
+        });
+        setShowOpenResult(true);
+      } catch (e: any) {
+        const err = String(e?.body?.error ?? e?.message ?? "");
+        void import("../../../state/toastStore").then(({ showToast }) => {
+          if (err.includes("no_treasure_box") || err.includes("not_enough")) {
+            showToast("Недостатньо скриньок або предмет не знайдено.", "error");
+          } else if (e?.status === 409) {
+            showToast("Конфлікт збереження. Оновіть і спробуйте знову.", "error");
+          } else {
+            showToast("Не вдалося відкрити скриньку.", "error");
+          }
+        });
+      }
+      return;
+    }
+
     let totalAdena = 0;
     let totalCoinOfLuck = 0;
     let totalCoinsSilver = 0;
 
     for (let i = 0; i < openAmount; i++) {
       const result = processTreasureBox();
-      
-      if (result.type === "adena" && result.adena) {
-        totalAdena += result.adena;
-      } else if (result.type === "coinOfLuck" && result.coinOfLuck) {
-        totalCoinOfLuck += result.coinOfLuck;
-      } else if (result.type === "coins_silver" && result.coins_silver) {
-        totalCoinsSilver += result.coins_silver;
-      }
+      if (result.type === "adena" && result.adena) totalAdena += result.adena;
+      else if (result.type === "coinOfLuck" && result.coinOfLuck) totalCoinOfLuck += result.coinOfLuck;
+      else if (result.type === "coins_silver" && result.coins_silver) totalCoinsSilver += result.coins_silver;
     }
 
-    // Оновлюємо інвентар: видаляємо скарбнички
     let updatedInventory = inventory.map((i: HeroInventoryItem) => {
       if (i.id === item.id) {
         const newCount = (i.count ?? 1) - openAmount;
@@ -107,16 +138,10 @@ export default function TreasureBoxModal({
       return i;
     }).filter(Boolean) as HeroInventoryItem[];
 
-    // Додаємо adena (валюта персонажа)
     const newAdena = (currentHero.adena || 0) + totalAdena;
-
-    // Додаємо Coin of Luck (валюта персонажа)
     const newCoinOfLuck = (currentHero.coinOfLuck || 0) + totalCoinOfLuck;
-
-    // Додаємо Серебряные Монеты (валюта персонажа hero.coins_silver)
     const newCoinsSilver = (currentHero.coins_silver ?? (currentHero as any).coinsSilver ?? 0) + totalCoinsSilver;
 
-    // Оновлюємо героя
     updateHero({
       adena: newAdena,
       coinOfLuck: newCoinOfLuck,
@@ -124,9 +149,8 @@ export default function TreasureBoxModal({
       inventory: updatedInventory,
     });
 
-    // Показуємо результат (сумарний для всіх відкритих скарбничок)
     setOpenResult({
-      type: totalAdena > 0 ? "adena" : totalCoinOfLuck > 0 ? "coinOfLuck" : "coins_silver", // Для типу, але відображаємо всі
+      type: totalAdena > 0 ? "adena" : totalCoinOfLuck > 0 ? "coinOfLuck" : "coins_silver",
       adena: totalAdena,
       coinOfLuck: totalCoinOfLuck,
       coins_silver: totalCoinsSilver,

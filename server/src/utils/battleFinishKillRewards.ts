@@ -33,6 +33,39 @@ function applyPartySplitToKiller(exp: number, sp: number, partySize: number): { 
   };
 }
 
+/** Як applyPartySplitToKiller для адени (кілер забирає «хвіст» від ділення). */
+function applyPartySplitAdenaToKiller(adena: number, partySize: number): number {
+  const n = Math.max(1, Math.min(9, Math.floor(partySize)));
+  if (n <= 1) return adena;
+  const aEach = Math.floor(adena / n);
+  return adena - aEach * (n - 1);
+}
+
+const MAX_ADENA_PER_KILL = 50_000_000;
+
+export function computeBattleFinishKillAdena(input: {
+  mobId: string;
+  zoneId?: string;
+  heroLevel: number;
+  premiumUntil: number;
+  partySize: number;
+  lootMultiplier: number;
+}): number {
+  const mob = lookupMobRegistry(input.mobId, input.zoneId);
+  if (!mob) return 0;
+  const adenaBase = Math.round(
+    (Math.max(0, Math.floor(Number(mob.adenaMin ?? 0))) + Math.max(0, Math.floor(Number(mob.adenaMax ?? 0)))) / 2,
+  );
+  const lm = Math.max(1, Math.min(10, Math.floor(Number(input.lootMultiplier) || 1)));
+  let adena = adenaBase * lm;
+
+  const pm = premiumMultiplierForKillRewards(mob.level, input.heroLevel, input.premiumUntil);
+  adena = Math.round(adena * pm);
+
+  const out = applyPartySplitAdenaToKiller(adena, input.partySize);
+  return Math.max(0, Math.min(MAX_ADENA_PER_KILL, Math.floor(out)));
+}
+
 export function computeBattleFinishKillRewards(input: {
   mobId: string;
   zoneId?: string;

@@ -940,6 +940,13 @@ export function applyCharacterSnapshotFromApi(character: unknown, opts?: ApplyCh
     ...(encFromHj ? { equipmentEnchantLevels: { ...encFromHj } } : {}),
   };
 
+  const mobsFromSnap = heroJson.mobsKilled ?? (c as any).mobsKilled;
+  if (mobsFromSnap != null && Number.isFinite(Number(mobsFromSnap))) {
+    const mk = Math.max(0, Math.floor(Number(mobsFromSnap)));
+    partial.mobsKilled = mk;
+    heroJson.mobsKilled = mk;
+  }
+
   if (typeof c.name === "string" && c.name.trim()) {
     partial.name = c.name.trim();
     heroJson.name = partial.name;
