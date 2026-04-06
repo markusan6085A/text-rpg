@@ -265,9 +265,8 @@ const start = async () => {
       return reply.sendFile("index.html");
     });
 
-    const port = Number(process.env.PORT || 3000);
-    await app.listen({ port, host: "0.0.0.0" });
-    app.log.info(`Server started on http://0.0.0.0:${port}`);
+    await app.listen({ port: 3000, host: "0.0.0.0" });
+    app.log.info(`Server started on http://0.0.0.0:3000`);
 
     // 🔥 Періодична очистка старих повідомлень чату (кожні 1 годину)
     setInterval(async () => {
