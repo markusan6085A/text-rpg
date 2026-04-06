@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "prisma migrate deploy && node dist/index.js",
-    "build": "node ../tools/buildGkTeleportCosts.mjs && npx tsx ../tools/buildServerShopCatalog.ts && npx tsx ../tools/buildSkillCastMetaForServer.ts && npx tsx ../tools/buildAttackSkillMetaForServer.ts && tsc && cp src/data/drops/mobDropRegistry.generated.json dist/data/drops/mobDropRegistry.generated.json && cp src/data/shopCatalog.generated.json dist/data/shopCatalog.generated.json && cp src/data/skillCastMeta.generated.json dist/data/skillCastMeta.generated.json && cp src/data/pveAttackSkillMeta.generated.json dist/data/pveAttackSkillMeta.generated.json",
+    "build": "node ../tools/buildGkTeleportCosts.mjs && npx tsx ../tools/buildServerShopCatalog.ts && npx tsx ../tools/buildSkillCastMetaForServer.ts && npx tsx ../tools/buildAttackSkillMetaForServer.ts && node ../tools/buildServerStatsRecalc.mjs && tsc && cp src/data/drops/mobDropRegistry.generated.json dist/data/drops/mobDropRegistry.generated.json && cp src/data/shopCatalog.generated.json dist/data/shopCatalog.generated.json && cp src/data/skillCastMeta.generated.json dist/data/skillCastMeta.generated.json && cp src/data/pveAttackSkillMeta.generated.json dist/data/pveAttackSkillMeta.generated.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
@@ -36,8 +36,9 @@
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/nodemailer": "^7.0.4",
     "@types/node": "^25.0.6",
+    "@types/nodemailer": "^7.0.4",
+    "esbuild": "^0.24.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }

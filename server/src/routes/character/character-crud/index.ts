@@ -40,6 +40,7 @@ import {
   deriveBaseResourceColumnsFromHeroJson,
   injectColumnBaseResourcesIntoHeroJson,
 } from "../../../utils/characterBaseResources";
+import { recomputeBaseResourceColumnsFromHeroSnapshot } from "../../../utils/recomputeCharacterBaseResources";
 
 function getExpToNext(level: number): number {
   const lvl = Math.max(1, Math.min(MAX_LEVEL, Number(level) || 1));
@@ -3223,8 +3224,17 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (!buffDef) return reply.code(400).send({ error: "unknown buff scroll" });
 
     const txRes = await prisma.$transaction(async (tx) => {
-      const locked = await tx.$queryRaw<Array<{ heroJson: any; updatedAt: Date; name: string }>>`
-        SELECT "heroJson", "updatedAt", "name"
+      const locked = await tx.$queryRaw<
+        Array<{
+          heroJson: any;
+          updatedAt: Date;
+          name: string;
+          baseMaxHp: number;
+          baseMaxMp: number;
+          baseMaxCp: number;
+        }>
+      >`
+        SELECT "heroJson", "updatedAt", "name", "baseMaxHp", "baseMaxMp", "baseMaxCp"
         FROM "Character"
         WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
         FOR UPDATE
@@ -3232,7 +3242,12 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
 
       const row = locked[0];
-      const heroJson: any = (row.heroJson as any) || {};
+      const scrollDbCols = coerceBaseResourceTriplet({
+        baseMaxHp: row.baseMaxHp,
+        baseMaxMp: row.baseMaxMp,
+        baseMaxCp: row.baseMaxCp,
+      });
+      const heroJson: any = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, scrollDbCols);
       const currentRevision = Number(heroJson.heroRevision ?? 0);
       if (currentRevision !== expectedRevision) {
         return {
@@ -3249,7 +3264,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     const scrollIdx = inventory.findIndex(
       (i: any) => i && normalizeId(String(i.id ?? "")) === normalizeId(itemId) && (i.count ?? 1) > 0
     );
-    if (scrollIdx < 0) return reply.code(400).send({ error: "scroll not found in inventory" });
+    if (scrollIdx < 0) return { ok: false as const, reason: "scroll_not_found" as const };
 
     // Знімаємо 1 скрол
     const scrollRow = inventory[scrollIdx];
@@ -3302,6 +3317,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           coinLuck: true,
           coinsSilver: true,
           heroJson: true,
+          baseMaxHp: true,
+          baseMaxMp: true,
+          baseMaxCp: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -3312,6 +3330,9 @@ export async function characterCrudRoutes(app: FastifyInstance) {
 
     if (!txRes.ok) {
       if (txRes.reason === "not_found") return reply.code(404).send({ error: "character not found" });
+      if (txRes.reason === "scroll_not_found") {
+        return reply.code(400).send({ error: "scroll not found in inventory" });
+      }
       return reply.code(409).send({
         error: "revision_conflict",
         message: "Character was modified by another session. Please reload and try again.",
@@ -3330,14 +3351,14 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       clientIp: getClientIp(req),
     });
 
-    const serializedBuff = {
-      ...txRes.updated,
-      exp: Number(txRes.updated.exp),
-      adena: Number(txRes.updated.adena ?? 0),
-      aa: Number(txRes.updated.aa ?? 0),
-      coinLuck: Number(txRes.updated.coinLuck ?? 0),
+    const serializedBuff = attachBaseResourcesForApi({
+      ...(txRes.updated as any),
+      exp: Number((txRes.updated as any).exp),
+      adena: Number((txRes.updated as any).adena ?? 0),
+      aa: Number((txRes.updated as any).aa ?? 0),
+      coinLuck: Number((txRes.updated as any).coinLuck ?? 0),
       coinsSilver: Number((txRes.updated as any).coinsSilver ?? 0),
-    };
+    });
 
     return reply.send({ ok: true, character: serializedBuff });
   });
@@ -3441,10 +3462,12 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           baseMaxHp: number;
           baseMaxMp: number;
           baseMaxCp: number;
+          race: string;
+          classId: string;
         }>
       >`
         SELECT "heroJson", "level", "exp", "sp", "coinLuck", "name", "updatedAt",
-          "baseMaxHp", "baseMaxMp", "baseMaxCp"
+          "baseMaxHp", "baseMaxMp", "baseMaxCp", "race", "classId"
         FROM "Character"
         WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
         FOR UPDATE
@@ -3548,13 +3571,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     newHeroJson.exp = afterKill.exp;
     newHeroJson.sp = Math.max(0, Number(heroJson.sp ?? character.sp ?? 0)) + earnedSp;
 
-    // HP/MP/CP are accepted only as clamped resource snapshots.
-    const maxHp = Math.max(1, Number(heroJson.maxHp ?? 1) || 1);
-    const maxMp = Math.max(1, Number(heroJson.maxMp ?? 1) || 1);
-    const maxCp = Math.max(1, Number(heroJson.maxCp ?? 1) || 1);
-    if (body.newHp != null) newHeroJson.hp = Math.max(0, Math.min(maxHp, Math.floor(Number(body.newHp) || 0)));
-    if (body.newMp != null) newHeroJson.mp = Math.max(0, Math.min(maxMp, Math.floor(Number(body.newMp) || 0)));
-    if (body.newCp != null) newHeroJson.cp = Math.max(0, Math.min(maxCp, Math.floor(Number(body.newCp) || 0)));
+    // HP/MP/CP з body.new* клампимо після серверного перерахунку base max (нижче), щоб не було зрізу по бафнутому max з клієнта.
 
     // Adena is server-authoritative: from server drop calculator, not client payload.
     const serverAdenaReward = Math.max(0, Math.floor(Number(serverDropResult.adena ?? 0)));
@@ -3588,15 +3605,7 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       if (Object.prototype.hasOwnProperty.call(patch, "heroBuffs")) {
         newHeroJson.heroBuffs = sanitizeBattleFinishHeroBuffs(patch.heroBuffs);
       }
-      for (const [key, field] of [
-        ["baseMaxHp", "baseMaxHp"],
-        ["baseMaxMp", "baseMaxMp"],
-        ["baseMaxCp", "baseMaxCp"],
-      ] as const) {
-        if (!Object.prototype.hasOwnProperty.call(patch, key)) continue;
-        const v = Math.floor(Number((patch as any)[key]));
-        if (Number.isFinite(v) && v >= 1) (newHeroJson as any)[field] = v;
-      }
+      // baseMax* з клієнтського patch ігноруємо — колонки БД + recalculateAllStats на сервері (див. нижче).
     } else {
       const current = Math.max(0, Math.floor(Number(newHeroJson.mobsKilled ?? 0)));
       newHeroJson.mobsKilled = current + 1;
@@ -3799,7 +3808,26 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     newHeroJson.inventory = deduplicateStackableInventory(filteredInv);
     newHeroJson.overflowChest = deduplicateStackableInventory(overflowChest);
 
-    const nextColsBf = deriveBaseResourceColumnsFromHeroJson(newHeroJson, dbColsBf);
+    const nextColsBf = recomputeBaseResourceColumnsFromHeroSnapshot(
+      {
+        level: Math.max(1, Math.floor(Number(newHeroJson.level ?? 1))),
+        race: String(row.race ?? newHeroJson.race ?? "Human"),
+        classId: String(row.classId ?? newHeroJson.classId ?? newHeroJson.klass ?? "Fighter"),
+        heroJson: newHeroJson,
+      },
+      dbColsBf,
+    );
+
+    if (body.newHp != null) {
+      newHeroJson.hp = Math.max(0, Math.min(nextColsBf.baseMaxHp, Math.floor(Number(body.newHp) || 0)));
+    }
+    if (body.newMp != null) {
+      newHeroJson.mp = Math.max(0, Math.min(nextColsBf.baseMaxMp, Math.floor(Number(body.newMp) || 0)));
+    }
+    if (body.newCp != null) {
+      newHeroJson.cp = Math.max(0, Math.min(nextColsBf.baseMaxCp, Math.floor(Number(body.newCp) || 0)));
+    }
+
     const newHeroJsonSynced = injectColumnBaseResourcesIntoHeroJson(newHeroJson, nextColsBf);
 
     const oldRevision = Number(heroJson.heroRevision ?? 0);
@@ -5080,9 +5108,6 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       inventory?: any[];
       equipmentEnchantLevels?: Record<string, number>;
       expectedRevision?: number;
-      baseMaxHp?: number;
-      baseMaxMp?: number;
-      baseMaxCp?: number;
     };
 
     if (!body.equipment || !body.inventory) {
@@ -5102,9 +5127,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           baseMaxHp: number;
           baseMaxMp: number;
           baseMaxCp: number;
+          level: number;
+          race: string;
+          classId: string;
         }>
       >`
-        SELECT "heroJson", "updatedAt", "name", "baseMaxHp", "baseMaxMp", "baseMaxCp"
+        SELECT "heroJson", "updatedAt", "name", "baseMaxHp", "baseMaxMp", "baseMaxCp",
+          "level", "race", "classId"
         FROM "Character"
         WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
         FOR UPDATE
@@ -5208,19 +5237,16 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         inventory: cleanedInventory,
         equipmentEnchantLevels: body.equipmentEnchantLevels ?? heroJson.equipmentEnchantLevels ?? {},
       };
-      if (body.baseMaxHp != null && Number.isFinite(Number(body.baseMaxHp))) {
-        const v = Math.floor(Number(body.baseMaxHp));
-        if (v >= 1) newHeroJsonRaw.baseMaxHp = v;
-      }
-      if (body.baseMaxMp != null && Number.isFinite(Number(body.baseMaxMp))) {
-        const v = Math.floor(Number(body.baseMaxMp));
-        if (v >= 1) newHeroJsonRaw.baseMaxMp = v;
-      }
-      if (body.baseMaxCp != null && Number.isFinite(Number(body.baseMaxCp))) {
-        const v = Math.floor(Number(body.baseMaxCp));
-        if (v >= 1) newHeroJsonRaw.baseMaxCp = v;
-      }
-      const nextEqCols = deriveBaseResourceColumnsFromHeroJson(newHeroJsonRaw, eqDbCols);
+      // baseMax* з тіла запиту не приймаємо — лише серверний перерахунок (той самий, що клієнтський recalculateAllStats).
+      const nextEqCols = recomputeBaseResourceColumnsFromHeroSnapshot(
+        {
+          level: Math.max(1, Math.floor(Number(newHeroJsonRaw.level ?? row.level ?? 1))),
+          race: String(row.race ?? newHeroJsonRaw.race ?? "Human"),
+          classId: String(row.classId ?? newHeroJsonRaw.classId ?? newHeroJsonRaw.klass ?? "Fighter"),
+          heroJson: newHeroJsonRaw,
+        },
+        eqDbCols,
+      );
       const newHeroJson = injectColumnBaseResourcesIntoHeroJson(newHeroJsonRaw, nextEqCols);
       const versionedHeroJson = addVersioning(newHeroJson, currentRevision);
       const updated = await tx.character.update({
