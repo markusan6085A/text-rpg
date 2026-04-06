@@ -86,6 +86,51 @@ export function schedulePveAttackSkillOnline(args: {
 
   attackRoundBusy = true;
   void runSerializedPveMutation(async () => {
+    const bs0 = battleStoreRef.getState();
+    const rollbackCooldowns = bs0 ? { ...(bs0.cooldowns || {}) } : {};
+    const rollbackHeroNext = bs0?.heroNextAttackAt;
+
+    const rollbackOptimisticPveCooldownUi = () => {
+      if (!battleStoreRef.setState) return;
+      const hn = hero.name;
+      battleStoreRef.setState({
+        cooldowns: rollbackCooldowns,
+        heroNextAttackAt: rollbackHeroNext,
+      });
+      if (hn) {
+        const saved = loadBattle(hn) || {};
+        persistBattle(
+          { ...saved, cooldowns: rollbackCooldowns, heroNextAttackAt: rollbackHeroNext },
+          hn,
+        );
+      }
+    };
+
+    /** Показати відкат у SkillBar одразу, до відповіді API (інакче слот «порожній» поки мережа). */
+    const applyOptimisticPveCooldownUi = () => {
+      if (!battleStoreRef.setState) return;
+      const bs = battleStoreRef.getState();
+      if (!bs) return;
+      const hn = hero.name;
+      if (!hn) return;
+      if (skillId === 0) {
+        const buffed = applyBuffsToStats(hero.battleStats || {}, bs.heroBuffs || []);
+        const atkSpd = buffed?.attackSpeed ?? buffed?.atkSpeed ?? 0;
+        const next = now + calcAutoAttackInterval(atkSpd);
+        battleStoreRef.setState({ heroNextAttackAt: next });
+        const saved = loadBattle(hn) || {};
+        persistBattle({ ...saved, heroNextAttackAt: next }, hn);
+      } else {
+        const prevCd = { ...(bs.cooldowns || {}) };
+        const nextCd = { ...prevCd, ...createCooldownEntry(skillId, cooldownDurationMs, now) };
+        battleStoreRef.setState({ cooldowns: nextCd });
+        const saved = loadBattle(hn) || {};
+        persistBattle({ ...saved, cooldowns: nextCd }, hn);
+      }
+    };
+
+    applyOptimisticPveCooldownUi();
+
     try {
       const res = await pveBattleAttackAPI(cid, {
         skillId,
@@ -95,7 +140,10 @@ export function schedulePveAttackSkillOnline(args: {
         loadoutSlots: state.loadoutSlots,
         activeChargeSlots: state.activeChargeSlots ?? [],
       });
-      if (!res?.ok || !(res as any).character) return;
+      if (!res?.ok || !(res as any).character) {
+        rollbackOptimisticPveCooldownUi();
+        return;
+      }
       const ch = (res as any).character;
       const hj = (ch.heroJson && typeof ch.heroJson === "object" ? ch.heroJson : {}) as Record<string, any>;
       const store = useHeroStore.getState();
@@ -144,7 +192,10 @@ export function schedulePveAttackSkillOnline(args: {
       if (damage > 0) addDailyProgress("daily_damage", damage);
 
       const heroName = store.hero?.name;
-      if (!heroName) return;
+      if (!heroName) {
+        rollbackOptimisticPveCooldownUi();
+        return;
+      }
 
       const killed = (res as any).killed === true;
       const mobHpAfter = Math.max(0, Math.floor(Number((res as any).mobHpAfter ?? 0)));
@@ -285,9 +336,13 @@ export function schedulePveAttackSkillOnline(args: {
       persistBattle(persistFight as any, heroName);
     } catch (e: any) {
       const st = Number(e?.status);
-      if (st === 409) applyRevisionConflictFromApiError(e);
+      if (st === 409) {
+        rollbackOptimisticPveCooldownUi();
+        applyRevisionConflictFromApiError(e);
+      }
       const code = String(e?.body?.error ?? "");
       if (code === "no_battle_session" || code === "mob_dead") {
+        rollbackOptimisticPveCooldownUi();
         const store = useHeroStore.getState();
         const h = store.hero;
         if (h && (h as any).heroJson) {
@@ -320,6 +375,7 @@ export function schedulePveAttackSkillOnline(args: {
         if (import.meta.env.DEV) {
           console.warn("[pve-battle-attack] 404 — fallback до локального удару (задеплойте API)");
         }
+        rollbackOptimisticPveCooldownUi();
         try {
           onFallback();
         } catch (err) {
@@ -327,6 +383,7 @@ export function schedulePveAttackSkillOnline(args: {
         }
         return;
       }
+      rollbackOptimisticPveCooldownUi();
       void import("../../toastStore").then(({ showToast }) => {
         showToast("Не вдалося застосувати удар. Спробуйте знову або оновіть гру.", "error");
       });

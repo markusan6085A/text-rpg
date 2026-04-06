@@ -129,6 +129,23 @@ function SkillCooldownLayer({
   if (safeRem <= 0) return null;
 
   const safeInterval = Number.isFinite(attackIntervalMs) && attackIntervalMs > 0 ? attackIntervalMs : 2500;
+
+  /** Відкат < 1 с (відкриття бою 300 мс, мін. КД 300 мс): сірий спінер без цифр — інакче ceil дає «1» замість дробу. */
+  if (safeRem < 1000) {
+    const sweep = Math.min(1, safeRem / 1000);
+    const deg = Number.isFinite(sweep) ? 360 * sweep : 0;
+    return (
+      <div className="absolute inset-0 z-10 rounded-md overflow-hidden pointer-events-none">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `conic-gradient(from 0deg at 50% 50%, rgba(72,72,76,0.9) ${deg}deg, transparent ${deg}deg)`,
+          }}
+        />
+      </div>
+    );
+  }
+
   if (isBaseAttack && safeInterval > 0) {
     const sweep = Math.min(1, safeRem / safeInterval);
     const deg = Number.isFinite(sweep) ? 360 * sweep : 0;
