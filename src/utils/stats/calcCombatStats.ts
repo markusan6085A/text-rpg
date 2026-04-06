@@ -18,6 +18,8 @@ import {
   isJewelryKind,
 } from "./armorEnchantBonuses";
 import { clampShieldBlockRate } from "../shield/shieldDefense";
+import { autoDetectGrade } from "../items/autoDetectArmorType";
+import { getWeaponAccuracyBonusByGrade } from "./weaponGradeAccuracy";
 
 export interface CombatStats {
   pAtk: number;
@@ -315,6 +317,10 @@ export function calcCombatStats(
         if (typeof cdr === "number" && Number.isFinite(cdr) && cdr > 0) {
           cooldownReduction += cdr;
         }
+      }
+      if (itemId && itemDef && itemDef.kind === "weapon") {
+        const grade = itemDef.grade ?? autoDetectGrade(itemId);
+        accuracy += getWeaponAccuracyBonusByGrade(grade);
       }
     });
     // Відсоткові бонуси будуть застосовані після set bonuses

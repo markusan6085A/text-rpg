@@ -15,6 +15,7 @@ import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { SetBonusDisplay } from "./character/SetBonusDisplay";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
 import { isMagicWeaponForEnchant } from "../utils/stats/weaponEnchantBonuses";
+import { getWeaponAccuracyBonusByGrade } from "../utils/stats/weaponGradeAccuracy";
 
 type Navigate = (path: string) => void;
 
@@ -693,50 +694,56 @@ export default function QuestShop({ navigate }: QuestShopProps) {
               const itemsDBId = getItemsDBId(selectedItem);
               const itemDef = itemsDBId ? (itemsDB[itemsDBId] || itemsDBWithStarter[itemsDBId]) : null;
               const displayStats = selectedItem.stats ?? itemDef?.stats;
-              if (!displayStats) return null;
+              const isWeapon = itemDef?.kind === "weapon" || selectedItem.type === "weapon";
+              const gradeForAcc = itemDef?.grade ?? selectedItem.grade ?? (itemsDBId ? autoDetectGrade(itemsDBId) : null);
+              const weaponAccBonus = isWeapon ? getWeaponAccuracyBonusByGrade(gradeForAcc) : 0;
+              if (!displayStats && weaponAccBonus <= 0) return null;
               return (
                 <div className="space-y-1 mb-4 text-[12px]">
-                  {displayStats.pAtk !== undefined && (
+                  {displayStats?.pAtk !== undefined && (
                     <div className="text-orange-400">Физ. атк: {displayStats.pAtk}</div>
                   )}
-                  {displayStats.mAtk !== undefined && (
+                  {displayStats?.mAtk !== undefined && (
                     <div className="text-green-400">Маг. атк: {displayStats.mAtk}</div>
                   )}
-                  {displayStats.pDef !== undefined && (
+                  {displayStats?.pDef !== undefined && (
                     <div className="text-yellow-400">Физ. защ: {displayStats.pDef}</div>
                   )}
-                  {displayStats.mDef !== undefined && (
+                  {displayStats?.mDef !== undefined && (
                     <div className="text-purple-400">Маг. защ: {displayStats.mDef}</div>
                   )}
-                  {displayStats.rCrit !== undefined && (
+                  {displayStats?.rCrit !== undefined && (
                     <div className="text-purple-400">Крит: {displayStats.rCrit}</div>
                   )}
-                  {typeof (displayStats as { critPower?: number }).critPower === "number" && (
+                  {displayStats && typeof (displayStats as { critPower?: number }).critPower === "number" && (
                     <div className="text-rose-300">Сила крита: {(displayStats as { critPower: number }).critPower}</div>
                   )}
-                  {displayStats.pAtkSpd !== undefined && (
+                  {displayStats?.pAtkSpd !== undefined && (
                     <div className="text-yellow-400">Скорость боя: {displayStats.pAtkSpd}</div>
                   )}
-                  {displayStats.castSpeed !== undefined && (
+                  {displayStats?.castSpeed !== undefined && (
                     <div className="text-cyan-400">Скорость каста: {displayStats.castSpeed}</div>
                   )}
-                  {displayStats.maxHp !== undefined && (
+                  {displayStats?.maxHp !== undefined && (
                     <div className="text-red-400">Max HP: +{displayStats.maxHp}</div>
                   )}
-                  {displayStats.maxHpPercent !== undefined && (
+                  {displayStats?.maxHpPercent !== undefined && (
                     <div className="text-red-400">Max HP: +{displayStats.maxHpPercent}%</div>
                   )}
-                  {displayStats.pDefPercent !== undefined && (
+                  {displayStats?.pDefPercent !== undefined && (
                     <div className="text-yellow-400">Физ. защ: +{displayStats.pDefPercent}%</div>
                   )}
-                  {displayStats.mDefPercent !== undefined && (
+                  {displayStats?.mDefPercent !== undefined && (
                     <div className="text-purple-400">Маг. защ: +{displayStats.mDefPercent}%</div>
                   )}
-                  {displayStats.pAtkPercent !== undefined && (
+                  {displayStats?.pAtkPercent !== undefined && (
                     <div className="text-orange-400">Физ. урон: +{displayStats.pAtkPercent}%</div>
                   )}
-                  {displayStats.mAtkPercent !== undefined && (
+                  {displayStats?.mAtkPercent !== undefined && (
                     <div className="text-blue-400">Маг. урон: +{displayStats.mAtkPercent}%</div>
+                  )}
+                  {weaponAccBonus > 0 && (
+                    <div className="text-sky-300">Точність: +{weaponAccBonus}</div>
                   )}
                 </div>
               );
