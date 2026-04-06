@@ -122,14 +122,17 @@ export function schedulePveMobTickOnline(): void {
     clearStaleOnlinePveFightState();
     return;
   }
-  const expectedRevisionRaw =
-    useHeroStore.getState().serverState?.heroRevision ?? hj.heroRevision ?? 0;
-  const expectedRevision = Number(expectedRevisionRaw);
 
   const heroStats = applyBuffsToStats(hero.battleStats || {}, bs.heroBuffs || []);
 
   void runSerializedPveMutation(async () => {
     try {
+      const expectedRevisionRaw =
+        useHeroStore.getState().serverState?.heroRevision ??
+        ((useHeroStore.getState().hero as any)?.heroJson || {})?.heroRevision ??
+        0;
+      const expectedRevision = Number(expectedRevisionRaw);
+
       const bsPre = battleStoreRef.getState();
       const hjPre = ((useHeroStore.getState().hero as any)?.heroJson || {}) as Record<string, any>;
       const smPre = hjPre?.battleSession != null ? Number(hjPre.battleSession.mobHP) : NaN;

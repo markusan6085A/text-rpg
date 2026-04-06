@@ -86,14 +86,6 @@ export function schedulePveAttackSkillOnline(args: {
     return;
   }
 
-  const expectedRevisionRaw =
-    useHeroStore.getState().serverState?.heroRevision ?? (hero as any)?.heroJson?.heroRevision ?? 0;
-  const expectedRevision = Number(expectedRevisionRaw);
-  if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
-    onFallback();
-    return;
-  }
-
   attackRoundBusy = true;
   void runSerializedPveMutation(async () => {
     const bs0 = battleStoreRef.getState();
@@ -150,6 +142,17 @@ export function schedulePveAttackSkillOnline(args: {
     applyOptimisticPveCooldownUi();
 
     try {
+      /** Свіжа revision безпосередньо перед POST (не при schedule) — інакше після tick/attack у черзі 409. */
+      const expectedRevisionRaw =
+        useHeroStore.getState().serverState?.heroRevision ??
+        (useHeroStore.getState().hero as any)?.heroJson?.heroRevision ??
+        0;
+      const expectedRevision = Number(expectedRevisionRaw);
+      if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
+        rollbackOptimisticPveCooldownUi();
+        return;
+      }
+
       const res = await pveBattleAttackAPI(cid, {
         skillId,
         expectedRevision,

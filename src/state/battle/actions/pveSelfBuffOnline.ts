@@ -50,13 +50,15 @@ export function schedulePveSelfBuffOnline(
     String((hero as any)?.id ?? "").trim();
   if (!cid || !hero?.name) return;
 
-  const expectedRevisionRaw =
-    useHeroStore.getState().serverState?.heroRevision ?? (hero as any)?.heroJson?.heroRevision ?? 0;
-  const expectedRevision = Number(expectedRevisionRaw);
-  if (!Number.isFinite(expectedRevision) || expectedRevision < 0) return;
-
   void runSerializedPveMutation(async () => {
     try {
+      const expectedRevisionRaw =
+        useHeroStore.getState().serverState?.heroRevision ??
+        (useHeroStore.getState().hero as any)?.heroJson?.heroRevision ??
+        0;
+      const expectedRevision = Number(expectedRevisionRaw);
+      if (!Number.isFinite(expectedRevision) || expectedRevision < 0) return;
+
       const res = await pveCastSelfBuffAPI(cid, { skillId, expectedRevision });
       if (!res?.ok || !(res as any).character) return;
       const ch = (res as any).character;
