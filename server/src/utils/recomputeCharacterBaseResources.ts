@@ -64,3 +64,25 @@ export function recomputeBaseResourceColumnsFromHeroSnapshot(
 ): BaseResourceColumns {
   return loadRecompute()(args, fallbackCols);
 }
+
+/**
+ * PvE онлайн: колонки БД могли залишитись плейсхолдером 1 після створення персонажа — тоді hj.hp/maxHp = 1
+ * і герой гине від мінімального урону. Беремо max(колонки, перерахунок як у клієнта) і за потреби пишемо в БД.
+ */
+export function mergeDbBaseColsWithRecalcForPveOnline(
+  args: RecomputeBaseArgs,
+  dbCols: BaseResourceColumns,
+): { merged: BaseResourceColumns; shouldPersistDb: boolean } {
+  const coercedDb = coerceBaseResourceTriplet(dbCols);
+  const fromRecalc = recomputeBaseResourceColumnsFromHeroSnapshot(args, coercedDb);
+  const merged = coerceBaseResourceTriplet({
+    baseMaxHp: Math.max(coercedDb.baseMaxHp, fromRecalc.baseMaxHp),
+    baseMaxMp: Math.max(coercedDb.baseMaxMp, fromRecalc.baseMaxMp),
+    baseMaxCp: Math.max(coercedDb.baseMaxCp, fromRecalc.baseMaxCp),
+  });
+  const shouldPersistDb =
+    merged.baseMaxHp !== coercedDb.baseMaxHp ||
+    merged.baseMaxMp !== coercedDb.baseMaxMp ||
+    merged.baseMaxCp !== coercedDb.baseMaxCp;
+  return { merged, shouldPersistDb };
+}

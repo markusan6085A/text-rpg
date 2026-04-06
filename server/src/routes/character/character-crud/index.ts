@@ -41,7 +41,10 @@ import {
   deriveBaseResourceColumnsFromHeroJson,
   injectColumnBaseResourcesIntoHeroJson,
 } from "../../../utils/characterBaseResources";
-import { recomputeBaseResourceColumnsFromHeroSnapshot } from "../../../utils/recomputeCharacterBaseResources";
+import {
+  mergeDbBaseColsWithRecalcForPveOnline,
+  recomputeBaseResourceColumnsFromHeroSnapshot,
+} from "../../../utils/recomputeCharacterBaseResources";
 
 function getExpToNext(level: number): number {
   const lvl = Math.max(1, Math.min(MAX_LEVEL, Number(level) || 1));
@@ -4133,6 +4136,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           Array<{
             id: string;
             name: string;
+            race: string;
+            level: number;
             classId: string;
             heroJson: any;
             updatedAt: Date;
@@ -4141,18 +4146,26 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             baseMaxCp: number;
           }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
+          SELECT "id", "name", "race", "level", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const pveBaseCols = coerceBaseResourceTriplet({
-          baseMaxHp: row.baseMaxHp,
-          baseMaxMp: row.baseMaxMp,
-          baseMaxCp: row.baseMaxCp,
-        });
+        const { merged: pveBaseCols, shouldPersistDb: persistPveBaseCaps } = mergeDbBaseColsWithRecalcForPveOnline(
+          {
+            level: Math.max(1, Math.floor(Number(row.level ?? 1))),
+            race: String(row.race ?? ""),
+            classId: String(row.classId ?? ""),
+            heroJson: ((row.heroJson as any) || {}) as Record<string, any>,
+          },
+          {
+            baseMaxHp: row.baseMaxHp,
+            baseMaxMp: row.baseMaxMp,
+            baseMaxCp: row.baseMaxCp,
+          },
+        );
         const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
@@ -4190,6 +4203,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           data: {
             heroJson: versionedHeroJson as any,
             lastActivityAt: new Date(),
+            ...(persistPveBaseCaps
+              ? {
+                  baseMaxHp: pveBaseCols.baseMaxHp,
+                  baseMaxMp: pveBaseCols.baseMaxMp,
+                  baseMaxCp: pveBaseCols.baseMaxCp,
+                }
+              : {}),
           },
           select: {
             id: true,
@@ -4294,6 +4314,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           Array<{
             id: string;
             name: string;
+            race: string;
+            level: number;
             classId: string;
             heroJson: any;
             updatedAt: Date;
@@ -4302,18 +4324,26 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             baseMaxCp: number;
           }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
+          SELECT "id", "name", "race", "level", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const pveBaseCols = coerceBaseResourceTriplet({
-          baseMaxHp: row.baseMaxHp,
-          baseMaxMp: row.baseMaxMp,
-          baseMaxCp: row.baseMaxCp,
-        });
+        const { merged: pveBaseCols, shouldPersistDb: persistPveBaseCaps } = mergeDbBaseColsWithRecalcForPveOnline(
+          {
+            level: Math.max(1, Math.floor(Number(row.level ?? 1))),
+            race: String(row.race ?? ""),
+            classId: String(row.classId ?? ""),
+            heroJson: ((row.heroJson as any) || {}) as Record<string, any>,
+          },
+          {
+            baseMaxHp: row.baseMaxHp,
+            baseMaxMp: row.baseMaxMp,
+            baseMaxCp: row.baseMaxCp,
+          },
+        );
         const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
@@ -4351,6 +4381,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           data: {
             heroJson: versionedHeroJson as any,
             lastActivityAt: new Date(),
+            ...(persistPveBaseCaps
+              ? {
+                  baseMaxHp: pveBaseCols.baseMaxHp,
+                  baseMaxMp: pveBaseCols.baseMaxMp,
+                  baseMaxCp: pveBaseCols.baseMaxCp,
+                }
+              : {}),
           },
           select: {
             id: true,
@@ -4463,6 +4500,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           Array<{
             id: string;
             name: string;
+            race: string;
+            level: number;
             classId: string;
             heroJson: any;
             updatedAt: Date;
@@ -4471,18 +4510,26 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             baseMaxCp: number;
           }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
+          SELECT "id", "name", "race", "level", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const pveBaseCols = coerceBaseResourceTriplet({
-          baseMaxHp: row.baseMaxHp,
-          baseMaxMp: row.baseMaxMp,
-          baseMaxCp: row.baseMaxCp,
-        });
+        const { merged: pveBaseCols, shouldPersistDb: persistPveBaseCaps } = mergeDbBaseColsWithRecalcForPveOnline(
+          {
+            level: Math.max(1, Math.floor(Number(row.level ?? 1))),
+            race: String(row.race ?? ""),
+            classId: String(row.classId ?? ""),
+            heroJson: ((row.heroJson as any) || {}) as Record<string, any>,
+          },
+          {
+            baseMaxHp: row.baseMaxHp,
+            baseMaxMp: row.baseMaxMp,
+            baseMaxCp: row.baseMaxCp,
+          },
+        );
         const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
@@ -4535,6 +4582,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           data: {
             heroJson: versionedHeroJson as any,
             lastActivityAt: new Date(),
+            ...(persistPveBaseCaps
+              ? {
+                  baseMaxHp: pveBaseCols.baseMaxHp,
+                  baseMaxMp: pveBaseCols.baseMaxMp,
+                  baseMaxCp: pveBaseCols.baseMaxCp,
+                }
+              : {}),
           },
           select: {
             id: true,
@@ -4653,6 +4707,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           Array<{
             id: string;
             name: string;
+            race: string;
+            level: number;
             classId: string;
             heroJson: any;
             updatedAt: Date;
@@ -4661,18 +4717,26 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             baseMaxCp: number;
           }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
+          SELECT "id", "name", "race", "level", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const pveBaseCols = coerceBaseResourceTriplet({
-          baseMaxHp: row.baseMaxHp,
-          baseMaxMp: row.baseMaxMp,
-          baseMaxCp: row.baseMaxCp,
-        });
+        const { merged: pveBaseCols, shouldPersistDb: persistPveBaseCaps } = mergeDbBaseColsWithRecalcForPveOnline(
+          {
+            level: Math.max(1, Math.floor(Number(row.level ?? 1))),
+            race: String(row.race ?? ""),
+            classId: String(row.classId ?? ""),
+            heroJson: ((row.heroJson as any) || {}) as Record<string, any>,
+          },
+          {
+            baseMaxHp: row.baseMaxHp,
+            baseMaxMp: row.baseMaxMp,
+            baseMaxCp: row.baseMaxCp,
+          },
+        );
         const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
@@ -4715,6 +4779,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           data: {
             heroJson: versionedHeroJson as any,
             lastActivityAt: new Date(),
+            ...(persistPveBaseCaps
+              ? {
+                  baseMaxHp: pveBaseCols.baseMaxHp,
+                  baseMaxMp: pveBaseCols.baseMaxMp,
+                  baseMaxCp: pveBaseCols.baseMaxCp,
+                }
+              : {}),
           },
           select: {
             id: true,
@@ -4835,6 +4906,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           Array<{
             id: string;
             name: string;
+            race: string;
+            level: number;
             classId: string;
             heroJson: any;
             updatedAt: Date;
@@ -4843,18 +4916,26 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             baseMaxCp: number;
           }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
+          SELECT "id", "name", "race", "level", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const pveBaseCols = coerceBaseResourceTriplet({
-          baseMaxHp: row.baseMaxHp,
-          baseMaxMp: row.baseMaxMp,
-          baseMaxCp: row.baseMaxCp,
-        });
+        const { merged: pveBaseCols, shouldPersistDb: persistPveBaseCaps } = mergeDbBaseColsWithRecalcForPveOnline(
+          {
+            level: Math.max(1, Math.floor(Number(row.level ?? 1))),
+            race: String(row.race ?? ""),
+            classId: String(row.classId ?? ""),
+            heroJson: ((row.heroJson as any) || {}) as Record<string, any>,
+          },
+          {
+            baseMaxHp: row.baseMaxHp,
+            baseMaxMp: row.baseMaxMp,
+            baseMaxCp: row.baseMaxCp,
+          },
+        );
         const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
@@ -4890,6 +4971,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           data: {
             heroJson: versionedHeroJson as any,
             lastActivityAt: new Date(),
+            ...(persistPveBaseCaps
+              ? {
+                  baseMaxHp: pveBaseCols.baseMaxHp,
+                  baseMaxMp: pveBaseCols.baseMaxMp,
+                  baseMaxCp: pveBaseCols.baseMaxCp,
+                }
+              : {}),
           },
           select: {
             id: true,
@@ -5003,6 +5091,8 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           Array<{
             id: string;
             name: string;
+            race: string;
+            level: number;
             classId: string;
             heroJson: any;
             updatedAt: Date;
@@ -5011,18 +5101,26 @@ export async function characterCrudRoutes(app: FastifyInstance) {
             baseMaxCp: number;
           }>
         >`
-          SELECT "id", "name", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
+          SELECT "id", "name", "race", "level", "classId", "heroJson", "updatedAt", "baseMaxHp", "baseMaxMp", "baseMaxCp"
           FROM "Character"
           WHERE "id" = ${id} AND "accountId" = ${auth.accountId}
           FOR UPDATE
         `;
         if (locked.length === 0) return { ok: false as const, reason: "not_found" as const };
         const row = locked[0];
-        const pveBaseCols = coerceBaseResourceTriplet({
-          baseMaxHp: row.baseMaxHp,
-          baseMaxMp: row.baseMaxMp,
-          baseMaxCp: row.baseMaxCp,
-        });
+        const { merged: pveBaseCols, shouldPersistDb: persistPveBaseCaps } = mergeDbBaseColsWithRecalcForPveOnline(
+          {
+            level: Math.max(1, Math.floor(Number(row.level ?? 1))),
+            race: String(row.race ?? ""),
+            classId: String(row.classId ?? ""),
+            heroJson: ((row.heroJson as any) || {}) as Record<string, any>,
+          },
+          {
+            baseMaxHp: row.baseMaxHp,
+            baseMaxMp: row.baseMaxMp,
+            baseMaxCp: row.baseMaxCp,
+          },
+        );
         const oldHeroJson = injectColumnBaseResourcesIntoHeroJson((row.heroJson as any) || {}, pveBaseCols);
         const currentRevision = Number(oldHeroJson.heroRevision ?? 0);
         if (currentRevision !== expectedRevision) {
@@ -5066,6 +5164,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
           data: {
             heroJson: versionedHeroJson as any,
             lastActivityAt: new Date(),
+            ...(persistPveBaseCaps
+              ? {
+                  baseMaxHp: pveBaseCols.baseMaxHp,
+                  baseMaxMp: pveBaseCols.baseMaxMp,
+                  baseMaxCp: pveBaseCols.baseMaxCp,
+                }
+              : {}),
           },
           select: {
             id: true,
