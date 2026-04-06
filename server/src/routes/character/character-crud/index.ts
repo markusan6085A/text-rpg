@@ -389,7 +389,7 @@ const CLIENT_PUT_HEROJSON_ALLOWLIST = new Set<string>([
   "deadAt",
   "dailyQuestsResetAt",
   "status",
-  "pkInComing",
+  "pkIncoming",
   "pkDeathNotice",
   "hpFull",
   "mpFull",
