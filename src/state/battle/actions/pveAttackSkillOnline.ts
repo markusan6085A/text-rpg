@@ -404,6 +404,14 @@ export function schedulePveAttackSkillOnline(args: {
       }
       rollbackOptimisticPveCooldownUi();
       void import("../../toastStore").then(({ showToast }) => {
+        if (code === "not_enough_mp") {
+          showToast("Недостатньо MP для цього скіла.", "error");
+          return;
+        }
+        if (code === "forbidden_skill" || code === "unsupported_skill") {
+          showToast("Цей скіл не дозволений у PvE онлайн або не підтримується сервером.", "error");
+          return;
+        }
         if (isTransientPveRequestError(e)) {
           showToast("Слабкий зв'язок або таймаут. Спробуйте удар ще раз.", "error");
         } else if (Number.isFinite(st) && st >= 500) {

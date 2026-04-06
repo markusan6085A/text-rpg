@@ -34,6 +34,33 @@ const meta = pveAttackSkillMetaJson as {
   professionToSkillIds: Record<string, number[]>;
 };
 
+/**
+ * У згенерованому meta не завжди є всі рівні скіла; якщо точного рівня немає — беремо найближчий нижчий (інакше магічні скіли з високим learned.level ламаються з invalid_level).
+ */
+function pickSkillLevelRowForAttack(
+  row: SkillMetaRow,
+  learnedLevel: number
+): { levelUsed: number; levelRow: { mpCost: number; power: number } } | null {
+  const want = Math.max(1, Math.floor(Number(learnedLevel) || 1));
+  const exact = row.levels[String(want)];
+  if (exact) return { levelUsed: want, levelRow: exact };
+
+  const keys = Object.keys(row.levels)
+    .map((k) => Number(k))
+    .filter((n) => Number.isFinite(n) && n >= 1)
+    .sort((a, b) => a - b);
+  if (keys.length === 0) return null;
+
+  let best = keys[0];
+  for (const n of keys) {
+    if (n <= want) best = n;
+    else break;
+  }
+  const rowLev = row.levels[String(best)];
+  if (!rowLev) return null;
+  return { levelUsed: best, levelRow: rowLev };
+}
+
 function professionAllowsSkill(skillId: number, heroJson: any, classId: string): boolean {
   if (skillId === 0) return true;
   const keys = [heroJson?.profession, heroJson?.klass, heroJson?.classId, classId]
@@ -228,7 +255,6 @@ export function applyPveBattleAttackSnapshot(args: {
   const csStats: CombatStatsIn = sanitizeCombatStats(csInRaw);
 
   let mpCostEff = 0;
-  let level = 1;
   let levelRow: { mpCost: number; power: number } | null = null;
   let cat: "physical_attack" | "magic_attack" = "physical_attack";
 
@@ -236,11 +262,12 @@ export function applyPveBattleAttackSnapshot(args: {
     mpCostEff = 0;
   } else {
     const learned = (Array.isArray(hj.skills) ? hj.skills : []).find((s: any) => Number(s?.id) === skillId)!;
-    level = Math.max(1, Math.floor(Number(learned.level ?? 1)));
-    levelRow = row!.levels[String(level)] || null;
-    if (!levelRow) {
+    const learnedLv = Math.max(1, Math.floor(Number(learned.level ?? 1)));
+    const picked = pickSkillLevelRowForAttack(row!, learnedLv);
+    if (!picked) {
       return { ok: false, code: "invalid_level", message: "No level data for skill" };
     }
+    levelRow = picked.levelRow;
     cat = row!.category as "physical_attack" | "magic_attack";
     if (cat !== "physical_attack" && cat !== "magic_attack") {
       return { ok: false, code: "not_attack", message: "Not an attack skill" };
