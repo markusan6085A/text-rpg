@@ -4,7 +4,7 @@ import { clearBattlePersist } from "../state/battle/persist";
 import { useHeroStore } from "../state/heroStore";
 import { syncCurrentUserAndAccountHero } from "../state/heroStore/heroPersistence";
 import { savePreviousCity } from "../utils/locationNavigation";
-import { register, createCharacter, updateCharacter, listCharacters } from "../utils/api";
+import { register, login, createCharacter, updateCharacter, listCharacters } from "../utils/api";
 import { getAccessToken } from "../utils/api/core";
 import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
@@ -145,8 +145,35 @@ export default function Register({ navigate }: RegisterProps) {
           return;
         }
       } else {
-        const accessToken = await register(trimmedUsername, password);
-        setAccessToken(accessToken);
+        try {
+          const accessToken = await register(trimmedUsername, password);
+          setAccessToken(accessToken);
+        } catch (regErr: any) {
+          const regRaw = String(regErr?.message ?? "").toLowerCase();
+          const regSt = Number(regErr?.status);
+          const loginTaken =
+            regSt === 409 ||
+            regRaw.includes("already exists") ||
+            regRaw.includes("login already");
+          if (!loginTaken) throw regErr;
+          // Акаунт уже є (часто після /admin/login), а в браузері порожній storage — входимо і створюємо лише персонажа
+          try {
+            const token = await login(trimmedUsername, password);
+            setAccessToken(token);
+          } catch {
+            setError(
+              "Логин уже занят. Введите пароль входа для этого логина (тот же, что на главной странице). Если не подходит — смените пароль в БД или создайте другой ник.",
+            );
+            setIsLoading(false);
+            return;
+          }
+          const afterLoginChars = await listCharacters();
+          if (afterLoginChars.length > 0) {
+            setError("У этого аккаунта уже есть персонаж. Войдите через главную страницу.");
+            setIsLoading(false);
+            return;
+          }
+        }
       }
       useAdminStore.getState().checkAdmin().catch(() => {});
 
