@@ -2,7 +2,8 @@
 
 export const L2_PHYSICAL_COEFFICIENT = 70;
 export const L2_MAGIC_COEFFICIENT = 70;
-export const L2_PVE_DAMAGE_MULTIPLIER = 2.8;
+/** Паритет з src/data/balance.ts (клієнтський локальний PvE). */
+export const L2_PVE_DAMAGE_MULTIPLIER = 4.0;
 export const MOB_HP_MULTIPLIER = 2.5;
 export const MOB_DEFENSE_MULTIPLIER = 1.8;
 
