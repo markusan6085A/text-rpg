@@ -395,30 +395,52 @@ const CLIENT_PUT_HEROJSON_DENYLIST = new Set<string>([
   "adminCoinLuckSetAt",
 ]);
 
+/** true якщо в БД ще немає «живого» heroJson (лише {} або тільки службові revision-ключі) — перший PUT після POST /characters. */
+function isHeroJsonBootstrap(existing: Record<string, any>): boolean {
+  if (!existing || typeof existing !== "object") return true;
+  const meaningful = Object.keys(existing).filter(
+    (k) => k !== "heroRevision" && k !== "heroJsonVersion"
+  );
+  return meaningful.length === 0;
+}
+
 function sanitizeClientHeroJsonForPut(
   incoming: Record<string, any>,
   existing: Record<string, any>
 ): { sanitized: Record<string, any>; rejectedKeys: string[] } {
   const sanitized: Record<string, any> = {};
   const rejectedKeys: string[] = [];
+  const bootstrap = isHeroJsonBootstrap(existing);
+
+  const handleNickColor = (key: string): boolean => {
+    const raw = incoming[key];
+    if (raw === undefined) return true;
+    if (raw === null || raw === "") {
+      sanitized[key] = "";
+      return true;
+    }
+    const s = String(raw).trim();
+    if (!/^#[0-9A-Fa-f]{6}$/.test(s)) {
+      rejectedKeys.push(key);
+      return true;
+    }
+    sanitized[key] = s;
+    return true;
+  };
+
   for (const key of Object.keys(incoming)) {
     if (CLIENT_PUT_HEROJSON_DENYLIST.has(key)) {
       rejectedKeys.push(key);
       continue;
     }
     if (key === "nickColor") {
-      const raw = incoming[key];
-      if (raw === undefined) continue;
-      if (raw === null || raw === "") {
-        sanitized[key] = "";
-        continue;
-      }
-      const s = String(raw).trim();
-      if (!/^#[0-9A-Fa-f]{6}$/.test(s)) {
-        rejectedKeys.push(key);
-        continue;
-      }
-      sanitized[key] = s;
+      handleNickColor(key);
+      continue;
+    }
+    // Після створення персонажа heroJson = {} — приймаємо повний стартовий snapshot (createNewHero + currentCityId).
+    // Далі залишається allowlist + ключі, що вже є в existing (захист від підміни прогресу).
+    if (bootstrap) {
+      sanitized[key] = incoming[key];
       continue;
     }
     if (CLIENT_PUT_HEROJSON_ALLOWLIST.has(key) || Object.prototype.hasOwnProperty.call(existing, key)) {
