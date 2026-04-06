@@ -25,6 +25,7 @@ import {
   parseSkillIdFromRequestBody,
 } from "../../../learnSkillServer";
 import { calculateServerDrops } from "../../../utils/serverDropCalculator";
+import { computeBattleFinishKillRewards } from "../../../utils/battleFinishKillRewards";
 import { EXP_TABLE, MAX_LEVEL } from "../../../expTable";
 import shopCatalogRaw from "../../../data/shopCatalog.generated.json";
 import { runQuestCompleteMutation, runQuestPickRewardMutation } from "../../../quest/questCompleteServer";
@@ -3424,6 +3425,11 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       spoiled?: boolean;
       /** Zone where the mob was killed — used for server-side drop table lookup */
       zoneId?: string;
+      /** Кількість учасників пати (1–9); частка луту як у клієнта. */
+      partySize?: number;
+      /** Множник (напр. Whirlwind cleave), 1–10. */
+      lootMultiplier?: number;
+      /** Застарілі поля — ігноруються; EXP/SP рахує сервер з mobId. */
       earnedExp?: number;
       earnedSp?: number;
       earnedAdena?: number;
@@ -3437,13 +3443,6 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       heroJsonPatch?: Record<string, any>;
     };
 
-    // Sanity limits
-    const MAX_EXP_PER_KILL = 5_000_000;
-    const MAX_ADENA_PER_KILL = 500_000;
-    const MAX_SP_PER_KILL = 50_000;
-    const earnedExp = Math.max(0, Math.min(MAX_EXP_PER_KILL, Number(body.earnedExp ?? 0)));
-    const earnedAdena = Math.max(0, Math.min(MAX_ADENA_PER_KILL, Number(body.earnedAdena ?? 0)));
-    const earnedSp = Math.max(0, Math.min(MAX_SP_PER_KILL, Number(body.earnedSp ?? 0)));
     const expectedRevision = Number(body.expectedRevision);
     if (!Number.isFinite(expectedRevision) || expectedRevision < 0) {
       return reply.code(400).send({ error: "expectedRevision required" });
@@ -3560,11 +3559,24 @@ export async function characterCrudRoutes(app: FastifyInstance) {
       }
     }
 
+    const partySizeSafe = Math.max(1, Math.min(9, Math.floor(Number(body.partySize ?? 1))));
+    const lootMultSafe = Math.max(1, Math.min(10, Math.floor(Number(body.lootMultiplier ?? 1))));
+    const killRw = computeBattleFinishKillRewards({
+      mobId,
+      zoneId,
+      heroLevel: Number(heroJson.level ?? 1),
+      premiumUntil: Number(heroJson.premiumUntil ?? 0),
+      partySize: partySizeSafe,
+      lootMultiplier: lootMultSafe,
+    });
+    const earnedExp = killRw.earnedExp;
+    const earnedSp = killRw.earnedSp;
+
     // ── Build updated heroJson ─────────────────────────────────────────────
     const newHeroJson: any = { ...heroJson };
     delete newHeroJson.battleSession;
 
-    // Server-authoritative progression: ignore client newLevel/newExp/newSp.
+    // Server-authoritative progression: ignore client newLevel/newExp/newSp; EXP/SP з реєстру мобів.
     const baseline = pickBestLevelExpPair(character.level, character.exp, heroJson.level, heroJson.exp);
     const afterKill = applyLevelUpsInPlace(baseline.level, baseline.exp + earnedExp);
     newHeroJson.level = afterKill.level;

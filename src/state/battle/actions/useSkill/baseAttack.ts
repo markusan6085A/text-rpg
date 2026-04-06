@@ -311,6 +311,7 @@ export function handleBaseAttack(
       postVictoryMp: curHeroMP,
       postVictoryCp: curHeroCP,
       rewardOverrides: { adenaGain, expGain, spGain },
+      lootMultiplier,
       zoneId: state.zoneId,
       mobIndex: state.mobIndex,
     });

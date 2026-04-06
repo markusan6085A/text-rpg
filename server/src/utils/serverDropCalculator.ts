@@ -57,6 +57,8 @@ type MobRegistryEntry = {
   id: string;
   name: string;
   level: number;
+  exp: number;
+  sp: number;
   dropChance: number;
   adenaMin: number;
   adenaMax: number;

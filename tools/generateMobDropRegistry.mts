@@ -35,6 +35,9 @@ interface MobRegistryEntry {
   id: string;
   name: string;
   level: number;
+  /** Для server battle-finish (нарахування EXP/SP). */
+  exp: number;
+  sp: number;
   dropChance: number;
   adenaMin: number;
   adenaMax: number;
@@ -77,10 +80,19 @@ for (const zone of locations) {
         return e;
       });
 
+    const exp = Number(mob.exp ?? 0);
+    const spRaw = mob.sp;
+    const sp =
+      typeof spRaw === "number" && Number.isFinite(spRaw) && spRaw > 0
+        ? Math.floor(spRaw)
+        : Math.max(1, Math.round(exp / 15));
+
     registry[key] = {
       id: mob.id,
       name: String(mob.name ?? ""),
       level: Number(mob.level ?? 1),
+      exp,
+      sp,
       dropChance: Number(mob.dropChance ?? 0.5),
       adenaMin: Number(mob.adenaMin ?? 0),
       adenaMax: Number(mob.adenaMax ?? 0),

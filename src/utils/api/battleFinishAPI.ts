@@ -27,6 +27,11 @@ export interface BattleFinishParams {
   spoiled?: boolean;
   /** Zone id where the mob was killed */
   zoneId?: string;
+  /** 1–9; частка нагороди в пати (як у клієнта). */
+  partySize?: number;
+  /** 1–10; множник (Whirlwind cleave). */
+  lootMultiplier?: number;
+  /** Застаріло — сервер рахує EXP/SP з mobId. */
   earnedExp?: number;
   earnedSp?: number;
   earnedAdena?: number;

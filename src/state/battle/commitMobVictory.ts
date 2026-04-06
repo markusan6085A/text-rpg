@@ -41,6 +41,8 @@ export type MobVictoryCommitParams = {
   postVictoryCp: number;
   /** Якщо задано (напр. Whirlwind) — ці значення вже з множником, не перераховуємо з mob. */
   rewardOverrides?: { adenaGain: number; expGain: number; spGain: number };
+  /** Множник нагороди (Whirlwind cleave); сервер обмежує 1–10. */
+  lootMultiplier?: number;
   /** true = recalculateAllStats.finalStats (після attack skill), false = baseFinalStats (після автоатаки) */
   useBuffedBattleStats?: boolean;
   zoneId?: string;
@@ -151,6 +153,7 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
     postVictoryMp,
     postVictoryCp,
     rewardOverrides,
+    lootMultiplier = 1,
     useBuffedBattleStats = false,
     zoneId,
     mobIndex,
@@ -437,15 +440,17 @@ export function commitMobVictoryToHeroStore(params: MobVictoryCommitParams): {
         0
       );
 
+      const partySizePayload = Math.max(1, Math.min(9, partyN || 1));
+      const lootMultPayload = Math.max(1, Math.min(10, Math.floor(Number(lootMultiplier) || 1)));
+
       let finishPayload = {
         mobId: String(mob.id ?? ""),
         finishNonce,
         expectedRevision: Number.isFinite(expectedRevision) && expectedRevision >= 0 ? expectedRevision : 0,
         spoiled: mobSpoiled,
         zoneId: zoneId,
-        earnedExp: displayExp,
-        earnedSp: displaySp,
-        earnedAdena: displayAdena,
+        partySize: partySizePayload,
+        lootMultiplier: lootMultPayload,
         newLevel: updatedHero.level,
         newExp: updatedHero.exp,
         newSp: updatedHero.sp,
