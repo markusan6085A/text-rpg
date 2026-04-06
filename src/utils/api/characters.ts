@@ -1,5 +1,8 @@
 import { apiRequest } from "./core";
-import { applyRevisionConflictFromApiError } from "../../state/heroStore";
+import {
+  applyRevisionConflictFromApiError,
+  getExpectedHeroRevisionForMutation,
+} from "../../state/heroStore";
 import { maxRevisionFromConflictBody } from "../revisionConflictBody";
 import type {
   Character,
@@ -249,18 +252,32 @@ export async function postCharacterGkTeleport(
 export async function resurrectCharacter(
   id: string,
   ratio?: number,
-  expectedRevision?: number
+  _expectedRevision?: number
 ): Promise<Character> {
-  const body: Record<string, unknown> = {};
-  if (ratio != null && ratio < 1) body.ratio = ratio;
-  if (Number.isFinite(Number(expectedRevision)) && Number(expectedRevision) >= 0) {
-    body.expectedRevision = Number(expectedRevision);
+  const buildBody = (rev: number) => {
+    const body: Record<string, unknown> = {};
+    if (ratio != null && ratio < 1) body.ratio = ratio;
+    if (Number.isFinite(rev) && rev >= 0) body.expectedRevision = rev;
+    return body;
+  };
+
+  const post = (rev: number) =>
+    apiRequest<CharacterResponse>(`/characters/${encodeURIComponent(id)}/resurrect`, {
+      method: "POST",
+      body: JSON.stringify(buildBody(rev)),
+    });
+
+  let rev = getExpectedHeroRevisionForMutation();
+  try {
+    const response = await post(rev);
+    return response.character;
+  } catch (e: any) {
+    if (e?.status !== 409) throw e;
+    applyRevisionConflictFromApiError(e);
+    const rev2 = await resolveRevisionAfter409Conflict(id, e);
+    const response = await post(rev2);
+    return response.character;
   }
-  const response = await apiRequest<CharacterResponse>(`/characters/${id}/resurrect`, {
-    method: 'POST',
-    body: JSON.stringify(body),
-  });
-  return response.character;
 }
 
 function parseHeroJsonFromCharacter(raw: unknown): Record<string, any> {

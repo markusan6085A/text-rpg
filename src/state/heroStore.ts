@@ -795,6 +795,19 @@ export const useHeroStore = create<HeroState>((set, get) => ({
 }));
 
 /**
+ * Свіжа `expectedRevision` для CAS-мутацій: `serverState` має пріоритет над `heroJson.heroRevision`.
+ */
+export function getExpectedHeroRevisionForMutation(): number {
+  const store = useHeroStore.getState();
+  const raw =
+    store.serverState?.heroRevision ??
+    (store.hero as any)?.heroJson?.heroRevision ??
+    0;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
+/**
  * Після 409 revision_conflict: вирівняти heroRevision з тілом відповіді (точка істини сервера).
  * Інакше mergeHeroRevisionMonotonic залишає «здуту» локальну ревізію — PvE start/attack постійно 409.
  */
