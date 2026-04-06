@@ -37,10 +37,41 @@ export function getCombinedHeroBuffs(
   return filterBuffsForHeroProfession(hero, deduped);
 }
 
+/**
+ * Зіпсований snapshot (після невдалого PUT/local merge) часто має displayResources 1/1/1 при нормальних baseMax*.
+ * Такі значення не використовуємо — інакше HUD/стати залишаються на 1 HP назавжди.
+ */
+export function trustHeroJsonDisplayResources(
+  dr: unknown,
+  heroJson: Record<string, unknown>,
+  level: number,
+): boolean {
+  if (!dr || typeof dr !== "object") return false;
+  const d = dr as Record<string, unknown>;
+  const mh = Math.floor(Number(d.maxHp));
+  const mm = Math.floor(Number(d.maxMp));
+  const mc = Math.floor(Number(d.maxCp));
+  if (!Number.isFinite(mh) || !Number.isFinite(mm) || !Number.isFinite(mc)) return false;
+  if (mh < 1 || mm < 1 || mc < 1) return false;
+  const lv = Math.max(1, Math.floor(Number(level)));
+  if (lv > 1 && mh <= 1 && mm <= 1 && mc <= 1) return false;
+  const bhp = Math.floor(Number(heroJson.baseMaxHp ?? 0));
+  const bmp = Math.floor(Number(heroJson.baseMaxMp ?? 0));
+  const bcp = Math.floor(Number(heroJson.baseMaxCp ?? 0));
+  if (Number.isFinite(bhp) && bhp > 1 && mh < bhp) return false;
+  if (Number.isFinite(bmp) && bmp > 1 && mm < bmp) return false;
+  if (Number.isFinite(bcp) && bcp > 1 && mc < bcp) return false;
+  return true;
+}
+
 export function getHeroBuffedResourceCaps(hero: Hero, inBattle: boolean) {
   const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
   const dr = hj.displayResources;
-  if (dr && typeof dr === "object") {
+  if (
+    dr &&
+    typeof dr === "object" &&
+    trustHeroJsonDisplayResources(dr, hj, Number(hero.level ?? 1))
+  ) {
     const mh = Math.floor(Number(dr.maxHp));
     const mm = Math.floor(Number(dr.maxMp));
     const mc = Math.floor(Number(dr.maxCp));
@@ -58,7 +89,11 @@ export function getHeroResourceValues(hero: Hero, inBattle: boolean) {
   const caps = getHeroBuffedResourceCaps(hero, inBattle);
   const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
   const dr = hj.displayResources;
-  if (dr && typeof dr === "object") {
+  if (
+    dr &&
+    typeof dr === "object" &&
+    trustHeroJsonDisplayResources(dr, hj, Number(hero.level ?? 1))
+  ) {
     const mh = Math.floor(Number(dr.maxHp));
     const mm = Math.floor(Number(dr.maxMp));
     const mc = Math.floor(Number(dr.maxCp));

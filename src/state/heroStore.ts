@@ -23,6 +23,7 @@ import { showToast } from "./toastStore";
 import { autoDetectArmorType, autoDetectGrade } from "../utils/items/autoDetectArmorType";
 import { isStackableHeroItem } from "./heroStore/inventoryOverflow";
 import { maxRevisionFromConflictBody } from "../utils/revisionConflictBody";
+import { trustHeroJsonDisplayResources } from "../utils/heroBuffedResources";
 import { getMaxResources } from "./battle/helpers/getMaxResources";
 
 export const INVENTORY_MAX_ITEMS = 100;
@@ -978,13 +979,24 @@ export function applyCharacterSnapshotFromApi(character: unknown, opts?: ApplyCh
   }
 
   const drSnap = heroJson.displayResources;
-  if (drSnap && typeof drSnap === "object") {
+  if (
+    drSnap &&
+    typeof drSnap === "object" &&
+    trustHeroJsonDisplayResources(drSnap, heroJson as Record<string, unknown>, level)
+  ) {
     const h = Number(drSnap.hp);
     const m = Number(drSnap.mp);
     const cpv = Number(drSnap.cp);
     if (Number.isFinite(h) && h >= 0) partial.hp = h;
     if (Number.isFinite(m) && m >= 0) partial.mp = m;
     if (Number.isFinite(cpv) && cpv >= 0) partial.cp = cpv;
+  } else {
+    const hjHp = Number(heroJson.hp);
+    const hjMp = Number(heroJson.mp);
+    const hjCp = Number(heroJson.cp);
+    if (Number.isFinite(hjHp) && hjHp >= 0) partial.hp = hjHp;
+    if (Number.isFinite(hjMp) && hjMp >= 0) partial.mp = hjMp;
+    if (Number.isFinite(hjCp) && hjCp >= 0) partial.cp = hjCp;
   }
 
   store.applyServerSync(partial, {

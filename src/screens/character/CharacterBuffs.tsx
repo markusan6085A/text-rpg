@@ -8,7 +8,7 @@ import { getCharacter } from "../../utils/api";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { SKILL_ICON_ERROR_FALLBACK } from "../../utils/skillIconUrls";
 
-/** Як у loadHeroFromAPI: не підміняти локальні бафи (GM-скроли, статуя) застарілим GET, коли на сервері їх ще нема. */
+/** Об’єднання при serverRev > localRev: нові бафи з сервера + локальні ключі, для одного ключа — довший expiresAt. */
 function mergeHeroJsonBuffsPreferLatest(localArr: any[], serverArr: any[], now: number): any[] {
   const byKey = (b: any) => `${b.id ?? ""}_${b.stackType ?? ""}_${b.name ?? ""}`;
   const raw = [...(Array.isArray(localArr) ? localArr : []), ...(Array.isArray(serverArr) ? serverArr : [])];
@@ -53,6 +53,13 @@ export default function CharacterBuffs() {
           : [];
 
         const now = Date.now();
+        const serverRev = Number((data as any)?.heroJson?.heroRevision ?? 0);
+        const localRev = Number((cur as any)?.heroJson?.heroRevision ?? 0);
+        // При однаковій ревізії GET не застосовуємо: merge з сервером постійно повертав зняті бафи зі статуї/скролів.
+        if (!Number.isFinite(serverRev) || !Number.isFinite(localRev) || serverRev <= localRev) {
+          return;
+        }
+
         const merged = mergeHeroJsonBuffsPreferLatest(localBuffs, serverBuffs, now);
         const localClean = cleanupBuffs(localBuffs, now);
         if (!disposed && JSON.stringify(merged) !== JSON.stringify(localClean)) {

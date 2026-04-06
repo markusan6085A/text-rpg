@@ -4,7 +4,6 @@ import { syncHeroBuffsAPI } from "./characters";
 
 /**
  * Запис heroBuffs у БД (CAS + санітизація на сервері). Канонічний список бафів після успіху — з відповіді API.
- * При помилці: resync героя з сервера, щоб клієнт не розходився з онлайн-станом.
  */
 export function scheduleHeroBuffsSync(heroBuffs: any[]): void {
   const hero = useHeroStore.getState().hero;
@@ -23,12 +22,9 @@ export function scheduleHeroBuffsSync(heroBuffs: any[]): void {
   })
     .then((res) => {
       if (!res?.ok || !res.character) return;
-      const hj = (res.character as any)?.heroJson ?? {};
-      const prior = Number(res.priorRevisionUsed ?? 0);
-      const nextRev = Number(hj.heroRevision ?? 0);
-      // Бекенд без sync: revision не зростає — не підміняти локальні бафи відповіддю зі старим heroBuffs.
-      if (!Number.isFinite(nextRev) || nextRev <= prior) return;
+      // Після успішного POST/PUT sync — snapshot з сервера завжди застосовуємо (ревізія timestamp; порівняння next<=prior відсіювало валідні відповіді).
       applyCharacterSnapshotFromApi(res.character);
+      const hj = (res.character as any)?.heroJson ?? {};
       const store = useHeroStore.getState();
       const heroName = store.hero?.name;
       if (heroName) {
@@ -54,9 +50,6 @@ export function scheduleHeroBuffsSync(heroBuffs: any[]): void {
         .then(({ showToast }) => {
           showToast("Бафи не збереглися на сервері (оновіть сторінку або спробуйте знову).", "error");
         })
-        .catch(() => {});
-      void import("../../state/heroStore/heroLoadAPI")
-        .then(({ loadHeroFromAPI }) => loadHeroFromAPI())
         .catch(() => {});
     });
 }
