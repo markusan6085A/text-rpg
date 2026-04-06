@@ -56,7 +56,7 @@ const SCROLL_EFFECTS: Record<string, { buffId: number; buffName: string; effects
   gm_bless_scroll_guidance: {
     buffId: ID.guidance,
     buffName: "Guidance (скрол)",
-    effects: [{ stat: "accuracy", mode: "flat", value: 4 }],
+    effects: [{ stat: "accuracy", mode: "percent", value: 8 }],
   },
   /** Лише ближній бій (без лука): див. baseAttack / handleAttackSkill */
   gm_bless_scroll_vampiric_rage: {

@@ -12,7 +12,7 @@ export const GM_BLESS_SCROLL_EFFECTS: Record<string, { buffId: number; buffName:
   gm_bless_scroll_haste:          { buffId: -971002, buffName: "Haste (скрол)",            effects: [{ stat: "atkSpeed",              mode: "percent",    value: 15  }] },
   gm_bless_scroll_focus:          { buffId: -971003, buffName: "Focus (скрол)",            effects: [{ stat: "crit",                  mode: "percent",    value: 25  }] },
   gm_bless_scroll_death_whisper:  { buffId: -971004, buffName: "Death Whisper (скрол)",   effects: [{ stat: "critPower",             mode: "percent",    value: 35  }] },
-  gm_bless_scroll_guidance:       { buffId: -971005, buffName: "Guidance (скрол)",         effects: [{ stat: "accuracy",              mode: "flat",       value: 4   }] },
+  gm_bless_scroll_guidance:       { buffId: -971005, buffName: "Guidance (скрол)",         effects: [{ stat: "accuracy",              mode: "percent",    value: 8   }] },
   gm_bless_scroll_vampiric_rage:  { buffId: -971006, buffName: "Vampiric Rage (скрол)",   effects: [{ stat: "vampirismMelee",        mode: "flat",       value: 6   }] },
   gm_bless_scroll_empower:        { buffId: -971007, buffName: "Empower (скрол)",          effects: [{ stat: "mAtk",                  mode: "percent",    value: 75  }] },
   gm_bless_scroll_acumen:         { buffId: -971008, buffName: "Acumen (скрол)",           effects: [{ stat: "castSpeed",             mode: "percent",    value: 30  }] },

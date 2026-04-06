@@ -48,7 +48,7 @@ export const itemsDBGmBlessSoulScrolls: Record<string, ItemDefinition> = {
     slot: "consumable",
     stackable: true,
     icon: GM_BLESS_SOUL_SCROLL_ICON,
-    description: `+4 точності (Accuracy). ${DUR}.`,
+    description: `+8% точності (Accuracy). ${DUR}.`,
   },
   gm_bless_scroll_vampiric_rage: {
     id: "gm_bless_scroll_vampiric_rage",
