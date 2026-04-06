@@ -40,15 +40,27 @@ export function getCombinedHeroBuffs(
 export function getHeroBuffedResourceCaps(hero: Hero, inBattle: boolean) {
   const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
   const dr = hj.displayResources;
+  /** Не довіряємо серверному HUD, якщо max нижчі за client base (типовий баг: baseMax* у БД = 1, displayResources 1/1/1). */
+  const baseMax = getMaxResources(hero);
+  const hudMinRatio = 0.92;
   if (dr && typeof dr === "object") {
     const mh = Math.floor(Number(dr.maxHp));
     const mm = Math.floor(Number(dr.maxMp));
     const mc = Math.floor(Number(dr.maxCp));
-    if (Number.isFinite(mh) && mh > 0 && Number.isFinite(mm) && mm > 0 && Number.isFinite(mc) && mc > 0) {
+    const serverHudPlausible =
+      Number.isFinite(mh) &&
+      mh > 0 &&
+      Number.isFinite(mm) &&
+      mm > 0 &&
+      Number.isFinite(mc) &&
+      mc > 0 &&
+      mh >= Math.floor(baseMax.maxHp * hudMinRatio) &&
+      mm >= Math.floor(baseMax.maxMp * hudMinRatio) &&
+      mc >= Math.floor(baseMax.maxCp * hudMinRatio);
+    if (serverHudPlausible) {
       return { maxHp: mh, maxMp: mm, maxCp: mc };
     }
   }
-  const baseMax = getMaxResources(hero);
   const buffs = getCombinedHeroBuffs(hero, inBattle);
   return computeBuffedMaxResources(baseMax, buffs);
 }
@@ -76,10 +88,26 @@ export function getHeroResourceValues(hero: Hero, inBattle: boolean) {
       };
     }
   }
+  let hp = hero.hp ?? caps.maxHp;
+  let mp = hero.mp ?? caps.maxMp;
+  let cp = hero.cp ?? caps.maxCp;
+  // Після відсічення битого displayResources чи БД з baseMax*=1 поточні 1/1/1 при нормальних cap — показуємо повні смуги (не бій).
+  if (
+    !inBattle &&
+    caps.maxHp > 40 &&
+    caps.maxMp > 15 &&
+    Number(hero.hp) === 1 &&
+    Number(hero.mp) === 1 &&
+    Number(hero.cp) === 1
+  ) {
+    hp = caps.maxHp;
+    mp = caps.maxMp;
+    cp = caps.maxCp;
+  }
   return {
-    hp: hero.hp ?? caps.maxHp,
-    mp: hero.mp ?? caps.maxMp,
-    cp: hero.cp ?? caps.maxCp,
+    hp,
+    mp,
+    cp,
     maxHp: caps.maxHp,
     maxMp: caps.maxMp,
     maxCp: caps.maxCp,
