@@ -2,12 +2,17 @@
 // У production на l2dop.com запити йдуть через /api → Vercel rewrite на api.l2dop.com
 // За замовчуванням відносний /api: і прод (rewrite), і dev (Vite proxy) — один origin, cookies (admin_session) працюють.
 // Якщо треба прямий бекенд без проксі — задати VITE_API_URL=http://localhost:3000
-export const API_URL =
-  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "/api";
+import { upgradeApiBaseForPageProtocol } from "./publicApiBase";
 
-if (typeof window !== 'undefined' && import.meta.env.DEV) {
+const rawApiUrl =
+  import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "/api";
+export const API_URL = upgradeApiBaseForPageProtocol(rawApiUrl);
+
+if (typeof window !== "undefined") {
   (window as any).__API_URL__ = API_URL;
-  (window as any).__VITE_API_URL__ = import.meta.env.VITE_API_URL || 'NOT SET';
+  if (import.meta.env.DEV) {
+    (window as any).__VITE_API_URL__ = import.meta.env.VITE_API_URL || "NOT SET";
+  }
 }
 
 export interface ApiError {
