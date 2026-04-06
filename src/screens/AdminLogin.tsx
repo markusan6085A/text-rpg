@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { adminLogin, adminCheck, listCharacters } from "../utils/api";
+import { adminLogin, adminCheck } from "../utils/api";
 import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
-import { useCharacterStore } from "../state/characterStore";
-import { useHeroStore } from "../state/heroStore";
-import { loadHeroFromAPI } from "../state/heroStore/heroLoadAPI";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
-import { hardReloadOnceAfterAuth } from "../utils/hardReloadForNewAppBundle";
 
 interface AdminLoginProps {
   navigate: (path: string) => void;
@@ -62,18 +58,9 @@ export default function AdminLogin({ navigate, navigateNoReload }: AdminLoginPro
       const data = await adminLogin(login.trim(), password);
       if (data.accessToken) {
         useAuthStore.getState().setAccessToken(data.accessToken);
-        await useAdminStore.getState().checkAdmin();
+        await useAdminStore.getState().recheckAdminAfterLogin();
         const go = navigateNoReload ?? navigate;
-        const chars = await listCharacters();
-        if (chars.length === 0) {
-          go("/register");
-          return;
-        }
-        useCharacterStore.getState().setCharacterId(chars[0].id);
-        const hero = await loadHeroFromAPI();
-        if (hero) useHeroStore.getState().setHero(hero);
-        if (hardReloadOnceAfterAuth("/city")) return;
-        go("/city");
+        go("/admin");
       } else {
         navigate("/admin");
       }

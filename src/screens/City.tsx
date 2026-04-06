@@ -1,7 +1,6 @@
 // src/screens/City.tsx
 import React from "react";
 import { useHeroStore } from "../state/heroStore";
-import { useAdminStore } from "../state/adminStore";
 import { setString } from "../state/persistence";
 import { loadBattle } from "../state/battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
@@ -32,7 +31,6 @@ const City: React.FC<CityProps> = ({ navigate }) => {
   useGameSettingsVersion();
   const hero = useHeroStore((s) => s.hero);
   const updateHero = useHeroStore((s) => s.updateHero);
-  const isAdmin = useAdminStore((s) => s.isAdmin);
   const [cityUi, setCityUi] = React.useState<CityUiVariant>(() =>
     getCityUiVariant(),
   );
@@ -54,11 +52,6 @@ const City: React.FC<CityProps> = ({ navigate }) => {
       : `w-full text-left text-[12px] py-1.5 border-b border-solid border-black/60 flex items-center gap-2 ${classes}`;
 
   const ico = isL2 ? "w-3.5 h-3.5 object-contain shrink-0" : "w-3 h-3 object-contain shrink-0";
-
-  // Перевірка адміна при відкритті міста (для кнопки «Забафать» в соціальному списку)
-  React.useEffect(() => {
-    useAdminStore.getState().checkAdmin().catch(() => {});
-  }, []);
 
   React.useEffect(() => {
     if (hero) {
@@ -588,19 +581,6 @@ const City: React.FC<CityProps> = ({ navigate }) => {
             <img src="/assets/ipvp.png" alt="Кланы" className={ico} />
             <span>Кланы</span>
           </button>
-
-          {isAdmin && (
-            <button
-              className={
-                isL2
-                  ? "w-full text-left text-[11px] text-[#c7ad80] py-1.5 px-2.5 mt-1.5 rounded-md border border-amber-800/35 bg-black/25 hover:bg-black/35 hover:text-[#e8d5b5] flex items-center gap-2"
-                  : "w-full text-left text-[12px] text-[#c7ad80] py-1.5 border-t border-[#c7ad80]/30 mt-2 pt-2 hover:text-[#e8d5b5] flex items-center gap-2"
-              }
-              onClick={() => navigate("/admin")}
-            >
-              <span>Адмін</span>
-            </button>
-          )}
         </div>
       </div>
     </div>
