@@ -6,8 +6,6 @@ import { useHeroStore } from "../../state/heroStore";
 import { loadHeroFromAPI } from "../../state/heroStore/heroLoadAPI";
 import { adminItemInlineButtonClass, getAdminItemPickerHighlight } from "../../utils/adminItemSourceSets";
 import { handleResourceIconError, normalizeIconPath } from "../../utils/itemIcon";
-import { shouldOmitItemFromAdminPicker } from "../../utils/adminResourceAllowlist";
-
 const style = { color: "#c7ad80" };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -29,9 +27,14 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: "Інше",
 };
 
+/** Псевдо-предмети валюти — окремі адмін-ендпоінти; в інвентар як рядок не видавати. */
 const ADMIN_NO_GIVE_IDS = new Set([
-  "adena", "coin_of_luck", "coins_silver", "ancient_adena", "tvt_coin",
-  "overflow_chest", "current_character_id",
+  "adena",
+  "coin_of_luck",
+  "coins_silver",
+  "ancient_adena",
+  "overflow_chest",
+  "current_character_id",
 ]);
 
 function getCategory(kind: string): string {
@@ -57,21 +60,24 @@ export function AdminSectionItems({ navigate }: AdminSectionItemsProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  // Не викликати removeItem після читання: у React 18 Strict Mode ефект двічі → другий раз ключ уже порожній і поле ID губиться.
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem("adminSelectedItemId");
-      if (saved) {
-        setItemId(saved);
-        sessionStorage.removeItem("adminSelectedItemId");
-      }
+      if (saved) setItemId(saved);
     } catch (_) {}
+    const onPicked = (ev: Event) => {
+      const id = (ev as CustomEvent<{ id?: string }>).detail?.id;
+      if (id) setItemId(id);
+    };
+    window.addEventListener("admin-item-picked", onPicked);
+    return () => window.removeEventListener("admin-item-picked", onPicked);
   }, []);
 
   const itemsByCategory = useMemo(() => {
     const map: Record<string, Array<{ id: string; name: string; grade?: string; icon?: string }>> = {};
     for (const [id, def] of Object.entries(itemsDB)) {
       if (ADMIN_NO_GIVE_IDS.has(id)) continue;
-      if (shouldOmitItemFromAdminPicker(id, def)) continue;
       if (!def?.name && !def?.id) continue;
       const cat = getCategory(def.kind || def.slot || "other");
       if (!map[cat]) map[cat] = [];

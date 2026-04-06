@@ -179,8 +179,12 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
   );
 
   const ADMIN_NO_GIVE_IDS = new Set([
-    "adena", "coin_of_luck", "coins_silver", "ancient_adena", "tvt_coin",
-    "overflow_chest", "current_character_id",
+    "adena",
+    "coin_of_luck",
+    "coins_silver",
+    "ancient_adena",
+    "overflow_chest",
+    "current_character_id",
   ]);
 
   // POST /admin/player/:characterId/give-item — { itemId, qty }
@@ -201,11 +205,12 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         });
         return reply.code(400).send({ error: "characterId and itemId required" });
       }
-      if (ADMIN_NO_GIVE_IDS.has(itemId.toLowerCase())) {
+      const itemKey = itemId.trim();
+      if (ADMIN_NO_GIVE_IDS.has(itemKey.toLowerCase())) {
         await logAdminFailed(req, "admin.give_item", {
           message: "item not allowed for admin give",
           targetCharacterId: characterId,
-          metadata: { itemId, qty, slot },
+          metadata: { itemId: itemKey, qty, slot },
         });
         return reply.code(400).send({ error: "This item cannot be given via admin" });
       }
@@ -218,26 +223,24 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         await logAdminFailed(req, "admin.give_item", {
           message: "character not found",
           targetCharacterId: characterId,
-          metadata: { itemId, qty, slot },
+          metadata: { itemId: itemKey, qty, slot },
         });
         return reply.code(404).send({ error: "character not found" });
       }
 
+      const rowIdNorm = (x: any) => String(x?.id ?? x?.itemId ?? "").trim().toLowerCase();
       const heroJson = (char.heroJson as any) || {};
       const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
       const inventoryBefore = inventory.map((x) => ({ id: x?.id ?? x?.itemId, count: Number(x?.count ?? 1) }));
-      const existing = inventory.find((x: any) => (x.id || x.itemId) === itemId);
+      const needle = itemKey.toLowerCase();
+      const existing = inventory.find((x: any) => rowIdNorm(x) === needle);
       if (existing) {
         existing.count = (existing.count ?? 1) + qty;
       } else {
-        inventory.push({ id: itemId, name: itemId, slot, count: qty });
+        inventory.push({ id: itemKey, name: itemKey, slot, count: qty });
       }
-      const newHeroJson = {
-        ...heroJson,
-        inventory,
-        heroRevision: Date.now(),
-        heroJsonVersion: heroJson.heroJsonVersion || 1,
-      };
+      const oldRev = Number(heroJson.heroRevision ?? 0) || 0;
+      const newHeroJson = addVersioning({ ...heroJson, inventory }, oldRev);
       await prisma.character.update({
         where: { id: characterId },
         data: { heroJson: newHeroJson },
@@ -261,12 +264,13 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       const characterId = String((req.params as any).characterId ?? "").trim();
       const body = req.body as any;
       const itemId = String(body?.itemId ?? "").trim();
+      const itemKey = itemId;
       const qty = Math.max(1, Number(body?.qty ?? 1));
-      if (!characterId || !itemId) {
+      if (!characterId || !itemKey) {
         await logAdminFailed(req, "admin.take_item", {
           message: "characterId and itemId required",
           targetCharacterId: characterId || null,
-          metadata: { itemId, qty },
+          metadata: { itemId: itemKey, qty },
         });
         return reply.code(400).send({ error: "characterId and itemId required" });
       }
@@ -279,21 +283,23 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         await logAdminFailed(req, "admin.take_item", {
           message: "character not found",
           targetCharacterId: characterId,
-          metadata: { itemId, qty },
+          metadata: { itemId: itemKey, qty },
         });
         return reply.code(404).send({ error: "character not found" });
       }
 
+      const rowIdNorm = (x: any) => String(x?.id ?? x?.itemId ?? "").trim().toLowerCase();
       const heroJson = (char.heroJson as any) || {};
       const inventory: any[] = Array.isArray(heroJson.inventory) ? [...heroJson.inventory] : [];
       const inventoryBefore = inventory.map((x) => ({ id: x?.id ?? x?.itemId, count: Number(x?.count ?? 1) }));
-      const idx = inventory.findIndex((x: any) => (x.id || x.itemId) === itemId);
+      const needle = itemKey.toLowerCase();
+      const idx = inventory.findIndex((x: any) => rowIdNorm(x) === needle);
       if (idx === -1) {
         await logAdminFailed(req, "admin.take_item", {
           message: "item not found in inventory",
           targetCharacterId: characterId,
           targetCharacterName: char.name,
-          metadata: { itemId, qty },
+          metadata: { itemId: itemKey, qty },
         });
         return reply.code(400).send({ error: "item not found in inventory" });
       }
@@ -305,12 +311,8 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
       } else {
         entry.count = current - remove;
       }
-      const newHeroJson = {
-        ...heroJson,
-        inventory,
-        heroRevision: Date.now(),
-        heroJsonVersion: heroJson.heroJsonVersion || 1,
-      };
+      const oldRev = Number(heroJson.heroRevision ?? 0) || 0;
+      const newHeroJson = addVersioning({ ...heroJson, inventory }, oldRev);
       await prisma.character.update({
         where: { id: characterId },
         data: { heroJson: newHeroJson },
