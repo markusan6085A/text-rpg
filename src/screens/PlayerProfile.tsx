@@ -842,7 +842,17 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   const pk = stats.pk || 0;
   // 🔥 mobsKilled може зберігатися в різних полях - перевіряємо всі варіанти
   // Виправлено: прибрав дублювання stats.mobsKilled
-  const mobsKilled = stats.mobsKilled ?? stats.mobs_killed ?? stats.killedMobs ?? stats.totalKills ?? 0;
+  const mobsKilled = Math.max(
+    0,
+    Number(
+      (heroData as any)?.mobsKilled ??
+        stats.mobsKilled ??
+        stats.mobs_killed ??
+        stats.killedMobs ??
+        stats.totalKills ??
+        0,
+    ) || 0,
+  );
   const pvpWins = stats.pvpWins || stats.pvp_wins || 0;
   const pvpLosses = stats.pvpLosses || stats.pvp_losses || 0;
   const profileLocationLabel = formatPublicProfileLocation(

@@ -7,6 +7,13 @@ import type { Hero } from "../../types/Hero";
 import { hydrateHero } from "./heroHydration";
 import { getExpToNext, MAX_LEVEL, normalizeLevelExpPair } from "../../data/expTable";
 
+/** partial.heroJson після hydrate не має відкатувати накопичувальний лічильник. */
+function clampHeroJsonMobsKilledToHero(mergedHj: Record<string, any>, heroMobs: unknown): void {
+  const floor = Math.max(0, Math.floor(Number(heroMobs ?? 0) || 0));
+  const cur = Math.max(0, Math.floor(Number(mergedHj.mobsKilled ?? 0) || 0));
+  if (cur < floor) mergedHj.mobsKilled = floor;
+}
+
 /** Обчислює level і exp після level-up (QuestShop, адмін бонуси, тощо) */
 function computeLevelFromExp(level: number, exp: number): { level: number; exp: number } {
   const XP_RATE = 1;
@@ -233,7 +240,7 @@ export function updateHeroLogic(
   // 🔥 При кожному оживленні або збільшенні HP скидаємо isDead/deadAt у heroJson, щоб смерть не «липла»
   if (finalHp > 0) {
     const hj = (result as any).heroJson || {};
-    (result as any).heroJson = {
+    const mergedHj: Record<string, any> = {
       ...hj,
       ...((partial as any).heroJson || {}),
       isDead: false,
@@ -242,17 +249,21 @@ export function updateHeroLogic(
         ? (partial as any).heroJson.heroBuffs
         : (hj.heroBuffs ?? (prev as any).heroJson?.heroBuffs ?? []),
     };
+    clampHeroJsonMobsKilledToHero(mergedHj, (result as any).mobsKilled);
+    (result as any).heroJson = mergedHj;
   } else {
     const target = (result as any);
     const existingHeroJson = target.heroJson || {};
     const newHeroBuffs = (partial as any).heroJson?.heroBuffs !== undefined
       ? (partial as any).heroJson.heroBuffs
       : (existingHeroJson.heroBuffs || (prev as any).heroJson?.heroBuffs || []);
-    target.heroJson = {
+    const mergedHj: Record<string, any> = {
       ...existingHeroJson,
       ...((partial as any).heroJson || {}),
       heroBuffs: newHeroBuffs,
     };
+    clampHeroJsonMobsKilledToHero(mergedHj, (result as any).mobsKilled);
+    target.heroJson = mergedHj;
   }
 
   return result;

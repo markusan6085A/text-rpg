@@ -239,7 +239,13 @@ export function characterToProfileHeroData(character: Character) {
     cp: heroJson.cp || heroJson.maxCp || 0,
     maxCp: heroJson.maxCp || 0,
     location,
-    mobsKilled: heroJson.mobsKilled ?? heroJson.mobs_killed ?? heroJson.killedMobs ?? heroJson.totalKills ?? undefined,
+    mobsKilled:
+      (character as any).mobsKilled ??
+      heroJson.mobsKilled ??
+      heroJson.mobs_killed ??
+      heroJson.killedMobs ??
+      heroJson.totalKills ??
+      undefined,
     nickColor,
   };
 }
