@@ -3,6 +3,8 @@ import { itemsDB, itemsDBWithStarter } from "../data/items/itemsDB";
 import { calculateEnchantedStats, getSetInfo } from "../screens/character/inventoryUtils";
 import { SetBonusDisplay } from "../screens/character/SetBonusDisplay";
 import type { HeroInventoryItem } from "../types/Hero";
+import { resolveDisplayGrade } from "../utils/itemGrade";
+import { getWeaponAccuracyBonusByGrade } from "../utils/stats/weaponGradeAccuracy";
 
 interface PlayerItemModalProps {
   itemId: string | null;
@@ -40,6 +42,11 @@ export default function PlayerItemModal({
   }, [item]);
 
   const setInfoText = useMemo(() => (item ? getSetInfo(item) : null), [item]);
+
+  const weaponAccBonus = useMemo(() => {
+    if (!item || !itemDef || !enchantedStats?.isWeapon) return 0;
+    return getWeaponAccuracyBonusByGrade(resolveDisplayGrade(item, itemDef));
+  }, [item, itemDef, enchantedStats?.isWeapon]);
 
   if (!itemId) {
     return null;
@@ -153,6 +160,12 @@ export default function PlayerItemModal({
                   <span className="text-[#b8860b] ml-1">(+{weaponMAtkEnchantFlat})</span>
                 )}
               </span>
+            </div>
+          )}
+          {isWeapon && weaponAccBonus > 0 && (
+            <div className="flex justify-between">
+              <span className="text-gray-400">Точність:</span>
+              <span className="text-sky-300">+{weaponAccBonus}</span>
             </div>
           )}
           {pDef !== undefined && pDef > 0 && (

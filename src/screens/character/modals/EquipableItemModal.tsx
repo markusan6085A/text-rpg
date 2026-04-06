@@ -2,7 +2,9 @@ import React from "react";
 import { calculateEnchantedStats, getSetInfo, getLSDescriptionLines } from "../inventoryUtils";
 import { SetBonusDisplay } from "../SetBonusDisplay";
 import type { HeroInventoryItem } from "../../../types/Hero";
-import { itemsDB } from "../../../data/items/itemsDB";
+import { itemsDB, itemsDBWithStarter } from "../../../data/items/itemsDB";
+import { resolveDisplayGrade } from "../../../utils/itemGrade";
+import { getWeaponAccuracyBonusByGrade } from "../../../utils/stats/weaponGradeAccuracy";
 import { normalizeIconPath } from "../../../utils/itemIcon";
 import {
   characterModalBorderT,
@@ -42,9 +44,18 @@ export default function EquipableItemModal({
     jewelryMDefEnchantFlat = 0,
     armorHpEnchantFlat = 0,
   } = enchantedStats;
-  const hasAnyStats = Object.keys(baseStats).length > 0 || pAtk !== undefined || mAtk !== undefined || pDef !== undefined || mDef !== undefined;
-  const itemDef = itemsDB[item.id];
+  const itemDef = itemsDBWithStarter[item.id] || itemsDB[item.id];
   const displayName = itemDef?.name || item.name || item.id;
+  const weaponAccBonus = isWeapon
+    ? getWeaponAccuracyBonusByGrade(resolveDisplayGrade(item, itemDef))
+    : 0;
+  const hasAnyStats =
+    Object.keys(baseStats).length > 0 ||
+    pAtk !== undefined ||
+    mAtk !== undefined ||
+    pDef !== undefined ||
+    mDef !== undefined ||
+    (isWeapon && weaponAccBonus > 0);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={onClose}>
@@ -115,6 +126,12 @@ export default function EquipableItemModal({
                       <span className="text-[#b8860b] ml-1">(+{weaponMAtkEnchantFlat})</span>
                     )}
                   </span>
+                </div>
+              )}
+              {isWeapon && weaponAccBonus > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400">Точність:</span>
+                  <span className="text-sky-300">+{weaponAccBonus}</span>
                 </div>
               )}
               {pDef !== undefined && (
