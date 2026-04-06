@@ -107,8 +107,10 @@ export const createRegenTick =
 
     const hpAfterBleed = Math.max(0, curHP - bleedLossAfterDr);
 
-    // Завжди використовуємо АКТУАЛЬНЕ maxHp з computeBuffedMaxResources (з урахуванням бафів)
-    const nextHP = Math.min(maxHp, hpAfterBleed + hpRegen);
+    // Онлайн PvE: HP/MP/CP з снапшотів сервера; локальний реген інакше «смикає» бар між tick/attack і pve-battle-tick.
+    const nextHP = pveServerTick
+      ? Math.min(maxHp, hpAfterBleed)
+      : Math.min(maxHp, hpAfterBleed + hpRegen);
     /** Онлайн PvE: MP/CP оновлює сервер (pve-battle-tick/attack + passive regen); локальний реген інакше роз’їжджається з перевіркою not_enough_mp. */
     const nextMP = pveServerTick ? curMP : Math.min(maxMp, curMP + mpRegen);
     const nextCP = pveServerTick ? curCP : Math.min(maxCp, curCP + cpRegen);

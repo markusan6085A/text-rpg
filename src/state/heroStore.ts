@@ -947,6 +947,17 @@ export function applyCharacterSnapshotFromApi(character: unknown, opts?: ApplyCh
     heroJson.mobsKilled = mk;
   }
 
+  const dqProgSnap = heroJson.dailyQuestsProgress;
+  if (dqProgSnap != null && typeof dqProgSnap === "object" && !Array.isArray(dqProgSnap)) {
+    partial.dailyQuestsProgress = { ...(dqProgSnap as Record<string, number>) };
+  }
+  if (Array.isArray(heroJson.dailyQuestsCompleted)) {
+    partial.dailyQuestsCompleted = [...heroJson.dailyQuestsCompleted.map((x: any) => String(x))];
+  }
+  if (heroJson.dailyQuestsResetDate != null && String(heroJson.dailyQuestsResetDate).trim() !== "") {
+    partial.dailyQuestsResetDate = String(heroJson.dailyQuestsResetDate);
+  }
+
   if (typeof c.name === "string" && c.name.trim()) {
     partial.name = c.name.trim();
     heroJson.name = partial.name;

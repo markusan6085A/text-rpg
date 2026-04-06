@@ -3659,7 +3659,12 @@ export async function characterCrudRoutes(app: FastifyInstance) {
         const incoming = Math.max(0, Math.floor(Number(patch.mobsKilled)));
         // One battle-finish call may advance mobsKilled by at most +1.
         const clampedIncoming = Math.min(current + 1, incoming);
-        const next = Math.max(current, clampedIncoming);
+        let next = Math.max(current, clampedIncoming);
+        // Клієнт часто відстає від heroJson у БД після синку/вкладки — incoming ≤ current, тоді стара
+        // логіка гасила didAdvanceKillCounter і не рухала щоденні daily_kills / daily_adena_farm.
+        if (next <= current && mobId) {
+          next = current + 1;
+        }
         didAdvanceKillCounter = next > current;
         newHeroJson.mobsKilled = next;
       } else {

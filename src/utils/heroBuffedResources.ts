@@ -156,14 +156,24 @@ export function getHeroResourceValues(hero: Hero, inBattle: boolean) {
     const mh = Math.floor(Number(dr.maxHp));
     const mm = Math.floor(Number(dr.maxMp));
     const mc = Math.floor(Number(dr.maxCp));
-    if (mh === caps.maxHp && mm === caps.maxMp && mc === caps.maxCp) {
-      const h = Number(dr.hp);
-      const m = Number(dr.mp);
-      const c = Number(dr.cp);
+    const h = Number(dr.hp);
+    const m = Number(dr.mp);
+    const c = Number(dr.cp);
+    const scale = (cur: number, drMax: number, capMax: number, fallback: number | undefined) => {
+      if (!Number.isFinite(cur) || cur < 0) {
+        return Number.isFinite(fallback) && fallback !== undefined && fallback >= 0 ? fallback : capMax;
+      }
+      if (!Number.isFinite(drMax) || drMax <= 0 || !Number.isFinite(capMax) || capMax <= 0) {
+        return Math.min(capMax, cur);
+      }
+      if (drMax === capMax) return Math.min(capMax, cur);
+      return Math.min(capMax, Math.max(0, Math.round((cur / drMax) * capMax)));
+    };
+    if (Number.isFinite(mh) && mh > 0 && Number.isFinite(mm) && mm > 0 && Number.isFinite(mc) && mc > 0) {
       return {
-        hp: Number.isFinite(h) && h >= 0 ? h : hero.hp ?? caps.maxHp,
-        mp: Number.isFinite(m) && m >= 0 ? m : hero.mp ?? caps.maxMp,
-        cp: Number.isFinite(c) && c >= 0 ? c : hero.cp ?? caps.maxCp,
+        hp: scale(h, mh, caps.maxHp, hero.hp),
+        mp: scale(m, mm, caps.maxMp, hero.mp),
+        cp: scale(c, mc, caps.maxCp, hero.cp),
         maxHp: caps.maxHp,
         maxMp: caps.maxMp,
         maxCp: caps.maxCp,
