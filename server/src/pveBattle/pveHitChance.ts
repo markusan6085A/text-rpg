@@ -1,4 +1,4 @@
-/** PvE: влучання гравця по мобу (accuracy проти evasion моба). */
+/** PvE: влучання гравця по мобу (accuracy проти evasion моба). Паритет: src/utils/combat/pveHitChance.ts */
 
 export function clampPlayerAccuracy(raw: unknown): number {
   return Math.min(500, Math.max(0, Math.floor(Number(raw) || 0)));
