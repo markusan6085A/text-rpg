@@ -276,6 +276,37 @@ function parseHeroJsonFromCharacter(raw: unknown): Record<string, any> {
   return {};
 }
 
+function sleepMs(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/** Тимчасові збої (мобільний інтернет, шлюз) — безпечно повторити POST PvE. */
+export function isTransientPveRequestError(e: any): boolean {
+  if (e == null) return false;
+  const st = Number(e.status);
+  if (st === 502 || st === 503 || st === 504) return true;
+  if (Number.isFinite(st) && st > 0) return false;
+  const name = String(e.name || "");
+  const msg = String(e.message || "");
+  if (name === "AbortError") return true;
+  if (/fetch|network|failed|load failed|timeout|aborted/i.test(msg)) return true;
+  return false;
+}
+
+async function apiRequestWithTransientRetry<T>(fn: () => Promise<T>, maxAttempts = 3): Promise<T> {
+  let lastErr: any;
+  for (let a = 0; a < maxAttempts; a++) {
+    try {
+      return await fn();
+    } catch (e: any) {
+      lastErr = e;
+      if (!isTransientPveRequestError(e) || a === maxAttempts - 1) throw e;
+      await sleepMs(280 * (a + 1));
+    }
+  }
+  throw lastErr;
+}
+
 async function readHeroRevisionFromGetCharacter(characterId: string): Promise<number> {
   const char = await getCharacter(characterId);
   const hj = parseHeroJsonFromCharacter((char as any)?.heroJson);
@@ -421,21 +452,18 @@ export async function pveBattleAttackAPI(
   mobHpAfter?: number;
   killed?: boolean;
 }> {
-  let rev = data.expectedRevision;
-  try {
-    rev = await readHeroRevisionFromGetCharacter(characterId);
-  } catch {
-    rev = data.expectedRevision;
-  }
+  /** Без попереднього GET: revision уже в store після applyServerSync; при 409 — resolveRevisionAfter409Conflict. */
   const url = `/characters/${encodeURIComponent(characterId)}/pve-battle-attack`;
-  let attemptRev = rev;
+  let attemptRev = data.expectedRevision;
   let lastErr: any;
   for (let i = 0; i < 3; i++) {
     try {
-      return await apiRequest(url, {
-        method: "POST",
-        body: JSON.stringify({ ...data, expectedRevision: attemptRev }),
-      });
+      return await apiRequestWithTransientRetry(() =>
+        apiRequest(url, {
+          method: "POST",
+          body: JSON.stringify({ ...data, expectedRevision: attemptRev }),
+        })
+      );
     } catch (e: any) {
       lastErr = e;
       if (e?.status !== 409) throw e;
@@ -465,21 +493,17 @@ export async function pveBattleTickAPI(
     heroSkillsBlockedUntil?: number;
   };
 }> {
-  let rev = data.expectedRevision;
-  try {
-    rev = await readHeroRevisionFromGetCharacter(characterId);
-  } catch {
-    rev = data.expectedRevision;
-  }
   const url = `/characters/${encodeURIComponent(characterId)}/pve-battle-tick`;
-  let attemptRev = rev;
+  let attemptRev = data.expectedRevision;
   let lastErr: any;
   for (let i = 0; i < 3; i++) {
     try {
-      return await apiRequest(url, {
-        method: "POST",
-        body: JSON.stringify({ ...data, expectedRevision: attemptRev }),
-      });
+      return await apiRequestWithTransientRetry(() =>
+        apiRequest(url, {
+          method: "POST",
+          body: JSON.stringify({ ...data, expectedRevision: attemptRev }),
+        })
+      );
     } catch (e: any) {
       lastErr = e;
       if (e?.status !== 409) throw e;

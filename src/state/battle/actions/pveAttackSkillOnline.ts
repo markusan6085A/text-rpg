@@ -1,7 +1,7 @@
 import type { SkillDefinition, SkillLevelDefinition } from "../../../data/skills/types";
 import type { Hero } from "../../../types/Hero";
 import type { BattleState } from "../types";
-import { pveBattleAttackAPI } from "../../../utils/api/characters";
+import { pveBattleAttackAPI, isTransientPveRequestError } from "../../../utils/api/characters";
 import { useHeroStore, applyRevisionConflictFromApiError } from "../../heroStore";
 import { useCharacterStore } from "../../characterStore";
 import { battleStoreRef } from "../../battleStoreRef";
@@ -357,6 +357,7 @@ export function schedulePveAttackSkillOnline(args: {
       if (st === 409) {
         rollbackOptimisticPveCooldownUi();
         applyRevisionConflictFromApiError(e);
+        return;
       }
       const code = String(e?.body?.error ?? "");
       if (code === "no_battle_session" || code === "mob_dead") {
@@ -403,9 +404,14 @@ export function schedulePveAttackSkillOnline(args: {
       }
       rollbackOptimisticPveCooldownUi();
       void import("../../toastStore").then(({ showToast }) => {
-        showToast("Не вдалося застосувати удар. Спробуйте знову або оновіть гру.", "error");
+        if (isTransientPveRequestError(e)) {
+          showToast("Слабкий зв'язок або таймаут. Спробуйте удар ще раз.", "error");
+        } else if (Number.isFinite(st) && st >= 500) {
+          showToast("Сервер тимчасово недоступний. Спробуйте ще раз.", "error");
+        } else {
+          showToast("Не вдалося застосувати удар. Спробуйте знову.", "error");
+        }
       });
-      void import("../../heroStore/heroLoadAPI").then(({ loadHeroFromAPI }) => loadHeroFromAPI()).catch(() => {});
     } finally {
       attackRoundBusy = false;
     }
