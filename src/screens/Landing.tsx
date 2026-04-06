@@ -96,7 +96,7 @@ export default function Landing({ navigate, onLogin }: LandingProps) {
       // 2. Отримуємо список персонажів
       const characters = await listCharacters();
       if (characters.length === 0) {
-        setError("У аккаунта нет персонажей. Перейдите на страницу регистрации для создания персонажа.");
+        setError("У аккаунта нет персонажа. Сейчас откроется форма создания персонажа (регистрация аккаунта не требуется).");
         setIsLoading(false);
         // Автоматично перенаправляємо на реєстрацію через 2 секунди
         setTimeout(() => {

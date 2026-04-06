@@ -4,7 +4,8 @@ import { clearBattlePersist } from "../state/battle/persist";
 import { useHeroStore } from "../state/heroStore";
 import { syncCurrentUserAndAccountHero } from "../state/heroStore/heroPersistence";
 import { savePreviousCity } from "../utils/locationNavigation";
-import { register, createCharacter, updateCharacter } from "../utils/api";
+import { register, createCharacter, updateCharacter, listCharacters } from "../utils/api";
+import { getAccessToken } from "../utils/api/core";
 import { useAuthStore } from "../state/authStore";
 import { useAdminStore } from "../state/adminStore";
 import { useCharacterStore } from "../state/characterStore";
@@ -134,9 +135,19 @@ export default function Register({ navigate }: RegisterProps) {
         return;
       }
 
-      // 1. Реєстрація через API
-      const accessToken = await register(trimmedUsername, password);
-      setAccessToken(accessToken);
+      // 1. Акаунт: новий — register(); вже залогінені (напр. акаунт лишився після /admin/login) — лише персонаж
+      const existingToken = getAccessToken();
+      if (existingToken) {
+        const existingChars = await listCharacters();
+        if (existingChars.length > 0) {
+          setError("У этого аккаунта уже есть персонаж. Войдите через главную страницу.");
+          setIsLoading(false);
+          return;
+        }
+      } else {
+        const accessToken = await register(trimmedUsername, password);
+        setAccessToken(accessToken);
+      }
       useAdminStore.getState().checkAdmin().catch(() => {});
 
       // 2. Створення персонажа через API
@@ -194,7 +205,12 @@ export default function Register({ navigate }: RegisterProps) {
       }
     } catch (err: any) {
       console.error('Registration error:', err);
-      const errorMessage = err?.message || "Ошибка регистрации. Попробуйте снова.";
+      const raw = String(err?.message ?? "");
+      const st = Number(err?.status);
+      const errorMessage =
+        st === 409 || raw.toLowerCase().includes("already exists")
+          ? "Этот логин уже занят. Если вы уже входили в админку или создавали аккаунт — откройте главную страницу, войдите логином/паролём и создайте персонажа (регистрация с тем же ником не нужна)."
+          : raw || "Ошибка регистрации. Попробуйте снова.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
