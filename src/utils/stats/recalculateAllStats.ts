@@ -58,6 +58,8 @@ export interface RecalculatedStats {
     mDef: number;
     accuracy: number;
     evasion: number;
+    accuracyRating?: number;
+    evasionRating?: number;
     crit: number;
     mCrit: number;
     critFlat: number;
@@ -80,6 +82,8 @@ export interface RecalculatedStats {
     mDef: number;
     accuracy: number;
     evasion: number;
+    accuracyRating?: number;
+    evasionRating?: number;
     crit: number;
     mCrit: number;
     critFlat: number;

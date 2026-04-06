@@ -174,7 +174,12 @@ export default function PlayerStatsModal({
               )}
               <div className="flex justify-between gap-1">
                 <span className={labelC}>Точность</span>
-                <span className={valC}>{formatStatValue(finalStats.accuracy)}%</span>
+                <span className={valC}>
+                  {formatStatValue(finalStats.accuracy)}%
+                  {typeof finalStats.accuracyRating === "number" && (
+                    <span className="text-[#a09078]"> ({formatStatValue(finalStats.accuracyRating)})</span>
+                  )}
+                </span>
               </div>
               <div className="flex justify-between gap-1">
                 <span className={labelC}>Крит</span>
@@ -206,7 +211,12 @@ export default function PlayerStatsModal({
               </div>
               <div className="flex justify-between gap-1">
                 <span className={labelC}>Уклонение</span>
-                <span className={valC}>{formatStatValue(finalStats.evasion)}%</span>
+                <span className={valC}>
+                  {formatStatValue(finalStats.evasion)}%
+                  {typeof finalStats.evasionRating === "number" && (
+                    <span className="text-[#a09078]"> ({formatStatValue(finalStats.evasionRating)})</span>
+                  )}
+                </span>
               </div>
               <div className="flex justify-between gap-1">
                 <span className={labelC}>Маг. крит</span>

@@ -342,7 +342,12 @@ export default function Stats() {
               )}
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Точность</span>
-                <span className={valClass}>{formatStatValue(combatStats.accuracy)}%</span>
+                <span className={valClass}>
+                  {formatStatValue(combatStats.accuracy)}%
+                  {typeof combatStats?.accuracyRating === "number" && (
+                    <span className="text-[#a09078]"> ({formatStatValue(combatStats.accuracyRating)})</span>
+                  )}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Крит</span>
@@ -374,7 +379,12 @@ export default function Stats() {
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Уклонение</span>
-                <span className={valClass}>{formatStatValue(combatStats.evasion)}%</span>
+                <span className={valClass}>
+                  {formatStatValue(combatStats.evasion)}%
+                  {typeof combatStats?.evasionRating === "number" && (
+                    <span className="text-[#a09078]"> ({formatStatValue(combatStats.evasionRating)})</span>
+                  )}
+                </span>
               </div>
               {typeof (combatStats as any).runSpeed === "number" && (combatStats as any).runSpeed > 0 && (
                 <div className="flex justify-between">

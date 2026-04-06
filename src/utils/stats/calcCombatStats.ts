@@ -24,8 +24,12 @@ export interface CombatStats {
   mAtk: number;
   pDef: number;
   mDef: number;
+  /** Відображення: ~рейтинг/10 % (кламп 100). Рейтинг — те саме, що йде в PvE hit chance на сервері. */
   accuracy: number;
   evasion: number;
+  /** Сирий рейтинг точності (DEX/шмот/сети); сервер: clamp 0..500 у pveHitChance. */
+  accuracyRating?: number;
+  evasionRating?: number;
   crit: number;
   mCrit: number;
   critPower: number;
@@ -496,6 +500,8 @@ export function calcCombatStats(
     mDef,
     accuracy: accuracyPercent,
     evasion: evasionPercent,
+    accuracyRating: accuracy,
+    evasionRating: evasion,
     crit: crit,
     mCrit: mCrit,
     critPower,

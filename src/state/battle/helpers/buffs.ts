@@ -64,6 +64,16 @@ export const applyBuffsToStats = (
   const merged = { ...(stats || {}) };
   let invulnerable = false;
 
+  // Точність / ухилення: бафи в L2 — flat до рейтингу; відсоток у UI = f(рейтинг). Без рейтингу — зворотна оцінка з %.
+  if (typeof merged.accuracyRating !== "number" || !Number.isFinite(merged.accuracyRating)) {
+    const p = Number(merged.accuracy);
+    merged.accuracyRating = Number.isFinite(p) ? Math.max(1, Math.round(p * 10)) : 1;
+  }
+  if (typeof merged.evasionRating !== "number" || !Number.isFinite(merged.evasionRating)) {
+    const p = Number(merged.evasion);
+    merged.evasionRating = Number.isFinite(p) ? Math.max(1, Math.round(p * 10)) : 1;
+  }
+
   // Синхронізуємо attackSpeed та atkSpeed перед застосуванням бафів
   // Це гарантує, що базове значення доступне в обох ключах
   if (typeof merged["attackSpeed"] === "number" && typeof merged["atkSpeed"] !== "number") {
@@ -144,6 +154,9 @@ export const applyBuffsToStats = (
         // skillMastery залишається без змін
         targetStat = "skillMastery";
       }
+
+      if (targetStat === "accuracy") targetStat = "accuracyRating";
+      else if (targetStat === "evasion") targetStat = "evasionRating";
 
       if (!stat) return;
       if (stat === "invulnerable") {
@@ -340,6 +353,13 @@ export const applyBuffsToStats = (
 
   if (typeof merged.shieldBlockRate === "number" && Number.isFinite(merged.shieldBlockRate)) {
     merged.shieldBlockRate = clampShieldBlockRate(merged.shieldBlockRate);
+  }
+
+  if (typeof merged.accuracyRating === "number" && Number.isFinite(merged.accuracyRating)) {
+    merged.accuracy = Math.min(100, Math.round((Math.max(1, merged.accuracyRating) / 100) * 10));
+  }
+  if (typeof merged.evasionRating === "number" && Number.isFinite(merged.evasionRating)) {
+    merged.evasion = Math.min(100, Math.round((Math.max(1, merged.evasionRating) / 100) * 10));
   }
 
   if (invulnerable) merged.invulnerable = true;

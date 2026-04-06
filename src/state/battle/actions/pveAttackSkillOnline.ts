@@ -49,6 +49,16 @@ function pickCombatStatsForServer(heroStats: Record<string, any>): Record<string
   ];
   const out: Record<string, number> = {};
   for (const k of keys) {
+    if (k === "accuracy") {
+      const r = Number(heroStats.accuracyRating);
+      if (Number.isFinite(r) && r >= 0) {
+        out.accuracy = r;
+      } else {
+        const p = Number(heroStats.accuracy);
+        if (Number.isFinite(p)) out.accuracy = Math.max(0, Math.round(p * 10));
+      }
+      continue;
+    }
     const n = Number(heroStats[k]);
     if (Number.isFinite(n)) out[k] = n;
   }
