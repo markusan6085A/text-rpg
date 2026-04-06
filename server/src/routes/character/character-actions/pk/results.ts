@@ -169,6 +169,7 @@ export async function savePkResultIfNeeded(session: PkSession) {
             cp: Math.max(0, Number(heroJson.maxCp ?? heroJson.cp ?? 0)),
             isDead: false,
             deadAt: 0,
+            heroBuffs: [],
             pkIncoming: null,
             pkSyncUntil: 0,
             pkDeathNotice: {
