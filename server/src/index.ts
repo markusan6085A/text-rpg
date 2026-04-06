@@ -96,8 +96,8 @@ app.get("/", async (request, reply) => {
       },
     };
   }
-  // Для браузера - не обробляємо тут, буде обслуговуватися через static files або 404 handler
-  return reply.code(404).send({ error: "Not found" });
+  // Браузер / SPA: явний GET / зареєстровано до static — інакше сюди йде 404 JSON замість index.html
+  return reply.sendFile("index.html");
 });
 
 // Health check
@@ -180,6 +180,10 @@ const start = async () => {
     const allowedOrigins = [
       "https://l2dop.com",
       "https://www.l2dop.com",
+      "https://l2rpg.com",
+      "https://www.l2rpg.com",
+      "http://l2rpg.com",
+      "http://www.l2rpg.com",
       "http://localhost:5173",
       "http://localhost:3000",
     ];
