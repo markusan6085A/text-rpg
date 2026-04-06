@@ -148,6 +148,20 @@ export function getHeroResourceValues(hero: Hero, inBattle: boolean) {
   const caps = getHeroBuffedResourceCaps(hero, inBattle);
   const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
   const dr = hj.displayResources;
+
+  // Онлайн-бій: applyServerSync вже клампить hero.hp/mp у buffed-просторі; displayResources з БД часто 1–2 тики відстає —
+  // масштабування dr дає хибні «стрибки» смуг при кожному кліку/тіку.
+  if (inBattle && isOnlineHeroBuffsJsonCanonical()) {
+    return {
+      hp: Math.min(caps.maxHp, Math.max(0, Number(hero.hp ?? caps.maxHp))),
+      mp: Math.min(caps.maxMp, Math.max(0, Number(hero.mp ?? caps.maxMp))),
+      cp: Math.min(caps.maxCp, Math.max(0, Number(hero.cp ?? caps.maxCp))),
+      maxHp: caps.maxHp,
+      maxMp: caps.maxMp,
+      maxCp: caps.maxCp,
+    };
+  }
+
   if (
     dr &&
     typeof dr === "object" &&

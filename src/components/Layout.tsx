@@ -215,7 +215,7 @@ export default function Layout({
       } else {
         battleStore.processMobAttack();
       }
-      battleStore.regenTick();
+      // regenTick лише в Battle.tsx (1 с) — інакше подвійний тик: подвійна кровотеча/оновлення HP·MP.
     }, 1000);
     
     battleIntervalRef.current = interval; // Зберігаємо для можливості ручного очищення
