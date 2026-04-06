@@ -1,5 +1,5 @@
 // Async function to load hero from API
-import { getCharacter, updateCharacter } from "../../utils/api";
+import { getCharacter, listCharacters, updateCharacter } from "../../utils/api";
 import { useCharacterStore } from "../characterStore";
 import { useAuthStore } from "../authStore";
 import { recalculateAllStats } from "../../utils/stats/recalculateAllStats";
@@ -405,7 +405,7 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
     
     // Load character from API
     console.log('[loadHeroFromAPI] Fetching character from API...');
-    let character;
+    let character: Awaited<ReturnType<typeof getCharacter>> | undefined;
     try {
       character = await getCharacter(characterStore.characterId);
     } catch (apiErr: any) {
@@ -415,7 +415,31 @@ export async function loadHeroFromAPI(): Promise<Hero | null> {
         if (hydratedLocalHero) return hydratedLocalHero;
         return localHero ? hydrateHero(localHero) : null;
       }
-      throw apiErr;
+      // Застарілий current_character_id (інший акаунт, реінстал БД, змішані сесії) → синхронізуємо з GET /characters
+      if (apiErr?.status === 404) {
+        try {
+          const chars = await listCharacters();
+          if (chars.length > 0) {
+            const pick = chars[0];
+            useCharacterStore.getState().setCharacterId(pick.id);
+            character = await getCharacter(pick.id);
+            console.warn(
+              "[loadHeroFromAPI] Stale characterId replaced with server list[0]:",
+              pick.id,
+              pick.name
+            );
+          } else {
+            useCharacterStore.getState().setCharacterId(null);
+            console.warn("[loadHeroFromAPI] No characters for account after 404 on GET — cleared characterId");
+            return null;
+          }
+        } catch (resyncErr) {
+          console.error("[loadHeroFromAPI] Failed to resync character after 404:", resyncErr);
+          throw apiErr;
+        }
+      } else {
+        throw apiErr;
+      }
     }
     console.log('[loadHeroFromAPI] Character received:', character ? 'success' : 'null', character?.id);
     
