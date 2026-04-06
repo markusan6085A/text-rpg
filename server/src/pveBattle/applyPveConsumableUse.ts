@@ -4,6 +4,7 @@
  */
 
 import { applyServerToggleResourceTicks } from "./applyServerToggleTicks";
+import { applyPvePassiveMpCpRegen } from "./applyPvePassiveMpCpRegen";
 import { clampPveResource, syncHeroJsonResourcePercentsToAbsolutes } from "./pveHeroResourceSync";
 import { weaponGradeFromId } from "./pveShotArrowsServer";
 
@@ -211,6 +212,7 @@ export function applyPveConsumableUseSnapshot(args: {
   const youngBattle = sessStarted > 0 && now - sessStarted < 15_000;
   const toggleLines = applyServerToggleResourceTicks(hj, now, youngBattle ? { maxTickCatchup: 2 } : undefined);
   void toggleLines;
+  applyPvePassiveMpCpRegen(hj, now);
 
   const baseMaxHp = Math.max(1, Math.floor(Number(hj.maxHp ?? 1)));
   const baseMaxMp = Math.max(1, Math.floor(Number(hj.maxMp ?? 1)));

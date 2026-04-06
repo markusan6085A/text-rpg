@@ -109,8 +109,9 @@ export const createRegenTick =
 
     // Завжди використовуємо АКТУАЛЬНЕ maxHp з computeBuffedMaxResources (з урахуванням бафів)
     const nextHP = Math.min(maxHp, hpAfterBleed + hpRegen);
-    const nextMP = Math.min(maxMp, curMP + mpRegen);
-    const nextCP = Math.min(maxCp, curCP + cpRegen);
+    /** Онлайн PvE: MP/CP оновлює сервер (pve-battle-tick/attack + passive regen); локальний реген інакше роз’їжджається з перевіркою not_enough_mp. */
+    const nextMP = pveServerTick ? curMP : Math.min(maxMp, curMP + mpRegen);
+    const nextCP = pveServerTick ? curCP : Math.min(maxCp, curCP + cpRegen);
 
     // Перераховуємо стати після зміни HP (через toggle ticks та регенерацію), щоб активувати/деактивувати пасивні скіли з hpThreshold
     const heroWithNewHp = { ...heroAfterTicks, hp: nextHP, maxHp: maxHp };

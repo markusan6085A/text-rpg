@@ -4,6 +4,7 @@
 
 import skillCastMetaJson from "../data/skillCastMeta.generated.json";
 import { applyServerToggleResourceTicks } from "./applyServerToggleTicks";
+import { applyPvePassiveMpCpRegen } from "./applyPvePassiveMpCpRegen";
 import { syncHeroJsonResourcePercentsToAbsolutes } from "./pveHeroResourceSync";
 import { applyMobBuffsToCombat, cleanupBattleBuffs } from "./pveBattleBuffsLite";
 
@@ -175,6 +176,7 @@ export function applyPveMobDebuffSnapshot(args: {
   const sessStarted = Number(sess.startedAt) || 0;
   const youngBattle = sessStarted > 0 && now - sessStarted < 15_000;
   applyServerToggleResourceTicks(hj, now, youngBattle ? { maxTickCatchup: 2 } : undefined);
+  applyPvePassiveMpCpRegen(hj, now);
   const mpAfterToggle = Number(hj.mp ?? 0);
   if (mpAfterToggle < mpCost) {
     return { ok: false, code: "not_enough_mp", message: "Not enough MP" };

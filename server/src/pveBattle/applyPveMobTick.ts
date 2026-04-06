@@ -2,6 +2,7 @@
 
 import { getRaidBossAIProfile, type RaidBossPhase } from "./raidBossAIServer";
 import { applyServerToggleResourceTicks } from "./applyServerToggleTicks";
+import { applyPvePassiveMpCpRegen } from "./applyPvePassiveMpCpRegen";
 import { clampPveResource, syncHeroJsonResourcePercentsToAbsolutes } from "./pveHeroResourceSync";
 
 function mitigation(raw: number, mobAtkStat: number, heroDefense: number): number {
@@ -64,6 +65,7 @@ export function applyPveMobTickSnapshot(args: {
     tickNow,
     youngBattle ? { maxTickCatchup: 2 } : undefined
   );
+  applyPvePassiveMpCpRegen(hj, tickNow);
 
   const maxHp = Math.max(1, Math.floor(Number(hj.maxHp ?? hj.hp ?? 1)));
   const curHp = clampPveResource(Math.floor(Number(hj.hp ?? maxHp)), 0, maxHp);

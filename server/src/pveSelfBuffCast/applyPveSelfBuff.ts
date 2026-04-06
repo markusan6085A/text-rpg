@@ -11,6 +11,8 @@ import {
   type SkillStub,
 } from "./buffLogicServer";
 import { cleanupExpiredBuffs, sanitizeHeroBuffsForServer } from "./sanitizeHeroBuffsServer";
+import { applyServerToggleResourceTicks } from "../pveBattle/applyServerToggleTicks";
+import { applyPvePassiveMpCpRegen } from "../pveBattle/applyPvePassiveMpCpRegen";
 
 type SkillMetaRow = {
   id: number;
@@ -112,6 +114,14 @@ export function applyPveSelfBuffSnapshot(args: {
   const levelRow = meta.levels[String(level)];
   if (!levelRow) {
     return { ok: false, code: "invalid_level", message: "No level data for skill" };
+  }
+
+  const sessForRegen = hj.battleSession;
+  if (sessForRegen && Number(sessForRegen.v) === 1) {
+    const sessStarted = Number(sessForRegen.startedAt) || 0;
+    const youngBattle = sessStarted > 0 && now - sessStarted < 15_000;
+    applyServerToggleResourceTicks(hj, now, youngBattle ? { maxTickCatchup: 2 } : undefined);
+    applyPvePassiveMpCpRegen(hj, now);
   }
 
   const mpCost = Math.max(0, Number(levelRow.mpCost ?? 0) || 0);

@@ -121,6 +121,7 @@ export function applyPveBattleStartSnapshot(args: { heroJson: any; body: PveBatt
 
   const sessionNow = Date.now();
   session.startedAt = sessionNow;
+  (session as any).lastPassiveRegenAt = sessionNow;
   resyncPveToggleClocksForSessionStart(hj, sessionNow);
   hj.battleSession = session;
   return { ok: true, nextHeroJson: hj, sessionMobHp: mobMaxHp, sessionMobMaxHp: mobMaxHp };

@@ -18,6 +18,7 @@ import {
   FOCUSED_FORCE_ID,
 } from "./pveSonicConstants";
 import { applyServerToggleResourceTicks } from "./applyServerToggleTicks";
+import { applyPvePassiveMpCpRegen } from "./applyPvePassiveMpCpRegen";
 import { syncHeroJsonResourcePercentsToAbsolutes } from "./pveHeroResourceSync";
 import { pveVampirismPercentFromSkill } from "./pveVampirismSkillPercent";
 
@@ -230,6 +231,7 @@ export function applyPveBattleAttackSnapshot(args: {
     now,
     youngBattle ? { maxTickCatchup: 2 } : undefined
   );
+  applyPvePassiveMpCpRegen(hj, now);
 
   if (!professionAllowsSkill(skillId, hj, String(args.classId ?? ""))) {
     return { ok: false, code: "forbidden_skill", message: "Skill not allowed for this profession" };
