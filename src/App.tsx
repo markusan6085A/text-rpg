@@ -76,6 +76,7 @@ import {
   hardReloadOnceAfterAuth,
   stripHardReloadQueryParam,
 } from "./utils/hardReloadForNewAppBundle";
+import { upgradeApiBaseForPageProtocol } from "./utils/api/publicApiBase";
 
 /** Редірект не-адміна з /player/:id/admin на /player/:id */
 function PlayerAdminRedirect({ navigate, playerId }: { navigate: (path: string) => void; playerId: string }) {
@@ -293,7 +294,9 @@ function AppInner() {
 
   React.useEffect(() => {
     let alive = true;
-    const API_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:3000";
+    const API_URL = upgradeApiBaseForPageProtocol(
+      import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:3000"
+    );
 
     // Захист: якщо щось зависне — через 8 сек примусово показуємо UI
     const fallbackTimer = setTimeout(() => {

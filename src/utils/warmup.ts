@@ -1,6 +1,8 @@
 // 🔥 Warm-up utility для підтримки сервера "теплим" (prevent cold start)
 // Викликається при завантаженні додатку для "прогріву" сервера
 
+import { upgradeApiBaseForPageProtocol } from "./api/publicApiBase";
+
 const WARMUP_INTERVAL = 4 * 60 * 1000; // 4 хвилини (сервер може засинати після неактивності)
 
 let warmupInterval: number | null = null;
@@ -11,14 +13,16 @@ let warmupInterval: number | null = null;
  */
 function getHealthEndpoint(): string {
   try {
-    // Спробуємо отримати з глобальної змінної (якщо api.ts вже ініціалізований)
-    const apiUrl = (typeof window !== 'undefined' && (window as any).__API_URL__) 
-      || import.meta.env.VITE_API_URL 
-      || 'http://localhost:3000';
+    const raw =
+      (typeof window !== "undefined" && (window as any).__API_URL__) ||
+      import.meta.env.VITE_API_URL?.replace(/\/$/, "") ||
+      "http://localhost:3000";
+    const apiUrl = upgradeApiBaseForPageProtocol(String(raw));
     return `${apiUrl}/health`;
   } catch (err) {
-    // Fallback якщо щось пішло не так
-    const fallback = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const fallback = upgradeApiBaseForPageProtocol(
+      import.meta.env.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:3000"
+    );
     return `${fallback}/health`;
   }
 }
