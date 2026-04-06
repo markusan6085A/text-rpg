@@ -19,6 +19,8 @@ import {
 } from "../../../utils/heroBuffedResources";
 import { runSerializedPveMutation } from "./pveMutationQueue";
 import { getMaxResources } from "../helpers/getMaxResources";
+import { computePveOptimisticAttackPreview } from "../pveOptimisticPvePreview";
+import { cancelMobHpReconcile, smoothMobHpTo } from "../pveMobHpReconcile";
 
 /** Жоден другий pve-battle-attack, поки попередній не завершив snapshot (разом із тіком у спільній черзі). */
 let attackRoundBusy = false;
@@ -99,18 +101,30 @@ export function schedulePveAttackSkillOnline(args: {
     const bs0 = battleStoreRef.getState();
     const rollbackCooldowns = bs0 ? { ...(bs0.cooldowns || {}) } : {};
     const rollbackHeroNext = bs0?.heroNextAttackAt;
+    const rollbackMobHp = typeof bs0?.mobHP === "number" ? bs0.mobHP : 0;
+    const rollbackLog = [...(bs0?.log ?? [])];
+    let optimisticLineCount = 0;
 
     const rollbackOptimisticPveCooldownUi = () => {
       if (!battleStoreRef.setState) return;
       const hn = hero.name;
+      cancelMobHpReconcile();
       battleStoreRef.setState({
         cooldowns: rollbackCooldowns,
         heroNextAttackAt: rollbackHeroNext,
+        mobHP: rollbackMobHp,
+        log: rollbackLog,
       });
       if (hn) {
         const saved = loadBattle(hn) || {};
         persistBattle(
-          { ...saved, cooldowns: rollbackCooldowns, heroNextAttackAt: rollbackHeroNext },
+          {
+            ...saved,
+            cooldowns: rollbackCooldowns,
+            heroNextAttackAt: rollbackHeroNext,
+            mobHP: rollbackMobHp,
+            log: rollbackLog,
+          },
           hn,
         );
       }
@@ -140,6 +154,41 @@ export function schedulePveAttackSkillOnline(args: {
     };
 
     applyOptimisticPveCooldownUi();
+
+    cancelMobHpReconcile();
+    const preview = computePveOptimisticAttackPreview({
+      skillId,
+      def,
+      levelDef: args.levelDef,
+      hero,
+      heroStats,
+      state,
+      now,
+    });
+    if (preview && battleStoreRef.setState) {
+      optimisticLineCount = preview.logLines.length;
+      const bs = battleStoreRef.getState();
+      const hn = hero.name;
+      const nextLog = [...preview.logLines, ...(bs?.log ?? [])].slice(0, 30);
+      const nextSeq = (bs?.pveAttackIntentSeq ?? 0) + 1;
+      battleStoreRef.setState({
+        mobHP: preview.nextMobHp,
+        log: nextLog,
+        pveAttackIntentSeq: nextSeq,
+      });
+      if (hn) {
+        const saved = loadBattle(hn) || {};
+        persistBattle(
+          {
+            ...saved,
+            mobHP: preview.nextMobHp,
+            log: nextLog,
+            pveAttackIntentSeq: nextSeq,
+          },
+          hn,
+        );
+      }
+    }
 
     try {
       const res = await pveBattleAttackAPI(cid, {
@@ -216,6 +265,7 @@ export function schedulePveAttackSkillOnline(args: {
       const heroAfter = store.hero;
       const bs = battleStoreRef.getState();
       const stLog = bs?.log ?? [];
+      const mergedLog = [...logLines, ...stLog.slice(optimisticLineCount)].slice(0, 30);
       const prevCd = { ...(bs?.cooldowns || {}) };
       let nextCooldowns = prevCd;
       let heroNextAttackAtOut: number | undefined;
@@ -229,6 +279,7 @@ export function schedulePveAttackSkillOnline(args: {
 
       if (killed && state.mob && heroAfter) {
         if (battleStoreRef.setState) {
+          cancelMobHpReconcile();
           battleStoreRef.setState({ mobHP: 0, mobNextAttackAt: null });
         }
         const buffsForVictory = cleanupBuffs(
@@ -254,8 +305,7 @@ export function schedulePveAttackSkillOnline(args: {
           ...buildVictoryResourceLogLines(heroAfter.name ?? "Герой", v.displayExp, v.displaySp, v.displayAdena),
           ...(v.dropMessages.length > 0 ? v.dropMessages : []),
           ...(v.partyMemberLootLines.length > 0 ? v.partyMemberLootLines : []),
-          ...logLines,
-          ...stLog,
+          ...mergedLog,
         ].filter((msg): msg is string => msg != null);
 
         const victoryLogTrim = victoryLog.slice(0, 30);
@@ -303,7 +353,6 @@ export function schedulePveAttackSkillOnline(args: {
         return;
       }
 
-      const mergedLog = [...logLines, ...stLog].slice(0, 30);
       const nextHeroBuffs = cleanupBuffs(
         Array.isArray((heroAfter as any).heroJson?.heroBuffs)
           ? ((heroAfter as any).heroJson.heroBuffs as any[])
@@ -315,7 +364,6 @@ export function schedulePveAttackSkillOnline(args: {
         ? cleanupBuffs(sessPost.mobBuffs as any[], Date.now())
         : [];
       const fightPatch: Record<string, unknown> = {
-        mobHP: mobHpAfter,
         status: "fighting",
         log: mergedLog,
         cooldowns: nextCooldowns,
@@ -328,6 +376,7 @@ export function schedulePveAttackSkillOnline(args: {
       }
       if (battleStoreRef.setState) {
         battleStoreRef.setState(fightPatch as any);
+        smoothMobHpTo(mobHpAfter);
       }
       const saved = loadBattle(heroName) || {};
       const persistFight: Record<string, unknown> = {
@@ -339,6 +388,7 @@ export function schedulePveAttackSkillOnline(args: {
         heroBuffs: nextHeroBuffs,
         mobBuffs: mobBuffsServer,
         ...(heroNextAttackAtOut != null ? { heroNextAttackAt: heroNextAttackAtOut } : {}),
+        pveAttackIntentSeq: battleStoreRef.getState()?.pveAttackIntentSeq ?? 0,
       };
       if (typeof sessPost?.mobStunnedUntil === "number" && Number.isFinite(sessPost.mobStunnedUntil)) {
         persistFight.mobStunnedUntil = sessPost.mobStunnedUntil;
@@ -352,6 +402,7 @@ export function schedulePveAttackSkillOnline(args: {
       }
       const code = String(e?.body?.error ?? "");
       if (code === "no_battle_session" || code === "mob_dead") {
+        cancelMobHpReconcile();
         rollbackOptimisticPveCooldownUi();
         const store = useHeroStore.getState();
         const h = store.hero;

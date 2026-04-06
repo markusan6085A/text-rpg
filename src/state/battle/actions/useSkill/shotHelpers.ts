@@ -208,6 +208,50 @@ function applyShotConsumptionToInventory(inventory: any[], actualItemId: string,
 }
 
 /**
+ * Той самий розрахунок множника заряду, що useAutoShot, але без списання з інвентаря (для optimistic PvE preview).
+ */
+export function peekAutoShotMultiplier(
+  hero: Hero,
+  isPhysical: boolean,
+  isMagic: boolean,
+  loadoutSlots: (number | string | null)[] = [],
+  activeChargeSlots: number[] = [],
+  consumeCount: number = 1
+): ShotResult {
+  const shotType = isMagic ? "spiritshot" : isPhysical ? "soulshot" : null;
+  if (!shotType) {
+    return { used: false, multiplier: 1.0, shotType: null };
+  }
+
+  const toConsume = Math.max(1, Math.min(10, consumeCount));
+  const slotOrder = buildShotSlotScanOrder(loadoutSlots, activeChargeSlots);
+  const out: ShotResult = { used: false, multiplier: 1.0, shotType: null };
+  if (!hero?.inventory?.length) return out;
+  const weaponGrade = getWeaponGrade(hero);
+  const inv = hero.inventory;
+  for (const slotIndex of slotOrder) {
+    const slotId = loadoutSlots[slotIndex];
+    if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
+    const rawItemId = slotId.replace("consumable:", "");
+    const itemId = rawItemId.replace(/^shop_/, "") || rawItemId;
+    const blessed = isUniversalBlessedCharge(itemId);
+    if (!blessed && !isShotConsumable(itemId, shotType)) continue;
+    const shotGrade = getShotGrade(itemId);
+    if (weaponGrade != null && shotGrade != null && shotGrade !== weaponGrade) continue;
+    const invStack = blessed
+      ? inventoryHasExactStack(inv, itemId, toConsume)
+      : inventoryHasShotStack(inv, itemId, shotType, toConsume);
+    if (!invStack?.item?.id) continue;
+    out.used = true;
+    out.multiplier = blessed ? BLESSED_SHOT_DAMAGE_MULTIPLIER : SHOT_DAMAGE_MULTIPLIER;
+    out.shotType = blessed ? "blessed_charge" : shotType;
+    return out;
+  }
+
+  return out;
+}
+
+/**
  * Soulshot/spiritshot: тільки зі слотів панелі, увімкнених через toggleChargeSlot (activeChargeSlots).
  * Удар: 1 заряд. Ударний скіл: 2 заряди.
  */

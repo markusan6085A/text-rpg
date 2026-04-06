@@ -15,7 +15,14 @@ interface TargetCardProps {
 export function TargetCard({ zone, city, mob, compact = false }: TargetCardProps) {
   useGameSettingsVersion();
   const isL2 = isWarmCityUi(getCityUiVariant());
-  const { mobHP } = useBattleStore();
+  const { mobHP, pveAttackIntentSeq } = useBattleStore();
+  const [intentFlash, setIntentFlash] = React.useState(false);
+  React.useEffect(() => {
+    if (!pveAttackIntentSeq) return;
+    setIntentFlash(true);
+    const t = window.setTimeout(() => setIntentFlash(false), 140);
+    return () => window.clearTimeout(t);
+  }, [pveAttackIntentSeq]);
   const maxHP = typeof mob.hp === "number" ? mob.hp : 0;
   const hpValue = Number.isFinite(mobHP) ? mobHP : maxHP;
   const clampedHP = Math.max(0, Math.min(maxHP, hpValue));
@@ -51,7 +58,9 @@ export function TargetCard({ zone, city, mob, compact = false }: TargetCardProps
             }`}
           >
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#4b0b0b] via-[#7f1919] to-[#a12a2a]"
+              className={`h-full rounded-full bg-gradient-to-r from-[#4b0b0b] via-[#7f1919] to-[#a12a2a] transition-[width] duration-200 ease-out ${
+                intentFlash ? "brightness-125" : ""
+              }`}
               style={{ width: `${hpPercent}%` }}
             />
             <div

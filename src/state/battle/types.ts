@@ -32,6 +32,8 @@ export type BattleState = {
   mob?: Mob;
   mobIndex?: number;
   mobHP: number;
+  /** Збільшується при кожному optimistic PvE-ударі (для миттєвої анімації / відгуку UI). */
+  pveAttackIntentSeq?: number;
   /** Якщо задано — режим PK: дані (mob, log, cooldowns) синхронізуються з PK-сесією, useSkill викликає API */
   pkSessionId?: string | null;
   /** Оптимістичні бафи після actPkSession (buff) — для відображення в PK до оновлення heroJson */
