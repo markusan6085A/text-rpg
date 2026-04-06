@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Піцерія — замовлення онлайн</title>
+  <style>
+    :root {
+      --bg: #1a1410;
+      --card: #2d2419;
+      --accent: #e85d04;
+      --accent-soft: #ff9f1c;
+      --text: #f8f4ef;
+      --muted: #a89888;
+      --border: #4a3d32;
+      --success: #2a9d8f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(ellipse at top, #2d2419 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    header {
+      text-align: center;
+      padding: 2rem 0 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    header p { margin: 0.5rem 0 0; color: var(--muted); font-size: 0.95rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    @media (min-width: 900px) {
+      .grid { grid-template-columns: 1fr 380px; align-items: start; }
+    }
+    .menu h2, .cart-panel h2 {
+      font-size: 1.1rem;
+      margin: 0 0 1rem;
+      color: var(--accent-soft);
+    }
+    .pizzas {
+      display: grid;
+      gap: 1rem;
+    }
+    .pizza-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pizza-card .info { flex: 1; min-width: 180px; }
+    .pizza-card h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+    .pizza-card .desc { margin: 0; font-size: 0.85rem; color: var(--muted); }
+    .pizza-card .price { font-weight: 700; color: var(--accent-soft); }
+    .pizza-card button {
+      background: linear-gradient(180deg, var(--accent) 0%, #c94d04 100%);
+      color: #fff;
+      border: none;
+      padding: 0.55rem 1.1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .pizza-card button:hover { filter: brightness(1.08); }
+    .pizza-card button:active { transform: scale(0.98); }
+    .cart-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      position: sticky;
+      top: 1rem;
+    }
+    .cart-empty { color: var(--muted); font-size: 0.9rem; margin: 0; }
+    .cart-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .cart-line:last-of-type { border-bottom: none; }
+    .qty {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .qty button {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+    }
+    .qty button:hover { background: var(--border); }
+    .total {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 2px solid var(--accent);
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+    }
+    form.checkout { margin-top: 1.25rem; }
+    form.checkout label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+    form.checkout input, form.checkout textarea {
+      width: 100%;
+      margin-bottom: 0.75rem;
+      padding: 0.55rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font: inherit;
+    }
+    form.checkout textarea { min-height: 70px; resize: vertical; }
+    .submit-btn {
+      width: 100%;
+      margin-top: 0.5rem;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(180deg, var(--success) 0%, #1f7a70 100%);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .submit-btn:hover { filter: brightness(1.05); }
+    .submit-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: var(--success);
+      color: #fff;
+      padding: 0.85rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+      transition: transform 0.35s ease;
+      z-index: 100;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>🍕 Піцерія «Дрова й сир»</h1>
+      <p>Окремий макет для сайту — додайте піцу в кошик і оформіть замовлення (демо без сервера).</p>
+    </header>
+
+    <div class="grid">
+      <section class="menu" aria-labelledby="menu-title">
+        <h2 id="menu-title">Меню</h2>
+        <div class="pizzas" id="pizza-list"></div>
+      </section>
+
+      <aside class="cart-panel" aria-labelledby="cart-title">
+        <h2 id="cart-title">Кошик</h2>
+        <div id="cart-body"></div>
+        <div id="total-row" class="total" hidden>
+          <span>Разом</span>
+          <span id="total-sum">0 ₴</span>
+        </div>
+        <form class="checkout" id="checkout-form">
+          <label for="name">Ім’я</label>
+          <input id="name" name="name" type="text" autocomplete="name" required placeholder="Олена" />
+
+          <label for="phone">Телефон</label>
+          <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="+380..." />
+
+          <label for="address">Адреса доставки</label>
+          <textarea id="address" name="address" required placeholder="місто, вулиця, будинок, під’їзд"></textarea>
+
+          <button type="submit" class="submit-btn" id="submit-btn">Підтвердити замовлення</button>
+        </form>
+      </aside>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <footer>Standalone-сторінка: відкрийте index.html у браузері. Підключення бекенду — окремо.</footer>
+
+  <script>
+    const MENU = [
+      { id: "mar", name: "Маргарита", desc: "томатний соус, моцарела, базилік", price: 189 },
+      { id: "pep", name: "Пепероні", desc: "салямі пепероні, сир, соус", price: 229 },
+      { id: "4ch", name: "Чотири сири", desc: "дор блю, пармезан, моцарела, чеддер", price: 259 },
+      { id: "veg", name: "Вегетаріанська", desc: "перець, гриби, оливки, цибуля", price: 209 },
+      { id: "bbq", name: "BBQ курка", desc: "курка, соус барбекю, червона цибуля", price: 249 },
+    ];
+
+    /** @type {Record<string, number>} */
+    let cart = {};
+
+    function formatMoney(n) {
+      return n.toFixed(0) + " ₴";
+    }
+
+    function renderMenu() {
+      const el = document.getElementById("pizza-list");
+      el.innerHTML = MENU.map(
+        (p) => `
+        <article class="pizza-card">
+          <div class="info">
+            <h3>${escapeHtml(p.name)}</h3>
+            <p class="desc">${escapeHtml(p.desc)}</p>
+            <p class="price">${formatMoney(p.price)}</p>
+          </div>
+          <button type="button" data-add="${p.id}">У кошик</button>
+        </article>`
+      ).join("");
+
+      el.querySelectorAll("[data-add]").forEach((btn) => {
+        btn.addEventListener("click", () => addToCart(btn.getAttribute("data-add")));
+      });
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function addToCart(id) {
+      cart[id] = (cart[id] || 0) + 1;
+      renderCart();
+      showToast("Додано в кошик");
+    }
+
+    function setQty(id, delta) {
+      const next = (cart[id] || 0) + delta;
+      if (next <= 0) delete cart[id];
+      else cart[id] = next;
+      renderCart();
+    }
+
+    function cartTotal() {
+      let sum = 0;
+      for (const id of Object.keys(cart)) {
+        const item = MENU.find((m) => m.id === id);
+        if (item) sum += item.price * cart[id];
+      }
+      return sum;
+    }
+
+    function renderCart() {
+      const body = document.getElementById("cart-body");
+      const totalRow = document.getElementById("total-row");
+      const totalSum = document.getElementById("total-sum");
+      const submitBtn = document.getElementById("submit-btn");
+      const ids = Object.keys(cart).filter((id) => cart[id] > 0);
+
+      if (ids.length === 0) {
+        body.innerHTML = '<p class="cart-empty">Кошик порожній — оберіть піцу з меню.</p>';
+        totalRow.hidden = true;
+        submitBtn.disabled = true;
+        return;
+      }
+
+      body.innerHTML = ids
+        .map((id) => {
+          const item = MENU.find((m) => m.id === id);
+          if (!item) return "";
+          const q = cart[id];
+          const line = item.price * q;
+          return `
+            <div class="cart-line">
+              <span>${escapeHtml(item.name)} × ${q}</span>
+              <span class="qty">
+                <button type="button" aria-label="Менше" data-qty="${id}" data-d="-1">−</button>
+                <button type="button" aria-label="Більше" data-qty="${id}" data-d="1">+</button>
+                <strong>${formatMoney(line)}</strong>
+              </span>
+            </div>`;
+        })
+        .join("");
+
+      body.querySelectorAll("[data-qty]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-qty");
+          const d = parseInt(btn.getAttribute("data-d"), 10);
+          setQty(id, d);
+        });
+      });
+
+      totalRow.hidden = false;
+      totalSum.textContent = formatMoney(cartTotal());
+      submitBtn.disabled = false;
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => t.classList.remove("show"), 2200);
+    }
+
+    document.getElementById("checkout-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const ids = Object.keys(cart).filter((id) => cart[id] > 0);
+      if (ids.length === 0) return;
+
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const address = document.getElementById("address").value.trim();
+
+      const lines = ids.map((id) => {
+        const item = MENU.find((m) => m.id === id);
+        return `${item.name} × ${cart[id]} — ${formatMoney(item.price * cart[id])}`;
+      });
+
+      const summary = [
+        "=== Замовлення (демо) ===",
+        `Клієнт: ${name}`,
+        `Телефон: ${phone}`,
+        `Адреса: ${address}`,
+        "",
+        ...lines,
+        "",
+        `Разом: ${formatMoney(cartTotal())}`,
+      ].join("\n");
+
+      console.log(summary);
+      alert("Демо: замовлення зібрано.\n\nУ проді тут був би запит на сервер.\n\nДеталі в консолі (F12).");
+
+      cart = {};
+      renderCart();
+      e.target.reset();
+      showToast("Дякуємо за замовлення!");
+    });
+
+    renderMenu();
+    renderCart();
+  </script>
+</body>
+</html>
