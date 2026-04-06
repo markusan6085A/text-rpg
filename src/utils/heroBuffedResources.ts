@@ -3,20 +3,42 @@ import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers
 import { getMaxResources } from "../state/battle/helpers/getMaxResources";
 import { filterBuffsForHeroProfession } from "../state/battle/loadout";
 import { useBattleStore } from "../state/battle/store";
+import { useAuthStore } from "../state/authStore";
+import { useCharacterStore } from "../state/characterStore";
 import type { Hero } from "../types/Hero";
 
-/** Ті самі об’єднані бафи, що й у StatusBars (статуя / бій / heroJson). */
+/**
+ * Онлайн-сесія: єдине джерело правди для бафів у UI — `hero.heroJson.heroBuffs`
+ * після optimistic update / `applyCharacterSnapshotFromApi` / hero-buffs-sync.
+ * Не змішуємо loadBattle + battle store + heroJson (звідси «не знімається / не дає»).
+ */
+export function isOnlineHeroBuffsJsonCanonical(): boolean {
+  try {
+    const auth = useAuthStore.getState();
+    const cid = String(useCharacterStore.getState().characterId ?? "").trim();
+    return Boolean(auth.isAuthenticated && !auth.sessionExpired && cid.length > 0);
+  } catch {
+    return false;
+  }
+}
+
+/** Ті самі бафи, що й у StatusBars. Офлайн: merge loadBattle + battle + heroJson. Онлайн: лише heroJson.heroBuffs. */
 export function getCombinedHeroBuffs(
   hero: Hero | null | undefined,
   inBattleNow: boolean,
 ): any[] {
   if (!hero?.name) return [];
   const now = Date.now();
+  const heroJson = (hero as any)?.heroJson || {};
+  const heroJsonBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
+
+  if (isOnlineHeroBuffsJsonCanonical()) {
+    return filterBuffsForHeroProfession(hero, cleanupBuffs(heroJsonBuffs, now));
+  }
+
   const savedBattle = loadBattle(hero.name);
   const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
   const battleBuffs = cleanupBuffs(useBattleStore.getState().heroBuffs || [], now);
-  const heroJson = (hero as any)?.heroJson || {};
-  const heroJsonBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
 
   /** У бою: merge як у scalePve (heroJson → battle, dedupe з пріоритетом json). Інакше maxHp у HUD був вищий за max
    * у scalePveSnapshot — той самий hero.hp виглядав як «мінус пів смуги» при дрібному уроні в логу.

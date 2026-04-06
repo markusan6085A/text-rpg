@@ -1,31 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useHeroStore } from "../../state/heroStore";
 import { useBattleStore } from "../../state/battle/store";
-import { loadBattle } from "../../state/battle/persist";
 import { cleanupBuffs } from "../../state/battle/helpers";
-import { filterBuffsForHeroProfession } from "../../state/battle/loadout";
 import { getCharacter } from "../../utils/api";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
 import { SKILL_ICON_ERROR_FALLBACK } from "../../utils/skillIconUrls";
-
-/** Об’єднання при serverRev > localRev: нові бафи з сервера + локальні ключі, для одного ключа — довший expiresAt. */
-function mergeHeroJsonBuffsPreferLatest(localArr: any[], serverArr: any[], now: number): any[] {
-  const byKey = (b: any) => `${b.id ?? ""}_${b.stackType ?? ""}_${b.name ?? ""}`;
-  const raw = [...(Array.isArray(localArr) ? localArr : []), ...(Array.isArray(serverArr) ? serverArr : [])];
-  const best = new Map<string, any>();
-  for (const b of raw) {
-    const k = byKey(b);
-    const cur = best.get(k);
-    const ex = Number(b.expiresAt) || 0;
-    if (!cur || ex > (Number(cur.expiresAt) || 0)) best.set(k, b);
-  }
-  return cleanupBuffs([...best.values()], now);
-}
+import { getCombinedHeroBuffs } from "../../utils/heroBuffedResources";
 
 export default function CharacterBuffs() {
   const hero = useHeroStore((s) => s.hero);
   const battleStatus = useBattleStore((s) => s.status);
-  const battleBuffs = useBattleStore((s) => s.heroBuffs || []);
   // 🔥 Таймер — перерендер кожну секунду, щоб зникали прострочені бафи
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -60,10 +44,11 @@ export default function CharacterBuffs() {
           return;
         }
 
-        const merged = mergeHeroJsonBuffsPreferLatest(localBuffs, serverBuffs, now);
+        // Один канон після підтверджено новішої ревізії: список з БД, без merge з локалкою.
+        const serverClean = cleanupBuffs(serverBuffs, now);
         const localClean = cleanupBuffs(localBuffs, now);
-        if (!disposed && JSON.stringify(merged) !== JSON.stringify(localClean)) {
-          useHeroStore.getState().updateHero({ heroJson: { heroBuffs: merged } }, { persist: true });
+        if (!disposed && JSON.stringify(serverClean) !== JSON.stringify(localClean)) {
+          useHeroStore.getState().updateHero({ heroJson: { heroBuffs: serverClean } }, { persist: true });
         }
       } catch (e: unknown) {
         if ((e as { status?: number })?.status === 404 && intervalId) {
@@ -84,32 +69,7 @@ export default function CharacterBuffs() {
 
   if (!hero) return null;
 
-  // Завантажуємо бафи з battle state (включаючи бафи статуї) навіть поза боєм
-  const savedBattle = loadBattle(hero.name);
-  const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
-  const activeBuffs = battleStatus === "fighting" 
-    ? cleanupBuffs(battleBuffs, now) 
-    : savedBuffs;
-
-  // Також перевіряємо heroJson.heroBuffs (якщо є)
-  const heroJson = (hero as any)?.heroJson || {};
-  const heroJsonBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
-  const activeHeroJsonBuffs = heroJsonBuffs.filter((b: any) => {
-    if (!b.expiresAt) return false;
-    return b.expiresAt > now;
-  });
-
-  // Об'єднуємо бафи з обох джерел (уникаємо дублікатів)
-  const allActiveBuffs = [...activeBuffs, ...activeHeroJsonBuffs];
-  
-  // Видаляємо дублікати за id або name
-  const uniqueBuffs = allActiveBuffs.filter((buff, index, self) => 
-    index === self.findIndex((b) => 
-      (b.id && buff.id && b.id === buff.id) || 
-      (!b.id && !buff.id && b.name === buff.name)
-    )
-  );
-  const displayBuffs = filterBuffsForHeroProfession(hero, uniqueBuffs);
+  const displayBuffs = getCombinedHeroBuffs(hero, battleStatus === "fighting");
 
   if (displayBuffs.length === 0) return null;
 

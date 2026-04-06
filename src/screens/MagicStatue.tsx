@@ -7,7 +7,7 @@ import type { BattleBuff } from "../state/battle/types";
 import { useBattleStore } from "../state/battle/store";
 import { isWarmCityUi, getCityUiVariant } from "../utils/cityUiVariant";
 import { L2_WARM_OUTER_FRAME } from "../utils/l2WarmLayoutClassNames";
-import { getHeroBuffedResourceCaps } from "../utils/heroBuffedResources";
+import { getHeroBuffedResourceCaps, isOnlineHeroBuffsJsonCanonical } from "../utils/heroBuffedResources";
 
 interface MagicStatueProps {
   navigate: (path: string) => void;
@@ -47,7 +47,12 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
   }
 
   const saved = loadBattle(hero.name);
-  const currentBuffs = cleanupBuffs(saved?.heroBuffs || [], now);
+  const currentBuffs = isOnlineHeroBuffsJsonCanonical()
+    ? cleanupBuffs(
+        Array.isArray((hero as any).heroJson?.heroBuffs) ? (hero as any).heroJson.heroBuffs : [],
+        now,
+      )
+    : cleanupBuffs(saved?.heroBuffs || [], now);
 
   // Отримуємо активні бафи статуї
   const activeBufferBuffs = currentBuffs.filter((b) => b.source === "buffer");
@@ -74,7 +79,13 @@ export default function MagicStatue({ navigate }: MagicStatueProps) {
   const applyAllBufferBuffs = () => {
     const now = Date.now();
     const saved = loadBattle(hero.name);
-    const currentBuffs = cleanupBuffs(saved?.heroBuffs || [], now);
+    const liveHero = useHeroStore.getState().hero;
+    const currentBuffs = isOnlineHeroBuffsJsonCanonical()
+      ? cleanupBuffs(
+          Array.isArray((liveHero as any)?.heroJson?.heroBuffs) ? (liveHero as any).heroJson.heroBuffs : [],
+          now,
+        )
+      : cleanupBuffs(saved?.heroBuffs || [], now);
     
     // Отримуємо поточний стан бою, щоб зберегти summon та cooldowns
     const battleState = useBattleStore.getState();
