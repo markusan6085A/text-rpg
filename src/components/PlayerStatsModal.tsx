@@ -10,14 +10,31 @@ const formatStatValue = (v: number) => {
 
 const formatResource = (n: number) => Math.max(0, Math.round(Number(n) || 0)).toLocaleString("ru-RU");
 
+export type ProfileBuffedResourcesDisplay = {
+  hp: number;
+  mp: number;
+  cp: number;
+  maxHp: number;
+  maxMp: number;
+  maxCp: number;
+};
+
 interface PlayerStatsModalProps {
   playerName: string;
   stats: RecalculatedStats;
   hero: any;
+  /** Якщо передано (перегляд чужого профілю) — показ HP/MP/CP з урахуванням бафів; інакше з hero/stats. */
+  buffedResources?: ProfileBuffedResourcesDisplay | null;
   onClose: () => void;
 }
 
-export default function PlayerStatsModal({ playerName, stats, hero, onClose }: PlayerStatsModalProps) {
+export default function PlayerStatsModal({
+  playerName,
+  stats,
+  hero,
+  buffedResources,
+  onClose,
+}: PlayerStatsModalProps) {
   const { baseStats, finalStats } = stats;
   const isL2 = isWarmCityUi(getCityUiVariant());
   const l2Shell =
@@ -26,12 +43,12 @@ export default function PlayerStatsModal({ playerName, stats, hero, onClose }: P
   const labelC = isL2 ? "text-[#c88a5c]" : "text-orange-300";
   const valC = isL2 ? "text-[#f0d78c]" : "text-white";
 
-  const hp = hero?.hp ?? 0;
-  const maxHp = hero?.maxHp ?? stats.resources.maxHp ?? 1;
-  const mp = hero?.mp ?? 0;
-  const maxMp = hero?.maxMp ?? stats.resources.maxMp ?? 1;
-  const cp = hero?.cp ?? 0;
-  const maxCp = hero?.maxCp ?? stats.resources.maxCp ?? 0;
+  const hp = buffedResources?.hp ?? hero?.hp ?? 0;
+  const maxHp = buffedResources?.maxHp ?? hero?.maxHp ?? stats.resources.maxHp ?? 1;
+  const mp = buffedResources?.mp ?? hero?.mp ?? 0;
+  const maxMp = buffedResources?.maxMp ?? hero?.maxMp ?? stats.resources.maxMp ?? 1;
+  const cp = buffedResources?.cp ?? hero?.cp ?? 0;
+  const maxCp = buffedResources?.maxCp ?? hero?.maxCp ?? stats.resources.maxCp ?? 0;
   const sp = Number(hero?.sp ?? 0);
 
   return (

@@ -1,5 +1,8 @@
 import type { Character } from "../../utils/api";
 import type { BattleBuff } from "../../state/battle/types";
+import type { Hero } from "../../types/Hero";
+import { cleanupBuffs, computeBuffedMaxResources } from "../../state/battle/helpers";
+import { filterBuffsForHeroProfession } from "../../state/battle/loadout";
 import { effectiveCharacterLevel } from "../../utils/effectiveCharacterLevel";
 
 /** ISO / рядок expiresAt інакше cleanupBuffs відсіює всі бафи (рядок > number → false). */
@@ -85,6 +88,90 @@ export function getMergedHeroJsonFromCharacter(character: { heroJson?: unknown }
 
 function parseMaybeJsonMap(raw: unknown): Record<string, any> {
   return parseMaybeJsonObject(raw) as Record<string, any>;
+}
+
+/**
+ * Для UI перегляду чужого персонажа (модалка стати, підписи): знімок базовий, бафи з heroJson.
+ * Не підміняти ним поля в characterToProfileHeroData для recalculateAllStats — там потрібна база.
+ */
+export function profileBuffedResourcesForView(
+  character: Character,
+  heroJson: Record<string, any>,
+): { hp: number; mp: number; cp: number; maxHp: number; maxMp: number; maxCp: number } {
+  const dr = heroJson.displayResources;
+  if (dr && typeof dr === "object") {
+    const mh = Math.floor(Number(dr.maxHp));
+    const mm = Math.floor(Number(dr.maxMp));
+    const mc = Math.floor(Number(dr.maxCp));
+    if (Number.isFinite(mh) && mh > 0 && Number.isFinite(mm) && mm > 0 && Number.isFinite(mc) && mc > 0) {
+      const h = Number(dr.hp);
+      const m = Number(dr.mp);
+      const c = Number(dr.cp);
+      return {
+        hp: Number.isFinite(h) && h >= 0 ? h : Number(heroJson.hp ?? 0),
+        mp: Number.isFinite(m) && m >= 0 ? m : Number(heroJson.mp ?? 0),
+        cp: Number.isFinite(c) && c >= 0 ? c : Number(heroJson.cp ?? 0),
+        maxHp: mh,
+        maxMp: mm,
+        maxCp: mc,
+      };
+    }
+  }
+
+  const baseMaxHp = Math.max(
+    1,
+    Math.floor(
+      Number((character as any).baseMaxHp ?? heroJson.baseMaxHp ?? heroJson.maxHp ?? 1) || 1,
+    ),
+  );
+  const baseMaxMp = Math.max(
+    1,
+    Math.floor(
+      Number((character as any).baseMaxMp ?? heroJson.baseMaxMp ?? heroJson.maxMp ?? 1) || 1,
+    ),
+  );
+  const baseMaxCp = Math.max(
+    1,
+    Math.floor(
+      Number(
+        (character as any).baseMaxCp ??
+          heroJson.baseMaxCp ??
+          heroJson.maxCp ??
+          Math.round(baseMaxHp * 0.6),
+      ) || 1,
+    ),
+  );
+
+  const baseHp =
+    heroJson.hp !== undefined && heroJson.hp !== null ? Number(heroJson.hp) : baseMaxHp;
+  const baseMp = Number(heroJson.mp ?? heroJson.maxMp ?? baseMaxMp);
+  const baseCp = Number(heroJson.cp ?? heroJson.maxCp ?? baseMaxCp);
+
+  const now = Date.now();
+  const rawBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
+  const heroStub = {
+    name: String(heroJson.name ?? character.name ?? "x"),
+    profession: heroJson.profession,
+    klass: heroJson.klass,
+    race: heroJson.race,
+  } as Hero;
+  const buffs = filterBuffsForHeroProfession(
+    heroStub,
+    cleanupBuffs(prepareBuffsForStatsView(rawBuffs), now),
+  );
+  const baseCaps = { maxHp: baseMaxHp, maxMp: baseMaxMp, maxCp: baseMaxCp };
+  const buffed = computeBuffedMaxResources(baseCaps, buffs);
+  const ratioH = baseHp / Math.max(1, baseMaxHp);
+  const ratioM = baseMp / Math.max(1, baseMaxMp);
+  const ratioC = baseCp / Math.max(1, baseMaxCp);
+  return {
+    hp: Math.min(buffed.maxHp, Math.max(0, Math.round(ratioH * buffed.maxHp))),
+    mp: Math.min(buffed.maxMp, Math.max(0, Math.round(ratioM * buffed.maxMp))),
+    cp: Math.min(buffed.maxCp, Math.max(0, Math.round(ratioC * buffed.maxCp))),
+    maxHp: buffed.maxHp,
+    maxMp: buffed.maxMp,
+    maxCp: buffed.maxCp,
+  };
 }
 
 /** Об'єкт як Hero для екіпу / recalculateAllStats; має містити baseStats з heroJson (інакше стати — дефолтні). */

@@ -65,6 +65,7 @@ import {
   characterToProfileHeroData,
   getMergedHeroJsonFromCharacter,
   prepareBuffsForStatsView,
+  profileBuffedResourcesForView,
 } from "./player/playerProfileUtils";
 import { PlayerProfileActiveBuffsList } from "./player/PlayerProfileActiveBuffsList";
 import { PlayerProfileBuffModal } from "./player/PlayerProfileBuffModal";
@@ -108,6 +109,10 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
     const t = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(t);
   }, []);
+
+  useEffect(() => {
+    if (character?.id) setNow(Date.now());
+  }, [character?.id]);
 
   const loadPlayerProfile = async () => {
     setLoading(true);
@@ -287,6 +292,12 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
   }, [playerId, playerName]);
 
   const heroData = useMemo(() => (character ? characterToProfileHeroData(character) : null), [character]);
+
+  /** Окремо від базового heroData — лише для рядка HP/MP/CP у модалці (бафнуті max; recalculate лишається на базі). */
+  const profileBuffedResourcesForModal = useMemo(() => {
+    if (!character) return null;
+    return profileBuffedResourcesForView(character, getMergedHeroJsonFromCharacter(character));
+  }, [character]);
 
   const handlePkDefeatToCity = useCallback(async () => {
     const cidUse = (characterId || hero?.id || "").trim();
@@ -1187,6 +1198,7 @@ export default function PlayerProfile({ navigate, playerId, playerName }: Player
             playerName={character.name}
             stats={viewedStats}
             hero={heroData}
+            buffedResources={profileBuffedResourcesForModal}
             onClose={() => {
               setShowStatsModal(false);
               setViewedStats(null);
