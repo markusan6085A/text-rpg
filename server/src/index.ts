@@ -242,6 +242,23 @@ const start = async () => {
 
     // ✅ ТІЛЬКИ ТУТ:
     app.setNotFoundHandler(async (request, reply) => {
+      const pathname = (() => {
+        const p = String(request.url || "/").split("?")[0] || "/";
+        return p.replace(/\/+$/, "") || "/";
+      })();
+
+      // React-адмінка: GET /admin, /admin/login, /admin/items — це SPA, не JSON 404
+      // (Інакше браузер на проді бачить {"error":"Not found"} — див. setNotFoundHandler + prefix /admin)
+      if (
+        request.method === "GET" &&
+        (pathname === "/admin" ||
+          pathname === "/admin/login" ||
+          pathname === "/admin/items" ||
+          pathname.startsWith("/admin/items/"))
+      ) {
+        return reply.sendFile("index.html");
+      }
+
       // для API — 404 JSON
       if (
         request.url.startsWith("/auth") ||
