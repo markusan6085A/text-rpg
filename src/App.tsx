@@ -171,6 +171,12 @@ function AppInner() {
   const { navigate, navigateNoReload, path, refreshKey } = useRouter();
   const [loadingHeroAfterAuth, setLoadingHeroAfterAuth] = React.useState(false);
   const [heroLoadTimedOut, setHeroLoadTimedOut] = React.useState(false);
+  /** Акаунт залогінений, але персонажів 0 — показуємо головну (Landing), а не одразу /register */
+  const [rootLandingDespiteAuth, setRootLandingDespiteAuth] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!isAuthenticated) setRootLandingDespiteAuth(false);
+  }, [isAuthenticated]);
 
   // Supabase Realtime — підписка на Character table замість polling GET /characters/:id
   useCharacterRealtime();
@@ -263,6 +269,7 @@ function AppInner() {
         const chars = await listCharacters();
         if (!alive) return;
         if (chars.length > 0) {
+          if (alive) setRootLandingDespiteAuth(false);
           const savedCharacterId = String(localStorage.getItem("current_character_id") ?? "").trim();
           const preferred = (savedCharacterId && chars.find((c: any) => c?.id === savedCharacterId)) || chars[0];
           setCharacterId(preferred.id);
@@ -275,10 +282,11 @@ function AppInner() {
           }
           if (alive) navigateNoReload("/city");
         } else {
-          navigateNoReload("/register");
+          if (alive) setRootLandingDespiteAuth(true);
         }
       } catch {
         // Не викликати navigate("/") — ми вже на "/", це дає reload → цикл оновлень (особливо на телефоні)
+        if (alive) setRootLandingDespiteAuth(true);
         if (alive) setLoadingHeroAfterAuth(false);
       } finally {
         if (alive) setLoadingHeroAfterAuth(false);
@@ -454,7 +462,7 @@ function AppInner() {
 
   // Після входу через /admin/login є accessToken, але hero ще null — показуємо загрузку (завантаження в useEffect вище)
   // На мобільному loadHeroFromAPI може зависати — через 12 сек показуємо кнопку "Оновити" (heroLoadTimedOut з useEffect вище)
-  if (!hero && (pathname === "/" || pathname === "") && isAuthenticated) {
+  if (!hero && (pathname === "/" || pathname === "") && isAuthenticated && !rootLandingDespiteAuth) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4 px-4 text-gray-500">
         {heroLoadTimedOut ? (
