@@ -53,6 +53,29 @@ async function logAdminFailed(
   });
 }
 
+/** Тіло з адмінки інколи дає set/delta рядком; раніше `typeof x === "number"` ігнорував зміну. */
+function parseAdminCurrencyDeltaOrSet(body: unknown):
+  | { ok: true; mode: "set"; value: number }
+  | { ok: true; mode: "delta"; value: number }
+  | { ok: false; error: string } {
+  if (body == null || typeof body !== "object") {
+    return { ok: true, mode: "delta", value: 0 };
+  }
+  const b = body as Record<string, unknown>;
+  if (Object.prototype.hasOwnProperty.call(b, "set")) {
+    const value = Math.floor(Number(b.set));
+    if (!Number.isFinite(value) || value < 0) {
+      return { ok: false, error: "invalid set" };
+    }
+    return { ok: true, mode: "set", value };
+  }
+  const value = Math.floor(Number(b.delta ?? 0));
+  if (!Number.isFinite(value)) {
+    return { ok: false, error: "invalid delta" };
+  }
+  return { ok: true, mode: "delta", value };
+}
+
 export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
   // GET /admin/player/find-by-name?name=Nick — повертає character id, name, accountId (для інших дій)
   app.get<{ Querystring: { name?: string } }>(
@@ -561,9 +584,15 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(400).send({ error: "characterId required" });
       }
 
+      const parsed = parseAdminCurrencyDeltaOrSet(body);
+      if (!parsed.ok) {
+        await logAdminFailed(req, "admin.set_coin_luck", { message: parsed.error, targetCharacterId: characterId, metadata: { body } });
+        return reply.code(400).send({ error: parsed.error });
+      }
+
       const char = await prisma.character.findUnique({
         where: { id: characterId },
-        select: { id: true, name: true, coinLuck: true },
+        select: { id: true, name: true, coinLuck: true, heroJson: true },
       });
       if (!char) {
         await logAdminFailed(req, "admin.set_coin_luck", { message: "character not found", targetCharacterId: characterId, metadata: { body } });
@@ -572,15 +601,17 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
 
       const currentCoinLuck = Number(char.coinLuck ?? 0);
       let newCoinLuck: number;
-      if (typeof body?.set === "number" && body.set >= 0) {
-        newCoinLuck = Math.min(2_000_000_000, Math.floor(body.set));
+      if (parsed.mode === "set") {
+        newCoinLuck = Math.min(2_000_000_000, parsed.value);
       } else {
-        const delta = Number(body?.delta ?? 0);
-        newCoinLuck = Math.max(0, Math.min(2_000_000_000, currentCoinLuck + delta));
+        newCoinLuck = Math.max(0, Math.min(2_000_000_000, currentCoinLuck + parsed.value));
       }
+      const heroJson = (char.heroJson as any) || {};
+      const oldRev = Number(heroJson.heroRevision ?? 0) || 0;
+      const updatedHeroJson = addVersioning({ ...heroJson, coinOfLuck: newCoinLuck }, oldRev);
       await prisma.character.update({
         where: { id: characterId },
-        data: { coinLuck: newCoinLuck },
+        data: { coinLuck: newCoinLuck, heroJson: updatedHeroJson },
       });
       await logAdminSuccess(req, "admin.set_coin_luck", {
         targetCharacterId: characterId,
@@ -605,9 +636,15 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
         return reply.code(400).send({ error: "characterId required" });
       }
 
+      const parsed = parseAdminCurrencyDeltaOrSet(body);
+      if (!parsed.ok) {
+        await logAdminFailed(req, "admin.set_coins_silver", { message: parsed.error, targetCharacterId: characterId, metadata: { body } });
+        return reply.code(400).send({ error: parsed.error });
+      }
+
       const char = await prisma.character.findUnique({
         where: { id: characterId },
-        select: { id: true, name: true, coinsSilver: true },
+        select: { id: true, name: true, coinsSilver: true, heroJson: true },
       });
       if (!char) {
         await logAdminFailed(req, "admin.set_coins_silver", { message: "character not found", targetCharacterId: characterId, metadata: { body } });
@@ -616,15 +653,17 @@ export const adminPlayersRoutes: FastifyPluginAsync = async (app) => {
 
       const current = Number(char.coinsSilver ?? 0);
       let newCoinsSilver: number;
-      if (typeof body?.set === "number" && body.set >= 0) {
-        newCoinsSilver = Math.min(2_000_000_000, Math.floor(body.set));
+      if (parsed.mode === "set") {
+        newCoinsSilver = Math.min(2_000_000_000, parsed.value);
       } else {
-        const delta = Number(body?.delta ?? 0);
-        newCoinsSilver = Math.max(0, Math.min(2_000_000_000, current + delta));
+        newCoinsSilver = Math.max(0, Math.min(2_000_000_000, current + parsed.value));
       }
+      const heroJson = (char.heroJson as any) || {};
+      const oldRev = Number(heroJson.heroRevision ?? 0) || 0;
+      const updatedHeroJson = addVersioning({ ...heroJson, coins_silver: newCoinsSilver }, oldRev);
       await prisma.character.update({
         where: { id: characterId },
-        data: { coinsSilver: newCoinsSilver },
+        data: { coinsSilver: newCoinsSilver, heroJson: updatedHeroJson },
       });
       await logAdminSuccess(req, "admin.set_coins_silver", {
         targetCharacterId: characterId,

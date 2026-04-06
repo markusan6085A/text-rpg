@@ -3736,10 +3736,13 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     if (dailyRewardAdena > 0) {
       newHeroJson.adena = Math.max(0, Math.floor(Number(newHeroJson.adena ?? 0))) + dailyRewardAdena;
     }
-    const currentCoinLuck = Math.max(
+    // Колонка coinLuck і heroJson.coinOfLuck роз’їжджались після адмінки: `??` з 0 у json ігнорував БД.
+    const baseCoinLuckDb = Math.max(0, Math.floor(Number(character.coinLuck ?? 0)));
+    const hjCoinLuck = Math.max(
       0,
-      Math.floor(Number(newHeroJson.coinOfLuck ?? heroJson.coinOfLuck ?? character.coinLuck ?? 0))
+      Math.floor(Number(newHeroJson.coinOfLuck ?? heroJson.coinOfLuck ?? 0))
     );
+    const currentCoinLuck = Math.max(baseCoinLuckDb, hjCoinLuck);
     if (dailyRewardCoinLuck > 0) {
       newHeroJson.coinOfLuck = currentCoinLuck + dailyRewardCoinLuck;
     } else {
@@ -3921,10 +3924,16 @@ export async function characterCrudRoutes(app: FastifyInstance) {
     updateData.exp = BigInt(Math.max(0, Math.floor(Number(newHeroJsonSynced.exp ?? 0))));
     updateData.adena = BigInt(Math.max(0, Math.floor(Number(newHeroJsonSynced.adena))));
     updateData.sp = Math.max(0, Math.floor(Number(newHeroJsonSynced.sp ?? character.sp ?? 0)));
-    updateData.coinLuck = BigInt(Math.max(0, Math.floor(Number(newHeroJsonSynced.coinOfLuck ?? character.coinLuck ?? 0))));
-    updateData.coinsSilver = BigInt(
-      Math.max(0, Math.floor(Number(newHeroJsonSynced.coins_silver ?? row.coinsSilver ?? 0n))),
+    const syncCoinLuck = Math.max(
+      Math.floor(Number(newHeroJsonSynced.coinOfLuck ?? 0)),
+      Math.floor(Number(character.coinLuck ?? 0)),
     );
+    updateData.coinLuck = BigInt(Math.max(0, syncCoinLuck));
+    const syncSilver = Math.max(
+      Math.floor(Number(newHeroJsonSynced.coins_silver ?? 0)),
+      Math.floor(Number(row.coinsSilver ?? 0n)),
+    );
+    updateData.coinsSilver = BigInt(Math.max(0, syncSilver));
 
       await tx.character.update({
         where: { id },
