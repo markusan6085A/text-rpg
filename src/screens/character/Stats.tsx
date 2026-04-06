@@ -351,7 +351,13 @@ export default function Stats() {
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Крит</span>
-                <span className={valClass}>{formatStatValue(combatStats.critFlat ?? combatStats.crit * 10)} ({combatStats.crit}%)</span>
+                <span className={valClass}>
+                  {formatStatValue(combatStats.crit)}%
+                  <span className="text-[#a09078]">
+                    {" "}
+                    ({formatStatValue(combatStats.critFlat ?? combatStats.crit * 10)})
+                  </span>
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Скор. атаки</span>
@@ -394,11 +400,24 @@ export default function Stats() {
               )}
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Маг. крит</span>
-                <span className={valClass}>{formatStatValue(combatStats.mCritFlat ?? combatStats.mCrit * 10)} ({combatStats.mCrit}%)</span>
+                <span className={valClass}>
+                  {formatStatValue(combatStats.mCrit)}%
+                  <span className="text-[#a09078]">
+                    {" "}
+                    ({formatStatValue(combatStats.mCritFlat ?? combatStats.mCrit * 10)})
+                  </span>
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Сила крита</span>
-                <span className={valClass}>{formatStatValue(combatStats.critPower)} (×{Math.min(2.0, (1.5 + (combatStats.critPower ?? 0) / 5000)).toFixed(2)} атака / ×{Math.min(3.0, (2.0 + (combatStats.critPower ?? 0) / 1500)).toFixed(2)} скіли)</span>
+                <span className={valClass}>
+                  {formatStatValue(combatStats.critPower)}
+                  <span className="text-[#a09078]">
+                    {" "}
+                    (×{Math.min(2.0, (1.5 + (combatStats.critPower ?? 0) / 5000)).toFixed(2)} атака / ×
+                    {Math.min(3.0, (2.0 + (combatStats.critPower ?? 0) / 1500)).toFixed(2)} скіли)
+                  </span>
+                </span>
               </div>
               {(combatStats as any).poisonResist ? (
                 <div className="flex justify-between">

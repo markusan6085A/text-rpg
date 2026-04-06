@@ -184,7 +184,11 @@ export default function PlayerStatsModal({
               <div className="flex justify-between gap-1">
                 <span className={labelC}>Крит</span>
                 <span className={valC}>
-                  {formatStatValue((finalStats as any).critFlat ?? finalStats.crit * 10)} ({finalStats.crit}%)
+                  {formatStatValue(finalStats.crit)}%
+                  <span className="text-[#a09078]">
+                    {" "}
+                    ({formatStatValue((finalStats as any).critFlat ?? finalStats.crit * 10)})
+                  </span>
                 </span>
               </div>
               <div className="flex justify-between gap-1">
@@ -221,15 +225,22 @@ export default function PlayerStatsModal({
               <div className="flex justify-between gap-1">
                 <span className={labelC}>Маг. крит</span>
                 <span className={valC}>
-                  {formatStatValue((finalStats as any).mCritFlat ?? finalStats.mCrit * 10)} ({finalStats.mCrit}%)
+                  {formatStatValue(finalStats.mCrit)}%
+                  <span className="text-[#a09078]">
+                    {" "}
+                    ({formatStatValue((finalStats as any).mCritFlat ?? finalStats.mCrit * 10)})
+                  </span>
                 </span>
               </div>
               <div className="flex justify-between gap-1">
                 <span className={labelC}>Сила крита</span>
                 <span className={valC}>
-                  {formatStatValue(finalStats.critPower)} (×
-                  {Math.min(2.0, 1.5 + (finalStats.critPower ?? 0) / 5000).toFixed(2)} атака / ×
-                  {Math.min(3.0, 2.0 + (finalStats.critPower ?? 0) / 1500).toFixed(2)} скіли)
+                  {formatStatValue(finalStats.critPower)}
+                  <span className="text-[#a09078]">
+                    {" "}
+                    (×{Math.min(2.0, 1.5 + (finalStats.critPower ?? 0) / 5000).toFixed(2)} атака / ×
+                    {Math.min(3.0, 2.0 + (finalStats.critPower ?? 0) / 1500).toFixed(2)} скіли)
+                  </span>
                 </span>
               </div>
               <div className="flex justify-between gap-1">
