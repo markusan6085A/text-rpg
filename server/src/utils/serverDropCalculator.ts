@@ -108,13 +108,43 @@ function getPremiumMultiplier(premiumUntil: number): number {
   return 1;
 }
 
+/** Збіг з addDropToInventory у battle-finish: екіп не стакується в одному слоті інвентаря. */
+function isStackableServerDropKind(kind: string | undefined, slot: string | undefined): boolean {
+  const k = String(kind ?? "").toLowerCase();
+  const s = String(slot ?? "").toLowerCase();
+  const EQUIP_KINDS = new Set([
+    "equipment",
+    "weapon",
+    "armor",
+    "helmet",
+    "boots",
+    "gloves",
+    "shield",
+    "necklace",
+    "ring",
+    "earring",
+    "jewelry",
+    "belt",
+    "cloak",
+  ]);
+  if (EQUIP_KINDS.has(k) || EQUIP_KINDS.has(s)) return false;
+  return true;
+}
+
 function addItem(list: DroppedItem[], id: string, count: number, name?: string, kind?: string, slot?: string): void {
   if (!id || count <= 0) return;
+  const n = Math.max(1, Math.floor(count));
+  if (!isStackableServerDropKind(kind, slot)) {
+    for (let i = 0; i < n; i++) {
+      list.push({ id, count: 1, ...(name ? { name } : {}), ...(kind ? { kind } : {}), ...(slot ? { slot } : {}) });
+    }
+    return;
+  }
   const existing = list.find((i) => i.id === id);
   if (existing) {
-    existing.count += count;
+    existing.count += n;
   } else {
-    list.push({ id, count, ...(name ? { name } : {}), ...(kind ? { kind } : {}), ...(slot ? { slot } : {}) });
+    list.push({ id, count: n, ...(name ? { name } : {}), ...(kind ? { kind } : {}), ...(slot ? { slot } : {}) });
   }
 }
 
