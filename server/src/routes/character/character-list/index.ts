@@ -1,7 +1,24 @@
 import type { FastifyInstance } from "fastify";
+import path from "path";
+import fs from "node:fs";
 import { prisma } from "../../../db";
 import { getAuth } from "../auth";
 import { attachBaseResourcesForApi } from "../../../utils/characterBaseResources";
+
+/** Корінь Vite dist (як у server/src/index.ts) — для портретів /characters/*.jpg */
+function clientDistRoot(): string {
+  const fromServerParent = path.resolve(process.cwd(), "..", "dist");
+  const fromCwd = path.resolve(process.cwd(), "dist");
+  try {
+    if (fs.existsSync(fromServerParent)) return fromServerParent;
+    if (fs.existsSync(fromCwd)) return fromCwd;
+  } catch {
+    /* noop */
+  }
+  return fromServerParent;
+}
+
+const CHARACTER_PORTRAIT_EXT = /\.(jpe?g|png|gif|webp|svg|ico)$/i;
 
 export async function characterListRoutes(app: FastifyInstance) {
   // GET /characters  (Bearer token)
@@ -83,13 +100,31 @@ export async function characterListRoutes(app: FastifyInstance) {
 
   // GET /characters/:id  (Bearer token)
   app.get("/characters/:id", async (req, reply) => {
-    const auth = getAuth(req);
-    if (!auth) return reply.code(401).send({ error: "unauthorized" });
-
     const params = req.params as { id?: string };
     const id = params.id;
 
     if (!id) return reply.code(400).send({ error: "character id required" });
+
+    // Портрети race/class — URL збігається з API /characters/:id (cuid). Спочатку віддаємо файл без JWT.
+    if (CHARACTER_PORTRAIT_EXT.test(id)) {
+      const safe = path.basename(id);
+      if (!safe || safe !== id) {
+        return reply.code(400).send({ error: "invalid path" });
+      }
+      const root = clientDistRoot();
+      const charsDir = path.join(root, "characters");
+      const abs = path.join(charsDir, safe);
+      if (!abs.startsWith(charsDir)) {
+        return reply.code(404).send({ error: "Not found" });
+      }
+      if (!fs.existsSync(abs)) {
+        return reply.code(404).send({ error: "Not found" });
+      }
+      return reply.sendFile(`characters/${safe}`);
+    }
+
+    const auth = getAuth(req);
+    if (!auth) return reply.code(401).send({ error: "unauthorized" });
 
     const char = await prisma.character.findFirst({
       where: { id, accountId: auth.accountId },

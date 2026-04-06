@@ -382,6 +382,20 @@ const CLIENT_PUT_HEROJSON_ALLOWLIST = new Set<string>([
   "baseMaxHp",
   "baseMaxMp",
   "baseMaxCp",
+  // Поля з клієнтського hero після bootstrap (не економіка; інакше 400 forbidden_hero_json_fields)
+  "classId",
+  "klass",
+  "isDead",
+  "deadAt",
+  "dailyQuestsResetAt",
+  "status",
+  "pkInComing",
+  "pkDeathNotice",
+  "hpFull",
+  "mpFull",
+  "cpFull",
+  "battleLoadoutSlots",
+  "warehouseSlots",
 ]);
 
 const CLIENT_PUT_HEROJSON_DENYLIST = new Set<string>([
