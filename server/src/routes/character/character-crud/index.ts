@@ -388,6 +388,8 @@ const CLIENT_PUT_HEROJSON_ALLOWLIST = new Set<string>([
   "isDead",
   "deadAt",
   "dailyQuestsResetAt",
+  /** YYYY-MM-DD останнього скидання щоденних квестів (клієнт: DailyQuests.tsx, heroPersistence) */
+  "dailyQuestsResetDate",
   "status",
   "pkIncoming",
   "pkDeathNotice",
