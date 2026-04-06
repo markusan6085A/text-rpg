@@ -5,8 +5,11 @@ import { useHeroStore } from "../../state/heroStore";
 import { PlayerNameWithEmblem } from "../../components/PlayerNameWithEmblem";
 import { getActiveSevenSealsRank, getSevenSealsBonusFromHero } from "../../utils/sevenSealsBonus";
 import { useBattleStore } from "../../state/battle/store";
-import { loadBattle } from "../../state/battle/persist";
-import { cleanupBuffs } from "../../state/battle/helpers";
+import { getCombinedHeroBuffs } from "../../utils/heroBuffedResources";
+import {
+  hitChancePercentVsMob,
+  getMobEvasionForPveHitDisplay,
+} from "../../utils/combat/pveHitChance";
 import { hasShieldEquipped, getShieldMitigationTotal } from "../../utils/shield/shieldDefense";
 import CharacterBuffs from "./CharacterBuffs";
 import { getMyClan } from "../../utils/api";
@@ -36,33 +39,12 @@ export default function Stats() {
   useEffect(() => {
     if (!hero) return;
 
-    // Використовуємо централізовану функцію для перерахунку всіх статів
-    const now = Date.now();
-    // Завантажуємо бафи з battle state (включаючи бафи статуї) навіть поза боєм
-    const savedBattle = loadBattle(hero.name);
-    const savedBuffs = cleanupBuffs(savedBattle?.heroBuffs || [], now);
-    const battleActiveBuffs = battleStatus === "fighting" 
-      ? cleanupBuffs(battleBuffs, now) 
-      : savedBuffs;
-    
-    // 🔥 КРИТИЧНО: Також завантажуємо бафи з heroJson.heroBuffs (з сервера)
-    const heroJson = (hero as any)?.heroJson || {};
-    const heroJsonBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
-    const activeHeroJsonBuffs = heroJsonBuffs.filter((b: any) => {
-      if (!b.expiresAt) return false;
-      return b.expiresAt > now;
-    });
-    
-    // Об'єднуємо бафи з обох джерел (уникаємо дублікатів за id)
-    const allActiveBuffs = [...battleActiveBuffs, ...activeHeroJsonBuffs];
-    const uniqueBuffs = allActiveBuffs.filter((buff, index, self) => 
-      index === self.findIndex((b) => 
-        (b.id && buff.id && b.id === buff.id) || 
-        (!b.id && !buff.id && b.name === buff.name)
-      )
+    /** Той самий список бафів, що й у бою / HUD (useSkill, getHeroResourceValues). */
+    const buffsForProfession = filterBuffsForHeroProfession(
+      hero,
+      getCombinedHeroBuffs(hero, battleStatus === "fighting"),
     );
-    const buffsForProfession = filterBuffsForHeroProfession(hero, uniqueBuffs);
-    
+
     const recalculated = recalculateAllStats(hero, buffsForProfession);
     
     setBaseStats(recalculated.baseStats);
@@ -340,14 +322,33 @@ export default function Stats() {
                   )}
                 </>
               )}
-              <div className="flex justify-between">
-                <span className="text-[#c88a5c]">Точность</span>
-                <span className={valClass}>
-                  {formatStatValue(combatStats.accuracy)}%
-                  {typeof combatStats?.accuracyRating === "number" && (
-                    <span className="text-[#a09078]"> ({formatStatValue(combatStats.accuracyRating)})</span>
-                  )}
+              <div className="flex justify-between gap-1">
+                <span className="text-[#c88a5c] shrink-0">Точність</span>
+                <span className={`${valClass} text-right`}>
+                  {(() => {
+                    const ar = combatStats?.accuracyRating;
+                    const rating =
+                      typeof ar === "number" && Number.isFinite(ar)
+                        ? Math.floor(ar)
+                        : Math.max(0, Math.round(Number(combatStats?.accuracy) || 0) * 10);
+                    const ev = getMobEvasionForPveHitDisplay(hero, battleStatus === "fighting");
+                    const hitPct = hitChancePercentVsMob(rating, ev);
+                    return (
+                      <>
+                        <span className="tabular-nums">{formatStatValue(hitPct)}%</span>
+                        <span className="text-[#a09078] tabular-nums">
+                          {" "}
+                          (рейт. {formatStatValue(rating)})
+                        </span>
+                      </>
+                    );
+                  })()}
                 </span>
+              </div>
+              <div className="flex justify-end text-[10px] leading-tight text-[#7a6a55] -mt-1 mb-0.5">
+                PvE vs ухил.{" "}
+                {battleStatus === "fighting" ? "поточної цілі" : "орієнтир"}{" "}
+                {formatStatValue(getMobEvasionForPveHitDisplay(hero, battleStatus === "fighting"))}
               </div>
               <div className="flex justify-between">
                 <span className="text-[#c88a5c]">Крит</span>
