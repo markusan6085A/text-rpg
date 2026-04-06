@@ -48,6 +48,7 @@ import { schedulePveAttackSkillOnline } from "./pveAttackSkillOnline";
 import { useAuthStore } from "../../authStore";
 import { createIsSameBuff } from "./useSkill/buffHelpers";
 import { recalculateAllStats } from "../../../utils/stats/recalculateAllStats";
+import { getCombinedHeroBuffs } from "../../../utils/heroBuffedResources";
 
 function isEligiblePveServerAttack(
   skillId: number,
@@ -215,7 +216,8 @@ export const createUseSkill =
           updateHero({ battleStats: recalculated.baseFinalStats });
           heroForStats = { ...hero, battleStats: recalculated.baseFinalStats };
         }
-        const heroStats = applyBuffsToStats(heroForStats.battleStats || {}, activeBuffs);
+        const buffsForHeroStats = getCombinedHeroBuffs(heroForStats, true);
+        const heroStats = applyBuffsToStats(heroForStats.battleStats || {}, buffsForHeroStats);
         schedulePveAttackSkillOnline({
           skillId: 0,
           def: {
@@ -340,7 +342,9 @@ export const createUseSkill =
       heroForStats = { ...hero, battleStats: recalculated.baseFinalStats };
     }
 
-    const heroStats = applyBuffsToStats(heroForStats.battleStats || {}, activeBuffs);
+    const buffsForHeroStats =
+      state.status === "fighting" ? getCombinedHeroBuffs(heroForStats, true) : activeBuffs;
+    const heroStats = applyBuffsToStats(heroForStats.battleStats || {}, buffsForHeroStats);
     const rawMpCost = levelDef.mpCost ?? 0;
     const lsGuidance = (heroStats as any)?.lsGuidance ?? 0;
     const mpSkillRed = Math.min(90, (heroStats as any)?.mpSkillCostReduction ?? 0);
