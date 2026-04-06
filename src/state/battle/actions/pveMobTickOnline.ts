@@ -319,7 +319,20 @@ export function schedulePveMobTickOnline(): void {
       }
       if (heroName) {
         const saved = loadBattle(heroName) || {};
-        persistBattle({ ...saved, ...tickPatch } as any, heroName);
+        const liveBs = battleStoreRef.getState();
+        persistBattle(
+          {
+            ...saved,
+            ...tickPatch,
+            ...(liveBs?.cooldowns && Object.keys(liveBs.cooldowns).length > 0
+              ? { cooldowns: liveBs.cooldowns }
+              : {}),
+            ...(typeof liveBs?.heroNextAttackAt === "number" && Number.isFinite(liveBs.heroNextAttackAt)
+              ? { heroNextAttackAt: liveBs.heroNextAttackAt }
+              : {}),
+          } as any,
+          heroName,
+        );
       }
     } catch (e: any) {
       const code = String(e?.body?.error ?? e?.message ?? "").trim();

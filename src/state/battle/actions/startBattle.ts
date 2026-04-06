@@ -546,7 +546,13 @@ export const createStartBattle =
       }
     }
 
-    const openingSkillBlockUntil = Date.now() + 300;
+    // Локальний антиспам 300 мс — для онлайн-PvE (сесія з сервера) не потрібен: удар і так валідує API,
+    // а блок давав «затримку» + відчуття що скіл відкочується поки тік/persist перезаписували стан.
+    const hjSessWrap = ((heroForBattle as any)?.heroJson || {}) as Record<string, any>;
+    const srvSess = hjSessWrap?.battleSession;
+    const isOnlineServerPveFight =
+      !isFishingZone && srvSess != null && Number(srvSess.v) === 1;
+    const openingSkillBlockUntil = isOnlineServerPveFight ? undefined : Date.now() + 300;
     const initial: Partial<BattleState> = {
       heroName: heroName,
       zoneId,
