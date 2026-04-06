@@ -145,34 +145,41 @@ export default function Register({ navigate }: RegisterProps) {
           return;
         }
       } else {
+        // Спочатку вхід: акаунт уже може бути (адмінка, старий деплой), а в браузері порожній storage.
+        // Якщо 401 — тоді реєстрація нового акаунта. Так не залежимо від порядку catch і старих бандлів.
         try {
-          const accessToken = await register(trimmedUsername, password);
-          setAccessToken(accessToken);
-        } catch (regErr: any) {
-          const regRaw = String(regErr?.message ?? "").toLowerCase();
-          const regSt = Number(regErr?.status);
-          const loginTaken =
-            regSt === 409 ||
-            regRaw.includes("already exists") ||
-            regRaw.includes("login already");
-          if (!loginTaken) throw regErr;
-          // Акаунт уже є (часто після /admin/login), а в браузері порожній storage — входимо і створюємо лише персонажа
-          try {
-            const token = await login(trimmedUsername, password);
-            setAccessToken(token);
-          } catch {
-            setError(
-              "Логин уже занят. Введите пароль входа для этого логина (тот же, что на главной странице). Если не подходит — смените пароль в БД или создайте другой ник.",
-            );
+          const token = await login(trimmedUsername, password);
+          setAccessToken(token);
+        } catch (loginErr: any) {
+          const ls = Number(loginErr?.status);
+          if (ls === 401) {
+            try {
+              const accessToken = await register(trimmedUsername, password);
+              setAccessToken(accessToken);
+            } catch (regErr: any) {
+              const msg = String(regErr?.message ?? "").toLowerCase();
+              const rs = Number(regErr?.status);
+              if (rs === 409 || msg.includes("already exists") || msg.includes("login already")) {
+                setError(
+                  "Логин уже занят — пароль неверный или другой владелец. Введите пароль от этого аккаунта и нажмите снова (новая регистрация не нужна).",
+                );
+              } else {
+                setError(String(regErr?.message ?? "Ошибка регистрации."));
+              }
+              setIsLoading(false);
+              return;
+            }
+          } else {
+            setError(String(loginErr?.message ?? "Ошибка входа."));
             setIsLoading(false);
             return;
           }
-          const afterLoginChars = await listCharacters();
-          if (afterLoginChars.length > 0) {
-            setError("У этого аккаунта уже есть персонаж. Войдите через главную страницу.");
-            setIsLoading(false);
-            return;
-          }
+        }
+        const afterAuthChars = await listCharacters();
+        if (afterAuthChars.length > 0) {
+          setError("У этого аккаунта уже есть персонаж. Войдите через главную страницу.");
+          setIsLoading(false);
+          return;
         }
       }
       useAdminStore.getState().checkAdmin().catch(() => {});
