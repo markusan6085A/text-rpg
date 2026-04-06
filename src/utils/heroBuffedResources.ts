@@ -1,11 +1,48 @@
 import { loadBattle } from "../state/battle/persist";
 import { cleanupBuffs, computeBuffedMaxResources } from "../state/battle/helpers";
 import { getMaxResources } from "../state/battle/helpers/getMaxResources";
-import { filterBuffsForHeroProfession } from "../state/battle/loadout";
+import {
+  filterBuffsForHeroProfession,
+  getSkillDef,
+  getSkillDefForBattle,
+} from "../state/battle/loadout";
+import { processSkillEffects } from "../state/battle/actions/useSkill/buffHelpers";
 import { useBattleStore } from "../state/battle/store";
 import { useAuthStore } from "../state/authStore";
 import { useCharacterStore } from "../state/characterStore";
 import type { Hero } from "../types/Hero";
+
+/** Якщо в snapshot немає `effects` (серіалізація / старі записи) — підставляємо з клиєнтського skill DB, інакше стати не змінюються. */
+function hydrateEmptyBuffEffectsFromSkillDef(buff: any, hero: Hero): any {
+  if (!buff || typeof buff !== "object") return buff;
+  const eff = Array.isArray(buff.effects) ? buff.effects : [];
+  if (eff.length > 0) return buff;
+  const sidRaw = buff.id;
+  const sid = typeof sidRaw === "number" ? sidRaw : Number(sidRaw);
+  if (!Number.isFinite(sid) || sid <= 0) return buff;
+  const learned = (hero.skills || []).find((s: any) => Number(s?.id) === sid);
+  const lv = Math.max(1, Math.floor(Number((learned as any)?.level ?? 1)));
+  const def =
+    getSkillDefForBattle(hero.profession ?? null, hero.klass, hero.race, sid) ?? getSkillDef(sid);
+  if (!def) return buff;
+  if (def.category === "physical_attack" || def.category === "magic_attack") return buff;
+  const levelDef = def.levels.find((l) => l.level === lv) ?? def.levels[0];
+  if (!levelDef) return buff;
+  let effects: any[];
+  try {
+    effects = processSkillEffects(def, levelDef);
+  } catch {
+    return buff;
+  }
+  if (!Array.isArray(effects) || effects.length === 0) return buff;
+  return { ...buff, effects };
+}
+
+function finalizeBuffListForHero(hero: Hero, rawBuffs: any[], now: number): any[] {
+  return filterBuffsForHeroProfession(hero, cleanupBuffs(rawBuffs, now)).map((b) =>
+    hydrateEmptyBuffEffectsFromSkillDef(b, hero),
+  );
+}
 
 /**
  * Онлайн-сесія: єдине джерело правди для бафів у UI — `hero.heroJson.heroBuffs`
@@ -33,7 +70,7 @@ export function getCombinedHeroBuffs(
   const heroJsonBuffs = Array.isArray(heroJson.heroBuffs) ? heroJson.heroBuffs : [];
 
   if (isOnlineHeroBuffsJsonCanonical()) {
-    return filterBuffsForHeroProfession(hero, cleanupBuffs(heroJsonBuffs, now));
+    return finalizeBuffListForHero(hero, heroJsonBuffs, now);
   }
 
   const savedBattle = loadBattle(hero.name);
@@ -45,7 +82,7 @@ export function getCombinedHeroBuffs(
    */
   if (inBattleNow) {
     const merged = mergeServerAndClientBuffsForResourceScaling(heroJsonBuffs, battleBuffs);
-    return filterBuffsForHeroProfession(hero, cleanupBuffs(merged, now));
+    return finalizeBuffListForHero(hero, merged, now);
   }
 
   const activeHeroJsonBuffs = heroJsonBuffs.filter((b: any) => b?.expiresAt && b.expiresAt > now);
@@ -56,7 +93,7 @@ export function getCombinedHeroBuffs(
       (b.id && buff.id && b.id === buff.id) || (!b.id && !buff.id && b.name === buff.name),
     ),
   );
-  return filterBuffsForHeroProfession(hero, deduped);
+  return finalizeBuffListForHero(hero, deduped, now);
 }
 
 /**
@@ -89,6 +126,8 @@ export function trustHeroJsonDisplayResources(
 export function getHeroBuffedResourceCaps(hero: Hero, inBattle: boolean) {
   const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
   const dr = hj.displayResources;
+  const buffs = getCombinedHeroBuffs(hero, inBattle);
+  let baseMax = getMaxResources(hero);
   if (
     dr &&
     typeof dr === "object" &&
@@ -98,11 +137,9 @@ export function getHeroBuffedResourceCaps(hero: Hero, inBattle: boolean) {
     const mm = Math.floor(Number(dr.maxMp));
     const mc = Math.floor(Number(dr.maxCp));
     if (Number.isFinite(mh) && mh > 0 && Number.isFinite(mm) && mm > 0 && Number.isFinite(mc) && mc > 0) {
-      return { maxHp: mh, maxMp: mm, maxCp: mc };
+      baseMax = { maxHp: mh, maxMp: mm, maxCp: mc };
     }
   }
-  const baseMax = getMaxResources(hero);
-  const buffs = getCombinedHeroBuffs(hero, inBattle);
   return computeBuffedMaxResources(baseMax, buffs);
 }
 

@@ -18,7 +18,7 @@ import { getMaxResources } from "../helpers/getMaxResources";
 let tickScheduleBusy = false;
 
 /** Локальна розсинхронізація з сервером (mob уже мертвий / сесію скинуто) — без POST pve-battle-tick. */
-function clearStaleOnlinePveFightState(): void {
+export function clearStaleOnlinePveFightState(): void {
   const store = useHeroStore.getState();
   const h = store.hero;
   if (h && (h as any).heroJson) {
@@ -29,7 +29,11 @@ function clearStaleOnlinePveFightState(): void {
   if (battleStoreRef.setState) {
     battleStoreRef.setState({
       status: "idle",
+      mob: undefined,
+      mobHP: 0,
+      mobBuffs: [],
       mobNextAttackAt: null,
+      heroNextAttackAt: undefined,
       heroStunnedUntil: undefined,
       heroBuffsBlockedUntil: undefined,
       heroSkillsBlockedUntil: undefined,
@@ -42,7 +46,11 @@ function clearStaleOnlinePveFightState(): void {
       {
         ...saved,
         status: "idle",
+        mob: undefined,
+        mobHP: 0,
+        mobBuffs: [],
         mobNextAttackAt: null,
+        heroNextAttackAt: undefined,
         heroStunnedUntil: undefined,
         heroBuffsBlockedUntil: undefined,
         heroSkillsBlockedUntil: undefined,

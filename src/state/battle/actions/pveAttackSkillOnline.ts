@@ -19,6 +19,7 @@ import {
 } from "../../../utils/heroBuffedResources";
 import { runSerializedPveMutation } from "./pveMutationQueue";
 import { getMaxResources } from "../helpers/getMaxResources";
+import { clearStaleOnlinePveFightState } from "./pveMobTickOnline";
 
 function pickCombatStatsForServer(heroStats: Record<string, any>): Record<string, number> {
   const keys = [
@@ -134,6 +135,15 @@ export function schedulePveAttackSkillOnline(args: {
       }
     };
 
+    const bsGuard = battleStoreRef.getState();
+    if (
+      bsGuard?.status === "fighting" &&
+      typeof bsGuard.mobHP === "number" &&
+      bsGuard.mobHP <= 0
+    ) {
+      return;
+    }
+
     applyOptimisticPveCooldownUi();
 
     try {
@@ -213,8 +223,8 @@ export function schedulePveAttackSkillOnline(args: {
         return;
       }
 
-      const killed = (res as any).killed === true;
       const mobHpAfter = Math.max(0, Math.floor(Number((res as any).mobHpAfter ?? 0)));
+      const killed = (res as any).killed === true || mobHpAfter <= 0;
       const logLines: string[] = Array.isArray((res as any).logLines)
         ? (res as any).logLines.filter((x: any) => typeof x === "string")
         : [];
@@ -360,32 +370,7 @@ export function schedulePveAttackSkillOnline(args: {
       const code = String(e?.body?.error ?? "");
       if (code === "no_battle_session" || code === "mob_dead") {
         rollbackOptimisticPveCooldownUi();
-        const store = useHeroStore.getState();
-        const h = store.hero;
-        if (h && (h as any).heroJson) {
-          const hj = { ...(h as any).heroJson } as Record<string, any>;
-          delete hj.battleSession;
-          store.updateHero({ heroJson: hj } as any, { skipServer: true });
-        }
-        if (battleStoreRef.setState) {
-          battleStoreRef.setState({
-            status: "idle",
-            mobNextAttackAt: null,
-          });
-        }
-        const heroName = store.hero?.name;
-        if (heroName) {
-          const saved = loadBattle(heroName) || {};
-          persistBattle(
-            {
-              ...saved,
-              status: "idle",
-              mobNextAttackAt: null,
-            } as any,
-            heroName
-          );
-        }
-        void import("../../heroStore/heroLoadAPI").then(({ loadHeroFromAPI }) => loadHeroFromAPI()).catch(() => {});
+        clearStaleOnlinePveFightState();
         return;
       }
       if (st === 404 && typeof onFallback === "function") {

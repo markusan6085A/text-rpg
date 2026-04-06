@@ -197,7 +197,7 @@ export const createUseSkill =
       return; // Якщо не number і не consumable, виходимо
     }
 
-    let activeBuffs = cleanupBuffs(state.heroBuffs, now);
+    const activeBuffs = cleanupBuffs(getCombinedHeroBuffs(hero, true), now);
 
     // Отримуємо max ресурси з урахуванням бафів (використовуємо getMaxResources для консистентності)
     const baseMax = getMaxResources(hero);
