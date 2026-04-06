@@ -149,13 +149,17 @@ export function getHeroResourceValues(hero: Hero, inBattle: boolean) {
   const hj = ((hero as any)?.heroJson || {}) as Record<string, any>;
   const dr = hj.displayResources;
 
-  // Онлайн-бій: applyServerSync вже клампить hero.hp/mp у buffed-просторі; displayResources з БД часто 1–2 тики відстає —
-  // масштабування dr дає хибні «стрибки» смуг при кожному кліку/тіку.
+  // Онлайн-бій: heroJson.hp/mp/cp у base-просторі (як після attachBaseResources), а caps — buffed max.
+  // Якщо брати сирі hero.hp при зміні heroJson.heroBuffs, смуга «падає»; той самий шлях, що buffedResourcesFromPveServerSnapshot.
   if (inBattle && isOnlineHeroBuffsJsonCanonical()) {
+    const baseCaps = pveSnapshotBaseCaps(hj, getMaxResources(hero));
+    const hpPct = resourceFillRatio(hj.hp, baseCaps.maxHp, hj.hpPercent);
+    const mpPct = resourceFillRatio(hj.mp, baseCaps.maxMp, hj.mpPercent);
+    const cpPct = resourceFillRatio(hj.cp, baseCaps.maxCp, hj.cpPercent);
     return {
-      hp: Math.min(caps.maxHp, Math.max(0, Number(hero.hp ?? caps.maxHp))),
-      mp: Math.min(caps.maxMp, Math.max(0, Number(hero.mp ?? caps.maxMp))),
-      cp: Math.min(caps.maxCp, Math.max(0, Number(hero.cp ?? caps.maxCp))),
+      hp: Math.min(caps.maxHp, Math.max(0, Math.round(hpPct * caps.maxHp))),
+      mp: Math.min(caps.maxMp, Math.max(0, Math.round(mpPct * caps.maxMp))),
+      cp: Math.min(caps.maxCp, Math.max(0, Math.round(cpPct * caps.maxCp))),
       maxHp: caps.maxHp,
       maxMp: caps.maxMp,
       maxCp: caps.maxCp,
@@ -314,7 +318,7 @@ function normalizeStoredResourcePercent(raw: unknown): number {
  * Доля поточних hp/mp/cp у base-просторі. Абсолюти зі snapshot мають пріоритет над hpPercent/mpPercent:
  * після витрат MP/скилів відсотки в БД часто лишаються старими → інакше кожен pve-battle-tick «ріжe» MP/CP у HUD.
  */
-function resourceFillRatio(currentRaw: unknown, baseMax: number, storedPercentRaw: unknown): number {
+export function resourceFillRatio(currentRaw: unknown, baseMax: number, storedPercentRaw: unknown): number {
   const bm = Math.max(1, Math.floor(baseMax));
   const cur = Number(currentRaw);
   if (Number.isFinite(cur) && bm > 0) return clamp01(cur / bm);

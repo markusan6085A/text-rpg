@@ -14,6 +14,7 @@ import { applyTieredLootFallback, applyTieredLootToMob, type ServerDropEntry } f
 import { getFloranMobDropProfile, type DropProfile } from "../data/drops/floranMobDrops";
 import { SERVER_QUEST_DROPS } from "../data/questDropData";
 import { serverMobMatchesQuestDropName, serverGetEffectiveQuestDropNeed } from "./questDropHelpers";
+import { appendQuestKillProgressForMob } from "./questKillBattleFinish";
 
 // ---------- types ----------
 
@@ -434,6 +435,19 @@ export function calculateServerDrops(
     }
     questProgressUpdates.push(...questResult.updates);
   }
+
+  appendQuestKillProgressForMob(
+    {
+      id: mob.id,
+      name: mob.name,
+      level: mob.level,
+      isRaidBoss: !!mob.isRaidBoss,
+    },
+    zoneId,
+    heroContext.level,
+    heroContext.activeQuests,
+    questProgressUpdates
+  );
 
   return { items, adena, messages, questProgressUpdates, zaricheEquip };
 }
