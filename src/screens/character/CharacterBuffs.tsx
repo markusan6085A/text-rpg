@@ -6,6 +6,7 @@ import { cleanupBuffs } from "../../state/battle/helpers";
 import { filterBuffsForHeroProfession } from "../../state/battle/loadout";
 import { getCharacter } from "../../utils/api";
 import { isWarmCityUi, getCityUiVariant } from "../../utils/cityUiVariant";
+import { SKILL_ICON_ERROR_FALLBACK } from "../../utils/skillIconUrls";
 
 /** Як у loadHeroFromAPI: не підміняти локальні бафи (GM-скроли, статуя) застарілим GET, коли на сервері їх ще нема. */
 function mergeHeroJsonBuffsPreferLatest(localArr: any[], serverArr: any[], now: number): any[] {
@@ -131,7 +132,9 @@ export default function CharacterBuffs() {
               }
               title={buff.name || "Buff"}
               onError={(e) => {
-                (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
+                const img = e.target as HTMLImageElement;
+                img.onerror = null;
+                img.src = SKILL_ICON_ERROR_FALLBACK;
               }}
             />
           );

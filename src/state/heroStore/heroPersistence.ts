@@ -40,6 +40,8 @@ export function syncCurrentUserAndAccountHero(username: string, hero?: Hero): vo
 let saving = false;
 let queuedHero: Hero | null = null; // Snapshot героя для відкладених збережень (не boolean!)
 let retryCount = 0;
+/** Щоб не рекурсити saveHeroOnce при одноразовому strip після 400 forbidden_hero_json_fields. */
+let stripForbiddenHeroJsonRetryDepth = 0;
 const MAX_RETRIES_BATTLE = 1; // У бою тримаємо мінімум retry, щоб не створювати додатковий трафік
 const MAX_RETRIES_NON_BATTLE = 2; // Поза боєм даємо ще одну тиху спробу для transient 409
 
@@ -885,6 +887,59 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
       // Не кидаємо помилку - дані збережені в localStorage
       return;
     }
+
+    // Старіший бекенд без allowlist для нових ключів heroJson → 400 forbidden_hero_json_fields → ретрай PUT після видалення fields[] (без циклу).
+    const errBody = (error as any)?.body;
+    const forbiddenFieldsRaw = errBody?.fields;
+    const isForbiddenHeroJson =
+      error?.status === 400 &&
+      stripForbiddenHeroJsonRetryDepth === 0 &&
+      errBody &&
+      String(errBody.error || "") === "forbidden_hero_json_fields" &&
+      Array.isArray(forbiddenFieldsRaw) &&
+      forbiddenFieldsRaw.length > 0;
+    if (isForbiddenHeroJson) {
+      stripForbiddenHeroJsonRetryDepth++;
+      let forbiddenRetryOk = false;
+      try {
+        const { useHeroStore: hs } = await import("../heroStore");
+        const cur = hs.getState().hero;
+        if (cur && cur.name === hero.name) {
+          const fields = forbiddenFieldsRaw.map((x: unknown) => String(x));
+          const hj = { ...((cur as any).heroJson || {}) };
+          const partial: any = { heroJson: hj };
+          for (const k of fields) {
+            delete hj[k];
+            if (k === "dailyQuestsResetDate") partial.dailyQuestsResetDate = null;
+          }
+          const ss = hs.getState().serverState;
+          hs.getState().applyServerSync(
+            partial,
+            ss || {
+              exp: Number(cur.exp ?? 0),
+              level: Number(cur.level ?? 1),
+              sp: Number(cur.sp ?? 0),
+              adena: Number(cur.adena ?? 0),
+              coinLuck: Number((cur as any).coinOfLuck ?? 0),
+              heroRevision: Number((cur as any).heroJson?.heroRevision ?? 0),
+              updatedAt: Date.now(),
+            }
+          );
+          const h2 = hs.getState().hero;
+          if (h2) {
+            await saveHeroOnce(h2);
+            forbiddenRetryOk = true;
+          }
+        }
+      } catch (e) {
+        if (import.meta.env.DEV) {
+          console.warn("[saveHeroToLocalStorage] forbidden_hero_json_fields strip+retry failed", e);
+        }
+      } finally {
+        stripForbiddenHeroJsonRetryDepth--;
+      }
+      if (forbiddenRetryOk) return;
+    }
     
     // 🔥 Обробка "exp/level/sp cannot be decreased" (400) — refetch, merge з max, retry
     // "top cannot be destroyed/destroed" = можливе спотворення/encoding цього ж повідомлення
@@ -1151,7 +1206,10 @@ async function saveHeroOnce(hero: Hero): Promise<void> {
     
     // 🔥 exp/level/sp decreased або cannot be destructured — вже оброблено retry; не логуємо (дані збережені в localStorage)
     const isHandledSyncError = error?.status === 400 && error?.message && (
-      error.message.includes('cannot be decreased') || error.message.includes('top cannot be destroy') || error.message.includes('cannot be destructured')
+      error.message.includes('cannot be decreased') ||
+      error.message.includes('top cannot be destroy') ||
+      error.message.includes('cannot be destructured') ||
+      error.message.includes('forbidden_hero_json_fields')
     );
     if (!isHandledSyncError) {
       console.error('[saveHeroToLocalStorage] Failed to save hero via API:', error?.message || error);

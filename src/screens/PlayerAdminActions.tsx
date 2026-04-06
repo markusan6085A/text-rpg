@@ -20,6 +20,7 @@ import { getNickColorStyle } from "../utils/nickColor";
 import { processSkillEffects } from "../state/battle/actions/useSkill/buffHelpers";
 import { isWarmCityUi, useCityUiVariant } from "../utils/cityUiVariant";
 import { characterModalPanelClass } from "./character/characterModalL2";
+import { SKILL_ICON_ERROR_FALLBACK } from "../utils/skillIconUrls";
 
 interface PlayerAdminActionsProps {
   navigate: (path: string) => void;
@@ -572,7 +573,9 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
                         alt={buff.name}
                         className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
+                          const img = e.target as HTMLImageElement;
+                          img.onerror = null;
+                          img.src = SKILL_ICON_ERROR_FALLBACK;
                         }}
                       />
                       <div className="flex-1">
@@ -626,7 +629,9 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
                         alt={heal.name}
                         className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
+                          const img = e.target as HTMLImageElement;
+                          img.onerror = null;
+                          img.src = SKILL_ICON_ERROR_FALLBACK;
                         }}
                       />
                       <div className="flex-1">
@@ -689,7 +694,9 @@ export default function PlayerAdminActions({ navigate, playerId, playerName }: P
                             alt={buff.name}
                             className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
+                              const img = e.target as HTMLImageElement;
+                              img.onerror = null;
+                              img.src = SKILL_ICON_ERROR_FALLBACK;
                             }}
                           />
                           <div className="flex-1">

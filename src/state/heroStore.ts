@@ -10,7 +10,11 @@ import { hydrateHero } from "./heroStore/heroHydration";
 
 function syncLoadoutDeferred(prev: Hero | null, next: Hero | null) {
   if (!next?.name) return;
-  void import("./battle/syncLoadoutWithHero").then((m) => m.syncBattleLoadoutAfterHeroChange(prev, next));
+  void import("./battle/syncLoadoutWithHero")
+    .then((m) => m.syncBattleLoadoutAfterHeroChange(prev, next))
+    .catch(() => {
+      /* prod: старий кеш/чанк або 404 на asset — не спамити unhandled rejection */
+    });
 }
 import { learnSkillLogic } from "./heroStore/heroSkills";
 import { equipItemLogic, unequipItemLogic } from "./heroStore/heroInventory";

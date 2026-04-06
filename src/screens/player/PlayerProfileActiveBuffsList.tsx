@@ -2,6 +2,7 @@ import React from "react";
 import type { Character } from "../../utils/api";
 import { cleanupBuffs } from "../../state/battle/helpers";
 import { getMergedHeroJsonFromCharacter, prepareBuffsForStatsView } from "./playerProfileUtils";
+import { SKILL_ICON_ERROR_FALLBACK } from "../../utils/skillIconUrls";
 
 /** Активні бафи з heroJson.heroBuffs або character.heroBuffs; `now` для expiresAt. */
 export function PlayerProfileActiveBuffsList(props: {
@@ -67,7 +68,9 @@ export function PlayerProfileActiveBuffsList(props: {
               className="w-5 h-5 object-contain"
               title={buff.name || "Buff"}
               onError={(e) => {
-                (e.target as HTMLImageElement).src = "/skills/skill0000.gif";
+                const img = e.target as HTMLImageElement;
+                img.onerror = null;
+                img.src = SKILL_ICON_ERROR_FALLBACK;
               }}
             />
           );
