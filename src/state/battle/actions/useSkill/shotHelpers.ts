@@ -280,6 +280,43 @@ export function useAutoShot(
 }
 
 /**
+ * Лише передбачення множника заряду (read-only). Для оптимістичного PvE-HP без споживання soulshot/spiritshot.
+ */
+export function predictPveShotMultiplier(
+  hero: Hero,
+  isPhysical: boolean,
+  isMagic: boolean,
+  loadoutSlots: (number | string | null)[] = [],
+  activeChargeSlots: number[] = [],
+  consumeCount: number = 1
+): number {
+  const shotType = isMagic ? "spiritshot" : isPhysical ? "soulshot" : null;
+  if (!shotType) return 1.0;
+  const toConsume = Math.max(1, Math.min(10, consumeCount));
+  const h = useHeroStore.getState().hero ?? hero;
+  const inv = h?.inventory;
+  if (!inv?.length) return 1.0;
+  const weaponGrade = getWeaponGrade(h);
+  const slotOrder = buildShotSlotScanOrder(loadoutSlots, activeChargeSlots);
+  for (const slotIndex of slotOrder) {
+    const slotId = loadoutSlots[slotIndex];
+    if (typeof slotId !== "string" || !slotId.startsWith("consumable:")) continue;
+    const rawItemId = slotId.replace("consumable:", "");
+    const itemId = rawItemId.replace(/^shop_/, "") || rawItemId;
+    const blessed = isUniversalBlessedCharge(itemId);
+    if (!blessed && !isShotConsumable(itemId, shotType)) continue;
+    const shotGrade = getShotGrade(itemId);
+    if (weaponGrade != null && shotGrade != null && shotGrade !== weaponGrade) continue;
+    const invStack = blessed
+      ? inventoryHasExactStack(inv, itemId, toConsume)
+      : inventoryHasShotStack(inv, itemId, shotType, toConsume);
+    if (!invStack?.item?.id) continue;
+    return blessed ? BLESSED_SHOT_DAMAGE_MULTIPLIER : SHOT_DAMAGE_MULTIPLIER;
+  }
+  return 1.0;
+}
+
+/**
  * Spiritshot увімкнений кліком по слоту заряду (activeChargeSlots) і є стак у інвентарі (хіл x2 тощо).
  */
 export function hasSpiritshotActive(

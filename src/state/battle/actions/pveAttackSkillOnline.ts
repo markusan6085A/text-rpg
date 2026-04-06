@@ -20,6 +20,7 @@ import {
 import { runSerializedPveMutation } from "./pveMutationQueue";
 import { getMaxResources } from "../helpers/getMaxResources";
 import { clearStaleOnlinePveFightState } from "./pveMobTickOnline";
+import { estimateOptimisticPveMobDamageDelta } from "./estimateOptimisticPveMobDamage";
 
 function pickCombatStatsForServer(heroStats: Record<string, any>): Record<string, number> {
   const keys = [
@@ -74,7 +75,8 @@ export function schedulePveAttackSkillOnline(args: {
   now: number;
   onFallback: () => void;
 }): void {
-  const { skillId, def, hero, heroStats, state, cooldownDurationMs, now, onFallback } = args;
+  const { skillId, def, levelDef, hero, heroStats, state, cooldownDurationMs, now, onFallback } =
+    args;
   const cid =
     String(useCharacterStore.getState().characterId ?? "").trim() ||
     String((hero as any)?.id ?? "").trim();
@@ -88,6 +90,7 @@ export function schedulePveAttackSkillOnline(args: {
     const rollbackCooldowns = bs0 ? { ...(bs0.cooldowns || {}) } : {};
     const rollbackHeroNext = bs0?.heroNextAttackAt;
     const rollbackIntentSeq = bs0?.pveAttackIntentSeq ?? 0;
+    let rollbackMobHp: number | null = null;
 
     const rollbackOptimisticPveCooldownUi = () => {
       if (!battleStoreRef.setState) return;
@@ -96,6 +99,7 @@ export function schedulePveAttackSkillOnline(args: {
         cooldowns: rollbackCooldowns,
         heroNextAttackAt: rollbackHeroNext,
         pveAttackIntentSeq: rollbackIntentSeq,
+        ...(rollbackMobHp != null ? { mobHP: rollbackMobHp } : {}),
       });
       if (hn) {
         const saved = loadBattle(hn) || {};
@@ -105,6 +109,7 @@ export function schedulePveAttackSkillOnline(args: {
             cooldowns: rollbackCooldowns,
             heroNextAttackAt: rollbackHeroNext,
             pveAttackIntentSeq: rollbackIntentSeq,
+            ...(rollbackMobHp != null ? { mobHP: rollbackMobHp } : {}),
           },
           hn,
         );
@@ -144,7 +149,28 @@ export function schedulePveAttackSkillOnline(args: {
       return;
     }
 
+    rollbackMobHp =
+      bsGuard && typeof bsGuard.mobHP === "number" && Number.isFinite(bsGuard.mobHP)
+        ? bsGuard.mobHP
+        : null;
+
     applyOptimisticPveCooldownUi();
+
+    if (rollbackMobHp != null && rollbackMobHp > 0 && battleStoreRef.setState) {
+      const drop = estimateOptimisticPveMobDamageDelta({
+        skillId,
+        def,
+        levelDef,
+        hero,
+        heroStats,
+        state,
+      });
+      if (drop > 0) {
+        battleStoreRef.setState({
+          mobHP: Math.max(0, Math.floor(rollbackMobHp - drop)),
+        });
+      }
+    }
 
     try {
       /** Свіжа revision безпосередньо перед POST (не при schedule) — інакше після tick/attack у черзі 409. */
